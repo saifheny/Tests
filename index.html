@@ -145,7 +145,7 @@
         #teacher-portal .header-icons { position: absolute; top: 20px; left: 25px; display: flex; gap: 15px; z-index: 100; }
         #teacher-portal label { font-weight: 600; display: block; margin-bottom: 5px; text-align: right; }
         .file-input-label { background: #222; border: 1px dashed #444; text-align: center; padding: 15px; border-radius: 10px; cursor: pointer; transition: all .3s ease; display: block; margin-bottom: 15px; }
-        .image-preview { max-width: 100px; max-height: 100px; border-radius: 8px; border: 1px solid #444; }
+        .image-preview { max-width: 100px; max-height: 100px; border-radius: 8px; border: 1px solid #444; cursor: pointer; }
         .action-btn { padding: 6px 10px !important; font-size: 0.8rem !important; margin:0 !important; width: auto !important; display: flex; align-items: center; gap: 5px; }
 
         /* --- Student Portal Specifics --- */
@@ -155,7 +155,7 @@
         .custom-alert { background:#1a1a1a; border: 1px solid #333; border-radius: 12px; padding:25px 30px; margin: 20px; width: 90%; max-width:380px; text-align:center; box-shadow:0 8px 25px rgba(0,0,0,0.7); transform:scale(0.9); opacity:0; transition:transform .3s,opacity .3s; }
         .custom-alert-container.show .custom-alert { transform:scale(1); opacity:1; }
 
-        /* --- Modal for Teacher Review --- */
+        /* --- Generic Modal --- */
         .modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
             z-index: 2000; display: flex; justify-content: center; align-items: center;
@@ -206,7 +206,6 @@
             transform: scale(1.1);
         }
 
-
         /* Animations & Responsiveness */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -240,12 +239,13 @@
     <div id="teacher-portal" class="portal-container hidden">
         <div class="portal-content">
             <div class="header-icons">
+                <div id="teacher-profile-icon" class="icon-btn hidden" title="الملف الشخصي"><i class="fas fa-user-edit"></i></div>
                 <div id="teacher-logout-icon" class="icon-btn hidden" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></div>
             </div>
             <!-- Sections go here -->
             <section id="teacher-register-section">
                 <h1>تسجيل جديد - معلم</h1>
-                <input type="text" id="teacher-register-name" placeholder="الاسم الكامل" required />
+                <input type="text" id="teacher-register-name" placeholder="الاسم الثنائي (مثال: سيف هاني)" required />
                 <input type="password" id="teacher-register-password" placeholder="كلمة المرور" required />
                 <button id="teacher-register-btn" class="btn-primary">تسجيل</button>
                 <p>هل لديك حساب؟ <a href="#" class="to-login">تسجيل دخول</a></p>
@@ -292,12 +292,23 @@
                 </div>
             </section>
         </div>
-        <!-- Teacher Review Modal -->
+        <!-- Teacher Modals -->
         <div id="teacher-review-modal" class="modal-overlay">
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
                 <h2 id="review-modal-title">مراجعة إجابات الطالب</h2>
                 <div id="review-modal-body"></div>
+            </div>
+        </div>
+        <div id="teacher-profile-modal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 450px;">
+                <button class="modal-close-btn">&times;</button>
+                <h2>تعديل الملف الشخصي</h2>
+                <label for="teacher-update-name">الاسم:</label>
+                <input type="text" id="teacher-update-name" placeholder="الاسم الثنائي الجديد">
+                <label for="teacher-update-password">كلمة المرور الجديدة:</label>
+                <input type="password" id="teacher-update-password" placeholder="اتركها فارغة لعدم التغيير">
+                <button id="teacher-update-btn" class="btn-primary">تحديث الحساب</button>
             </div>
         </div>
         <nav class="bottom-nav hidden" id="teacher-bottom-nav">
@@ -312,13 +323,16 @@
          <div class="portal-content">
              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h1 style="font-size:1.8rem; margin:0;"><i class="fas fa-graduation-cap"></i> منصة الاختبارات</h1>
-                <div id="student-logout-icon" class="icon-btn hidden" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></div>
+                <div class="header-icons" style="position: static; display: flex; gap: 10px;">
+                    <div id="student-profile-icon" class="icon-btn hidden" title="الملف الشخصي"><i class="fas fa-user-edit"></i></div>
+                    <div id="student-logout-icon" class="icon-btn hidden" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></div>
+                </div>
             </div>
             <div id="custom-alert-container" class="custom-alert-container"><div class="custom-alert"><h3 id="custom-alert-title"></h3><p id="custom-alert-message" style="margin: 15px 0;"></p><button id="custom-alert-close-btn" class="btn-primary" style="max-width: 120px; margin: 10px auto 0 auto;">موافق</button></div></div>
 
             <section id="student-register-section">
                 <h2>تسجيل جديد</h2>
-                <input type="text" id="student-register-name" placeholder="الاسم الكامل" required autocomplete="off">
+                <input type="text" id="student-register-name" placeholder="الاسم الثنائي (مثال: علي محمد)" required autocomplete="off">
                 <input type="password" id="student-register-password" placeholder="كلمة المرور" required autocomplete="new-password">
                 <button id="student-register-btn" class="btn-primary">تسجيل</button><p>هل لديك حساب؟ <a href="#" class="to-login">تسجيل دخول</a></p>
             </section>
@@ -361,6 +375,18 @@
                 <button id="back-to-results-btn" class="btn-secondary" style="margin-top: 10px;">العودة للنتيجة</button>
             </section>
          </div>
+         <!-- Student Profile Modal -->
+         <div id="student-profile-modal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 450px;">
+                <button class="modal-close-btn">&times;</button>
+                <h2>تعديل الملف الشخصي</h2>
+                <label for="student-update-name">الاسم:</label>
+                <input type="text" id="student-update-name" placeholder="الاسم الثنائي الجديد">
+                <label for="student-update-password">كلمة المرور الجديدة:</label>
+                <input type="password" id="student-update-password" placeholder="اتركها فارغة لعدم التغيير">
+                <button id="student-update-btn" class="btn-primary">تحديث الحساب</button>
+            </div>
+        </div>
          <nav class="bottom-nav hidden" id="student-bottom-nav">
             <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book-open"></i><span>الاختبارات</span></button>
             <button class="nav-btn" data-target="student-results-content"><i class="fas fa-poll-h"></i><span>نتائجي</span></button>
@@ -379,7 +405,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
-        import { getDatabase, ref, set, get, onValue, push, serverTimestamp, remove } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, push, serverTimestamp, remove, update } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
         // Your web app's Firebase configuration
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -408,6 +434,8 @@
         
         const handleDeepLink = () => { const h=window.location.hash; if(h.startsWith('#test/')){const p=h.split('/');if(p.length===3){sessionStorage.setItem('deepLinkTest',JSON.stringify({teacherId:p[1],testId:p[2]}));mainLandingPage.classList.add('hidden');studentPortal.classList.remove('hidden');initStudentApp();return true}}return false };
         const getBase64 = (file) => new Promise((resolve, reject) => { const reader=new FileReader();reader.readAsDataURL(file);reader.onload=()=>resolve(reader.result);reader.onerror=e=>reject(e) });
+        const isValidName = (name) => name.trim().split(/\s+/).length === 2;
+
 
         function initTeacherApp() {
             const allSections = teacherPortal.querySelectorAll('section');
@@ -416,6 +444,7 @@
             const registerSection = teacherPortal.querySelector('#teacher-register-section');
             const createTestSection = teacherPortal.querySelector('#teacher-create-test-content');
             const logoutIcon = teacherPortal.querySelector('#teacher-logout-icon');
+            const profileIcon = teacherPortal.querySelector('#teacher-profile-icon');
             const teacherNameSpan = teacherPortal.querySelector("#teacher-name");
             const bottomNav = teacherPortal.querySelector('#teacher-bottom-nav');
             const myTestsContainer = teacherPortal.querySelector("#my-tests-container");
@@ -433,10 +462,16 @@
             const modelAnswerImageInput = teacherPortal.querySelector("#model-answer-image-input");
             const saveTestBtn = teacherPortal.querySelector('#save-test-btn');
             const cancelEditBtn = teacherPortal.querySelector('#cancel-edit-btn');
+            
+            // Modals
             const reviewModal = teacherPortal.querySelector('#teacher-review-modal');
             const reviewModalBody = teacherPortal.querySelector('#review-modal-body');
             const reviewModalTitle = teacherPortal.querySelector('#review-modal-title');
-            
+            const profileModal = teacherPortal.querySelector('#teacher-profile-modal');
+            const updateNameInput = teacherPortal.querySelector('#teacher-update-name');
+            const updatePasswordInput = teacherPortal.querySelector('#teacher-update-password');
+            const updateBtn = teacherPortal.querySelector('#teacher-update-btn');
+
             let currentUser = null, myTests = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null;
             
             const showSection = (section) => { allSections.forEach(s=>s.classList.add('hidden')); section.classList.remove('hidden'); bottomNav.classList.toggle('hidden', section.id !== 'teacher-dashboard-section'); };
@@ -456,7 +491,7 @@
 
             const clearQuestionForm = () => { questionText.value=""; questionImageInput.value=""; modelAnswerImageInput.value=""; currentQuestionImageBase64=null; currentModelAnswerImageBase64=null; teacherPortal.querySelectorAll('.image-preview-container').forEach(c=>c.classList.add('hidden')); teacherPortal.querySelectorAll('.image-preview').forEach(i=>i.src='#'); optionInputs.forEach(i=>i.value=""); correctAnswerInput.value=""; };
             
-            async function updateDashboard() { if(!currentUser) return; teacherNameSpan.textContent = currentUser; logoutIcon.classList.remove('hidden'); setDefaultTab(); showLoadingSpinner(myTestsContainer); const testsRef = ref(db, `tests/${currentUser}`); onValue(testsRef, (snapshot) => { myTests = snapshot.exists() ? snapshot.val() : {}; renderMyTests(); populateResultsSelector(); }); }
+            async function updateDashboard() { if(!currentUser) return; teacherNameSpan.textContent = currentUser; logoutIcon.classList.remove('hidden'); profileIcon.classList.remove('hidden'); setDefaultTab(); showLoadingSpinner(myTestsContainer); const testsRef = ref(db, `tests/${currentUser}`); onValue(testsRef, (snapshot) => { myTests = snapshot.exists() ? snapshot.val() : {}; renderMyTests(); populateResultsSelector(); }); }
             
             function renderMyTests() {
                 myTestsContainer.innerHTML = "";
@@ -609,24 +644,94 @@
                 }
             };
             
-            async function authUser(name, password, isRegister) { if (!name || !password) return alert("الرجاء تعبئة كل الحقول"); const userRef = ref(db, `users/${name}`); const snapshot = await get(userRef); if (isRegister) { if (snapshot.exists()) return alert("اسم المستخدم هذا موجود بالفعل."); await set(userRef, { password }); alert("تم التسجيل بنجاح!"); showSection(loginSection); } else { if (!snapshot.exists() || snapshot.val().password !== password) return alert("اسم المستخدم أو كلمة المرور غير صحيحة."); currentUser = name; localStorage.setItem("loggedInTeacher", currentUser); showSection(dashboardSection); updateDashboard(); } }
+            async function authUser(name, password, isRegister) { 
+                if (!name || !password) return alert("الرجاء تعبئة كل الحقول"); 
+                if (!isValidName(name)) return alert("الرجاء إدخال اسم ثنائي فقط (الاسم الأول واسم الأب).");
+                const userRef = ref(db, `users/${name}`); 
+                const snapshot = await get(userRef); 
+                if (isRegister) { 
+                    if (snapshot.exists()) return alert("اسم المستخدم هذا موجود بالفعل."); 
+                    await set(userRef, { password }); 
+                    alert("تم التسجيل بنجاح!"); 
+                    showSection(loginSection); 
+                } else { 
+                    if (!snapshot.exists() || snapshot.val().password !== password) return alert("اسم المستخدم أو كلمة المرور غير صحيحة."); 
+                    currentUser = name; 
+                    localStorage.setItem("loggedInTeacher", currentUser); 
+                    showSection(dashboardSection); 
+                    updateDashboard(); 
+                } 
+            }
+            
             teacherPortal.querySelector('#teacher-login-btn').onclick = () => authUser(teacherPortal.querySelector("#teacher-login-name").value.trim(), teacherPortal.querySelector("#teacher-login-password").value.trim(), false);
             teacherPortal.querySelector('#teacher-register-btn').onclick = () => authUser(teacherPortal.querySelector("#teacher-register-name").value.trim(), teacherPortal.querySelector("#teacher-register-password").value.trim(), true);
-            logoutIcon.onclick = () => { if (confirm("هل أنت متأكد؟")) { currentUser=null; localStorage.removeItem("loggedInTeacher"); showSection(loginSection); logoutIcon.classList.add('hidden'); } };
+            logoutIcon.onclick = () => { if (confirm("هل أنت متأكد؟")) { currentUser=null; localStorage.removeItem("loggedInTeacher"); showSection(loginSection); logoutIcon.classList.add('hidden'); profileIcon.classList.add('hidden'); } };
             resultsTestSelector.onchange = (e) => loadStudentResultsForTest(e.target.value);
             teacherPortal.querySelectorAll('.to-login').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(loginSection)});
             teacherPortal.querySelectorAll('.to-register').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(registerSection)});
+
+            // Profile Modal Logic
+            profileIcon.onclick = () => {
+                updateNameInput.value = currentUser;
+                updatePasswordInput.value = '';
+                profileModal.classList.add('visible');
+            };
+            profileModal.querySelector('.modal-close-btn').onclick = () => profileModal.classList.remove('visible');
+            updateBtn.onclick = async () => {
+                const newName = updateNameInput.value.trim();
+                const newPassword = updatePasswordInput.value.trim();
+                
+                if (!isValidName(newName)) {
+                    alert("الرجاء إدخال اسم ثنائي صحيح.");
+                    return;
+                }
+
+                if (newName === currentUser && !newPassword) {
+                    profileModal.classList.remove('visible');
+                    return;
+                }
+
+                const updates = {};
+                if (newPassword) {
+                    updates.password = newPassword;
+                }
+
+                try {
+                    if (newName !== currentUser) {
+                        // More complex: requires moving data, might be better to just update password
+                        alert("تغيير اسم المستخدم غير مدعوم حاليًا. يمكنك تغيير كلمة المرور فقط.");
+                        updateNameInput.value = currentUser; // Revert name change in input
+                        if (!newPassword) return; // if only name was changed, do nothing
+                    }
+                    
+                    await update(ref(db, `users/${currentUser}`), updates);
+                    alert("تم تحديث الحساب بنجاح!");
+                    profileModal.classList.remove('visible');
+
+                } catch (error) {
+                    console.error("Update Error:", error);
+                    alert("حدث خطأ أثناء تحديث الحساب.");
+                }
+            };
+
+
             const savedUser = localStorage.getItem("loggedInTeacher"); if(savedUser){currentUser=savedUser;showSection(dashboardSection);updateDashboard()}else{showSection(registerSection)};
         }
 
         function initStudentApp() {
-            const allSections=studentPortal.querySelectorAll('section');const[registerSection,loginSection,dashboard,takeTest,result,review]=allSections;const nameSpan=studentPortal.querySelector('#student-name');const logoutIcon=studentPortal.querySelector('#student-logout-icon');const testsContainer=studentPortal.querySelector('#available-tests-container');const resultsContainer=studentPortal.querySelector('#my-student-results-container');const searchBar=studentPortal.querySelector('#search-bar');const timerDisplay=studentPortal.querySelector('#timer');const timerProgress=studentPortal.querySelector('#timer-progress');const testTitle=studentPortal.querySelector('#current-test-title');const questionsDisplay=studentPortal.querySelector('#questions-display');const finalScore=studentPortal.querySelector('#final-score');const feedbackMsg=studentPortal.querySelector('#feedback-message');const bottomNav=studentPortal.querySelector('#student-bottom-nav');const qNavContainer=studentPortal.querySelector('#question-navigation-container');const[prevQBtn,nextQBtn]=[studentPortal.querySelector('#prev-question-btn'),studentPortal.querySelector('#next-question-btn')];const submitBtn=studentPortal.querySelector('#submit-test-btn');const reviewContainer=studentPortal.querySelector('#review-container');let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[],qIndex=0,lastAnswers=[];
+            const allSections=studentPortal.querySelectorAll('section');const[registerSection,loginSection,dashboard,takeTest,result,review]=allSections;const nameSpan=studentPortal.querySelector('#student-name');const logoutIcon=studentPortal.querySelector('#student-logout-icon');const profileIcon=studentPortal.querySelector('#student-profile-icon');const testsContainer=studentPortal.querySelector('#available-tests-container');const resultsContainer=studentPortal.querySelector('#my-student-results-container');const searchBar=studentPortal.querySelector('#search-bar');const timerDisplay=studentPortal.querySelector('#timer');const timerProgress=studentPortal.querySelector('#timer-progress');const testTitle=studentPortal.querySelector('#current-test-title');const questionsDisplay=studentPortal.querySelector('#questions-display');const finalScore=studentPortal.querySelector('#final-score');const feedbackMsg=studentPortal.querySelector('#feedback-message');const bottomNav=studentPortal.querySelector('#student-bottom-nav');const qNavContainer=studentPortal.querySelector('#question-navigation-container');const[prevQBtn,nextQBtn]=[studentPortal.querySelector('#prev-question-btn'),studentPortal.querySelector('#next-question-btn')];const submitBtn=studentPortal.querySelector('#submit-test-btn');const reviewContainer=studentPortal.querySelector('#review-container');
+            const profileModal = studentPortal.querySelector('#student-profile-modal');
+            const updateNameInput = studentPortal.querySelector('#student-update-name');
+            const updatePasswordInput = studentPortal.querySelector('#student-update-password');
+            const updateBtn = studentPortal.querySelector('#student-update-btn');
+            
+            let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[],qIndex=0,lastAnswers=[];
             
             const showSection=s=>{allSections.forEach(e=>e.classList.add('hidden'));s.classList.remove('hidden');bottomNav.classList.toggle('hidden',s.id!=='student-dashboard-section')};
             const alertCont=studentPortal.querySelector('#custom-alert-container');const showAlert=(t,m)=>{alertCont.querySelector('#custom-alert-title').textContent=t;alertCont.querySelector('#custom-alert-message').textContent=m;alertCont.classList.add('show')};alertCont.querySelector('#custom-alert-close-btn').onclick=()=>alertCont.classList.remove('show');
             const showLoading=c=>{c.innerHTML='<div class="spinner"></div>'};
             
-            async function loadDashboard(){if(!currentStudent)return;nameSpan.textContent=currentStudent;logoutIcon.classList.remove('hidden');setDefaultTab();showLoading(testsContainer);showLoading(resultsContainer);const resultsSnap=await get(ref(db,`studentResults/${currentStudent}`));takenTests=resultsSnap.exists()?resultsSnap.val():{};renderStudentResults();const testsRef=ref(db,'tests');onValue(testsRef,snap=>{allTests=snap.exists()?snap.val():{};renderAvailableTests()},{onlyOnce:true})}
+            async function loadDashboard(){if(!currentStudent)return;nameSpan.textContent=currentStudent;logoutIcon.classList.remove('hidden');profileIcon.classList.remove('hidden');setDefaultTab();showLoading(testsContainer);showLoading(resultsContainer);const resultsSnap=await get(ref(db,`studentResults/${currentStudent}`));takenTests=resultsSnap.exists()?resultsSnap.val():{};renderStudentResults();const testsRef=ref(db,'tests');onValue(testsRef,snap=>{allTests=snap.exists()?snap.val():{};renderAvailableTests()},{onlyOnce:true})}
             
             function renderAvailableTests(filter=''){testsContainer.innerHTML='';let found=false;Object.entries(allTests).forEach(([teacherId,teacherTests])=>{Object.entries(teacherTests).forEach(([testId,test])=>{const isExpired=Date.now()-test.timestamp>48*60*60*1000;if(isExpired)return;const searchStr=`${test.name}${test.grade}${teacherId}`.toLowerCase();if(filter&&!searchStr.includes(filter.toLowerCase()))return;found=true;const completed=!!takenTests[testId];const card=document.createElement('div');card.className='list-item';card.style.flexDirection='column';card.style.alignItems='stretch';card.innerHTML=`<div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; margin-bottom:15px;"><div style="text-align:right;"><strong>${test.name}</strong><br><small style="color: #dc3545; font-weight:bold;">${teacherId}</small></div><button class="action-btn btn-secondary" data-action="share" title="مشاركة" style="font-size: 1rem !important;"><i class="fas fa-share-alt"></i></button></div><div style="display:flex; gap:10px;"><button class="btn-3d" data-action="start" style="flex:1; padding: 10px; font-size:1.1rem; border-bottom-width:4px;">${completed?'مراجعة':'ابدأ'}</button><button class="btn-3d" data-action="copy" style="flex:1; padding: 10px; font-size:1.1rem; background: #6c757d; border-bottom:4px solid #5a6268;">نسخ الرابط</button></div>`;card.querySelector('[data-action="start"]').onclick=()=>startTest(teacherId,testId,test);card.querySelector('[data-action="copy"]').onclick=()=>copyTestLink(teacherId,testId);card.querySelector('[data-action="share"]').onclick=()=>copyTestLink(teacherId,testId);testsContainer.appendChild(card)})});if(!found)testsContainer.innerHTML='<p>لا توجد اختبارات متاحة حاليًا.</p>'}
             function renderStudentResults(){resultsContainer.innerHTML='';const results=Object.values(takenTests).sort((a,b)=>b.timestamp-a.timestamp);if(results.length===0){resultsContainer.innerHTML='<p>لم تقم بإجراء أي اختبار بعد.</p>';return}results.forEach(r=>{const d=new Date(r.timestamp).toLocaleString('ar-EG');const div=document.createElement('div');div.className='test-item';div.innerHTML=`<div style="text-align:right;"><strong>${r.testName}</strong><br><small>الدرجة: <strong>${r.score}</strong> - ${d}</small></div>`;resultsContainer.appendChild(div)})}
@@ -648,7 +753,25 @@
 
             function showReview(){reviewContainer.innerHTML='';currentTest.questions.forEach((q,i)=>{const ans=lastAnswers[i]||{};let html='';if(q.type==='mcq'){const correct=ans.answer===q.correct;html=`<div style="background:${correct?'rgba(63,185,80,0.1)':'rgba(248,81,73,0.1)'};padding:10px;border-radius:8px;"><b>إجابتك:</b> ${ans.answer?q.options[ans.answer-1]:'<i>لم تجب</i>'}<br><b>الصحيحة:</b> ${q.options[q.correct-1]}</div>`}else{const txt=ans.textAnswer||'<em>لم تجب نصيًا.</em>';const img=ans.imageAnswer?`<p><b>صورتك:</b></p><img src="${ans.imageAnswer}" style="max-width:80%;border-radius:8px; cursor:pointer;">`:'';const model=q.modelAnswerImage?`<p><b>النموذجية:</b></p><img src="${q.modelAnswerImage}" style="max-width:80%;border-radius:8px; cursor:pointer;">`:'';html=`<div><p><b>إجابتك النصية:</b></p><div style="background:#222;padding:10px;border-radius:8px;">${txt}</div>${img}${model}</div>`}const qDiv=document.createElement('div');qDiv.className='list-item';qDiv.style.flexDirection='column'; qDiv.style.alignItems='flex-start'; qDiv.innerHTML=`<h4 style="margin-bottom:10px;">س ${i+1}: ${q.question}</h4>${q.image ? `<img src="${q.image}" style="max-width:100%;border-radius:10px;margin:10px 0; cursor:pointer;">` : ''}${html}`;reviewContainer.appendChild(qDiv)});showSection(review)}
             
-            async function authUser(name,pass,isRegister){if(!name||!pass)return showAlert('خطأ','الرجاء ملء جميع الحقول');const userRef=ref(db,`students/${name}`);const snap=await get(userRef);if(isRegister){if(snap.exists())return showAlert('خطأ','اسم المستخدم موجود.');await set(userRef,{password:pass});showAlert('نجاح','تم التسجيل! يمكنك الآن الدخول.');showSection(loginSection)}else{if(!snap.exists()||snap.val().password!==pass)return showAlert('خطأ','بيانات الدخول غير صحيحة.');currentStudent=name;localStorage.setItem('loggedInStudent',currentStudent);const deepLink=sessionStorage.getItem('deepLinkTest');if(deepLink){await startDeepLinkTest()}else{showSection(dashboard);loadDashboard()}}}
+            async function authUser(name,pass,isRegister){
+                if(!name||!pass) return showAlert('خطأ','الرجاء ملء جميع الحقول');
+                if (!isValidName(name)) return showAlert('خطأ', 'الرجاء إدخال اسم ثنائي فقط (الاسم الأول واسم الأب).');
+                const userRef=ref(db,`students/${name}`);
+                const snap=await get(userRef);
+                if(isRegister){
+                    if(snap.exists()) return showAlert('خطأ','اسم المستخدم موجود.');
+                    await set(userRef,{password:pass});
+                    showAlert('نجاح','تم التسجيل! يمكنك الآن الدخول.');
+                    showSection(loginSection)
+                } else {
+                    if(!snap.exists()||snap.val().password!==pass) return showAlert('خطأ','بيانات الدخول غير صحيحة.');
+                    currentStudent=name;
+                    localStorage.setItem('loggedInStudent',currentStudent);
+                    const deepLink=sessionStorage.getItem('deepLinkTest');
+                    if(deepLink){await startDeepLinkTest()}else{showSection(dashboard);loadDashboard()}
+                }
+            }
+
             async function startDeepLinkTest(){const dataJSON=sessionStorage.getItem('deepLinkTest');if(!dataJSON)return;const{teacherId,testId}=JSON.parse(dataJSON);sessionStorage.removeItem('deepLinkTest');const testRef=ref(db,`tests/${teacherId}/${testId}`);const testSnap=await get(testRef);if(testSnap.exists()){startTest(teacherId,testId,testSnap.val())}else{showAlert('خطأ','الاختبار غير موجود.');showSection(dashboard);loadDashboard()}}
             const formatTime=s=>{const m=Math.floor(s/60);const r=s%60;return`${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`};
             
@@ -663,7 +786,50 @@
             studentPortal.querySelector('#review-answers-btn').onclick=showReview;
             studentPortal.querySelector('#back-to-results-btn').onclick=()=>showSection(result);
             searchBar.addEventListener('input',e=>renderAvailableTests(e.target.value));
-            logoutIcon.onclick=()=>{if(confirm('هل أنت متأكد؟')){currentStudent=null;localStorage.removeItem('loggedInStudent');showSection(loginSection);logoutIcon.classList.add('hidden')}};
+            logoutIcon.onclick=()=>{if(confirm('هل أنت متأكد؟')){currentStudent=null;localStorage.removeItem('loggedInStudent');showSection(loginSection);logoutIcon.classList.add('hidden'); profileIcon.classList.add('hidden')}};
+            
+            // Student Profile Modal Logic
+            profileIcon.onclick = () => {
+                updateNameInput.value = currentStudent;
+                updatePasswordInput.value = '';
+                profileModal.classList.add('visible');
+            };
+            profileModal.querySelector('.modal-close-btn').onclick = () => profileModal.classList.remove('visible');
+            updateBtn.onclick = async () => {
+                const newName = updateNameInput.value.trim();
+                const newPassword = updatePasswordInput.value.trim();
+                
+                if (!isValidName(newName)) {
+                    showAlert("خطأ", "الرجاء إدخال اسم ثنائي صحيح.");
+                    return;
+                }
+
+                if (newName === currentStudent && !newPassword) {
+                    profileModal.classList.remove('visible');
+                    return;
+                }
+
+                const updates = {};
+                if (newPassword) {
+                    updates.password = newPassword;
+                }
+                
+                try {
+                     if (newName !== currentStudent) {
+                        showAlert("تنبيه", "تغيير اسم المستخدم غير مدعوم حاليًا. يمكنك تغيير كلمة المرور فقط.");
+                        updateNameInput.value = currentStudent; // Revert name
+                        if (!newPassword) return;
+                    }
+
+                    await update(ref(db, `students/${currentStudent}`), updates);
+                    showAlert("نجاح", "تم تحديث الحساب بنجاح!");
+                    profileModal.classList.remove('visible');
+
+                } catch (error) {
+                    console.error("Update Error:", error);
+                    showAlert("خطأ", "حدث خطأ أثناء تحديث الحساب.");
+                }
+            };
 
             const savedStudent=localStorage.getItem('loggedInStudent');const deepLinkData=sessionStorage.getItem('deepLinkTest');if(savedStudent){currentStudent=savedStudent;if(deepLinkData){startDeepLinkTest()}else{showSection(dashboard);loadDashboard()}}else{if(deepLinkData){showSection(loginSection);showAlert("مطلوب تسجيل الدخول","يرجى الدخول للمتابعة إلى الاختبار.")}else{showSection(registerSection)}}
         }
@@ -699,6 +865,7 @@
             if (e.target.tagName === 'IMG' && e.target.closest('.portal-container, .modal-content')) {
                 // Make sure the image has a valid data URL source to be opened
                 if (e.target.src && e.target.src.startsWith('data:image')) {
+                    e.preventDefault(); // Prevent any default browser action
                     openImageViewer(e.target.src);
                 }
             }
