@@ -504,6 +504,7 @@
 
                 const cleanup = (result) => {
                     confirmCont.classList.remove('show');
+                    // Important: Re-clone the button to remove the event listener for next time
                     okBtn.replaceWith(okBtn.cloneNode(true));
                     cancelBtn.replaceWith(cancelBtn.cloneNode(true));
                     resolve(result);
@@ -720,6 +721,8 @@
                     totalEssayScore += points;
                     if(updatedAnswers[questionIndex]){
                         updatedAnswers[questionIndex].pointsAwarded = points;
+                    } else { // In case student didn't answer at all
+                        updatedAnswers[questionIndex] = {type: 'essay', pointsAwarded: points};
                     }
                 });
 
@@ -819,8 +822,12 @@
                 if (isRegister) { 
                     if (snapshot.exists()) { showCustomAlert("خطأ", "اسم المستخدم هذا موجود بالفعل."); return; }
                     await set(userRef, { password }); 
-                    showCustomAlert("نجاح", "تم التسجيل بنجاح!"); 
-                    showSection(loginSection); 
+                    showCustomAlert("نجاح", "تم التسجيل! جاري تسجيل الدخول..."); 
+                    // Auto-login
+                    currentUser = name;
+                    localStorage.setItem("loggedInTeacher", currentUser);
+                    showSection(dashboardSection);
+                    updateDashboard();
                 } else { 
                     if (!snapshot.exists() || snapshot.val().password !== password) { showCustomAlert("خطأ", "اسم المستخدم أو كلمة المرور غير صحيحة."); return; }
                     currentUser = name; 
@@ -998,8 +1005,12 @@
                 if(isRegister){
                     if(snap.exists()) { showCustomAlert('خطأ','اسم المستخدم موجود.'); return; }
                     await set(userRef,{password:pass});
-                    showCustomAlert('نجاح','تم التسجيل! يمكنك الآن الدخول.');
-                    showSection(loginSection)
+                    showCustomAlert('نجاح','تم التسجيل! جاري تسجيل الدخول...');
+                    // Auto-login
+                    currentStudent = name;
+                    localStorage.setItem('loggedInStudent', currentStudent);
+                    showSection(dashboard);
+                    loadDashboard();
                 } else {
                     if(!snap.exists()||snap.val().password!==pass) { showCustomAlert('خطأ','بيانات الدخول غير صحيحة.'); return; }
                     currentStudent=name;
