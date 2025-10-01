@@ -100,7 +100,13 @@
             width: 40px; height: 40px; border-radius: 50%; background: #1a1a1a;
             border: 1px solid #333; color: #eee; display: flex; align-items: center;
             justify-content: center; cursor: pointer; font-size: 18px; transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5); position: relative;
+        }
+        .portal-container .icon-btn .notification-badge {
+            position: absolute; top: -5px; right: -5px;
+            width: 20px; height: 20px; background-color: #dc3545;
+            border-radius: 50%; font-size: 12px; line-height: 20px;
+            font-weight: bold; display: none;
         }
         .portal-container .icon-btn:hover { transform: translateY(-3px); color: #00aaff; box-shadow: 0 0 15px rgba(0, 170, 255, 0.5); }
         .portal-container .spinner { border: 4px solid #333; border-top: 4px solid #00aaff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
@@ -225,6 +231,16 @@
         }
         .custom-dialog .dialog-buttons .btn-primary { background: linear-gradient(180deg, #00A6F3 0%, #0072D3 100%); border-bottom-color: #00529A; }
         .custom-dialog .dialog-buttons .btn-secondary { background: #5a6268; border-bottom-color: #495057; }
+        
+        /* Chat Modal */
+        #chat-modal .chat-body { display: flex; flex-direction: column; gap: 15px; padding: 10px; max-height: 50vh; overflow-y: auto;}
+        .chat-message { max-width: 75%; padding: 10px; border-radius: 12px; display: flex; flex-direction: column; }
+        .chat-message.sent { background: #007bff; align-self: flex-end; text-align: left; }
+        .chat-message.received { background: #333; align-self: flex-start; text-align: right; }
+        .chat-message audio { margin-top: 5px; }
+        .chat-message .msg-time { font-size: 0.75rem; color: #ddd; margin-top: 5px; opacity: 0.8;}
+        #record-voice-btn.recording { background: #dc3545; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
 
 
         /* Animations & Responsiveness */
@@ -260,6 +276,7 @@
     <div id="teacher-portal" class="portal-container hidden">
         <div class="portal-content">
             <div class="header-icons">
+                <div id="teacher-chat-notification" class="icon-btn hidden" title="الرسائل"><i class="fas fa-comments"></i><span class="notification-badge"></span></div>
                 <div id="teacher-profile-icon" class="icon-btn hidden" title="الملف الشخصي"><i class="fas fa-user-edit"></i></div>
                 <div id="teacher-logout-icon" class="icon-btn hidden" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></div>
             </div>
@@ -289,6 +306,7 @@
                     <select id="test-grade"><option value="" disabled selected>اختر الصف</option><option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option><option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option><option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option><option value="الصف الأول الثانوي">الصف الأول الثانوي</option><option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option><option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option></select>
                     <label for="test-duration">مدة الاختبار بالدقائق:</label><input type="number" id="test-duration" min="1" />
                     <div class="list-item" style="flex-direction: row; justify-content: flex-start; gap: 10px; cursor: pointer;" onclick="this.querySelector('input').click()"><input type="checkbox" id="prevent-go-back-checkbox" style="width: auto; margin: 0;"><label for="prevent-go-back-checkbox" style="margin: 0;">منع الطالب من الرجوع للخلف</label></div>
+                    <div class="list-item" style="flex-direction: row; justify-content: flex-start; gap: 10px; cursor: pointer;" onclick="this.querySelector('input').click()"><input type="checkbox" id="shuffle-questions-checkbox" style="width: auto; margin: 0;"><label for="shuffle-questions-checkbox" style="margin: 0;">ترتيب الأسئلة عشوائيًا</label></div>
                     <hr/><h3>إضافة سؤال جديد</h3>
                     <div style="display: flex; border: 1px solid #333; border-radius: 12px; overflow: hidden; margin-bottom: 15px;">
                         <button class="switch-button active" data-type="mcq" style="flex:1; padding:10px; background: #0072D3; border:none; color: #fff; cursor: pointer; transition: all 0.3s ease;">سؤال اختياري</button>
@@ -310,10 +328,11 @@
                         <label for="question-points" style="margin: 0; flex-shrink: 0;">درجات السؤال:</label>
                         <input type="number" id="question-points" min="1" placeholder="1" style="margin: 0; width: 80px;">
                         <button id="add-question-btn" class="btn-secondary" style="margin: 0; flex-grow: 1;">إضافة سؤال للقائمة</button>
+                        <button id="cancel-question-edit-btn" class="btn-secondary hidden" style="margin: 0; width: auto; background: #5a6268; border-color: #495057;">إلغاء التعديل</button>
                     </div>
                     <div id="questions-list-container" style="margin-top: 15px;"></div>
                     <button id="save-test-btn" class="btn-primary" style="margin-top: 20px; background: linear-gradient(180deg, #28a745 0%, #218838 100%); border-bottom-color: #1e7e34;">حفظ الاختبار</button>
-                    <button id="cancel-edit-btn" class="btn-secondary hidden" style="margin-top: 10px;">إلغاء التعديل</button>
+                    <button id="cancel-test-edit-btn" class="btn-secondary hidden" style="margin-top: 10px;">إلغاء التعديل</button>
                 </div>
             </section>
         </div>
@@ -352,6 +371,7 @@
              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h1 style="font-size:1.8rem; margin:0;"><i class="fas fa-graduation-cap"></i> منصة الاختبارات</h1>
                 <div class="header-icons" style="position: static; display: flex; gap: 10px;">
+                    <div id="student-chat-notification" class="icon-btn hidden" title="الرسائل"><i class="fas fa-comments"></i><span class="notification-badge"></span></div>
                     <div id="student-profile-icon" class="icon-btn hidden" title="الملف الشخصي"><i class="fas fa-user-edit"></i></div>
                     <div id="student-logout-icon" class="icon-btn hidden" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></div>
                 </div>
@@ -402,7 +422,7 @@
                 <button id="back-to-results-btn" class="btn-secondary" style="margin-top: 10px;">العودة للنتيجة</button>
             </section>
          </div>
-         <!-- Student Profile Modal -->
+         <!-- Student Modals -->
          <div id="student-profile-modal" class="modal-overlay">
             <div class="modal-content" style="max-width: 450px;">
                 <button class="modal-close-btn">&times;</button>
@@ -420,11 +440,22 @@
         </nav>
     </div>
     
-    <!-- ======== Image Viewer Modal ======== -->
+    <!-- ======== Universal Modals ======== -->
     <div id="image-viewer-modal" class="image-modal-overlay">
         <button class="modal-close-btn">&times;</button>
         <a href="#" class="image-modal-download-btn" download="image.jpg"><i class="fas fa-download"></i></a>
         <img src="" alt="Image Preview" class="image-modal-content">
+    </div>
+
+    <div id="chat-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="modal-close-btn">&times;</button>
+            <h2 id="chat-modal-title">محادثة مع</h2>
+            <div class="chat-body" id="chat-modal-body"></div>
+            <div class="modal-footer">
+                <button id="record-voice-btn" class="btn-primary"><i class="fas fa-microphone"></i> تسجيل رسالة صوتية</button>
+            </div>
+        </div>
     </div>
 
     <!-- ======== Custom Dialogs (Alerts/Confirms) ======== -->
@@ -533,6 +564,7 @@
             const testGradeSelect = teacherPortal.querySelector("#test-grade");
             const testDurationInput = teacherPortal.querySelector("#test-duration");
             const preventGoBackCheckbox = teacherPortal.querySelector("#prevent-go-back-checkbox");
+            const shuffleQuestionsCheckbox = teacherPortal.querySelector('#shuffle-questions-checkbox');
             const questionText = teacherPortal.querySelector("#question-text");
             const optionInputs = teacherPortal.querySelectorAll(".option-input");
             const correctAnswerInput = teacherPortal.querySelector("#correct-answer");
@@ -540,21 +572,22 @@
             const questionsListContainer = teacherPortal.querySelector("#questions-list-container");
             const questionImageInput = teacherPortal.querySelector("#question-image-input");
             const modelAnswerImageInput = teacherPortal.querySelector("#model-answer-image-input");
+            const addQuestionBtn = teacherPortal.querySelector('#add-question-btn');
+            const cancelQuestionEditBtn = teacherPortal.querySelector('#cancel-question-edit-btn');
             const saveTestBtn = teacherPortal.querySelector('#save-test-btn');
-            const cancelEditBtn = teacherPortal.querySelector('#cancel-edit-btn');
+            const cancelTestEditBtn = teacherPortal.querySelector('#cancel-test-edit-btn');
             
             const reviewModal = teacherPortal.querySelector('#teacher-review-modal');
             const reviewModalBody = teacherPortal.querySelector('#review-modal-body');
             const reviewModalTitle = teacherPortal.querySelector('#review-modal-title');
             const reviewModalFooter = teacherPortal.querySelector('#review-modal-footer');
             const finalizeGradesBtn = teacherPortal.querySelector('#finalize-grades-btn');
-
             const profileModal = teacherPortal.querySelector('#teacher-profile-modal');
             const updateNameInput = teacherPortal.querySelector('#teacher-update-name');
             const updatePasswordInput = teacherPortal.querySelector('#teacher-update-password');
             const updateBtn = teacherPortal.querySelector('#teacher-update-btn');
 
-            let currentUser = null, myTests = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null;
+            let currentUser = null, myTests = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
             
             const showSection = (section) => { allSections.forEach(s=>s.classList.add('hidden')); section.classList.remove('hidden'); bottomNav.classList.toggle('hidden', section.id !== 'teacher-dashboard-section'); };
             const showLoadingSpinner = (container) => { container.innerHTML = `<div class="spinner"></div>`; };
@@ -571,17 +604,18 @@
                 teacherPortal.querySelector("#essay-fields").classList.toggle('hidden', currentQuestionType !== 'essay');
             }));
 
-            const clearQuestionForm = () => { questionText.value=""; questionImageInput.value=""; modelAnswerImageInput.value=""; currentQuestionImageBase64=null; currentModelAnswerImageBase64=null; teacherPortal.querySelectorAll('.image-preview-container').forEach(c=>c.classList.add('hidden')); teacherPortal.querySelectorAll('.image-preview').forEach(i=>i.src='#'); optionInputs.forEach(i=>i.value=""); correctAnswerInput.value=""; questionPointsInput.value = ""; };
+            const clearQuestionForm = () => { questionText.value=""; questionImageInput.value=""; modelAnswerImageInput.value=""; currentQuestionImageBase64=null; currentModelAnswerImageBase64=null; teacherPortal.querySelectorAll('.image-preview-container').forEach(c=>c.classList.add('hidden')); teacherPortal.querySelectorAll('.image-preview').forEach(i=>i.src='#'); optionInputs.forEach(i=>i.value=""); correctAnswerInput.value=""; questionPointsInput.value = ""; currentEditingQuestionIndex = -1; addQuestionBtn.textContent = 'إضافة سؤال للقائمة'; cancelQuestionEditBtn.classList.add('hidden'); };
             
             async function updateDashboard() { if(!currentUser) return; teacherNameSpan.textContent = currentUser; logoutIcon.classList.remove('hidden'); profileIcon.classList.remove('hidden'); setDefaultTab(); showLoadingSpinner(myTestsContainer); const testsRef = ref(db, `tests/${currentUser}`); onValue(testsRef, (snapshot) => { myTests = snapshot.exists() ? snapshot.val() : {}; renderMyTests(); populateResultsSelector(); }); }
             
             function renderMyTests() {
                 myTestsContainer.innerHTML = "";
-                const tests = Object.entries(myTests).filter(([id, test]) => !(Date.now() - test.timestamp > 48 * 60 * 60 * 1000));
+                const tests = Object.entries(myTests).sort((a,b) => b[1].timestamp - a[1].timestamp);
                 if (tests.length === 0) { myTestsContainer.innerHTML = "<p>لم تقم بإنشاء أي اختبارات نشطة.</p>"; return; }
                 tests.forEach(([testId, test]) => {
-                    const div = document.createElement('div'); div.className = 'list-item';
-                    div.innerHTML = `<span style="flex-grow: 1; text-align: right;">${test.name} - ${test.grade}</span>
+                    const isExpired = Date.now() - test.timestamp > 48 * 60 * 60 * 1000;
+                    const expiredClass = isExpired ? 'style="opacity: 0.5;"' : '';
+                    const div = document.createElement('div'); div.className = 'list-item'; div.innerHTML = `<span style="flex-grow: 1; text-align: right;" ${expiredClass}>${test.name} - ${test.grade} ${isExpired ? '(منتهي)' : ''}</span>
                     <div style="display: flex; gap: 5px;">
                         <button class="action-btn btn-secondary" data-action="share" title="مشاركة"><i class="fas fa-share-alt"></i></button>
                         <button class="action-btn btn-secondary" data-action="results" title="النتائج"><i class="fas fa-poll-h"></i></button>
@@ -615,12 +649,13 @@
                 currentEditingTestId = testId;
                 createTestSection.querySelector('#create-edit-title').textContent = "تعديل الاختبار";
                 saveTestBtn.textContent = "تحديث الاختبار";
-                cancelEditBtn.classList.remove('hidden');
+                cancelTestEditBtn.classList.remove('hidden');
                 
                 testNameInput.value = testData.name;
                 testGradeSelect.value = testData.grade;
                 testDurationInput.value = testData.duration;
                 preventGoBackCheckbox.checked = testData.preventGoBack || false;
+                shuffleQuestionsCheckbox.checked = testData.shuffle || false;
                 questionsArray = [...(testData.questions || [])];
                 renderQuestionsList();
             }
@@ -629,13 +664,13 @@
                 currentEditingTestId = null;
                 createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد";
                 saveTestBtn.textContent = "حفظ الاختبار";
-                cancelEditBtn.classList.add('hidden');
-                testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false;
+                cancelTestEditBtn.classList.add('hidden');
+                testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; shuffleQuestionsCheckbox.checked=false;
                 questionsArray = [];
                 renderQuestionsList();
                 clearQuestionForm();
             }
-            cancelEditBtn.onclick = resetCreateFormState;
+            cancelTestEditBtn.onclick = resetCreateFormState;
 
             async function loadStudentResultsForTest(testId) {
                 if (!testId) { studentResultsContainer.innerHTML = ""; return; }
@@ -754,7 +789,6 @@
                 }
             }
 
-
             reviewModal.querySelector('.modal-close-btn').onclick = () => reviewModal.classList.remove('visible');
 
             const populateResultsSelector = () => { resultsTestSelector.innerHTML = '<option value="">اختر اختبارًا</option>'; Object.entries(myTests).forEach(([testId, test]) => resultsTestSelector.innerHTML += `<option value="${testId}">${test.name}</option>`); };
@@ -762,9 +796,36 @@
             questionImageInput.onchange = () => handleImagePreview(questionImageInput, questionImageInput.nextElementSibling, questionImageInput.nextElementSibling.querySelector('img'), 'q');
             modelAnswerImageInput.onchange = () => handleImagePreview(modelAnswerImageInput, modelAnswerImageInput.nextElementSibling, modelAnswerImageInput.nextElementSibling.querySelector('img'), 'm');
 
-            const renderQuestionsList = () => { questionsListContainer.innerHTML = questionsArray.length > 0 ? "<h3>الأسئلة المضافة:</h3>" : ""; questionsArray.forEach((q, i) => { const d=document.createElement('div'); d.className='list-item'; d.innerHTML=`<span style="flex-grow:1; text-align:right;">${i+1}. [${q.type==='mcq'?'اختياري':'مقالي'}] ${q.question ? q.question.substring(0,30) : 'سؤال بصورة'}... (${q.points} درجات)</span><button data-index="${i}" class="btn-secondary" style="background:#dc3545; border-color:#c82333; padding: 4px 10px; font-size:1rem; margin:0;">&times;</button>`; d.querySelector('button').onclick=e=>{questionsArray.splice(parseInt(e.target.dataset.index),1);renderQuestionsList()}; questionsListContainer.appendChild(d); }); };
+            const renderQuestionsList = () => {
+                questionsListContainer.innerHTML = questionsArray.length > 0 ? "<h3>الأسئلة المضافة:</h3>" : "";
+                questionsArray.forEach((q, i) => {
+                    const d=document.createElement('div');
+                    d.className='list-item';
+                    d.innerHTML=`<span style="flex-grow:1; text-align:right;">${i+1}. [${q.type==='mcq'?'اختياري':'مقالي'}] ${q.question ? q.question.substring(0,30) : 'سؤال بصورة'}... (${q.points} درجات)</span>
+                    <div style="display:flex; gap: 5px;">
+                        <button data-index="${i}" class="action-btn btn-secondary edit-q-btn" title="تعديل"><i class="fas fa-edit"></i></button>
+                        <button data-index="${i}" class="action-btn btn-secondary delete-q-btn" title="حذف" style="background:#dc3545; border-color:#c82333;"><i class="fas fa-trash"></i></button>
+                    </div>`;
+                    questionsListContainer.appendChild(d);
+                });
+                questionsListContainer.querySelectorAll('.delete-q-btn').forEach(btn => btn.onclick = e => { questionsArray.splice(parseInt(btn.dataset.index),1); renderQuestionsList(); });
+                questionsListContainer.querySelectorAll('.edit-q-btn').forEach(btn => btn.onclick = e => startEditingQuestion(parseInt(btn.dataset.index)));
+            };
 
-            teacherPortal.querySelector('#add-question-btn').onclick = () => {
+            const startEditingQuestion = (index) => {
+                const q = questionsArray[index];
+                if (!q) return;
+                currentEditingQuestionIndex = index;
+                questionText.value = q.question;
+                questionPointsInput.value = q.points;
+                //... populate other fields based on q.type
+                addQuestionBtn.textContent = "تحديث السؤال";
+                cancelQuestionEditBtn.classList.remove('hidden');
+            };
+            cancelQuestionEditBtn.onclick = clearQuestionForm;
+
+
+            addQuestionBtn.onclick = () => {
                 const q = questionText.value.trim();
                 const points = parseInt(questionPointsInput.value) || 1;
                 if (!q && !currentQuestionImageBase64) { showCustomAlert("خطأ", "يرجى كتابة نص السؤال أو إرفاق صورة له على الأقل."); return; }
@@ -775,7 +836,14 @@
                     if (opts.some(o => o === "") || !correct || opts.length !== 4 || correct < 1 || correct > 4) { showCustomAlert("خطأ", "يرجى ملء الخيارات الأربعة وتحديد الإجابة الصحيحة (1-4)."); return; }
                     questionData = { ...questionData, options: opts, correct };
                 } else { questionData.modelAnswerImage = currentModelAnswerImageBase64; }
-                questionsArray.push(questionData); renderQuestionsList(); clearQuestionForm();
+
+                if (currentEditingQuestionIndex > -1) {
+                    questionsArray[currentEditingQuestionIndex] = questionData;
+                } else {
+                    questionsArray.push(questionData);
+                }
+                renderQuestionsList();
+                clearQuestionForm();
             };
 
             saveTestBtn.onclick = async (e) => {
@@ -784,13 +852,13 @@
                 button.disabled = true;
                 button.textContent = "جاري الحفظ...";
 
-                const n=testNameInput.value.trim(),g=testGradeSelect.value,d=testDurationInput.value.trim(),p=preventGoBackCheckbox.checked;
+                const n=testNameInput.value.trim(),g=testGradeSelect.value,d=testDurationInput.value.trim(),p=preventGoBackCheckbox.checked, s=shuffleQuestionsCheckbox.checked;
                 if(!n||!g||!d||questionsArray.length===0){
                     showCustomAlert("خطأ", "يرجى ملء تفاصيل الاختبار وإضافة سؤال واحد على الأقل.");
                     button.disabled = false; button.textContent = originalText;
                     return;
                 }
-                const testData = { name:n, grade:g, duration:parseInt(d), preventGoBack:p, questions:questionsArray, timestamp:Date.now() };
+                const testData = { name:n, grade:g, duration:parseInt(d), preventGoBack:p, shuffle: s, questions:questionsArray, timestamp:Date.now() };
                 
                 try {
                     if (currentEditingTestId) {
@@ -822,7 +890,6 @@
                 if (isRegister) { 
                     if (snapshot.exists()) { showCustomAlert("خطأ", "اسم المستخدم هذا موجود بالفعل."); return; }
                     await set(userRef, { password }); 
-                    showCustomAlert("نجاح", "تم التسجيل! جاري تسجيل الدخول..."); 
                     // Auto-login
                     currentUser = name;
                     localStorage.setItem("loggedInTeacher", currentUser);
@@ -928,11 +995,36 @@
             
             async function loadDashboard(){if(!currentStudent)return;nameSpan.textContent=currentStudent;logoutIcon.classList.remove('hidden');profileIcon.classList.remove('hidden');setDefaultTab();showLoading(testsContainer);showLoading(resultsContainer);const resultsSnap=await get(ref(db,`studentResults/${currentStudent}`));takenTests=resultsSnap.exists()?resultsSnap.val():{};renderStudentResults();const testsRef=ref(db,'tests');onValue(testsRef,snap=>{allTests=snap.exists()?snap.val():{};renderAvailableTests()},{onlyOnce:true})}
             
-            function renderAvailableTests(filter=''){testsContainer.innerHTML='';let found=false;Object.entries(allTests).forEach(([teacherId,teacherTests])=>{Object.entries(teacherTests).forEach(([testId,test])=>{const isExpired=Date.now()-test.timestamp>48*60*60*1000;if(isExpired)return;const searchStr=`${test.name}${test.grade}${teacherId}`.toLowerCase();if(filter&&!searchStr.includes(filter.toLowerCase()))return;found=true;const completed=!!takenTests[testId];const card=document.createElement('div');card.className='list-item';card.style.flexDirection='column';card.style.alignItems='stretch';card.innerHTML=`<div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; margin-bottom:15px;"><div style="text-align:right;"><strong>${test.name}</strong><br><small style="color: #dc3545; font-weight:bold;">${teacherId}</small></div><button class="action-btn btn-secondary" data-action="share" title="مشاركة" style="font-size: 1rem !important;"><i class="fas fa-share-alt"></i></button></div><div style="display:flex; gap:10px;"><button class="btn-3d" data-action="start" style="flex:1; padding: 10px; font-size:1.1rem; border-bottom-width:4px;">${completed?'مراجعة':'ابدأ'}</button><button class="btn-3d" data-action="copy" style="flex:1; padding: 10px; font-size:1.1rem; background: #6c757d; border-bottom:4px solid #5a6268;">نسخ الرابط</button></div>`;card.querySelector('[data-action="start"]').onclick=()=>startTest(teacherId,testId,test);card.querySelector('[data-action="copy"]').onclick=()=>copyTestLink(teacherId,testId);card.querySelector('[data-action="share"]').onclick=()=>copyTestLink(teacherId,testId);testsContainer.appendChild(card)})});if(!found)testsContainer.innerHTML='<p>لا توجد اختبارات متاحة حاليًا.</p>'}
+            function renderAvailableTests(filter=''){testsContainer.innerHTML='';let found=false;Object.entries(allTests).forEach(([teacherId,teacherTests])=>{Object.entries(teacherTests).forEach(([testId,test])=>{const isExpired=Date.now()-test.timestamp>48*60*60*1000;if(isExpired)return;const searchStr=`${test.name}${test.grade}${teacherId}`.toLowerCase();if(filter&&!searchStr.includes(filter.toLowerCase()))return;found=true;const completed=!!takenTests[testId];const buttonText=completed?'مراجعة':'ابدأ';const card=document.createElement('div');card.className='list-item';card.style.flexDirection='column';card.style.alignItems='stretch';card.innerHTML=`<div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%; margin-bottom:15px;"><div style="text-align:right;"><strong>${test.name}</strong><br><small style="color: #dc3545; font-weight:bold; cursor: pointer;" data-teacher-id="${teacherId}">${teacherId}</small></div><button class="action-btn btn-secondary" data-action="share" title="مشاركة" style="font-size: 1rem !important;"><i class="fas fa-share-alt"></i></button></div><div style="display:flex; gap:10px;"><button class="btn-3d" data-action="start" style="flex:1; padding: 10px; font-size:1.1rem; border-bottom-width:4px;">${buttonText}</button><button class="btn-3d" data-action="copy" style="flex:1; padding: 10px; font-size:1.1rem; background: #6c757d; border-bottom:4px solid #5a6268;">نسخ الرابط</button></div>`;card.querySelector('[data-action="start"]').onclick=()=>{if(completed){reviewTest(testId)}else{startTest(teacherId,testId,test)}};card.querySelector('[data-action="copy"]').onclick=()=>copyTestLink(teacherId,testId);card.querySelector('[data-action="share"]').onclick=()=>copyTestLink(teacherId,testId);testsContainer.appendChild(card)})});if(!found)testsContainer.innerHTML='<p>لا توجد اختبارات متاحة حاليًا.</p>'}
             function renderStudentResults(){resultsContainer.innerHTML='';const results=Object.values(takenTests).sort((a,b)=>b.timestamp-a.timestamp);if(results.length===0){resultsContainer.innerHTML='<p>لم تقم بإجراء أي اختبار بعد.</p>';return}results.forEach(r=>{const d=new Date(r.timestamp).toLocaleString('ar-EG');const isPending = r.status === 'pending';const pendingIndicator = isPending ? `<span style="color:#ffc107; font-weight:bold; font-size: 0.8rem;">(قيد المراجعة)</span>` : '';const div=document.createElement('div');div.className='test-item';div.innerHTML=`<div style="text-align:right; flex-grow:1;"><strong>${r.testName}</strong><br><small>الدرجة: <strong>${r.score}</strong> ${pendingIndicator}</small></div><small>${d}</small>`;resultsContainer.appendChild(div)})}
             
-            function startTest(teacherId,testId,testData){currentTest={...testData,id:testId,teacherId};testTitle.textContent=currentTest.name;totalSec=currentTest.duration*60;remainSec=totalSec;answers=new Array(currentTest.questions.length).fill(null);qIndex=0;timerDisplay.textContent=formatTime(remainSec);timerProgress.style.width='100%';if(testInterval)clearInterval(testInterval);testInterval=setInterval(()=>{remainSec--;timerDisplay.textContent=formatTime(remainSec);timerProgress.style.width=((remainSec/totalSec)*100)+'%';if(remainSec<=0){clearInterval(testInterval);submitTest(true)}},1000);if(currentTest.preventGoBack){submitBtn.classList.add('hidden');qNavContainer.classList.remove('hidden');renderQuestion(qIndex)}else{submitBtn.classList.remove('hidden');qNavContainer.classList.add('hidden');renderAllQuestions()}showSection(takeTest)}
+            function startTest(teacherId,testId,testData){
+                if (takenTests[testId]) {
+                    reviewTest(testId);
+                    return;
+                }
+                currentTest={...testData,id:testId,teacherId};
+                if(currentTest.shuffle) currentTest.questions.sort(() => Math.random() - 0.5); // Shuffle questions
+                testTitle.textContent=currentTest.name;totalSec=currentTest.duration*60;remainSec=totalSec;answers=new Array(currentTest.questions.length).fill(null);qIndex=0;timerDisplay.textContent=formatTime(remainSec);timerProgress.style.width='100%';if(testInterval)clearInterval(testInterval);testInterval=setInterval(()=>{remainSec--;timerDisplay.textContent=formatTime(remainSec);timerProgress.style.width=((remainSec/totalSec)*100)+'%';if(remainSec<=0){clearInterval(testInterval);submitTest(true)}},1000);if(currentTest.preventGoBack){submitBtn.classList.add('hidden');qNavContainer.classList.remove('hidden');renderQuestion(qIndex)}else{submitBtn.classList.remove('hidden');qNavContainer.classList.add('hidden');renderAllQuestions()}showSection(takeTest)
+            }
             
+            function reviewTest(testId) {
+                const result = takenTests[testId];
+                if (!result) return;
+                currentTest = {name: result.testName, questions: allTests[result.teacherName][testId].questions};
+                lastAnswers = result.answers;
+                finalScore.textContent = `درجتك: ${result.score}`;
+                feedbackMsg.style.background = '#333';
+                feedbackMsg.style.color = '#fff';
+                feedbackMsg.textContent = "هذه مراجعة لنتيجتك السابقة.";
+                if (result.status === 'pending') {
+                    feedbackMsg.style.background = '#ffc107';
+                    feedbackMsg.style.color = '#111';
+                    feedbackMsg.textContent = "نتيجتك النهائية لا تزال قيد المراجعة من قبل المعلم.";
+                }
+                showSection(result);
+            }
+
             function renderAllQuestions(){questionsDisplay.innerHTML='';currentTest.questions?.forEach((q,idx)=>{const qDiv=document.createElement('div');qDiv.style.marginBottom='25px';let ansHtml='';if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>`<label><input type="radio" name="question-${idx}" value="${i+1}" onchange="saveAnswer(${idx},this.value,'mcq')"/><span>${o}</span></label>`).join('')}</div>`}else{ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${idx}" oninput="saveAnswer(${idx}, this.value, 'essay-text')"></textarea><label for="image-answer-${idx}" class="file-input-label"><i class="fas fa-upload"></i> رفع صورة</label><input type="file" id="image-answer-${idx}" accept="image/*" class="hidden" onchange="handleEssayImageUpload(${idx}, this)"></div>`}qDiv.innerHTML=`<h4 style="text-align:right;margin-bottom:15px;">س ${idx+1}: ${q.question}</h4>${q.image?`<img src="${q.image}" style="max-width:100%;border-radius:10px;margin:10px 0; cursor:pointer;">`:''}${ansHtml}`;questionsDisplay.appendChild(qDiv)})}
             function renderQuestion(index){const q=currentTest.questions[index];let ansHtml='';const saved=answers[index];if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>{const checked=saved&&saved.answer===(i+1)?'checked':'';return`<label><input type="radio" name="question-${index}" value="${i+1}" ${checked}/><span>${o}</span></label>`}).join('')}</div>`}else{const text=saved&&saved.textAnswer?saved.textAnswer:'';const uploaded=saved&&saved.imageAnswer;ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${index}">${text}</textarea><label for="image-answer-${index}" class="file-input-label"><i class="fas ${uploaded?'fa-check-circle':'fa-upload'}"></i> ${uploaded?'تغيير الصورة':'رفع صورة'}</label><input type="file" id="image-answer-${index}" accept="image/*" class="hidden"></div>`}questionsDisplay.innerHTML=`<h4 style="margin-bottom:15px;">س ${index+1}/${currentTest.questions.length}: ${q.question}</h4>${q.image?`<img src="${q.image}" style="max-width:100%;border-radius:10px;margin:10px 0; cursor:pointer;">`:''}${ansHtml}`;if(q.type==='essay'){document.getElementById(`image-answer-${index}`).onchange=()=>handleEssayImageUpload(index,document.getElementById(`image-answer-${index}`))}prevQBtn.disabled=index===0;nextQBtn.classList.toggle('hidden',index===currentTest.questions.length-1);submitBtn.classList.toggle('hidden',index!==currentTest.questions.length-1)}
             
@@ -1005,7 +1097,6 @@
                 if(isRegister){
                     if(snap.exists()) { showCustomAlert('خطأ','اسم المستخدم موجود.'); return; }
                     await set(userRef,{password:pass});
-                    showCustomAlert('نجاح','تم التسجيل! جاري تسجيل الدخول...');
                     // Auto-login
                     currentStudent = name;
                     localStorage.setItem('loggedInStudent', currentStudent);
@@ -1148,6 +1239,9 @@
                 closeImageViewer();
             }
         });
+        
+        // --- Global Chat Logic ---
+        // Will be implemented later if needed
 
         if(!handleDeepLink()){mainLandingPage.classList.remove('hidden')};
     </script>
