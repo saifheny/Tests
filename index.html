@@ -168,37 +168,84 @@
             align-items: center;
             min-height: 100vh;
             padding: 40px 20px;
-            background: var(--bg-primary);
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            position: relative;
         }
-        #main-landing-page h1 {
-            font-size: 4rem;
-            background: var(--accent-primary-gradient);
-            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 30px; font-weight: 800; line-height: 1.2;
-            text-shadow: 0 0 15px var(--accent-primary), 0 0 30px var(--accent-primary);
+        
+        .bg-image-1 {
+            background-image: url('https://i.postimg.cc/JhS2pmGL/Whats-App-Image-2025-10-02-at-4-15-53-PM-1.jpg');
         }
-        .desert-mode #main-landing-page h1 {
-             text-shadow: 0 2px 5px var(--shadow-color-light);
+
+        .bg-image-2 {
+            background-image: url('https://i.postimg.cc/7LS3yymc/Whats-App-Image-2025-10-02-at-4-15-53-PM.jpg');
         }
-        #main-landing-page p { font-size: 1.2rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 35px; max-width: 800px; }
+
+        /* Media query to hide background on laptops/desktops */
+        @media (min-width: 1024px) {
+            #main-landing-page.bg-image-1,
+            #main-landing-page.bg-image-2 {
+                background-image: none;
+            }
+        }
+        
+        .landing-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #FFD700; /* Gold color */
+            text-shadow: 
+                -1px -1px 0px #FFF, /* White highlight */
+                1px -1px 0px #FFF,
+                -1px 1px 0px #FFF,
+                1px 1px 0px #FFF,
+                0 0 5px #FFD700,
+                1px 1px 2px #DAA520,
+                2px 2px 3px #B8860B,
+                3px 3px 4px #805C0E,
+                4px 4px 6px rgba(0,0,0,0.7); /* Deep drop shadow */
+            margin-bottom: 40px;
+            transform: perspective(500px) rotateX(10deg);
+        }
+
+
         .role-selection {
             display: flex;
-            gap: 20px;
+            gap: 25px;
             flex-wrap: wrap;
             justify-content: center;
         }
         
-        /* --- 3D Button Style --- */
+        /* --- New Animated Gradient Button Style --- */
         .btn-3d {
-            padding: 20px 40px; border: none; border-radius: 12px;
+            padding: 20px 40px; border: none; border-radius: 99px; /* Fully rounded edges */
             font-size: 1.5rem; font-family: 'Cairo', sans-serif; font-weight: 800; color: #fff;
             cursor: pointer; position: relative;
-            background: var(--accent-primary-gradient);
-            border-bottom: 6px solid var(--accent-primary-border);
+            background-size: 300% 100%;
+            border: 2px solid transparent;
+            background-image: linear-gradient(45deg, #007bff, #00c6ff, #2f81f7, #007bff);
+            transition: all 0.4s ease-in-out !important;
+            box-shadow: 0 5px 15px rgba(47, 129, 247, 0.4);
+            animation: gradient-animation 6s ease infinite;
         }
+        
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .btn-3d:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(47, 129, 247, 0.6);
+        }
+
+        .btn-3d:active {
+            transform: translateY(0) scale(1);
+             box-shadow: 0 5px 15px rgba(47, 129, 247, 0.4);
+        }
+        
         .btn-3d i { margin-left: 15px; font-size: 1.8rem; }
-        .btn-3d:hover { border-bottom-width: 8px; }
-        .btn-3d:active { border-bottom-width: 4px; }
         
         /* --- General Portal Styles --- */
         .portal-container {
@@ -607,7 +654,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         @media (max-width: 767px) {
-            #main-landing-page h1 { font-size: 2.8rem; }
+            .landing-title { font-size: 2.2rem; }
             .btn-3d { font-size: 1.2rem; padding: 18px 30px; }
         }
         
@@ -627,9 +674,7 @@
 <body class="no-select">
     <!-- ======== Main Landing Page Section ======== -->
     <main id="main-landing-page">
-        <div class="supervision-tag"><i class="fas fa-star"></i> تحت إشراف: سيف هاني <i class="fas fa-star"></i></div>
-        <h1>منصة الاختبارات الذكية 🚀</h1>
-        <p>بوابة التعلم الذكي التي تدمج التكنولوجيا بالتعليم! 🌟 سواء كنت <strong>معلمًا</strong> مبتكرًا أو <strong>طالبًا</strong> طموحًا، نقدم لك أدوات متكاملة لتحقيق التميز الأكاديمي!</p>
+        <h2 class="landing-title">اختر بوابتك للتعلم</h2>
         <div class="role-selection">
             <button id="show-teacher-portal" class="btn-3d">دخول المعلمين <i class="fas fa-chalkboard-teacher"></i></button>
             <button id="show-student-portal" class="btn-3d">دخول الطلاب <i class="fas fa-user-graduate"></i></button>
@@ -1850,8 +1895,13 @@
             textChatModal.classList.remove('visible'); activeChatPartnerId = null; if (chatMessagesListener) off(chatMessagesListener, 'value');
         };
 
-        // --- Initial Load ---
+        // --- Initial Load with Random Background Logic ---
         const handleInitialLoad = () => {
+            // Logic for random background
+            const bgClasses = ['bg-image-1', 'bg-image-2'];
+            const randomClass = bgClasses[Math.floor(Math.random() * bgClasses.length)];
+            mainLandingPage.classList.add(randomClass);
+            
             const savedTeacher = localStorage.getItem('loggedInTeacher');
             const savedStudent = localStorage.getItem('loggedInStudent');
 
