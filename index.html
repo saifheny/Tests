@@ -142,6 +142,24 @@
             box-shadow: 0 10px 40px var(--shadow-color-heavy), inset 0 2px 2px var(--inset-shadow-light);
         }
 
+        /* --- Styling for Larger Question Images --- */
+        .question-image-preview {
+            width: 100%;
+            max-height: 650px; /* تم زيادة الارتفاع لجعل الصورة أكبر */
+            border-radius: 12px;
+            margin: 15px auto;
+            display: block;
+            cursor: pointer;
+            object-fit: contain;
+            border: 1px solid var(--border-primary);
+            box-shadow: 0 4px 15px var(--shadow-color-heavy);
+            transition: transform 0.2s ease;
+        }
+
+        .question-image-preview:hover {
+            transform: scale(1.02);
+        }
+
         /* --- Landing Page Styles --- */
         #main-landing-page {
             display: flex;
@@ -1143,7 +1161,7 @@
                     if (q.type === 'mcq') { const isCorrect = studentAnswer.answer === q.correct; reviewHtml = `<div style="background: ${isCorrect ? 'rgba(35, 134, 54, 0.2)' : 'rgba(218, 54, 51, 0.2)'}; padding: 10px; border-radius: 8px;"><b>إجابته:</b> ${studentAnswer.answer ? q.options[studentAnswer.answer - 1] : '<i>لم يجب</i>'}<br><b>الصحيحة:</b> ${q.options[q.correct - 1]}</div>`; } 
                     else { const studentText = studentAnswer.textAnswer || '<em>لم يقدم إجابة نصية.</em>', studentImage = studentAnswer.imageAnswer ? `<p><b>صورته:</b></p><img src="${studentAnswer.imageAnswer}" style="max-width:80%; border-radius:8px; cursor:pointer;">` : '', modelImage = q.modelAnswerImage ? `<p><b>النموذجية:</b></p><img src="${q.modelAnswerImage}" style="max-width:80%; border-radius:8px; cursor:pointer;">` : ''; let gradingInput = (result.status === 'pending') ? `<div style="margin-top:15px; text-align: left; display:flex; align-items:center; gap:10px;"><label for="grade-q-${index}" style="margin:0;"><b>ضع الدرجة:</b></label><input type="number" id="grade-q-${index}" data-question-index="${index}" class="essay-grade-input" min="0" max="${q.points || 1}" style="width:80px; margin:0;"><span>/ ${q.points || 1}</span></div>` : `<p><b>الدرجة النهائية للسؤال:</b> ${studentAnswer.pointsAwarded || 0}/${q.points || 1}</p>`; reviewHtml = `<div><p><b>إجابته النصية:</b></p><div style="background:var(--border-secondary); padding:10px; border-radius:8px; white-space: pre-wrap;">${studentText}</div>${studentImage}${modelImage}${gradingInput}</div>`; }
                     const qDiv = document.createElement('div'); qDiv.className = 'list-item'; qDiv.style.cssText = 'flex-direction: column; align-items: flex-start;';
-                    qDiv.innerHTML = `<h4 style="margin-bottom:10px;">س ${index+1} (${q.points || 1} درجات): ${q.question}</h4>${q.image ? `<img src="${q.image}" style="max-width:100%;border-radius:10px;margin:10px 0; cursor:pointer;">` : ''}${reviewHtml}`;
+                    qDiv.innerHTML = `<h4 style="margin-bottom:10px;">س ${index+1} (${q.points || 1} درجات): ${q.question}</h4>${q.image ? `<img class="question-image-preview" src="${q.image}">` : ''}${reviewHtml}`;
                     reviewModalBody.appendChild(qDiv);
                 });
                 finalizeGradesBtn.onclick = () => finalizeGrades(studentName, testId, test, result); reviewModal.classList.add('visible');
@@ -1400,8 +1418,8 @@
                 showSection(review);
             }
 
-            function renderAllQuestions(){questionsDisplay.innerHTML='';currentTest.questions?.forEach((q,idx)=>{const qDiv=document.createElement('div');qDiv.style.marginBottom='25px';let ansHtml='';if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>`<label><input type="radio" name="question-${idx}" value="${i+1}" onchange="saveAnswer(${idx},this.value,'mcq')"/><span>${o}</span></label>`).join('')}</div>`}else{ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${idx}" oninput="saveAnswer(${idx}, this.value, 'essay-text')"></textarea><label for="image-answer-${idx}" class="file-input-label"><i class="fas fa-upload"></i> رفع صورة</label><input type="file" id="image-answer-${idx}" accept="image/*" class="hidden" onchange="handleEssayImageUpload(${idx}, this)"></div>`}qDiv.innerHTML=`<h4 style="text-align:right;margin-bottom:15px;">س ${idx+1}: ${q.question}</h4>${q.image?`<img src="${q.image}" style="max-width:100%;border-radius:10px;margin:10px 0; cursor:pointer;">`:''}${ansHtml}`;questionsDisplay.appendChild(qDiv)})}
-            function renderQuestion(index){const q=currentTest.questions[index];let ansHtml='';const saved=answers[index];if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>{const checked=saved&&saved.answer===(i+1)?'checked':'';return`<label><input type="radio" name="question-${index}" value="${i+1}" ${checked}/><span>${o}</span></label>`}).join('')}</div>`}else{const text=saved&&saved.textAnswer?saved.textAnswer:'';const uploaded=saved&&saved.imageAnswer;ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${index}">${text}</textarea><label for="image-answer-${index}" class="file-input-label"><i class="fas ${uploaded?'fa-check-circle':'fa-upload'}"></i> ${uploaded?'تغيير الصورة':'رفع صورة'}</label><input type="file" id="image-answer-${index}" accept="image/*" class="hidden"></div>`}questionsDisplay.innerHTML=`<h4 style="margin-bottom:15px;">س ${index+1}/${currentTest.questions.length}: ${q.question}</h4>${q.image?`<img src="${q.image}" style="max-width:100%;border-radius:10px;margin:10px 0; cursor:pointer;">`:''}${ansHtml}`;if(q.type==='essay'){document.getElementById(`image-answer-${index}`).onchange=()=>handleEssayImageUpload(index,document.getElementById(`image-answer-${index}`))}prevQBtn.disabled=index===0;nextQBtn.classList.toggle('hidden',index===currentTest.questions.length-1);submitBtn.classList.toggle('hidden',index!==currentTest.questions.length-1)}
+            function renderAllQuestions(){questionsDisplay.innerHTML='';currentTest.questions?.forEach((q,idx)=>{const qDiv=document.createElement('div');qDiv.style.marginBottom='25px';let ansHtml='';if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>`<label><input type="radio" name="question-${idx}" value="${i+1}" onchange="saveAnswer(${idx},this.value,'mcq')"/><span>${o}</span></label>`).join('')}</div>`}else{ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${idx}" oninput="saveAnswer(${idx}, this.value, 'essay-text')"></textarea><label for="image-answer-${idx}" class="file-input-label"><i class="fas fa-upload"></i> رفع صورة</label><input type="file" id="image-answer-${idx}" accept="image/*" class="hidden" onchange="handleEssayImageUpload(${idx}, this)"></div>`}qDiv.innerHTML=`<h4 style="text-align:right;margin-bottom:15px;">س ${idx+1}: ${q.question}</h4>${q.image?`<img class="question-image-preview" src="${q.image}">`:''}${ansHtml}`;questionsDisplay.appendChild(qDiv)})}
+            function renderQuestion(index){const q=currentTest.questions[index];let ansHtml='';const saved=answers[index];if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>{const checked=saved&&saved.answer===(i+1)?'checked':'';return`<label><input type="radio" name="question-${index}" value="${i+1}" ${checked}/><span>${o}</span></label>`}).join('')}</div>`}else{const text=saved&&saved.textAnswer?saved.textAnswer:'';const uploaded=saved&&saved.imageAnswer;ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${index}">${text}</textarea><label for="image-answer-${index}" class="file-input-label"><i class="fas ${uploaded?'fa-check-circle':'fa-upload'}"></i> ${uploaded?'تغيير الصورة':'رفع صورة'}</label><input type="file" id="image-answer-${index}" accept="image/*" class="hidden"></div>`}questionsDisplay.innerHTML=`<h4 style="margin-bottom:15px;">س ${index+1}/${currentTest.questions.length}: ${q.question}</h4>${q.image?`<img class="question-image-preview" src="${q.image}">`:''}${ansHtml}`;if(q.type==='essay'){document.getElementById(`image-answer-${index}`).onchange=()=>handleEssayImageUpload(index,document.getElementById(`image-answer-${index}`))}prevQBtn.disabled=index===0;nextQBtn.classList.toggle('hidden',index===currentTest.questions.length-1);submitBtn.classList.toggle('hidden',index!==currentTest.questions.length-1)}
             
             window.saveAnswer=(idx,val,type)=>{if(type==='mcq')answers[idx]={type:'mcq',answer:parseInt(val)};else if(type==='essay-text'){if(!answers[idx])answers[idx]={type:'essay'};answers[idx].textAnswer=val}};
             window.handleEssayImageUpload=async(idx,input)=>{const file=input.files[0];if(file){const b64=await getBase64(file);if(!answers[idx])answers[idx]={type:'essay'};answers[idx].imageAnswer=b64;input.previousElementSibling.innerHTML=`<i class="fas fa-check-circle"></i> تم الرفع!`}};
@@ -1455,7 +1473,7 @@
                     const qDiv = document.createElement('div');
                     qDiv.className = 'list-item';
                     qDiv.style.cssText = 'flex-direction: column; align-items: flex-start;';
-                    qDiv.innerHTML = `<h4 style="margin-bottom:10px;">س ${i+1}: ${q.question}</h4>${q.image ? `<img src="${q.image}" style="max-width:100%;border-radius:10px;margin:10px 0; cursor:pointer;">` : ''}${html}`;
+                    qDiv.innerHTML = `<h4 style="margin-bottom:10px;">س ${i+1}: ${q.question}</h4>${q.image ? `<img class="question-image-preview" src="${q.image}">` : ''}${html}`;
                     reviewContainer.appendChild(qDiv);
                 });
             }
