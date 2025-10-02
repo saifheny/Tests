@@ -227,6 +227,7 @@
             transition: all 0.4s ease-in-out !important;
             box-shadow: 0 5px 15px rgba(47, 129, 247, 0.4);
             animation: gradient-animation 6s ease infinite;
+            text-decoration: none;
         }
         
         @keyframes gradient-animation {
@@ -648,6 +649,47 @@
              color: var(--bg-primary);
         }
         
+        /* --- App Install Prompt Modal --- */
+        #app-install-prompt-modal .custom-dialog {
+            padding: 0;
+            overflow: hidden;
+            border-top: none;
+        }
+        .app-install-header {
+            padding: 20px;
+            text-align: center;
+        }
+        .app-install-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px var(--shadow-color-heavy);
+        }
+        .app-install-header h3 {
+            font-size: 1.4rem;
+            margin: 0;
+        }
+        .app-install-body {
+            padding: 0 25px 25px 25px;
+        }
+        .app-install-body p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        .app-install-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 0 25px 25px 25px;
+        }
+        .app-install-footer .btn-install {
+            display: inline-block;
+            text-align: center;
+            padding: 20px 40px;
+        }
+
         /* Animations & Responsiveness */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -951,6 +993,23 @@
         </div>
     </div>
 
+    <!-- ======== App Install Prompt Modal ======== -->
+    <div id="app-install-prompt-modal" class="custom-dialog-overlay">
+        <div class="custom-dialog">
+            <div class="app-install-header">
+                <img src="https://i.postimg.cc/rm50gg3z/Whats-App-Image-2025-10-02-at-4-15-54-PM.jpg" alt="شعار التطبيق">
+                <h3>حان الوقت لتجربة أفضل!</h3>
+            </div>
+            <div class="app-install-body">
+                <p>عليك تثبيت التطبيق لرؤية كافة الاختبارات، معرفة درجاتك، والتواصل مع المعلمين بسهولة.</p>
+            </div>
+            <div class="app-install-footer">
+                <a href="https://apk.e-droid.net/apk/app3760290-c4w5f2.apk?v=5" download class="btn-3d btn-install">تثبيت التطبيق الآن</a>
+                <button id="app-install-cancel-btn" class="btn-secondary" style="width:100%; padding: 12px 20px;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- ======== Main JavaScript Logic =======-->
     <script type="module">
@@ -986,6 +1045,7 @@
         // --- Enhanced Dialog Logic ---
         const alertCont = document.getElementById('custom-alert-container');
         const confirmCont = document.getElementById('custom-confirm-container');
+        const appInstallPrompt = document.getElementById('app-install-prompt-modal');
         
         const showCustomAlert = (title, message) => { 
             alertCont.querySelector('#custom-alert-title').textContent = title; 
@@ -993,6 +1053,8 @@
             alertCont.classList.add('show'); 
         };
         alertCont.querySelector('#custom-alert-close-btn').onclick = () => alertCont.classList.remove('show');
+        appInstallPrompt.querySelector('#app-install-cancel-btn').onclick = () => appInstallPrompt.classList.remove('show');
+
         
         const showCustomConfirm = (title, message) => {
             return new Promise(resolve => {
@@ -1332,8 +1394,10 @@
             const reviewContainer=studentPortal.querySelector('#review-container'), updateNameInput = studentPortal.querySelector('#student-update-name'), updatePasswordInput = studentPortal.querySelector('#student-update-password'), updateBtn = studentPortal.querySelector('#student-update-btn');
             const showSearchBtn = studentPortal.querySelector('#show-search-btn');
             const refreshBtn = studentPortal.querySelector('#refresh-tests-btn');
+            const backToDashboardBtn = studentPortal.querySelector('#back-to-dashboard-btn');
+            const backFromReviewBtn = studentPortal.querySelector('#back-to-dashboard-from-review-btn');
 
-            let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0;
+            let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false;
             
             const loggedInUser = localStorage.getItem('loggedInStudent');
             if(loggedInUser){
@@ -1342,7 +1406,7 @@
                 if(deepLink){ startDeepLinkTest(); } else { showSection(dashboard); loadDashboard(); }
             } else { showSection(loginSection); }
 
-            function showSection(s){allSections.forEach(e=>e.classList.add('hidden'));if(s) s.classList.remove('hidden');bottomNav.classList.toggle('hidden',!s || s.id!=='student-dashboard-section')};
+            function showSection(s){allSections.forEach(e=>e.classList.add('hidden'));if(s) s.classList.remove('hidden');bottomNav.classList.toggle('hidden',!s || s.id!=='student-dashboard-section' || isDeepLinkSession)};
             const showLoading=c=>{c.innerHTML='<div class="spinner"></div>'};
             
             async function loadDashboard(){if(!currentStudent)return;nameSpan.textContent=currentStudent;menuIcon.classList.remove('hidden'); setDefaultTab();showLoading(testsContainer);showLoading(resultsContainer);const resultsSnap=await get(ref(db,`studentResults/${currentStudent}`));takenTests=resultsSnap.exists()?resultsSnap.val():{};renderStudentResults();const testsRef=ref(db,'tests');onValue(testsRef,snap=>{allTests=snap.exists()?snap.val():{};renderAvailableTests()}); initChatSystem(currentStudent, 'student');}
@@ -1420,6 +1484,10 @@
             function renderStudentResults(){resultsContainer.innerHTML='';const results=Object.values(takenTests).sort((a,b)=>b.timestamp-a.timestamp);if(results.length===0){resultsContainer.innerHTML='<p>لم تقم بإجراء أي اختبار بعد.</p>';return}results.forEach(r=>{const d=new Date(r.timestamp).toLocaleString('ar-EG'), pendingIndicator = r.status === 'pending' ? `<span style="color:var(--warning-primary); font-weight:bold; font-size: 0.8rem;">(قيد المراجعة)</span>` : '';const div=document.createElement('div');div.className='test-item';div.innerHTML=`<div style="text-align:right; flex-grow:1;"><strong>${r.testName}</strong><br><small>الدرجة: <strong>${r.score}</strong> ${pendingIndicator}</small></div><small>${d}</small>`;resultsContainer.appendChild(div)})}
             
             function startTest(teacherId, testId, testData, isPractice = false) {
+                if (isDeepLinkSession) {
+                    bottomNav.classList.add('hidden');
+                    studentPortal.querySelector('.header-icons').classList.add('hidden');
+                }
                 if (!testData.questions || testData.questions.length === 0) {
                     showCustomAlert("خطأ", "هذا الاختبار لا يحتوي على أسئلة ولا يمكن بدؤه.");
                     return;
@@ -1481,6 +1549,13 @@
                 
                 const scoreString = hasEssays ? `${mcqScore} / ${mcqTotalPoints} (مبدئي)` : `${mcqScore} / ${totalTestPoints}`;
                 finalScore.textContent = `درجتك: ${scoreString}`;
+                
+                // --- App Install Prompt Logic ---
+                const promptShown = localStorage.getItem('appInstallPromptShown');
+                if (!currentTest.isPractice && !promptShown) {
+                    appInstallPrompt.classList.add('show');
+                    localStorage.setItem('appInstallPromptShown', 'true');
+                }
 
                 if(currentTest.isPractice){
                     feedbackMsg.style.cssText = "background: #17a2b8; color: #fff;";
@@ -1494,9 +1569,29 @@
                     if (hasEssays) { feedbackMsg.style.cssText = "background: rgba(255, 193, 7, 0.2); color: var(--warning-primary);"; feedbackMsg.textContent = "تم إرسال إجاباتك المقالية للمراجعة! هذه نتيجتك المبدئية."; }
                     else { const p = totalTestPoints > 0 ? Math.round((mcqScore / totalTestPoints) * 100) : 0; const fb = p === 100 ? { t: '🥳 ممتاز!', c: '#238636' } : p >= 80 ? { t: '😊 عمل رائع!', c: '#238636' } : p >= 50 ? { t: '🙂 جيد!', c: 'var(--warning-primary)', tc: '#111' } : { t: '🙁 حاول مجددًا!', c: 'var(--danger-primary)' }; feedbackMsg.style.background = fb.c; feedbackMsg.style.color = fb.tc || '#fff'; feedbackMsg.textContent = fb.t; }
                 }
+
+                if (isDeepLinkSession) {
+                    backToDashboardBtn.textContent = 'الخروج';
+                    backFromReviewBtn.textContent = 'الخروج';
+                } else {
+                    backToDashboardBtn.textContent = 'العودة للرئيسية';
+                    backFromReviewBtn.textContent = 'العودة';
+                }
+
                 showSection(result);
             }
             submitBtn.onclick=async ()=>{ if (await showCustomConfirm('تأكيد التسليم', 'هل أنت متأكد من رغبتك في تسليم الاختبار؟')) { submitTest(false); } };
+            
+            const handleExitTestSession = () => {
+                if (isDeepLinkSession) {
+                    localStorage.removeItem('loggedInStudent');
+                    sessionStorage.clear();
+                    window.location.href = window.location.pathname;
+                } else {
+                    showSection(dashboard);
+                    loadDashboard();
+                }
+            };
 
             function renderReview(testData, studentAnswers){
                 reviewContainer.innerHTML = '';
@@ -1533,7 +1628,21 @@
                 if(sessionStorage.getItem('deepLinkTest')){await startDeepLinkTest()}else{showSection(dashboard);loadDashboard()}
             }
 
-            async function startDeepLinkTest(){const dataJSON=sessionStorage.getItem('deepLinkTest');if(!dataJSON)return;const{teacherId,testId}=JSON.parse(dataJSON);sessionStorage.removeItem('deepLinkTest');const testRef=ref(db,`tests/${teacherId}/${testId}`);const testSnap=await get(testRef);if(testSnap.exists()){startTest(teacherId,testId,testSnap.val(), false)}else{showCustomAlert('خطأ','الاختبار غير موجود.');showSection(dashboard);loadDashboard()}}
+            async function startDeepLinkTest(){
+                isDeepLinkSession = true;
+                const dataJSON=sessionStorage.getItem('deepLinkTest');
+                if(!dataJSON)return;
+                const{teacherId,testId}=JSON.parse(dataJSON);
+                sessionStorage.removeItem('deepLinkTest');
+                const testRef=ref(db,`tests/${teacherId}/${testId}`);
+                const testSnap=await get(testRef);
+                if(testSnap.exists()){
+                    startTest(teacherId,testId,testSnap.val(), false)
+                }else{
+                    showCustomAlert('خطأ','الاختبار غير موجود أو لم يعد متاحًا.');
+                    handleExitTestSession();
+                }
+            }
             const formatTime=s=>{const m=Math.floor(s/60),r=s%60;return`${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`};
             
             const navButtons=studentPortal.querySelectorAll('.nav-btn');navButtons.forEach(b=>{b.addEventListener('click',()=>{navButtons.forEach(btn=>btn.classList.remove('active'));studentPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));b.classList.add('active');studentPortal.querySelector(`#${b.dataset.target}`).classList.remove('hidden')})});
@@ -1542,10 +1651,10 @@
             studentPortal.querySelector('#student-login-btn').onclick=()=>authUser(studentPortal.querySelector('#student-login-name').value.trim(),studentPortal.querySelector('#student-login-password').value.trim(),false);
             studentPortal.querySelectorAll('.to-login').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(loginSection)});
             studentPortal.querySelectorAll('.to-register').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(registerSection)});
-            studentPortal.querySelector('#back-to-dashboard-btn').onclick=()=>{showSection(dashboard);loadDashboard()};
-            studentPortal.querySelector('#cancel-test-btn').onclick= async ()=>{ if(await showCustomConfirm('تأكيد', 'هل أنت متأكد من إلغاء الاختبار؟ لن يتم حفظ تقدمك.')){ clearInterval(testInterval); showSection(dashboard); loadDashboard(); } };
+            backToDashboardBtn.onclick = handleExitTestSession;
+            studentPortal.querySelector('#cancel-test-btn').onclick= async ()=>{ if(await showCustomConfirm('تأكيد', 'هل أنت متأكد من إلغاء الاختبار؟ لن يتم حفظ تقدمك.')){ clearInterval(testInterval); handleExitTestSession(); } };
             studentPortal.querySelector('#review-answers-btn').onclick = () => { if (currentTest.isPractice) { renderReview(currentTest, answers); showSection(review); } else { openStudentReview(currentTest.id); } };
-            studentPortal.querySelector('#back-to-dashboard-from-review-btn').onclick=()=>{showSection(dashboard);loadDashboard()};
+            backFromReviewBtn.onclick = handleExitTestSession;
             
             showSearchBtn.addEventListener('click', () => {
                 searchBar.classList.toggle('hidden');
@@ -1895,7 +2004,7 @@
             textChatModal.classList.remove('visible'); activeChatPartnerId = null; if (chatMessagesListener) off(chatMessagesListener, 'value');
         };
 
-        // --- Initial Load with Random Background Logic ---
+        // --- Initial Load with Deep Link and Random Background Logic ---
         const handleInitialLoad = () => {
             // Logic for random background
             const bgClasses = ['bg-image-1', 'bg-image-2'];
@@ -1912,9 +2021,13 @@
 
             if(window.location.hash.startsWith('#test/')){
                 const parts = window.location.hash.split('/');
-                if(parts.length === 3) sessionStorage.setItem('deepLinkTest',JSON.stringify({teacherId:decodeURIComponent(parts[1]),testId:decodeURIComponent(parts[2])}));
+                if(parts.length === 3) {
+                    sessionStorage.setItem('deepLinkTest',JSON.stringify({teacherId:decodeURIComponent(parts[1]),testId:decodeURIComponent(parts[2])}));
+                    // Clean the hash from the URL
+                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                }
                 
-                // Always direct to student portal for test links
+                // Always direct to student portal for test links, even if not logged in
                 studentPortal.classList.remove('hidden'); 
                 initStudentApp();
                 return;
