@@ -830,6 +830,7 @@
             <button class="nav-btn active" data-target="teacher-tests-content"><i class="fas fa-file-alt"></i><span>الاختبارات</span></button>
             <button class="nav-btn" data-target="teacher-results-content"><i class="fas fa-poll-h"></i><span>النتائج</span></button>
             <button class="nav-btn" data-target="teacher-create-test-content"><i class="fas fa-plus-circle"></i><span>إنشاء</span></button>
+            <a href="go:2" class="nav-btn" style="text-decoration: none;"><i class="fas fa-gamepad"></i><span>لعبة XO</span></a>
         </nav>
     </div>
 
@@ -932,6 +933,7 @@
          <nav class="bottom-nav hidden" id="student-bottom-nav">
             <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book-open"></i><span>الاختبارات</span></button>
             <button class="nav-btn" data-target="student-results-content"><i class="fas fa-poll-h"></i><span>نتائجي</span></button>
+            <a href="go:2" class="nav-btn" style="text-decoration: none;"><i class="fas fa-gamepad"></i><span>لعبة XO</span></a>
         </nav>
     </div>
     
@@ -1164,7 +1166,7 @@
 
             function showSection(section) { allSections.forEach(s=>s.classList.add('hidden')); if(section) section.classList.remove('hidden'); bottomNav.classList.toggle('hidden', !section || section.id !== 'teacher-dashboard-section'); };
             const showLoadingSpinner = (container) => { container.innerHTML = `<div class="spinner"></div>`; };
-            const navButtons = teacherPortal.querySelectorAll('.nav-btn');
+            const navButtons = teacherPortal.querySelectorAll('.nav-btn[data-target]');
             navButtons.forEach(button => { button.addEventListener('click', () => { navButtons.forEach(btn=>btn.classList.remove('active')); teacherPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden')); button.classList.add('active'); teacherPortal.querySelector(`#${button.dataset.target}`).classList.remove('hidden'); if(button.dataset.target === 'teacher-create-test-content' && !currentEditingTestId) resetCreateFormState(); }); });
             const setDefaultTab = () => navButtons[0].click();
             
@@ -1645,7 +1647,7 @@
             }
             const formatTime=s=>{const m=Math.floor(s/60),r=s%60;return`${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`};
             
-            const navButtons=studentPortal.querySelectorAll('.nav-btn');navButtons.forEach(b=>{b.addEventListener('click',()=>{navButtons.forEach(btn=>btn.classList.remove('active'));studentPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));b.classList.add('active');studentPortal.querySelector(`#${b.dataset.target}`).classList.remove('hidden')})});
+            const navButtons=studentPortal.querySelectorAll('.nav-btn[data-target]');navButtons.forEach(b=>{b.addEventListener('click',()=>{navButtons.forEach(btn=>btn.classList.remove('active'));studentPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));b.classList.add('active');studentPortal.querySelector(`#${b.dataset.target}`).classList.remove('hidden')})});
             const setDefaultTab=()=>navButtons[0].click();
             studentPortal.querySelector('#student-register-btn').onclick=()=>authUser(studentPortal.querySelector('#student-register-name').value.trim(),studentPortal.querySelector('#student-register-password').value.trim(),true);
             studentPortal.querySelector('#student-login-btn').onclick=()=>authUser(studentPortal.querySelector('#student-login-name').value.trim(),studentPortal.querySelector('#student-login-password').value.trim(),false);
