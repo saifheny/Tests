@@ -696,6 +696,52 @@
             padding: 20px 40px;
         }
 
+        /* --- Custom Slogan Style --- */
+        #slogan-widget {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 9999;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+        }
+        #slogan-widget:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px var(--shadow-color-light);
+        }
+        #slogan-widget img {
+            width: 30px;
+            height: 30px;
+        }
+        #slogan-widget span {
+            font-weight: bold;
+            text-shadow: 
+                0.5px 0.5px 0px rgba(255,255,255,0.2), 
+                1px 1px 0px rgba(255,255,255,0.2),
+                1.5px 1.5px 3px var(--shadow-color-heavy);
+        }
+        .desert-mode #slogan-widget {
+            background: rgba(255,255,255,0.5);
+            color: var(--text-primary);
+            border-color: rgba(0,0,0,0.2);
+        }
+        .desert-mode #slogan-widget span {
+            text-shadow: 
+                0.5px 0.5px 0px rgba(0,0,0,0.2), 
+                1px 1px 0px rgba(0,0,0,0.2),
+                1.5px 1.5px 3px var(--shadow-color-heavy);
+        }
+
         /* Animations & Responsiveness */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -720,6 +766,12 @@
     </style>
 </head>
 <body class="no-select">
+    <!-- ======== Fixed Slogan/Logo ======== -->
+    <div id="slogan-widget">
+        <img src="https://i.postimg.cc/BZw2BtL8/yourself-pharmacy-nutritional.png" alt="شعاري">
+        <span>شعاري</span>
+    </div>
+
     <!-- ======== Main Landing Page Section ======== -->
     <main id="main-landing-page">
         <h2 class="landing-title">اختر بوابتك للتعلم</h2>
@@ -1572,8 +1624,26 @@
                     await set(ref(db, `results/${currentTest.teacherId}/${currentTest.id}/${currentStudent}`), resultObj);
                     takenTests[currentTest.id] = resultObj; 
                     
-                    if (hasEssays) { feedbackMsg.style.cssText = "background: rgba(255, 193, 7, 0.2); color: var(--warning-primary);"; feedbackMsg.textContent = "تم إرسال إجاباتك المقالية للمراجعة! هذه نتيجتك المبدئية."; }
-                    else { const p = totalTestPoints > 0 ? Math.round((mcqScore / totalTestPoints) * 100) : 0; const fb = p === 100 ? { t: '🥳 ممتاز!', c: '#238636' } : p >= 80 ? { t: '😊 عمل رائع!', c: '#238636' } : p >= 50 ? { t: '🙂 جيد!', c: 'var(--warning-primary)', tc: '#111' } : { t: '🙁 حاول مجددًا!', c: 'var(--danger-primary)' }; feedbackMsg.style.background = fb.c; feedbackMsg.style.color = fb.tc || '#fff'; feedbackMsg.textContent = fb.t; }
+                    if (hasEssays) { 
+                        feedbackMsg.style.cssText = "background: rgba(255, 193, 7, 0.2); color: var(--warning-primary);"; 
+                        feedbackMsg.textContent = "تم إرسال إجاباتك المقالية للمراجعة! هذه نتيجتك المبدئية."; 
+                    } else { 
+                        const percentage = totalTestPoints > 0 ? (mcqScore / totalTestPoints) * 100 : 0;
+                        feedbackMsg.style.background = 'var(--bg-tertiary)';
+                        feedbackMsg.style.color = 'var(--text-primary)';
+                        feedbackMsg.style.textAlign = 'center';
+                        if (percentage < 60) {
+                            feedbackMsg.innerHTML = `
+                                <p style="margin-bottom: 10px;">يا لهوي اعمل ايه معاك تاني بقى... حاول تحسن من نفسك شويه</p>
+                                <img src="https://i.postimg.cc/HntKF5f2/download-13.png" style="max-width: 150px; border-radius: 8px;">
+                            `;
+                        } else {
+                            feedbackMsg.innerHTML = `
+                                <p style="margin-bottom: 10px;">مش بطال يلا ماشي</p>
+                                <img src="https://i.postimg.cc/2862CPvY/download-12.png" style="max-width: 150px; border-radius: 8px;">
+                            `;
+                        }
+                    }
                 }
 
                 if (isDeepLinkSession) {
@@ -1732,7 +1802,7 @@
         function getDistance(p1, p2) { return Math.sqrt(Math.pow(p2.clientX - p1.clientX, 2) + Math.pow(p2.clientY - p1.clientY, 2)); }
 
         function openImageViewer(src) {
-            if (!src || src.endsWith('#') || !src.startsWith('data:image')) return;
+            if (!src || src.endsWith('#')) return; // Allow any valid image source (Data URL or regular URL)
             resetZoom();
             modalImage.src = src;
             modalDownloadBtn.href = src;
@@ -2076,6 +2146,17 @@
         };
 
         handleInitialLoad();
+
+        // --- Slogan Widget Click Handler ---
+        const sloganWidget = document.getElementById('slogan-widget');
+        if (sloganWidget) {
+            sloganWidget.addEventListener('click', () => {
+                const sloganImage = sloganWidget.querySelector('img');
+                if (sloganImage && sloganImage.src) {
+                    openImageViewer(sloganImage.src);
+                }
+            });
+        }
 
     </script>
 
