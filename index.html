@@ -42,6 +42,11 @@
             --shadow-color-light: rgba(0,0,0,0.4);
             --inset-shadow-light: rgba(255,255,255,0.05);
             --inset-shadow-dark: rgba(0,0,0,0.6);
+            
+            /* Variables for Glass Effect */
+            --lg-bg-color: rgba(255, 255, 255, 0.2);
+            --lg-highlight: rgba(255, 255, 255, 0.75);
+            --lg-text: #ffffff;
         }
 
         .desert-mode {
@@ -83,20 +88,18 @@
         .no-select { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
 
         /* --- Global 3D Effects --- */
-        h1, h2, h3, h4, h5, h6 {
-             text-shadow: 0 2px 4px var(--shadow-color-light);
-        }
-        .portal-container button, .btn-3d {
+        h1, h2, h3, h4, h5, h6 { text-shadow: 0 2px 4px var(--shadow-color-light); }
+        .portal-container button {
             text-shadow: 0px 1px 2px var(--shadow-color-light);
             box-shadow: 0px 4px 8px var(--shadow-color-light), inset 0px -2px 1px var(--inset-shadow-light);
             transition: all 0.1s ease-in-out !important;
             transform: translateY(0);
         }
-        .portal-container button:not(:disabled):hover, .btn-3d:hover {
+        .portal-container button:not(:disabled):hover {
             transform: translateY(-2px);
             box-shadow: 0px 6px 12px var(--shadow-color-heavy), inset 0px -2px 1px var(--inset-shadow-light);
         }
-        .portal-container button:not(:disabled):active, .btn-3d:active {
+        .portal-container button:not(:disabled):active {
             transform: translateY(1px);
             box-shadow: 0px 2px 4px var(--shadow-color-light), inset 0px 1px 1px var(--inset-shadow-dark);
         }
@@ -156,12 +159,14 @@
             box-shadow: 0 4px 15px var(--shadow-color-heavy);
             transition: transform 0.2s ease;
         }
-
-        .question-image-preview:hover {
-            transform: scale(1.02);
+        .question-image-preview:hover { transform: scale(1.02); }
+        
+        /* --- NEW Landing Page Styles --- */
+        @keyframes bg-move {
+            from { background-position: center center; }
+            to { background-position: center top; }
         }
 
-        /* --- Landing Page Styles --- */
         #main-landing-page {
             display: flex;
             flex-direction: column;
@@ -169,84 +174,80 @@
             align-items: center;
             min-height: 100vh;
             padding: 40px 20px;
-            background-size: cover;
-            background-position: center center;
-            background-repeat: no-repeat;
-            position: relative;
-            transition: background-image 0.5s ease-in-out;
+            background: url("https://images.unsplash.com/photo-1551384963-cccb0b7ed94b?q=80&w=3247&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") center/cover;
+            animation: bg-move 5s ease-in-out infinite alternate;
+            gap: 40px;
         }
         
         .landing-title {
             font-size: 2.8rem;
             font-weight: 800;
-            color: #FFD700; /* Gold color */
-            text-shadow: 
-                -1px -1px 0px #FFF, /* White highlight */
-                1px -1px 0px #FFF,
-                -1px 1px 0px #FFF,
-                1px 1px 0px #FFF,
-                0 0 5px #FFD700,
-                1px 1px 2px #DAA520,
-                2px 2px 3px #B8860B,
-                3px 3px 4px #805C0E,
-                4px 4px 6px rgba(0,0,0,0.7); /* Deep drop shadow */
-            margin-bottom: 40px;
-            transform: perspective(500px) rotateX(10deg);
+            color: var(--lg-text);
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            margin: 0;
+            padding: 0;
+            transform: none; /* Resetting old transform */
         }
-
+        
         .role-selection {
             display: flex;
             gap: 25px;
             flex-wrap: wrap;
             justify-content: center;
         }
-        
-        /* --- Default Animated Gradient Button Style --- */
-        .btn-3d {
-            padding: 20px 40px; border: none; border-radius: 99px; /* Fully rounded edges */
-            font-size: 1.5rem; font-family: 'Cairo', sans-serif; font-weight: 800; color: #fff;
-            cursor: pointer; position: relative;
-            background-size: 300% 100%;
-            border: 2px solid transparent;
-            background-image: linear-gradient(45deg, #007bff, #00c6ff, #2f81f7, #007bff);
-            transition: all 0.4s ease-in-out !important;
-            box-shadow: 0 5px 15px rgba(47, 129, 247, 0.4);
-            animation: gradient-animation 6s ease infinite;
-            text-decoration: none;
+
+        /* --- NEW Glass Effect Styles --- */
+        .glass-container {
+            position: relative;
+            display: flex;
+            font-weight: 800;
+            color: var(--lg-text);
+            cursor: pointer;
+            background: transparent;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25), 0 0 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.5); /* Adjusted bounce effect */
         }
         
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .glass-button:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .glass-filter {
+            position: absolute; inset: 0; z-index: 0;
+            backdrop-filter: blur(8px);
+            filter: url(#lg-dist);
+            isolation: isolate;
+        }
+        
+        .glass-overlay {
+            position: absolute; inset: 0; z-index: 1;
+            background: var(--lg-bg-color);
+        }
+        
+        .glass-specular {
+            position: absolute; inset: 0; z-index: 2;
+            border-radius: inherit;
+            overflow: hidden;
+            box-shadow: inset 1px 1px 0 var(--lg-highlight), inset 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        
+        .glass-content {
+            position: relative; z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 1.5rem 2.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .glass-content i {
+            font-size: 1.8rem;
         }
 
-        .btn-3d:hover {
-            transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 10px 25px rgba(47, 129, 247, 0.6);
-        }
-
-        .btn-3d:active {
-            transform: translateY(0) scale(1);
-             box-shadow: 0 5px 15px rgba(47, 129, 247, 0.4);
-        }
-        
-        .btn-3d i { margin-left: 15px; font-size: 1.8rem; }
-        
-        /* --- Special Silver Button Style --- */
-        #main-landing-page.special-button-style .btn-3d {
-            background-image: linear-gradient(45deg, #b0b0b0, #f8f8f8, #cccccc, #b0b0b0); /* Silver/metallic gradient */
-            color: #ffffff; /* White text as requested */
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); /* Dark shadow for readability */
-            box-shadow: 0 5px 15px rgba(150, 150, 150, 0.5); /* A grey shadow */
-            animation: none; /* Disable blue gradient animation */
-        }
-        #main-landing-page.special-button-style .btn-3d:hover {
-            box-shadow: 0 10px 25px rgba(150, 150, 150, 0.7);
-        }
-        #main-landing-page.special-button-style .btn-3d:active {
-            box-shadow: 0 5px 15px rgba(150, 150, 150, 0.5);
-        }
 
         /* --- General Portal Styles --- */
         .portal-container {
@@ -700,7 +701,8 @@
         #slogan-widget {
             position: fixed;
             top: 15px;
-            left: 15px;
+            left: 50%;
+            transform: translateX(-50%);
             z-index: 9999;
             background: rgba(0,0,0,0.5);
             color: #fff;
@@ -716,7 +718,7 @@
             transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
         }
         #slogan-widget:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px) translateX(-50%);
             box-shadow: 0 4px 15px var(--shadow-color-light);
         }
         #slogan-widget img {
@@ -749,7 +751,8 @@
         
         @media (max-width: 767px) {
             .landing-title { font-size: 2.2rem; }
-            .btn-3d { font-size: 1.2rem; padding: 18px 30px; }
+            .glass-content { font-size: 1.2rem; padding: 1.2rem 2rem; }
+            .role-selection { flex-direction: column; }
         }
         
         .tab-content-header {
@@ -768,16 +771,39 @@
 <body class="no-select">
     <!-- ======== Fixed Slogan/Logo ======== -->
     <div id="slogan-widget">
-        <img src="https://i.postimg.cc/BZw2BtL8/yourself-pharmacy-nutritional.png" alt="شعاري">
-        <span>شعاري</span>
+        <img id="slogan-image" src="https://i.postimg.cc/BZw2BtL8/yourself-pharmacy-nutritional.png" alt="شعاري">
+        <span id="slogan-text">شعاري</span>
     </div>
 
     <!-- ======== Main Landing Page Section ======== -->
     <main id="main-landing-page">
-        <h2 class="landing-title">اختر بوابتك للتعلم</h2>
+        <div class="glass-container" style="--lg-bg-color: rgba(0, 0, 0, 0.15);">
+            <div class="glass-filter"></div>
+            <div class="glass-overlay"></div>
+            <div class="glass-specular"></div>
+            <div class="glass-content">
+                <h2 class="landing-title">اختر بوابتك للتعلم</h2>
+            </div>
+        </div>
         <div class="role-selection">
-            <button id="show-teacher-portal" class="btn-3d">دخول المعلمين <i class="fas fa-chalkboard-teacher"></i></button>
-            <button id="show-student-portal" class="btn-3d">دخول الطلاب <i class="fas fa-user-graduate"></i></button>
+            <div id="show-teacher-portal" class="glass-container glass-button">
+                <div class="glass-filter"></div>
+                <div class="glass-overlay"></div>
+                <div class="glass-specular"></div>
+                <div class="glass-content">
+                    <span>دخول المعلمين</span>
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+            </div>
+            <div id="show-student-portal" class="glass-container glass-button">
+                <div class="glass-filter"></div>
+                <div class="glass-overlay"></div>
+                <div class="glass-specular"></div>
+                <div class="glass-content">
+                    <span>دخول الطلاب</span>
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -1068,6 +1094,14 @@
         </div>
     </div>
 
+    <!-- SVG FILTER DEFINITION -->
+    <svg style="display: none">
+      <filter id="lg-dist" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
+        <feDisplacementMap in="SourceGraphic" in2="blurred" scale="70" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
 
     <!-- ======== Main JavaScript Logic =======-->
     <script type="module">
@@ -2080,38 +2114,30 @@
             textChatModal.classList.remove('visible'); activeChatPartnerId = null; if (chatMessagesListener) off(chatMessagesListener, 'value');
         };
 
+        // --- Slogan Widget Data Loader ---
+        async function loadSloganWidgetData() {
+            const sloganImage = document.getElementById('slogan-image');
+            const sloganText = document.getElementById('slogan-text');
+            try {
+                const sloganRef = ref(db, 'config/sloganWidget');
+                const snapshot = await get(sloganRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data.imageUrl) {
+                        sloganImage.src = data.imageUrl;
+                        sloganImage.alt = data.text || 'شعار';
+                    }
+                    if (data.text) {
+                        sloganText.textContent = data.text;
+                    }
+                }
+            } catch (error) {
+                console.error("Could not load slogan widget data:", error);
+            }
+        }
+
         // --- Initial Load with Deep Link and Random Background Logic ---
         const handleInitialLoad = () => {
-            // Define background image configurations
-            const mobileBgs = [
-                { url: 'https://i.postimg.cc/JhS2pmGL/Whats-App-Image-2025-10-02-at-4-15-53-PM-1.jpg', specialStyle: false },
-                { url: 'https://i.postimg.cc/7LS3yymc/Whats-App-Image-2025-10-02-at-4-15-53-PM.jpg', specialStyle: false },
-                { url: 'https://i.postimg.cc/s1FNfYSN/download.jpg', specialStyle: true }, // New mobile image with special button
-                { url: 'https://i.postimg.cc/HjGhWw54/download-1.jpg', specialStyle: false }  // New mobile image
-            ];
-
-            const desktopBgs = [
-                { url: 'https://i.postimg.cc/6p7HvGj2/UX-Writing-1024x512.png', specialStyle: false }, // Original desktop image
-                { url: 'https://i.postimg.cc/K4XHcPL9/image.jpg', specialStyle: true } // New desktop image with special button
-            ];
-
-            // Check screen width and select the appropriate array of backgrounds
-            const isDesktop = window.innerWidth >= 1024;
-            const bgs = isDesktop ? desktopBgs : mobileBgs;
-            
-            // Select a random background from the chosen array
-            const randomIndex = Math.floor(Math.random() * bgs.length);
-            const selectedBg = bgs[randomIndex];
-            
-            // Apply the background image style directly via JavaScript
-            mainLandingPage.style.backgroundImage = `url('${selectedBg.url}')`;
-
-            // Apply the special button class if the selected background requires it
-            if (selectedBg.specialStyle) {
-                mainLandingPage.classList.add('special-button-style');
-            }
-            
-            // --- Continue with user session logic ---
             const savedTeacher = localStorage.getItem('loggedInTeacher');
             const savedStudent = localStorage.getItem('loggedInStudent');
 
@@ -2143,6 +2169,8 @@
             else { 
                 mainLandingPage.classList.remove('hidden'); 
             }
+
+            loadSloganWidgetData();
         };
 
         handleInitialLoad();
