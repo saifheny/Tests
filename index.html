@@ -386,7 +386,7 @@
         .action-icon[title="ابدأ الاختبار"]:hover { background-color: #238636; }
         .action-icon[title="مراجعة النتيجة"]:hover { background-color: #8957e5; }
         .action-icon[title^="مراسلة"]:hover { background-color: #1f6feb; }
-        .action-icon[title="مشاركة رابط الاختبار"]:hover { background-color: #e3b341; }
+        .action-icon[title="مشاركة الاختبار"]:hover { background-color: #e3b341; }
         .action-icon[title="إعادة (تدريب)"]:hover { background-color: #bf5507; }
 
         .student-test-card {
@@ -908,7 +908,7 @@
         <!-- Teacher Modals -->
         <div id="teacher-review-modal" class="modal-overlay">
             <div class="modal-content">
-                <button class="modal-close-btn">&times;</button>
+                <button class="modal-close-btn">×</button>
                 <h2 id="review-modal-title">مراجعة إجابات الطالب</h2>
                 <div id="review-modal-body" class="modal-body"></div>
                 <div id="review-modal-footer" class="modal-footer hidden">
@@ -918,7 +918,7 @@
         </div>
         <div id="teacher-settings-modal" class="modal-overlay">
             <div class="modal-content" style="max-width: 450px;">
-                <button class="modal-close-btn">&times;</button>
+                <button class="modal-close-btn">×</button>
                 <h2>الإعدادات</h2>
                 <label for="teacher-update-name">الاسم (باللغة الإنجليزية):</label>
                 <input type="text" id="teacher-update-name" placeholder="الاسم الكامل الجديد">
@@ -1014,7 +1014,7 @@
          </div>
          <div id="student-settings-modal" class="modal-overlay">
             <div class="modal-content" style="max-width: 450px;">
-                <button class="modal-close-btn">&times;</button>
+                <button class="modal-close-btn">×</button>
                 <h2>الإعدادات</h2>
                 <label for="student-update-name">الاسم (باللغة الإنجليزية):</label>
                 <input type="text" id="student-update-name" placeholder="الاسم الكامل الجديد">
@@ -1025,7 +1025,7 @@
         </div>
         <div id="student-chat-list-modal" class="modal-overlay">
             <div class="modal-content" style="max-width: 500px;">
-                <button class="modal-close-btn">&times;</button>
+                <button class="modal-close-btn">×</button>
                 <h2>قائمة المحادثات</h2>
                 <div id="student-chat-list-body" class="modal-body"></div>
             </div>
@@ -1040,7 +1040,7 @@
     <div id="image-viewer-modal" class="image-modal-overlay">
         <div class="image-viewer-controls">
         </div>
-        <button class="modal-close-btn">&times;</button>
+        <button class="modal-close-btn">×</button>
         <a href="#" class="image-modal-download-btn" download="image.jpg"><i class="fas fa-download"></i></a>
         <div id="image-viewer-content-wrapper">
              <img src="" alt="Image Preview" class="image-modal-content">
@@ -1049,7 +1049,7 @@
 
     <div id="text-chat-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 500px;">
-            <button class="modal-close-btn">&times;</button>
+            <button class="modal-close-btn">×</button>
             <h2 id="chat-modal-title">محادثة مع</h2>
             <div class="chat-body" id="chat-modal-body"></div>
             <div class="modal-footer">
@@ -1065,7 +1065,7 @@
     
     <div id="teacher-chat-list-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 500px;">
-            <button class="modal-close-btn">&times;</button>
+            <button class="modal-close-btn">×</button>
             <h2>قائمة المحادثات</h2>
             <div id="teacher-chat-list-body" class="modal-body"></div>
         </div>
@@ -1114,9 +1114,9 @@
     <!-- SVG FILTER DEFINITION -->
     <svg style="display: none">
       <filter id="lg-dist" x="0%" y="0%" width="100%" height="100%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
-        <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
-        <feDisplacementMap in="SourceGraphic" in2="blurred" scale="70" xChannelSelector="R" yChannelSelector="G" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" ></feTurbulence>
+        <feGaussianBlur in="noise" stdDeviation="2" result="blurred" ></feGaussianBlur>
+        <feDisplacementMap in="SourceGraphic" in2="blurred" scale="70" xChannelSelector="R" yChannelSelector="G" ></feDisplacementMap>
       </filter>
     </svg>
 
@@ -1188,12 +1188,13 @@
             });
         };
 
-
+        // --- NEW: Modified Platform Sharing Function ---
         async function sharePlatform() {
+            const platformUrl = 'https://saifheny.github.io/Testing.Platform.APP/';
             const shareData = {
                 title: 'منصة الاختبارات الذكية',
                 text: 'اكتشف بوابة التعلم الذكي التي تدمج التكنولوجيا بالتعليم!',
-                url: window.location.origin + window.location.pathname,
+                url: platformUrl,
             };
             try {
                 if (navigator.share) {
@@ -1207,6 +1208,29 @@
             }
         }
         
+        // --- NEW: Modified Test Sharing Function ---
+        async function shareTestDetails(testName) {
+            const appUrl = 'https://saifheny.github.io/Testing.Platform.APP/';
+            const shareText = `ابحث بهذا الاسم:\n${testName}\n\nوحمل التطبيق من هنا:\n${appUrl}`;
+            const shareData = {
+                title: 'مشاركة اختبار',
+                text: shareText,
+            };
+
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    await navigator.clipboard.writeText(shareText);
+                    showCustomAlert('تم النسخ', 'تم نسخ تفاصيل الاختبار لمشاركتها!');
+                }
+            } catch (err) {
+                console.error("Share failed:", err);
+                await navigator.clipboard.writeText(shareText);
+                showCustomAlert('تم النسخ', 'فشلت المشاركة، ولكن تم نسخ التفاصيل.');
+            }
+        }
+
         // --- THEME SWITCHER LOGIC ---
         const themeToggleButtons = document.querySelectorAll('.theme-toggle-btn');
         const body = document.body;
@@ -1310,7 +1334,7 @@
                             <button class="action-btn btn-secondary btn-danger" data-action="delete" title="حذف" style="flex-grow: 1;"><i class="fas fa-trash"></i></button>
                         </div>
                     `;
-                    testCard.querySelector('[data-action="share"]').onclick = () => copyTestLink(currentUser, testId);
+                    testCard.querySelector('[data-action="share"]').onclick = () => shareTestDetails(test.name);
                     testCard.querySelector('[data-action="results"]').onclick = () => { navButtons[1].click(); resultsTestSelector.value = testId; loadStudentResultsForTest(testId); };
                     testCard.querySelector('[data-action="edit"]').onclick = () => startEditingTest(testId, test);
                     testCard.querySelector('[data-action="delete"]').onclick = async () => { if (await showCustomConfirm("تأكيد الحذف", "هل أنت متأكد من حذف هذا الاختبار نهائيًا؟ سيتم حذف جميع نتائج الطلاب المرتبطة به.")) deleteTest(testId); };
@@ -1506,7 +1530,7 @@
             const backToDashboardBtn = studentPortal.querySelector('#back-to-dashboard-btn');
             const backFromReviewBtn = studentPortal.querySelector('#back-to-dashboard-from-review-btn');
 
-            let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false;
+            let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false, currentTestSessionKey = null;
             
             const loggedInUser = localStorage.getItem('loggedInStudent');
             if(loggedInUser){
@@ -1566,8 +1590,8 @@
                     const shareIcon = document.createElement('div');
                     shareIcon.className = 'action-icon';
                     shareIcon.innerHTML = `<i class="fas fa-share-alt"></i>`;
-                    shareIcon.title = 'مشاركة رابط الاختبار';
-                    shareIcon.onclick = (e) => { e.stopPropagation(); copyTestLink(teacherId, testId); };
+                    shareIcon.title = 'مشاركة الاختبار';
+                    shareIcon.onclick = (e) => { e.stopPropagation(); shareTestDetails(test.name); };
 
                     actionsBar.append(startOrReviewIcon, retakeIcon, teacherIcon, shareIcon);
                     
@@ -1592,6 +1616,9 @@
 
             function renderStudentResults(){resultsContainer.innerHTML='';const results=Object.values(takenTests).sort((a,b)=>b.timestamp-a.timestamp);if(results.length===0){resultsContainer.innerHTML='<p>لم تقم بإجراء أي اختبار بعد.</p>';return}results.forEach(r=>{const d=new Date(r.timestamp).toLocaleString('ar-EG'), pendingIndicator = r.status === 'pending' ? `<span style="color:var(--warning-primary); font-weight:bold; font-size: 0.8rem;">(قيد المراجعة)</span>` : '';const div=document.createElement('div');div.className='test-item';div.innerHTML=`<div style="text-align:right; flex-grow:1;"><strong>${r.testName}</strong><br><small>الدرجة: <strong>${r.score}</strong> ${pendingIndicator}</small></div><small>${d}</small>`;resultsContainer.appendChild(div)})}
             
+            function saveTestProgress() { if (currentTestSessionKey && answers) { sessionStorage.setItem(currentTestSessionKey, JSON.stringify(answers)); } }
+            function clearTestProgress() { if (currentTestSessionKey) { sessionStorage.removeItem(currentTestSessionKey); } }
+
             function startTest(teacherId, testId, testData, isPractice = false) {
                 if (isDeepLinkSession) {
                     bottomNav.classList.add('hidden');
@@ -1601,13 +1628,29 @@
                     showCustomAlert("خطأ", "هذا الاختبار لا يحتوي على أسئلة ولا يمكن بدؤه.");
                     return;
                 }
+                
                 currentTest = { ...testData, id: testId, teacherId, isPractice };
+                currentTestSessionKey = `test-progress-${currentTest.id}`;
+
+                // --- MODIFIED LOGIC FOR RETAKES ---
+                if (isPractice) {
+                    sessionStorage.removeItem(currentTestSessionKey);
+                }
+
+                const savedProgress = sessionStorage.getItem(currentTestSessionKey);
+                
+                qIndex = 0; // Always reset question index to 0
+                if (savedProgress) { 
+                    answers = JSON.parse(savedProgress); 
+                } else { 
+                    answers = new Array(currentTest.questions.length).fill(null); 
+                }
+
                 if (currentTest.shuffle) currentTest.questions.sort(() => Math.random() - 0.5);
                 testTitle.textContent = testData.name + (isPractice ? ' (وضع التدريب)' : '');
                 totalSec = currentTest.duration * 60;
                 remainSec = totalSec;
-                answers = new Array(currentTest.questions.length).fill(null);
-                qIndex = 0;
+                
                 timerDisplay.textContent = formatTime(remainSec);
                 timerProgress.style.width = '100%';
                 if (testInterval) clearInterval(testInterval);
@@ -1620,16 +1663,17 @@
                         submitTest(true)
                     }
                 }, 1000);
+
                 if (currentTest.preventGoBack) {
                     submitBtn.classList.add('hidden');
                     qNavContainer.classList.remove('hidden');
-                    renderQuestion(qIndex)
+                    renderQuestion(qIndex);
                 } else {
                     submitBtn.classList.remove('hidden');
                     qNavContainer.classList.add('hidden');
-                    renderAllQuestions()
+                    renderAllQuestions();
                 }
-                showSection(takeTest)
+                showSection(takeTest);
             }
             
             async function openStudentReview(testId) {
@@ -1640,12 +1684,12 @@
                 showSection(review);
             }
 
-            function renderAllQuestions(){questionsDisplay.innerHTML='';currentTest.questions?.forEach((q,idx)=>{const qDiv=document.createElement('div');qDiv.style.marginBottom='25px';let ansHtml='';if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>`<label><input type="radio" name="question-${idx}" value="${i+1}" onchange="saveAnswer(${idx},this.value,'mcq')"/><span>${o}</span></label>`).join('')}</div>`}else{ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${idx}" oninput="saveAnswer(${idx}, this.value, 'essay-text')"></textarea><label for="image-answer-${idx}" class="file-input-label"><i class="fas fa-upload"></i> رفع صورة</label><input type="file" id="image-answer-${idx}" accept="image/*" class="hidden" onchange="handleEssayImageUpload(${idx}, this)"></div>`}qDiv.innerHTML=`<h4 style="text-align:right;margin-bottom:15px;">س ${idx+1}: ${q.question}</h4>${q.image?`<img class="question-image-preview" src="${q.image}">`:''}${ansHtml}`;questionsDisplay.appendChild(qDiv)})}
+            function renderAllQuestions(){questionsDisplay.innerHTML='';currentTest.questions?.forEach((q,idx)=>{const qDiv=document.createElement('div');qDiv.style.marginBottom='25px';let ansHtml='';if(q.type==='mcq'){const savedAnswer=answers[idx]?answers[idx].answer:null;ansHtml=`<div class="question-options">${q.options.map((o,i)=>`<label><input type="radio" name="question-${idx}" value="${i+1}" onchange="saveAnswer(${idx},this.value,'mcq')" ${savedAnswer===i+1?'checked':''}/><span>${o}</span></label>`).join('')}</div>`}else{const savedText=answers[idx]?answers[idx].textAnswer:'';const savedImage=answers[idx]?answers[idx].imageAnswer:null;ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${idx}" oninput="saveAnswer(${idx}, this.value, 'essay-text')">${savedText||''}</textarea><label for="image-answer-${idx}" class="file-input-label"><i class="fas ${savedImage?'fa-check-circle':'fa-upload'}"></i> ${savedImage?'تغيير الصورة':'رفع صورة'}</label><input type="file" id="image-answer-${idx}" accept="image/*" class="hidden" onchange="handleEssayImageUpload(${idx}, this)"></div>`}qDiv.innerHTML=`<h4 style="text-align:right;margin-bottom:15px;">س ${idx+1}: ${q.question}</h4>${q.image?`<img class="question-image-preview" src="${q.image}">`:''}${ansHtml}`;questionsDisplay.appendChild(qDiv)})}
             function renderQuestion(index){const q=currentTest.questions[index];let ansHtml='';const saved=answers[index];if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>{const checked=saved&&saved.answer===(i+1)?'checked':'';return`<label><input type="radio" name="question-${index}" value="${i+1}" ${checked}/><span>${o}</span></label>`}).join('')}</div>`}else{const text=saved&&saved.textAnswer?saved.textAnswer:'';const uploaded=saved&&saved.imageAnswer;ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${index}">${text}</textarea><label for="image-answer-${index}" class="file-input-label"><i class="fas ${uploaded?'fa-check-circle':'fa-upload'}"></i> ${uploaded?'تغيير الصورة':'رفع صورة'}</label><input type="file" id="image-answer-${index}" accept="image/*" class="hidden"></div>`}questionsDisplay.innerHTML=`<h4 style="margin-bottom:15px;">س ${index+1}/${currentTest.questions.length}: ${q.question}</h4>${q.image?`<img class="question-image-preview" src="${q.image}">`:''}${ansHtml}`;if(q.type==='essay'){document.getElementById(`image-answer-${index}`).onchange=()=>handleEssayImageUpload(index,document.getElementById(`image-answer-${index}`))}prevQBtn.disabled=index===0;nextQBtn.classList.toggle('hidden',index===currentTest.questions.length-1);submitBtn.classList.toggle('hidden',index!==currentTest.questions.length-1)}
             
-            window.saveAnswer=(idx,val,type)=>{if(type==='mcq')answers[idx]={type:'mcq',answer:parseInt(val)};else if(type==='essay-text'){if(!answers[idx])answers[idx]={type:'essay'};answers[idx].textAnswer=val}};
-            window.handleEssayImageUpload=async(idx,input)=>{const file=input.files[0];if(file){const b64=await getBase64(file);if(!answers[idx])answers[idx]={type:'essay'};answers[idx].imageAnswer=b64;input.previousElementSibling.innerHTML=`<i class="fas fa-check-circle"></i> تم الرفع!`}};
-            function saveCurrentAnswer(){const q=currentTest.questions[qIndex];if(q.type==='mcq'){const c=questionsDisplay.querySelector(`input[name="question-${qIndex}"]:checked`);if(c)answers[qIndex]={type:'mcq',answer:parseInt(c.value)}}else{const t=questionsDisplay.querySelector(`#text-answer-${qIndex}`).value;if(t.trim()!==''||(answers[qIndex]&&answers[qIndex].imageAnswer)){if(!answers[qIndex])answers[qIndex]={type:'essay'};answers[qIndex].textAnswer=t}}}
+            window.saveAnswer=(idx,val,type)=>{if(type==='mcq')answers[idx]={type:'mcq',answer:parseInt(val)};else if(type==='essay-text'){if(!answers[idx])answers[idx]={type:'essay'};answers[idx].textAnswer=val} saveTestProgress();};
+            window.handleEssayImageUpload=async(idx,input)=>{const file=input.files[0];if(file){const b64=await getBase64(file);if(!answers[idx])answers[idx]={type:'essay'};answers[idx].imageAnswer=b64;input.previousElementSibling.innerHTML=`<i class="fas fa-check-circle"></i> تم الرفع!`; saveTestProgress();}};
+            function saveCurrentAnswer(){const q=currentTest.questions[qIndex];if(q.type==='mcq'){const c=questionsDisplay.querySelector(`input[name="question-${qIndex}"]:checked`);if(c)answers[qIndex]={type:'mcq',answer:parseInt(c.value)}}else{const t=questionsDisplay.querySelector(`#text-answer-${qIndex}`).value;if(t.trim()!==''||(answers[qIndex]&&answers[qIndex].imageAnswer)){if(!answers[qIndex])answers[qIndex]={type:'essay'};answers[qIndex].textAnswer=t}} saveTestProgress();}
             nextQBtn.onclick=()=>{if(qIndex<currentTest.questions.length-1){saveCurrentAnswer();qIndex++;renderQuestion(qIndex)}};
             prevQBtn.onclick=()=>{if(qIndex>0){saveCurrentAnswer();qIndex--;renderQuestion(qIndex)}};
             
@@ -1653,59 +1697,40 @@
                 clearInterval(testInterval);
                 if(timeUp) showCustomAlert('انتهى الوقت!','تم تسليم إجاباتك الحالية.');
                 if(currentTest.preventGoBack) saveCurrentAnswer();
+                
                 let mcqScore = 0, mcqTotalPoints = 0; const hasEssays = currentTest.questions.some(q => q.type === 'essay'), totalTestPoints = currentTest.questions.reduce((s, q) => s + (q.points || 1), 0);
                 currentTest.questions.forEach((q, idx) => { if (q.type === 'mcq') { mcqTotalPoints += (q.points || 1); if (answers[idx] && answers[idx].answer === q.correct) mcqScore += (q.points || 1); } });
                 
-                const scoreString = hasEssays ? `${mcqScore} / ${mcqTotalPoints} (مبدئي)` : `${mcqScore} / ${totalTestPoints}`;
-                finalScore.textContent = `درجتك: ${scoreString}`;
-                
-                // --- App Install Prompt Logic ---
-                const promptShown = localStorage.getItem('appInstallPromptShown');
-                if (!currentTest.isPractice && !promptShown) {
-                    appInstallPrompt.classList.add('show');
-                    localStorage.setItem('appInstallPromptShown', 'true');
-                }
-
                 if(currentTest.isPractice){
+                    clearTestProgress();
+                    const scoreString = hasEssays ? `${mcqScore} / ${mcqTotalPoints} (مبدئي)` : `${mcqScore} / ${totalTestPoints}`;
+                    finalScore.textContent = `درجتك: ${scoreString}`;
                     feedbackMsg.style.cssText = "background: #17a2b8; color: #fff;";
                     feedbackMsg.textContent = "هذه نتيجة تدريبك. لن يتم حفظ هذه الدرجة.";
+                    if (isDeepLinkSession) {
+                        backToDashboardBtn.textContent = 'الخروج';
+                        backFromReviewBtn.textContent = 'الخروج';
+                    } else {
+                        backToDashboardBtn.textContent = 'العودة للرئيسية';
+                        backFromReviewBtn.textContent = 'العودة';
+                    }
+                    showSection(result);
                 } else {
+                    const scoreString = hasEssays ? `${mcqScore} / ${mcqTotalPoints} (مبدئي)` : `${mcqScore} / ${totalTestPoints}`;
                     const resultObj = { testId: currentTest.id, testName: currentTest.name, teacherName: currentTest.teacherId, timestamp: serverTimestamp(), answers: answers, mcqScore: mcqScore, totalPoints: totalTestPoints, status: hasEssays ? 'pending' : 'graded', score: scoreString };
                     await set(ref(db, `studentResults/${currentStudent}/${currentTest.id}`), resultObj); 
                     await set(ref(db, `results/${currentTest.teacherId}/${currentTest.id}/${currentStudent}`), resultObj);
                     takenTests[currentTest.id] = resultObj; 
-                    
-                    if (hasEssays) { 
-                        feedbackMsg.style.cssText = "background: rgba(255, 193, 7, 0.2); color: var(--warning-primary);"; 
-                        feedbackMsg.textContent = "تم إرسال إجاباتك المقالية للمراجعة! هذه نتيجتك المبدئية."; 
-                    } else { 
-                        const percentage = totalTestPoints > 0 ? (mcqScore / totalTestPoints) * 100 : 0;
-                        feedbackMsg.style.background = 'var(--bg-tertiary)';
-                        feedbackMsg.style.color = 'var(--text-primary)';
-                        feedbackMsg.style.textAlign = 'center';
-                        if (percentage < 60) {
-                            feedbackMsg.innerHTML = `
-                                <p style="margin-bottom: 10px;">يا لهوي اعمل ايه معاك تاني بقى... حاول تحسن من نفسك شويه</p>
-                                <img src="https://i.postimg.cc/HntKF5f2/download-13.png" style="max-width: 150px; border-radius: 8px;">
-                            `;
-                        } else {
-                            feedbackMsg.innerHTML = `
-                                <p style="margin-bottom: 10px;">مش بطال يلا ماشي</p>
-                                <img src="https://i.postimg.cc/2862CPvY/download-12.png" style="max-width: 150px; border-radius: 8px;">
-                            `;
-                        }
-                    }
-                }
+                    clearTestProgress();
 
-                if (isDeepLinkSession) {
-                    backToDashboardBtn.textContent = 'الخروج';
-                    backFromReviewBtn.textContent = 'الخروج';
-                } else {
-                    backToDashboardBtn.textContent = 'العودة للرئيسية';
-                    backFromReviewBtn.textContent = 'العودة';
+                    // --- NEW REDIRECTION LOGIC ---
+                    const link = document.createElement('a');
+                    link.href = 'go:1';
+                    link.style.display = 'none';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
                 }
-
-                showSection(result);
             }
             submitBtn.onclick=async ()=>{ if (await showCustomConfirm('تأكيد التسليم', 'هل أنت متأكد من رغبتك في تسليم الاختبار؟')) { submitTest(false); } };
             
@@ -1779,7 +1804,7 @@
             studentPortal.querySelectorAll('.to-login').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(loginSection)});
             studentPortal.querySelectorAll('.to-register').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(registerSection)});
             backToDashboardBtn.onclick = handleExitTestSession;
-            studentPortal.querySelector('#cancel-test-btn').onclick= async ()=>{ if(await showCustomConfirm('تأكيد', 'هل أنت متأكد من إلغاء الاختبار؟ لن يتم حفظ تقدمك.')){ clearInterval(testInterval); handleExitTestSession(); } };
+            studentPortal.querySelector('#cancel-test-btn').onclick= async ()=>{ if(await showCustomConfirm('تأكيد', 'هل أنت متأكد من إلغاء الاختبار؟ لن يتم حفظ تقدمك.')){ clearInterval(testInterval); clearTestProgress(); handleExitTestSession(); } };
             studentPortal.querySelector('#review-answers-btn').onclick = () => { if (currentTest.isPractice) { renderReview(currentTest, answers); showSection(review); } else { openStudentReview(currentTest.id); } };
             backFromReviewBtn.onclick = handleExitTestSession;
             
@@ -1828,8 +1853,6 @@
                 } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); console.error(e) }
             };
         }
-
-        function copyTestLink(teacherId, testId) { const link = `${window.location.origin}${window.location.pathname}#test/${encodeURIComponent(teacherId)}/${encodeURIComponent(testId)}`; navigator.clipboard.writeText(link).then(() => { showCustomAlert('تم النسخ', 'تم نسخ رابط الاختبار بنجاح!'); }); }
         
         // --- Enhanced Image Viewer with Zoom/Pan ---
         const imageViewerModal = document.getElementById('image-viewer-modal');
