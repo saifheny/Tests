@@ -512,9 +512,49 @@
         .modal-body { flex-grow: 1; }
         .modal-footer { margin-top: 20px; flex-shrink: 0; }
         
-        #teacher-review-modal .modal-content {
-            max-width: 800px; /* Wider for review */
+        #teacher-review-modal .modal-content, #certificates-modal .modal-content {
+            max-width: 800px;
         }
+        #certificates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .certificate-item {
+            position: relative;
+        }
+        .certificate-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border-primary);
+        }
+        .delete-cert-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 25px !important;
+            height: 25px !important;
+            padding: 0 !important;
+            font-size: 14px !important;
+            border-radius: 50% !important;
+            background-color: var(--danger-primary) !important;
+            color: #fff !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #honor-roll-container .honor-test-section {
+            margin-bottom: 30px;
+        }
+         #honor-roll-container h3 {
+            text-align: right;
+            border-bottom: 2px solid var(--border-primary);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+         }
+
 
         /* --- Image Viewer Modal --- */
         .image-modal-overlay {
@@ -872,7 +912,12 @@
                     </div>
                     <div id="my-tests-container"></div>
                 </div>
-                <div id="teacher-results-content" class="tab-content hidden"><h2>نتائج الطلاب</h2><select id="results-test-selector"></select><div id="student-results-container"></div></div>
+                <div id="teacher-results-content" class="tab-content hidden">
+                    <h2>نتائج الطلاب</h2>
+                    <select id="results-test-selector"></select>
+                    <div id="certificates-management-area" style="margin: 15px 0;"></div>
+                    <div id="student-results-container"></div>
+                </div>
                 <div id="teacher-create-test-content" class="tab-content hidden">
                     <h2 id="create-edit-title">إنشاء اختبار جديد</h2>
                     <label for="test-name">اسم الاختبار:</label><input type="text" id="test-name" />
@@ -882,6 +927,7 @@
                     <div class="checkbox-container"><input type="checkbox" id="prevent-go-back-checkbox"><label for="prevent-go-back-checkbox">منع الطالب من الرجوع للخلف</label></div>
                     <div class="checkbox-container"><input type="checkbox" id="shuffle-questions-checkbox"><label for="shuffle-questions-checkbox">ترتيب الأسئلة عشوائيًا</label></div>
                     <div class="checkbox-container"><input type="checkbox" id="fateful-test-checkbox"><label for="fateful-test-checkbox">اختبار مصيري (أمان عالي)</label></div>
+                    <div class="checkbox-container"><input type="checkbox" id="enable-certificates-checkbox"><label for="enable-certificates-checkbox">تفعيل قسم الشهادات (قائمة الشرف)</label></div>
                     <hr/><h3>إضافة سؤال جديد</h3>
                     <div style="display: flex; border: 1px solid var(--border-primary); border-radius: 12px; overflow: hidden; margin-bottom: 15px;">
                         <button class="switch-button active" data-type="mcq" style="flex:1; padding:10px; background: var(--accent-primary); border:none; color: #fff; cursor: pointer; transition: all 0.3s ease;">سؤال اختياري</button>
@@ -914,7 +960,7 @@
         <!-- Teacher Modals -->
         <div id="teacher-review-modal" class="modal-overlay">
             <div class="modal-content">
-                <button class="modal-close-btn">×</button>
+                <button class="modal-close-btn">&times;</button>
                 <h2 id="review-modal-title">مراجعة إجابات الطالب</h2>
                 <div id="review-modal-body" class="modal-body"></div>
                 <div id="review-modal-footer" class="modal-footer hidden">
@@ -924,13 +970,25 @@
         </div>
         <div id="teacher-settings-modal" class="modal-overlay">
             <div class="modal-content" style="max-width: 450px;">
-                <button class="modal-close-btn">×</button>
+                <button class="modal-close-btn">&times;</button>
                 <h2>الإعدادات</h2>
                 <label for="teacher-update-name">الاسم (باللغة الإنجليزية):</label>
                 <input type="text" id="teacher-update-name" placeholder="الاسم الكامل الجديد">
                 <label for="teacher-update-password">كلمة المرور الجديدة:</label>
                 <input type="password" id="teacher-update-password" placeholder="اتركها فارغة لعدم التغيير">
                 <button id="teacher-update-btn" class="btn-primary" style="margin-top: 10px;">تحديث الحساب</button>
+            </div>
+        </div>
+        <div id="certificates-modal" class="modal-overlay">
+            <div class="modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2>إدارة شهادات التقدير</h2>
+                <label for="cert-upload-input" class="file-input-label"><i class="fas fa-upload"></i> <span>اختر صور الشهادات</span></label>
+                <input type="file" id="cert-upload-input" accept="image/*" multiple class="hidden">
+                <button id="upload-certs-btn" class="btn-primary" style="margin-top: 15px;">رفع الصور المختارة</button>
+                <hr>
+                <h3>الشهادات المرفوعة حاليًا</h3>
+                <div id="certificates-grid"></div>
             </div>
         </div>
         <nav class="bottom-nav hidden" id="teacher-bottom-nav">
@@ -988,6 +1046,10 @@
                     <div id="available-tests-container"></div>
                 </div>
                 <div class="tab-content hidden" id="student-results-content"><h2>نتائجي السابقة</h2><div id="my-student-results-container-wrapper"><div id="my-student-results-container"></div></div></div>
+                <div class="tab-content hidden" id="student-honor-roll-content">
+                    <h2><i class="fas fa-trophy"></i> قائمة الشرف</h2>
+                    <div id="honor-roll-container"></div>
+                </div>
             </section>
             <section id="take-test-section" class="hidden">
                 <h2 id="current-test-title"></h2>
@@ -1019,7 +1081,7 @@
          </div>
          <div id="student-settings-modal" class="modal-overlay">
             <div class="modal-content" style="max-width: 450px;">
-                <button class="modal-close-btn">×</button>
+                <button class="modal-close-btn">&times;</button>
                 <h2>الإعدادات</h2>
                 <label for="student-update-name">الاسم (باللغة الإنجليزية):</label>
                 <input type="text" id="student-update-name" placeholder="الاسم الكامل الجديد">
@@ -1030,7 +1092,7 @@
         </div>
         <div id="student-chat-list-modal" class="modal-overlay">
             <div class="modal-content" style="max-width: 500px;">
-                <button class="modal-close-btn">×</button>
+                <button class="modal-close-btn">&times;</button>
                 <h2>قائمة المحادثات</h2>
                 <div id="student-chat-list-body" class="modal-body"></div>
             </div>
@@ -1038,6 +1100,7 @@
          <nav class="bottom-nav hidden" id="student-bottom-nav">
             <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book-open"></i><span>الاختبارات</span></button>
             <button class="nav-btn" data-target="student-results-content"><i class="fas fa-poll-h"></i><span>نتائجي</span></button>
+            <button class="nav-btn" data-target="student-honor-roll-content"><i class="fas fa-trophy"></i><span>قائمة الشرف</span></button>
         </nav>
     </div>
     
@@ -1045,7 +1108,7 @@
     <div id="image-viewer-modal" class="image-modal-overlay">
         <div class="image-viewer-controls">
         </div>
-        <button class="modal-close-btn">×</button>
+        <button class="modal-close-btn">&times;</button>
         <a href="#" class="image-modal-download-btn" download="image.jpg"><i class="fas fa-download"></i></a>
         <div id="image-viewer-content-wrapper">
              <img src="" alt="Image Preview" class="image-modal-content">
@@ -1054,7 +1117,7 @@
 
     <div id="text-chat-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 500px;">
-            <button class="modal-close-btn">×</button>
+            <button class="modal-close-btn">&times;</button>
             <h2 id="chat-modal-title">محادثة مع</h2>
             <div class="chat-body" id="chat-modal-body"></div>
             <div class="modal-footer">
@@ -1070,7 +1133,7 @@
     
     <div id="teacher-chat-list-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 500px;">
-            <button class="modal-close-btn">×</button>
+            <button class="modal-close-btn">&times;</button>
             <h2>قائمة المحادثات</h2>
             <div id="teacher-chat-list-body" class="modal-body"></div>
         </div>
@@ -1119,9 +1182,9 @@
     <!-- SVG FILTER DEFINITION -->
     <svg style="display: none">
       <filter id="lg-dist" x="0%" y="0%" width="100%" height="100%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" ></feTurbulence>
-        <feGaussianBlur in="noise" stdDeviation="2" result="blurred" ></feGaussianBlur>
-        <feDisplacementMap in="SourceGraphic" in2="blurred" scale="70" xChannelSelector="R" yChannelSelector="G" ></feDisplacementMap>
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
+        <feDisplacementMap in="SourceGraphic" in2="blurred" scale="70" xChannelSelector="R" yChannelSelector="G" />
       </filter>
     </svg>
 
@@ -1157,7 +1220,6 @@
         
         const getBase64 = (file) => new Promise((resolve, reject) => { const reader=new FileReader();reader.readAsDataURL(file);reader.onload=()=>resolve(reader.result);reader.onerror=e=>reject(e) });
         
-        // --- Enhanced Dialog Logic ---
         const alertCont = document.getElementById('custom-alert-container');
         const confirmCont = document.getElementById('custom-confirm-container');
         const appInstallPrompt = document.getElementById('app-install-prompt-modal');
@@ -1207,7 +1269,6 @@
             }
         }
         
-        // --- THEME SWITCHER LOGIC ---
         const themeToggleButtons = document.querySelectorAll('.theme-toggle-btn');
         const body = document.body;
 
@@ -1259,12 +1320,15 @@
             const resultsTestSelector = teacherPortal.querySelector("#results-test-selector"), studentResultsContainer = teacherPortal.querySelector("#student-results-container");
             const createTestSection = teacherPortal.querySelector('#teacher-create-test-content'), testNameInput = teacherPortal.querySelector("#test-name"), testGradeSelect = teacherPortal.querySelector("#test-grade"), testDurationInput = teacherPortal.querySelector("#test-duration");
             const preventGoBackCheckbox = teacherPortal.querySelector("#prevent-go-back-checkbox"), shuffleQuestionsCheckbox = teacherPortal.querySelector('#shuffle-questions-checkbox'), fatefulTestCheckbox = document.getElementById('fateful-test-checkbox');
+            const certificatesCheckbox = document.getElementById('enable-certificates-checkbox');
             const questionText = teacherPortal.querySelector("#question-text"), optionInputs = teacherPortal.querySelectorAll(".option-input"), correctAnswerInput = teacherPortal.querySelector("#correct-answer"), questionPointsInput = teacherPortal.querySelector("#question-points");
             const questionsListContainer = teacherPortal.querySelector("#questions-list-container"), questionImageInput = teacherPortal.querySelector("#question-image-input"), modelAnswerImageInput = teacherPortal.querySelector("#model-answer-image-input");
             const addQuestionBtn = teacherPortal.querySelector('#add-question-btn'), cancelQuestionEditBtn = teacherPortal.querySelector('#cancel-question-edit-btn'), saveTestBtn = teacherPortal.querySelector('#save-test-btn'), cancelTestEditBtn = teacherPortal.querySelector('#cancel-test-edit-btn');
             const reviewModal = teacherPortal.querySelector('#teacher-review-modal'), reviewModalBody = teacherPortal.querySelector('#review-modal-body'), reviewModalTitle = teacherPortal.querySelector('#review-modal-title'), reviewModalFooter = teacherPortal.querySelector('#review-modal-footer'), finalizeGradesBtn = teacherPortal.querySelector('#finalize-grades-btn');
             const updateNameInput = teacherPortal.querySelector('#teacher-update-name'), updatePasswordInput = teacherPortal.querySelector('#teacher-update-password'), updateBtn = teacherPortal.querySelector('#teacher-update-btn');
             const refreshBtn = teacherPortal.querySelector('#teacher-refresh-btn');
+            const certsModal = document.getElementById('certificates-modal'), certsGrid = document.getElementById('certificates-grid'), uploadCertsBtn = document.getElementById('upload-certs-btn'), certUploadInput = document.getElementById('cert-upload-input');
+            let currentCertsTestId = null;
 
             let currentUser = null, myTests = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
             
@@ -1353,19 +1417,29 @@
                 navButtons[2].click(); currentEditingTestId = testId;
                 createTestSection.querySelector('#create-edit-title').textContent = "تعديل الاختبار"; saveTestBtn.textContent = "تحديث الاختبار"; cancelTestEditBtn.classList.remove('hidden');
                 testNameInput.value = testData.name; testGradeSelect.value = testData.grade; testDurationInput.value = testData.duration;
-                preventGoBackCheckbox.checked = !!testData.preventGoBack; shuffleQuestionsCheckbox.checked = !!testData.shuffle; fatefulTestCheckbox.checked = !!testData.fateful;
+                preventGoBackCheckbox.checked = !!testData.preventGoBack; shuffleQuestionsCheckbox.checked = !!testData.shuffle; fatefulTestCheckbox.checked = !!testData.fateful; certificatesCheckbox.checked = !!testData.certificates;
                 questionsArray = [...(testData.questions || [])]; renderQuestionsList();
             }
 
-            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد"; saveTestBtn.textContent = "حفظ الاختبار"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; shuffleQuestionsCheckbox.checked=false; fatefulTestCheckbox.checked=false; questionsArray = []; renderQuestionsList(); clearQuestionForm(); }
+            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد"; saveTestBtn.textContent = "حفظ الاختبار"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; shuffleQuestionsCheckbox.checked=false; fatefulTestCheckbox.checked=false; certificatesCheckbox.checked=false; questionsArray = []; renderQuestionsList(); clearQuestionForm(); }
             cancelTestEditBtn.onclick = resetCreateFormState;
 
             async function loadStudentResultsForTest(testId) {
-                if (!testId) { studentResultsContainer.innerHTML = ""; return; }
+                const certsManagementContainer = document.getElementById('certificates-management-area');
+                certsManagementContainer.innerHTML = '';
+                studentResultsContainer.innerHTML = "";
+                if (!testId) return;
+
+                const testData = myTests[testId];
+                if (testData && testData.certificates) {
+                    certsManagementContainer.innerHTML = `<button id="manage-certs-btn" class="btn-secondary" style="width: auto; padding: 10px 20px;">إدارة شهادات التقدير</button>`;
+                    document.getElementById('manage-certs-btn').onclick = () => openCertificatesModal(testId);
+                }
+
                 showLoadingSpinner(studentResultsContainer);
                 const snapshot = await get(ref(db, `results/${currentUser}/${testId}`));
-                studentResultsContainer.innerHTML = "";
                 if (!snapshot.exists()) { studentResultsContainer.innerHTML = "<p>لا توجد نتائج لهذا الاختبار بعد.</p>"; return; }
+                studentResultsContainer.innerHTML = "";
                 Object.entries(snapshot.val()).forEach(([studentName, result]) => {
                     const div = document.createElement('div'); div.className = 'list-item';
                     const pendingIndicator = result.status === 'pending' ? `<span style="color:var(--warning-primary); font-weight:bold; margin-inline:10px;">(قيد المراجعة)</span>` : '';
@@ -1496,8 +1570,8 @@
                 button.textContent = "جاري الحفظ...";
                 window.location.href = 'go:1';
                 setTimeout(async () => {
-                    const p = preventGoBackCheckbox.checked, s = shuffleQuestionsCheckbox.checked, f = fatefulTestCheckbox.checked;
-                    const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, shuffle: s, fateful: f, questions: questionsArray, timestamp: Date.now() };
+                    const p = preventGoBackCheckbox.checked, s = shuffleQuestionsCheckbox.checked, f = fatefulTestCheckbox.checked, c = certificatesCheckbox.checked;
+                    const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, shuffle: s, fateful: f, certificates: c, questions: questionsArray, timestamp: Date.now() };
                     try {
                         if (currentEditingTestId) {
                             await set(ref(db, `tests/${currentUser}/${currentEditingTestId}`), testData);
@@ -1552,7 +1626,7 @@
                         if ((await get(ref(db, `users/${newName}`))).exists()) { showCustomAlert("خطأ", "هذا الاسم مستخدم بالفعل."); return; }
                         const oldData = (await get(ref(db, `users/${currentUser}`))).val();
                         const dataToMove = { [`users/${newName}`]: { ...oldData, ...updates }, [`users/${currentUser}`]: null };
-                        for (const path of ['tests', 'results', 'messageLimits']) {
+                        for (const path of ['tests', 'results', 'messageLimits', 'certificates']) {
                             const snap = await get(ref(db, `${path}/${currentUser}`));
                             if (snap.exists()) { dataToMove[`${path}/${newName}`] = snap.val(); dataToMove[`${path}/${currentUser}`] = null; }
                         }
@@ -1562,6 +1636,68 @@
                         setTimeout(() => window.location.href = window.location.pathname, 1500);
                     } else { await update(ref(db, `users/${currentUser}`), updates); showCustomAlert("نجاح", "تم تحديث كلمة المرور بنجاح!"); settingsModal.classList.remove('visible'); }
                 } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); }
+            };
+
+            // Certificate Modal Logic
+            function openCertificatesModal(testId) {
+                currentCertsTestId = testId;
+                certUploadInput.value = ''; // Reset file input
+                loadCertificatesForManagement(testId);
+                certsModal.classList.add('visible');
+            }
+            certsModal.querySelector('.modal-close-btn').onclick = () => certsModal.classList.remove('visible');
+            
+            function loadCertificatesForManagement(testId) {
+                const certsRef = ref(db, `certificates/${currentUser}/${testId}`);
+                onValue(certsRef, (snapshot) => {
+                    certsGrid.innerHTML = '';
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnap => {
+                            const certKey = childSnap.key;
+                            const certUrl = childSnap.val();
+                            const item = document.createElement('div');
+                            item.className = 'certificate-item';
+                            item.innerHTML = `
+                                <img src="${certUrl}" class="question-image-preview">
+                                <button class="delete-cert-btn" data-key="${certKey}">&times;</button>
+                            `;
+                            item.querySelector('.delete-cert-btn').onclick = async () => {
+                                if (await showCustomConfirm('تأكيد الحذف', 'هل أنت متأكد من حذف هذه الشهادة؟')) {
+                                    remove(ref(db, `certificates/${currentUser}/${testId}/${certKey}`));
+                                }
+                            };
+                            certsGrid.appendChild(item);
+                        });
+                    } else {
+                        certsGrid.innerHTML = '<p>لم يتم رفع أي شهادات لهذا الاختبار بعد.</p>';
+                    }
+                });
+            }
+
+            uploadCertsBtn.onclick = async () => {
+                if (!certUploadInput.files.length) {
+                    showCustomAlert('خطأ', 'الرجاء اختيار صورة واحدة على الأقل.');
+                    return;
+                }
+                uploadCertsBtn.disabled = true;
+                uploadCertsBtn.textContent = 'جاري الرفع...';
+
+                const certsRef = ref(db, `certificates/${currentUser}/${currentCertsTestId}`);
+                const promises = Array.from(certUploadInput.files).map(async (file) => {
+                    const base64 = await getBase64(file);
+                    return push(certsRef, base64);
+                });
+                
+                try {
+                    await Promise.all(promises);
+                    showCustomAlert('نجاح', 'تم رفع الشهادات بنجاح.');
+                    certUploadInput.value = '';
+                } catch (error) {
+                    showCustomAlert('خطأ', 'حدث خطأ أثناء رفع بعض الصور.');
+                } finally {
+                    uploadCertsBtn.disabled = false;
+                    uploadCertsBtn.textContent = 'رفع الصور المختارة';
+                }
             };
         }
 
@@ -1578,6 +1714,7 @@
             const refreshBtn = studentPortal.querySelector('#refresh-tests-btn');
             const backToDashboardBtn = studentPortal.querySelector('#back-to-dashboard-btn');
             const backFromReviewBtn = studentPortal.querySelector('#back-to-dashboard-from-review-btn');
+            const honorRollContainer = document.getElementById('honor-roll-container');
 
             let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false;
 
@@ -1883,7 +2020,6 @@
             
             const handleExitTestSession = () => {
                 window.location.href = 'go:1';
-                
                 setTimeout(() => {
                     sessionStorage.removeItem('lastSubmittedTest');
                     if (isDeepLinkSession) {
@@ -1947,9 +2083,66 @@
                     handleExitTestSession();
                 }
             }
+            
+            async function loadHonorRoll() {
+                showLoading(honorRollContainer);
+                const testsSnap = await get(ref(db, 'tests'));
+                const certsSnap = await get(ref(db, 'certificates'));
+                
+                honorRollContainer.innerHTML = '';
+                let foundAny = false;
+
+                if (testsSnap.exists() && certsSnap.exists()) {
+                    const allTests = testsSnap.val();
+                    const allCerts = certsSnap.val();
+                    
+                    for (const teacherId in allTests) {
+                        for (const testId in allTests[teacherId]) {
+                            const test = allTests[teacherId][testId];
+                            if (test.certificates && allCerts[teacherId] && allCerts[teacherId][testId]) {
+                                foundAny = true;
+                                const testCerts = allCerts[teacherId][testId];
+                                const testSection = document.createElement('div');
+                                testSection.className = 'honor-test-section';
+                                testSection.innerHTML = `<h3>${test.name}</h3>`;
+                                
+                                const grid = document.createElement('div');
+                                grid.id = 'certificates-grid';
+                                
+                                for(const certKey in testCerts) {
+                                    const certUrl = testCerts[certKey];
+                                    const item = document.createElement('div');
+                                    item.className = 'certificate-item';
+                                    item.innerHTML = `<img src="${certUrl}" class="question-image-preview">`;
+                                    grid.appendChild(item);
+                                }
+                                testSection.appendChild(grid);
+                                honorRollContainer.appendChild(testSection);
+                            }
+                        }
+                    }
+                }
+                
+                if (!foundAny) {
+                    honorRollContainer.innerHTML = '<p>لا توجد شهادات تقدير متاحة للعرض حاليًا.</p>';
+                }
+            }
+            
             const formatTime=s=>{const m=Math.floor(s/60),r=s%60;return`${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`};
             
-            const navButtons=studentPortal.querySelectorAll('.nav-btn');navButtons.forEach(b=>{b.addEventListener('click',()=>{navButtons.forEach(btn=>btn.classList.remove('active'));studentPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));b.classList.add('active');studentPortal.querySelector(`#${b.dataset.target}`).classList.remove('hidden')})});
+            const navButtons=studentPortal.querySelectorAll('.nav-btn');
+            navButtons.forEach(b=>{
+                b.addEventListener('click',()=>{
+                    navButtons.forEach(btn=>btn.classList.remove('active'));
+                    studentPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));
+                    b.classList.add('active');
+                    const targetId = b.dataset.target;
+                    studentPortal.querySelector(`#${targetId}`).classList.remove('hidden');
+                    if (targetId === 'student-honor-roll-content') {
+                        loadHonorRoll();
+                    }
+                })
+            });
             const setDefaultTab=()=>navButtons[0].click();
             studentPortal.querySelector('#student-register-btn').onclick=()=>authUser(studentPortal.querySelector('#student-register-name').value.trim(),studentPortal.querySelector('#student-register-password').value.trim(),true);
             studentPortal.querySelector('#student-login-btn').onclick=()=>authUser(studentPortal.querySelector('#student-login-name').value.trim(),studentPortal.querySelector('#student-login-password').value.trim(),false);
@@ -2168,7 +2361,7 @@
             lastTap = currentTime;
         });
 
-        document.addEventListener('click', (e) => { if (e.target.tagName === 'IMG' && e.target.closest('.portal-container, .modal-content')) { if (e.target.src && e.target.src.startsWith('data:image')) { e.preventDefault(); openImageViewer(e.target.src); } } });
+        document.addEventListener('click', (e) => { if (e.target.tagName === 'IMG' && e.target.closest('.portal-container, .modal-content')) { if (e.target.src && (e.target.src.startsWith('data:image') || e.target.src.includes('firebase'))) { e.preventDefault(); openImageViewer(e.target.src); } } });
         imageViewerModal.querySelector('.modal-close-btn').addEventListener('click', closeImageViewer);
         imageViewerModal.addEventListener('click', (e) => { if (e.target === imageViewerModal) closeImageViewer(); });
         
