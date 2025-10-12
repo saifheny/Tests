@@ -33,7 +33,13 @@
             --accent-primary-gradient: linear-gradient(180deg, #3081f7 0%, #1f6feb 100%);
             --accent-primary-border: #1158c7;
             --accent-secondary: #58a6ff;
-            --success-gradient: linear-gradient(180deg, #238636 0%, #1a6328 100%);
+            --success-color: #238636;
+            --success-glow: rgba(35, 134, 54, 0.5);
+            --success-bg: rgba(35, 134, 54, 0.2);
+            --danger-color: #da3633;
+            --danger-glow: rgba(218, 54, 51, 0.5);
+            --danger-bg: rgba(218, 54, 51, 0.2);
+            --success-gradient: linear-gradient(180deg, var(--success-color) 0%, #1a6328 100%);
             --success-border: #134b1f;
             --danger-primary: #da3633;
             --danger-border: #c82333;
@@ -61,7 +67,9 @@
             --accent-primary-gradient: linear-gradient(180deg, #e67e22 0%, #d35400 100%);
             --accent-primary-border: #a84300;
             --accent-secondary: #d35400;
-            --success-gradient: linear-gradient(180deg, #28a745 0%, #218838 100%);
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --success-gradient: linear-gradient(180deg, var(--success-color) 0%, #218838 100%);
             --success-border: #1e7e34;
             --danger-primary: #dc3545;
             --danger-border: #c82333;
@@ -83,6 +91,7 @@
             text-align: center;
             overflow-x: hidden;
             transition: background-color 0.4s, color 0.4s;
+            padding: 0 10px; /* Add side padding */
         }
         .hidden { display: none !important; }
         .no-select { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
@@ -144,6 +153,7 @@
             max-width: 500px;
             box-shadow: 0 10px 40px var(--shadow-color-heavy), inset 0 2px 2px var(--inset-shadow-light);
             margin: auto; /* Center modal that is shorter than the viewport */
+            position: relative;
         }
 
         /* --- Styling for Larger Question Images --- */
@@ -277,28 +287,20 @@
         .portal-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--bg-primary); animation: fadeIn 0.6s ease-out; color: var(--text-primary);
-            overflow-y: auto; padding: 40px 20px 120px 20px;
+            overflow-y: auto;
         }
-        #teacher-portal.auth-view {
+        #teacher-portal.auth-view, #student-portal.auth-view {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding-top: 0;
         }
-        .portal-content { max-width: 600px; margin: 0 auto; }
-        .portal-container .icon-btn {
-            width: 40px; height: 40px; border-radius: 50%; background: var(--border-secondary);
-            border: 1px solid var(--border-primary); color: var(--text-primary); display: flex; align-items: center;
-            justify-content: center; cursor: pointer; font-size: 18px; 
-            position: relative; transition: background-color 0.2s, transform 0.2s;
-        }
-        .portal-container .icon-btn:hover { background-color: var(--border-primary); transform: scale(1.1); }
-        .portal-container .icon-btn .notification-badge {
-            position: absolute; top: -2px; right: -2px;
-            width: 14px; height: 14px; background-color: var(--danger-primary);
-            border-radius: 50%; border: 2px solid var(--bg-primary);
-            display: none;
-        }
+        .portal-content { 
+            max-width: 800px; /* Increased max-width */
+            margin: 0 auto; 
+            padding: 120px 20px 40px 20px; /* Adjusted top padding for both headers */
+        } 
+        
         .portal-container .spinner { border: 4px solid var(--border-primary); border-top: 4px solid var(--accent-primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         .portal-container p { text-align: center; margin-top: 15px; font-size: 0.9rem; color: var(--text-secondary); }
         .portal-container p a { color: var(--accent-secondary); text-decoration: none; font-weight: 600; }
@@ -312,18 +314,93 @@
         .portal-container .btn-secondary:not(:disabled):hover { border-bottom-width: 6px; }
         .portal-container .btn-secondary:not(:disabled):active { border-bottom-width: 3px; }
         
-        .bottom-nav {
-            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: auto; display: flex;
-            gap: 8px; padding: 8px; background: color-mix(in srgb, var(--bg-tertiary) 70%, transparent); backdrop-filter: blur(20px);
-            border-radius: 99px; border: 1px solid var(--border-primary); box-shadow: 0 8px 32px 0 var(--shadow-color-heavy); z-index: 1000;
+       /* --- Top Navigation & Header Controls --- */
+        .top-nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 5px; 
+            background: color-mix(in srgb, var(--bg-tertiary) 85%, transparent); 
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-primary); 
+            box-shadow: 0 4px 20px 0 var(--shadow-color-heavy); 
+            z-index: 1000;
+            height: 65px;
         }
-        .bottom-nav .nav-btn { display: flex; align-items: center; gap: 5px; padding: 8px 16px; background: transparent; border: none; color: var(--text-secondary); opacity: 0.7; border-radius: 99px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.3s; }
-        .bottom-nav .nav-btn.active { opacity: 1; background: color-mix(in srgb, var(--accent-primary) 15%, transparent); color: var(--accent-secondary); box-shadow: 0 0 15px -5px var(--accent-primary); }
+        .top-nav .nav-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 2px; padding: 6px 10px; background: transparent; border: none;
+            color: var(--text-secondary); font-size: 0.75rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s;
+            flex: 1;
+            position: relative;
+        }
+        .top-nav .nav-btn i { font-size: 1.5rem; margin-bottom: 2px; transition: all 0.3s; }
+        .top-nav .nav-btn.active { color: var(--accent-secondary); }
+        .top-nav .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-secondary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-secondary);
+        }
+        .top-nav .nav-btn.active i {
+             transform: scale(1.1);
+             text-shadow: 0 0 15px var(--accent-primary);
+        }
+        .portal-header-controls {
+            position: fixed; top: 65px; /* Positioned below top-nav */
+            left: 0; right: 0;
+            display: flex; justify-content: space-between; align-items: center; z-index: 999;
+            background: color-mix(in srgb, var(--bg-primary) 90%, transparent);
+            padding: 5px 15px;
+            border-bottom: 1px solid var(--border-primary);
+            height: 45px;
+            margin-bottom: 10px;
+        }
+        .portal-content {
+            padding-top: 120px; /* 65px (nav) + 45px (header) + 10px (margin) */
+        }
+        .portal-header-controls h1 {
+            font-size: 0.9rem;
+            margin: 0;
+            text-align: center; /* Center the welcome message */
+            flex-grow: 1;
+            color: var(--text-secondary);
+        }
+        .portal-header-controls .header-icons {
+             display: flex; gap: 8px;
+        }
+        .portal-header-controls .icon-btn {
+            width: 32px; height: 32px; /* Smaller buttons */
+            border-radius: 50%; background: transparent;
+            border: 1px solid var(--border-primary); color: var(--text-secondary); display: flex; align-items: center;
+            justify-content: center; cursor: pointer; font-size: 14px; /* Smaller icon */
+            position: relative;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .portal-header-controls .icon-btn:hover { background-color: var(--border-primary); color: var(--text-primary); }
+        .portal-header-controls .icon-btn .notification-badge {
+            position: absolute; top: -1px; right: -1px; width: 10px; height: 10px; background-color: var(--danger-primary);
+            border-radius: 50%; border: 1.5px solid var(--bg-primary); display: none;
+        }
+        
+        /* --- Modern Refresh/Search Buttons --- */
+        .header-buttons .icon-btn { background-color: #000000; color: #ffffff;}
+        .header-buttons .icon-btn:hover { background-color: #222222; }
+        #refresh-tests-btn.loading i { animation: spin 1s linear infinite; }
+        #show-search-btn i { transition: transform 0.3s ease; }
+        #show-search-btn.active i { transform: rotate(90deg); color: var(--accent-secondary); }
+
 
         /* --- Header Dropdown Menu --- */
         .header-menu-container { position: relative; }
         .header-dropdown-menu {
-            display: none; position: absolute; top: 50px; left: 0;
+            display: none; position: absolute; top: 40px; left: 0;
             background: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: 10px;
             box-shadow: 0 8px 20px var(--shadow-color-heavy); z-index: 1100;
             width: 200px; overflow: hidden;
@@ -339,7 +416,6 @@
         .dropdown-item i { width: 20px; text-align: center; color: var(--accent-secondary); text-shadow: none; }
         
         /* --- Teacher Portal Specifics --- */
-        #teacher-portal .header-icons { position: absolute; top: 40px; left: 25px; display: flex; gap: 10px; z-index: 100; }
         #teacher-portal label { font-weight: 600; display: block; margin-bottom: 5px; text-align: right; }
         .file-input-label { background: var(--border-secondary); border: 2px dashed var(--border-primary); text-align: center; padding: 15px; border-radius: 10px; cursor: pointer; transition: border-color 0.3s, background-color 0.3s; }
         .file-input-label:hover { border-color: var(--accent-secondary); background-color: var(--border-primary); }
@@ -347,6 +423,42 @@
         .action-btn { padding: 6px 10px !important; font-size: 0.8rem !important; margin:0 !important; width: auto !important; display: flex; align-items: center; gap: 5px; }
         .test-countdown { font-size: 0.8rem; color: var(--warning-primary); font-weight: bold; margin-top: 5px; text-align: left; }
         .action-btn.btn-danger { background:var(--danger-primary); border-color:var(--danger-border); }
+        .switch-button-container {
+             display: flex; 
+             border: 1px solid var(--border-primary); 
+             border-radius: 12px; 
+             overflow: hidden; 
+             margin-bottom: 20px;
+             padding: 5px;
+             gap: 5px;
+        }
+        .switch-button-container .switch-button {
+            flex:1; padding:10px; background: var(--border-secondary); border:none; color: var(--text-primary); cursor: pointer; border-radius: 8px; font-weight: 600;
+        }
+        .switch-button-container .switch-button.active {
+            background: var(--accent-primary); color: #fff;
+        }
+        #mcq-fields .option-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        #mcq-fields .option-input {
+            margin-bottom: 0;
+            flex-grow: 1;
+        }
+        #mcq-fields .correct-answer-selector {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+        }
+        #mcq-fields .correct-answer-selector.selected {
+            color: var(--success-color);
+            transform: scale(1.2);
+        }
+
 
         /* --- Student Portal --- */
         .student-test-item-container {
@@ -496,12 +608,12 @@
         .desert-mode .modal-overlay { background: rgba(253, 246, 227, 0.7); }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
         .modal-close-btn {
-            position: absolute; top: 15px; left: 15px;
-            width: 35px; height: 35px;
+            position: absolute; top: 10px; left: 10px;
+            width: 30px; height: 30px;
             background: rgba(255,255,255,0.1); color: #fff;
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 50%;
-            font-size: 20px; font-weight: bold; cursor: pointer;
+            font-size: 18px; font-weight: bold; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             line-height: 1; z-index: 10;
             transition: transform 0.3s, background-color 0.3s;
@@ -512,48 +624,29 @@
         .modal-body { flex-grow: 1; }
         .modal-footer { margin-top: 20px; flex-shrink: 0; }
         
-        #teacher-review-modal .modal-content, #certificates-modal .modal-content {
-            max-width: 800px;
-        }
-        #certificates-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .certificate-item {
-            position: relative;
-        }
-        .certificate-item img {
-            width: 100%;
-            height: auto;
+        #teacher-review-modal .modal-content, #edit-assessment-modal .modal-content { max-width: 800px; }
+       
+        /* --- Answer Review Highlighting --- */
+        .review-option {
+            padding: 10px;
             border-radius: 8px;
+            margin-bottom: 5px;
             border: 1px solid var(--border-primary);
-        }
-        .delete-cert-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            width: 25px !important;
-            height: 25px !important;
-            padding: 0 !important;
-            font-size: 14px !important;
-            border-radius: 50% !important;
-            background-color: var(--danger-primary) !important;
-            color: #fff !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        #honor-roll-container .honor-test-section {
-            margin-bottom: 30px;
-        }
-         #honor-roll-container h3 {
+            background: var(--bg-secondary);
             text-align: right;
-            border-bottom: 2px solid var(--border-primary);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-         }
+        }
+        .review-option.correct-answer-highlight {
+            background: var(--success-bg);
+            border-color: var(--success-color);
+            color: var(--text-primary);
+            box-shadow: 0 0 10px var(--success-glow);
+        }
+        .review-option.incorrect-answer-highlight {
+            background: var(--danger-bg);
+            border-color: var(--danger-color);
+            color: var(--text-primary);
+            text-decoration: line-through;
+        }
 
 
         /* --- Image Viewer Modal --- */
@@ -814,15 +907,104 @@
                 1.5px 1.5px 3px var(--shadow-color-heavy);
         }
 
+       /* --- New Group Chat Styles --- */
+        #student-group-chat-content {
+            height: calc(100vh - 120px); /* Full height minus headers */
+            display: flex;
+            flex-direction: column;
+        }
+        #group-chat-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: transparent; /* No container */
+        }
+        .group-chat-message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            line-height: 1.5;
+            word-wrap: break-word;
+            position: relative;
+        }
+        .group-chat-message.sent {
+            background-color: transparent;
+            color: var(--text-primary);
+            align-self: flex-end;
+            text-align: left;
+        }
+        .group-chat-message.received {
+            background-color: #8B4513; /* Brown color */
+            color: #FFFFFF;
+            align-self: flex-start;
+            text-align: right;
+            border-bottom-left-radius: 4px;
+            padding-top: 25px; /* Space for sender name */
+        }
+        .msg-sender {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .msg-sender i { font-size: 0.7rem; }
+        .group-chat-message .msg-text {
+            font-size: 1rem;
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-primary);
+            margin-top: auto; /* Push to bottom */
+        }
+        .chat-input-area textarea {
+            flex-grow: 1;
+            margin: 0;
+            resize: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+        }
+        .chat-input-area .chat-action-btn {
+            width: 45px !important; height: 45px;
+            padding: 0 !important; font-size: 1.1rem !important;
+            flex-shrink: 0; border-radius: 50% !important;
+        }
+        .message-context-menu {
+            display: none; position: absolute; background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary); border-radius: 8px; z-index: 10;
+            box-shadow: 0 4px 10px var(--shadow-color-heavy);
+            width: 180px;
+            overflow: hidden;
+        }
+        .message-context-menu div { padding: 10px 15px; cursor: pointer; text-align: right; font-size: 0.9rem;}
+        .message-context-menu div:hover { background: var(--border-primary); }
+        .message-context-menu .delete-all { color: var(--danger-primary); }
+
+
         /* Animations & Responsiveness */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         @media (max-width: 767px) {
+            body { padding: 0 5px; }
             .landing-title { font-size: 2.2rem; }
             .glass-content { font-size: 1.2rem; padding: 1.2rem 2rem; }
             .role-selection { flex-direction: column; }
+            .top-nav { flex-wrap: wrap; justify-content: space-around; height: auto; }
+            .top-nav .nav-btn { font-size: 0.7rem; padding: 5px; }
+            .top-nav .nav-btn i { font-size: 1.3rem; }
+            .portal-header-controls h1 { font-size: 0.8rem; }
         }
         
         .tab-content-header {
@@ -839,11 +1021,6 @@
     </style>
 </head>
 <body class="no-select">
-    <!-- ======== Fixed Slogan/Logo ======== -->
-    <div id="slogan-widget">
-        <img id="slogan-image" src="https://i.postimg.cc/BZw2BtL8/yourself-pharmacy-nutritional.png" alt="شعاري">
-        <span id="slogan-text">شعاري</span>
-    </div>
 
     <!-- ======== Main Landing Page Section ======== -->
     <main id="main-landing-page" class="hidden">
@@ -872,8 +1049,14 @@
 
     <!-- ======== Teacher Portal Section (Initially Hidden) ======== -->
     <div id="teacher-portal" class="portal-container hidden">
-        <div class="portal-content">
-            <div class="header-icons">
+        <nav class="top-nav hidden" id="teacher-top-nav">
+            <button class="nav-btn active" data-target="teacher-tests-content"><i class="fas fa-file-alt"></i><span>الاختبارات</span></button>
+            <button class="nav-btn" data-target="teacher-results-content"><i class="fas fa-poll-h"></i><span>النتائج</span></button>
+            <button class="nav-btn" data-target="teacher-create-content"><i class="fas fa-plus-circle"></i><span>إنشاء</span></button>
+        </nav>
+        <header class="portal-header-controls hidden">
+             <h1>مرحبًا بك، <span id="teacher-name"></span>!</h1>
+             <div class="header-icons">
                 <button class="icon-btn theme-toggle-btn" title="تبديل المظهر"><i class="fas fa-sun"></i></button>
                 <div class="header-menu-container">
                     <div id="teacher-menu-icon" class="icon-btn" title="القائمة"><i class="fas fa-ellipsis-v"></i><span class="notification-badge"></span></div>
@@ -886,6 +1069,8 @@
                     </div>
                 </div>
             </div>
+        </header>
+        <div class="portal-content">
             <section id="teacher-register-section">
                 <h1>تسجيل جديد - معلم</h1>
                 <input type="text" id="teacher-register-name" placeholder="الاسم الكامل (باللغة الإنجليزية)" required />
@@ -901,59 +1086,86 @@
                 <p>ليس لديك حساب؟ <a href="#" class="to-register">تسجيل جديد</a></p>
             </section>
             <section id="teacher-dashboard-section" class="hidden">
-                <div class="dashboard-header-controls">
-                     <h1>مرحبًا بك، <span id="teacher-name"></span>!</h1>
-                </div>
-                <hr />
                 <div id="teacher-tests-content" class="tab-content">
-                    <div class="tab-content-header">
-                        <h2>اختباراتي المنشأة</h2>
-                        <button id="teacher-refresh-btn" class="icon-btn" title="تحديث"><i class="fas fa-sync-alt"></i></button>
+                    <div class="dashboard-header-controls">
+                        <h2>محتوياتي</h2>
+                         <div class="header-buttons">
+                             <button id="teacher-refresh-btn" class="icon-btn" title="تحديث"><i class="fas fa-sync-alt"></i></button>
+                             <button id="teacher-show-search-btn" class="icon-btn" title="بحث"><i class="fas fa-search"></i></button>
+                        </div>
                     </div>
+                    <div class="switch-button-container" id="teacher-view-switcher">
+                        <button class="switch-button active" data-view="tests">الاختبارات</button>
+                        <button class="switch-button" data-view="assessments">التقييمات</button>
+                    </div>
+                     <input type="text" id="teacher-search-bar" placeholder="ابحث..." class="hidden" style="margin-bottom:20px;"/>
                     <div id="my-tests-container"></div>
+                    <div id="my-assessments-container" class="hidden"></div>
                 </div>
                 <div id="teacher-results-content" class="tab-content hidden">
                     <h2>نتائج الطلاب</h2>
                     <select id="results-test-selector"></select>
-                    <div id="certificates-management-area" style="margin: 15px 0;"></div>
                     <div id="student-results-container"></div>
                 </div>
-                <div id="teacher-create-test-content" class="tab-content hidden">
-                    <h2 id="create-edit-title">إنشاء اختبار جديد</h2>
-                    <label for="test-name">اسم الاختبار:</label><input type="text" id="test-name" />
-                    <label for="test-grade">الصف:</label>
-                    <select id="test-grade"><option value="" disabled selected>اختر الصف</option><option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option><option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option><option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option><option value="الصف الأول الثانوي">الصف الأول الثانوي</option><option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option><option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option></select>
-                    <label for="test-duration">مدة الاختبار بالدقائق:</label><input type="number" id="test-duration" min="1" />
-                    <div class="checkbox-container"><input type="checkbox" id="prevent-go-back-checkbox"><label for="prevent-go-back-checkbox">منع الطالب من الرجوع للخلف</label></div>
-                    <div class="checkbox-container"><input type="checkbox" id="shuffle-questions-checkbox"><label for="shuffle-questions-checkbox">ترتيب الأسئلة عشوائيًا</label></div>
-                    <div class="checkbox-container"><input type="checkbox" id="fateful-test-checkbox"><label for="fateful-test-checkbox">اختبار مصيري (أمان عالي)</label></div>
-                    <div class="checkbox-container"><input type="checkbox" id="enable-certificates-checkbox"><label for="enable-certificates-checkbox">تفعيل قسم الشهادات (قائمة الشرف)</label></div>
-                    <hr/><h3>إضافة سؤال جديد</h3>
-                    <div style="display: flex; border: 1px solid var(--border-primary); border-radius: 12px; overflow: hidden; margin-bottom: 15px;">
-                        <button class="switch-button active" data-type="mcq" style="flex:1; padding:10px; background: var(--accent-primary); border:none; color: #fff; cursor: pointer; transition: all 0.3s ease;">سؤال اختياري</button>
-                        <button class="switch-button" data-type="essay" style="flex:1; padding:10px; background: var(--border-secondary); border:none; color: var(--text-primary); cursor: pointer; transition: all 0.3s ease;">سؤال مقالي</button>
+                 <div id="teacher-create-content" class="tab-content hidden">
+                    <div class="switch-button-container">
+                        <button class="switch-button active" data-type="test">إنشاء اختبار</button>
+                        <button class="switch-button" data-type="assessment">رفع تقييم</button>
                     </div>
-                    <label for="question-text">نص السؤال:</label><textarea id="question-text" rows="3"></textarea>
-                    <label for="question-image-input" class="file-input-label"><i class="fas fa-image"></i> <span>إرفاق صورة للسؤال (اختياري)</span></label>
-                    <input type="file" id="question-image-input" accept="image/*" class="hidden" /><div class="image-preview-container hidden"><img class="image-preview" src="#" alt="معاينة" /></div>
-                    <div id="mcq-fields">
-                        <label>خيارات الإجابة (4):</label>
-                        <input type="text" class="option-input" placeholder="الخيار 1" /><input type="text" class="option-input" placeholder="الخيار 2" /><input type="text" class="option-input" placeholder="الخيار 3" /><input type="text" class="option-input" placeholder="الخيار 4" />
-                        <label for="correct-answer">رقم الإجابة الصحيحة (1 - 4):</label><input type="number" id="correct-answer" min="1" max="4" />
+
+                    <div id="teacher-create-test-content">
+                        <h2 id="create-edit-title">إنشاء اختبار جديد</h2>
+                        <label for="test-name">اسم الاختبار:</label><input type="text" id="test-name" />
+                        <label for="test-grade">الصف:</label>
+                        <select id="test-grade"><option value="" disabled selected>اختر الصف</option><option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option><option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option><option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option><option value="الصف الأول الثانوي">الصف الأول الثانوي</option><option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option><option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option></select>
+                        <label for="test-duration">مدة الاختبار بالدقائق:</label><input type="number" id="test-duration" min="1" />
+                        <div class="checkbox-container"><input type="checkbox" id="prevent-go-back-checkbox"><label for="prevent-go-back-checkbox">منع الطالب من الرجوع للخلف</label></div>
+                        <div class="checkbox-container"><input type="checkbox" id="shuffle-questions-checkbox"><label for="shuffle-questions-checkbox">ترتيب الأسئلة عشوائيًا</label></div>
+                        <div class="checkbox-container"><input type="checkbox" id="fateful-test-checkbox"><label for="fateful-test-checkbox">اختبار مصيري (أمان عالي)</label></div>
+                        <hr/><h3>إضافة سؤال جديد</h3>
+                        <div class="switch-button-container" id="question-type-switcher">
+                            <button class="switch-button active" data-type="mcq">سؤال اختياري</button>
+                            <button class="switch-button" data-type="essay">سؤال مقالي</button>
+                        </div>
+                        <label for="question-text">نص السؤال:</label><textarea id="question-text" rows="3"></textarea>
+                        <label for="question-image-input" class="file-input-label"><i class="fas fa-image"></i> <span>إرفاق صورة للسؤال (اختياري)</span></label>
+                        <input type="file" id="question-image-input" accept="image/*" class="hidden" /><div class="image-preview-container hidden"><img class="image-preview" src="#" alt="معاينة" /></div>
+                        <div id="mcq-fields">
+                            <label>خيارات الإجابة (حدد الصحيحة):</label>
+                            <div class="option-container"><input type="text" class="option-input" placeholder="الخيار 1" /><i class="fas fa-check-circle correct-answer-selector" data-index="1"></i></div>
+                            <div class="option-container"><input type="text" class="option-input" placeholder="الخيار 2" /><i class="fas fa-check-circle correct-answer-selector" data-index="2"></i></div>
+                            <div class="option-container"><input type="text" class="option-input" placeholder="الخيار 3" /><i class="fas fa-check-circle correct-answer-selector" data-index="3"></i></div>
+                            <div class="option-container"><input type="text" class="option-input" placeholder="الخيار 4" /><i class="fas fa-check-circle correct-answer-selector" data-index="4"></i></div>
+                        </div>
+                        <div id="essay-fields" class="hidden">
+                            <label for="model-answer-image-input" class="file-input-label"><i class="fas fa-file-image"></i> <span>إرفاق صورة إجابة نموذجية (اختياري)</span></label>
+                            <input type="file" id="model-answer-image-input" accept="image/*" class="hidden"><div class="image-preview-container hidden"><img class="image-preview" src="#" alt="معاينة" /></div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                            <label for="question-points" style="margin: 0; flex-shrink: 0;">درجات السؤال:</label>
+                            <input type="number" id="question-points" min="1" placeholder="1" style="margin: 0; width: 80px;">
+                            <button id="add-question-btn" class="btn-secondary" style="margin: 0; flex-grow: 1;">إضافة سؤال للقائمة</button>
+                            <button id="cancel-question-edit-btn" class="btn-secondary hidden" style="margin: 0; width: auto; background-color: #5a6268; border-color: #495057;">إلغاء التعديل</button>
+                        </div>
+                        <div id="questions-list-container" style="margin-top: 15px;"></div>
+                        <button id="save-test-btn" class="btn-primary" style="margin-top: 20px; background: var(--success-gradient); border-bottom-color: var(--success-border);">حفظ الاختبار</button>
+                        <button id="cancel-test-edit-btn" class="btn-secondary hidden" style="margin-top: 10px;">إلغاء التعديل</button>
                     </div>
-                    <div id="essay-fields" class="hidden">
-                        <label for="model-answer-image-input" class="file-input-label"><i class="fas fa-file-image"></i> <span>إرفاق صورة إجابة نموذجية (اختياري)</span></label>
-                        <input type="file" id="model-answer-image-input" accept="image/*" class="hidden"><div class="image-preview-container hidden"><img class="image-preview" src="#" alt="معاينة" /></div>
+                     <div id="teacher-create-assessment-content" class="hidden">
+                        <h2>رفع تقييمات جديدة</h2>
+                        <label for="assessment-image-input" class="file-input-label"><i class="fas fa-image"></i> <span>اختر صورة التقييم (إجباري)</span></label>
+                        <input type="file" id="assessment-image-input" accept="image/*" class="hidden" required>
+                        <div class="image-preview-container hidden"><img class="image-preview" src="#" alt="معاينة التقييم" /></div>
+                        <label for="assessment-text">نص التقييم (اختياري):</label>
+                        <textarea id="assessment-text" rows="4"></textarea>
+                        <button id="add-assessment-btn" class="btn-secondary" style="margin-top: 10px;">إضافة تقييم للقائمة</button>
+                        <hr/>
+                        <h3>قائمة التقييمات المجهزة للرفع</h3>
+                        <div id="pending-assessments-list">
+                            <p>لا توجد تقييمات في القائمة بعد.</p>
+                        </div>
+                        <button id="save-all-assessments-btn" class="btn-primary hidden" style="margin-top: 20px;">حفظ جميع التقييمات</button>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
-                        <label for="question-points" style="margin: 0; flex-shrink: 0;">درجات السؤال:</label>
-                        <input type="number" id="question-points" min="1" placeholder="1" style="margin: 0; width: 80px;">
-                        <button id="add-question-btn" class="btn-secondary" style="margin: 0; flex-grow: 1;">إضافة سؤال للقائمة</button>
-                        <button id="cancel-question-edit-btn" class="btn-secondary hidden" style="margin: 0; width: auto; background-color: #5a6268; border-color: #495057;">إلغاء التعديل</button>
-                    </div>
-                    <div id="questions-list-container" style="margin-top: 15px;"></div>
-                    <button id="save-test-btn" class="btn-primary" style="margin-top: 20px; background: var(--success-gradient); border-bottom-color: var(--success-border);">حفظ الاختبار</button>
-                    <button id="cancel-test-edit-btn" class="btn-secondary hidden" style="margin-top: 10px;">إلغاء التعديل</button>
                 </div>
             </section>
         </div>
@@ -979,44 +1191,49 @@
                 <button id="teacher-update-btn" class="btn-primary" style="margin-top: 10px;">تحديث الحساب</button>
             </div>
         </div>
-        <div id="certificates-modal" class="modal-overlay">
+        <div id="edit-assessment-modal" class="modal-overlay">
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
-                <h2>إدارة شهادات التقدير</h2>
-                <label for="cert-upload-input" class="file-input-label"><i class="fas fa-upload"></i> <span>اختر صور الشهادات</span></label>
-                <input type="file" id="cert-upload-input" accept="image/*" multiple class="hidden">
-                <button id="upload-certs-btn" class="btn-primary" style="margin-top: 15px;">رفع الصور المختارة</button>
-                <hr>
-                <h3>الشهادات المرفوعة حاليًا</h3>
-                <div id="certificates-grid"></div>
+                <h2>تعديل التقييم</h2>
+                <div class="modal-body">
+                    <label for="edit-assessment-image-input" class="file-input-label"><i class="fas fa-image"></i> <span>تغيير صورة التقييم</span></label>
+                    <input type="file" id="edit-assessment-image-input" accept="image/*" class="hidden">
+                    <div class="image-preview-container"><img id="edit-assessment-image-preview" class="image-preview" src="#" alt="معاينة التقييم" /></div>
+                    <label for="edit-assessment-text">نص التقييم:</label>
+                    <textarea id="edit-assessment-text" rows="4"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button id="update-assessment-btn" class="btn-primary">تحديث التقييم</button>
+                </div>
             </div>
         </div>
-        <nav class="bottom-nav hidden" id="teacher-bottom-nav">
-            <button class="nav-btn active" data-target="teacher-tests-content"><i class="fas fa-file-alt"></i><span>الاختبارات</span></button>
-            <button class="nav-btn" data-target="teacher-results-content"><i class="fas fa-poll-h"></i><span>النتائج</span></button>
-            <button class="nav-btn" data-target="teacher-create-test-content"><i class="fas fa-plus-circle"></i><span>إنشاء</span></button>
-        </nav>
     </div>
 
     <!-- ======== Student Portal Section (Initially Hidden) ======== -->
     <div id="student-portal" class="portal-container hidden">
-         <div class="portal-content">
-             <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:20px;">
-                <div class="header-icons" style="position: static; display: flex; gap: 10px;">
-                     <button class="icon-btn theme-toggle-btn" title="تبديل المظهر"><i class="fas fa-sun"></i></button>
-                     <div class="header-menu-container">
-                        <div id="student-menu-icon" class="icon-btn" title="القائمة"><i class="fas fa-ellipsis-v"></i><span class="notification-badge"></span></div>
-                        <div id="student-dropdown-menu" class="header-dropdown-menu">
-                            <div class="dropdown-item" id="student-chat-btn"><i class="fas fa-comments"></i><span>الرسائل</span></div>
-                            <div class="dropdown-item" id="student-settings-btn"><i class="fas fa-cog"></i><span>الإعدادات</span></div>
-                            <div class="dropdown-item" id="student-share-platform-btn"><i class="fas fa-share-alt"></i><span>مشاركة المنصة</span></div>
-                            <hr style="margin: 0;">
-                            <div class="dropdown-item" id="student-logout-btn" style="color: var(--warning-primary);"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></div>
-                        </div>
+         <nav class="top-nav hidden" id="student-top-nav">
+            <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book-open"></i><span>الاختبارات</span></button>
+            <button class="nav-btn" data-target="student-assessments-content"><i class="fas fa-clipboard-check"></i><span>التقييمات</span></button>
+            <button class="nav-btn" data-target="student-results-content"><i class="fas fa-poll-h"></i><span>نتائجي</span></button>
+            <button class="nav-btn" data-target="student-group-chat-content"><i class="fas fa-users"></i><span>دردشة</span></button>
+        </nav>
+         <header class="portal-header-controls hidden">
+            <h1>مرحبًا بك، <span id="student-name"></span>!</h1>
+            <div class="header-icons">
+                 <button class="icon-btn theme-toggle-btn" title="تبديل المظهر"><i class="fas fa-sun"></i></button>
+                 <div class="header-menu-container">
+                    <div id="student-menu-icon" class="icon-btn" title="القائمة"><i class="fas fa-ellipsis-v"></i><span class="notification-badge"></span></div>
+                    <div id="student-dropdown-menu" class="header-dropdown-menu">
+                        <div class="dropdown-item" id="student-chat-btn"><i class="fas fa-comments"></i><span>الرسائل</span></div>
+                        <div class="dropdown-item" id="student-settings-btn"><i class="fas fa-cog"></i><span>الإعدادات</span></div>
+                        <div class="dropdown-item" id="student-share-platform-btn"><i class="fas fa-share-alt"></i><span>مشاركة المنصة</span></div>
+                        <hr style="margin: 0;">
+                        <div class="dropdown-item" id="student-logout-btn" style="color: var(--warning-primary);"><i class="fas fa-sign-out-alt"></i><span>تسجيل الخروج</span></div>
                     </div>
                 </div>
             </div>
-            
+        </header>
+         <div class="portal-content">
             <section id="student-register-section">
                 <h2>تسجيل جديد</h2>
                 <input type="text" id="student-register-name" placeholder="الاسم الكامل (باللغة الإنجليزية)" required autocomplete="off">
@@ -1030,10 +1247,6 @@
                 <button id="student-login-btn" class="btn-primary">دخول</button><p>ليس لديك حساب؟ <a href="#" class="to-register">تسجيل جديد</a></p>
             </section>
             <section id="student-dashboard-section" class="hidden">
-                 <div class="dashboard-header-controls">
-                    <h1>مرحبًا بك، <span id="student-name"></span>!</h1>
-                 </div>
-                <hr />
                 <div class="tab-content" id="student-tests-content">
                     <div class="dashboard-header-controls">
                         <h2>الاختبارات المتاحة</h2>
@@ -1046,9 +1259,17 @@
                     <div id="available-tests-container"></div>
                 </div>
                 <div class="tab-content hidden" id="student-results-content"><h2>نتائجي السابقة</h2><div id="my-student-results-container-wrapper"><div id="my-student-results-container"></div></div></div>
-                <div class="tab-content hidden" id="student-honor-roll-content">
-                    <h2><i class="fas fa-trophy"></i> قائمة الشرف</h2>
-                    <div id="honor-roll-container"></div>
+                <div class="tab-content hidden" id="student-assessments-content">
+                    <button id="back-to-dashboard-from-assessments-btn" class="btn-secondary hidden" style="width: auto; padding: 10px 20px !important; margin-bottom:15px;">العودة</button>
+                    <h2>التقييمات والأداء</h2>
+                    <div id="assessments-container"></div>
+                </div>
+                 <div class="tab-content hidden" id="student-group-chat-content">
+                    <div id="group-chat-body"></div>
+                    <div class="chat-input-area">
+                        <textarea id="group-chat-message-input" rows="1" placeholder="اكتب رسالتك..."></textarea>
+                        <button id="send-group-chat-message-btn" class="chat-action-btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                    </div>
                 </div>
             </section>
             <section id="take-test-section" class="hidden">
@@ -1097,11 +1318,6 @@
                 <div id="student-chat-list-body" class="modal-body"></div>
             </div>
         </div>
-         <nav class="bottom-nav hidden" id="student-bottom-nav">
-            <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book-open"></i><span>الاختبارات</span></button>
-            <button class="nav-btn" data-target="student-results-content"><i class="fas fa-poll-h"></i><span>نتائجي</span></button>
-            <button class="nav-btn" data-target="student-honor-roll-content"><i class="fas fa-trophy"></i><span>قائمة الشرف</span></button>
-        </nav>
     </div>
     
     <!-- ======== Universal Modals ======== -->
@@ -1162,7 +1378,7 @@
         </div>
     </div>
 
-    <!-- ======== App Install Prompt Modal ======== -->
+    <!-- ======== App Install Prompt Modal (Structure remains but will not be called) ======== -->
     <div id="app-install-prompt-modal" class="custom-dialog-overlay">
         <div class="custom-dialog">
             <div class="app-install-header">
@@ -1178,6 +1394,14 @@
             </div>
         </div>
     </div>
+
+    <!-- Message Context Menu -->
+    <div id="message-context-menu" class="message-context-menu">
+        <div data-action="reply">رد</div>
+        <div data-action="delete_for_me">مسح من عندي</div>
+        <div data-action="delete_for_everyone" class="delete-all hidden">حذف لدى الجميع</div>
+    </div>
+
 
     <!-- SVG FILTER DEFINITION -->
     <svg style="display: none">
@@ -1314,23 +1538,40 @@
 
         function initTeacherApp() {
             const allSections = teacherPortal.querySelectorAll('section'), dashboardSection = teacherPortal.querySelector('#teacher-dashboard-section'), loginSection = teacherPortal.querySelector('#teacher-login-section'), registerSection = teacherPortal.querySelector('#teacher-register-section');
-            const menuIcon = teacherPortal.querySelector('#teacher-menu-icon'), dropdownMenu = teacherPortal.querySelector('#teacher-dropdown-menu');
+            const portalHeader = teacherPortal.querySelector('.portal-header-controls'), menuIcon = teacherPortal.querySelector('#teacher-menu-icon'), dropdownMenu = teacherPortal.querySelector('#teacher-dropdown-menu');
             const settingsModal = teacherPortal.querySelector('#teacher-settings-modal');
-            const teacherNameSpan = teacherPortal.querySelector("#teacher-name"), bottomNav = teacherPortal.querySelector('#teacher-bottom-nav'), myTestsContainer = teacherPortal.querySelector("#my-tests-container");
+            const teacherNameSpan = teacherPortal.querySelector("#teacher-name"), topNav = teacherPortal.querySelector('#teacher-top-nav'), myTestsContainer = teacherPortal.querySelector("#my-tests-container");
             const resultsTestSelector = teacherPortal.querySelector("#results-test-selector"), studentResultsContainer = teacherPortal.querySelector("#student-results-container");
+            const createContent = document.getElementById('teacher-create-content');
             const createTestSection = teacherPortal.querySelector('#teacher-create-test-content'), testNameInput = teacherPortal.querySelector("#test-name"), testGradeSelect = teacherPortal.querySelector("#test-grade"), testDurationInput = teacherPortal.querySelector("#test-duration");
             const preventGoBackCheckbox = teacherPortal.querySelector("#prevent-go-back-checkbox"), shuffleQuestionsCheckbox = teacherPortal.querySelector('#shuffle-questions-checkbox'), fatefulTestCheckbox = document.getElementById('fateful-test-checkbox');
-            const certificatesCheckbox = document.getElementById('enable-certificates-checkbox');
-            const questionText = teacherPortal.querySelector("#question-text"), optionInputs = teacherPortal.querySelectorAll(".option-input"), correctAnswerInput = teacherPortal.querySelector("#correct-answer"), questionPointsInput = teacherPortal.querySelector("#question-points");
+            const questionText = teacherPortal.querySelector("#question-text"), optionInputs = teacherPortal.querySelectorAll(".option-input"), questionPointsInput = teacherPortal.querySelector("#question-points");
             const questionsListContainer = teacherPortal.querySelector("#questions-list-container"), questionImageInput = teacherPortal.querySelector("#question-image-input"), modelAnswerImageInput = teacherPortal.querySelector("#model-answer-image-input");
             const addQuestionBtn = teacherPortal.querySelector('#add-question-btn'), cancelQuestionEditBtn = teacherPortal.querySelector('#cancel-question-edit-btn'), saveTestBtn = teacherPortal.querySelector('#save-test-btn'), cancelTestEditBtn = teacherPortal.querySelector('#cancel-test-edit-btn');
             const reviewModal = teacherPortal.querySelector('#teacher-review-modal'), reviewModalBody = teacherPortal.querySelector('#review-modal-body'), reviewModalTitle = teacherPortal.querySelector('#review-modal-title'), reviewModalFooter = teacherPortal.querySelector('#review-modal-footer'), finalizeGradesBtn = teacherPortal.querySelector('#finalize-grades-btn');
             const updateNameInput = teacherPortal.querySelector('#teacher-update-name'), updatePasswordInput = teacherPortal.querySelector('#teacher-update-password'), updateBtn = teacherPortal.querySelector('#teacher-update-btn');
-            const refreshBtn = teacherPortal.querySelector('#teacher-refresh-btn');
-            const certsModal = document.getElementById('certificates-modal'), certsGrid = document.getElementById('certificates-grid'), uploadCertsBtn = document.getElementById('upload-certs-btn'), certUploadInput = document.getElementById('cert-upload-input');
-            let currentCertsTestId = null;
+            const teacherRefreshBtn = document.getElementById('teacher-refresh-btn');
+            const teacherShowSearchBtn = document.getElementById('teacher-show-search-btn');
+            const teacherSearchBar = document.getElementById('teacher-search-bar');
+            
+            const createAssessmentSection = document.getElementById('teacher-create-assessment-content');
+            const addAssessmentBtn = document.getElementById('add-assessment-btn');
+            const saveAllAssessmentsBtn = document.getElementById('save-all-assessments-btn');
+            const pendingAssessmentsList = document.getElementById('pending-assessments-list');
+            const assessmentImageInput = document.getElementById('assessment-image-input');
+            const assessmentText = document.getElementById('assessment-text');
+            
+            const teacherViewSwitcher = document.getElementById('teacher-view-switcher');
+            const myAssessmentsContainer = document.getElementById('my-assessments-container');
+            const editAssessmentModal = document.getElementById('edit-assessment-modal');
+            let currentEditingAssessmentKey = null;
+            let editAssessmentImageBase64 = null;
+            
+            let currentAssessmentImageBase64 = null;
+            let pendingAssessments = [];
+            let currentCorrectAnswer = 0;
 
-            let currentUser = null, myTests = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
+            let currentUser = null, myTests = {}, myAssessments = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
             
             const loggedInUser = localStorage.getItem('loggedInTeacher');
             if (loggedInUser) { currentUser = loggedInUser; showSection(dashboardSection); updateDashboard(); } else { showSection(loginSection); }
@@ -1338,36 +1579,113 @@
             function showSection(section) { 
                 allSections.forEach(s=>s.classList.add('hidden')); 
                 if(section) section.classList.remove('hidden'); 
-                bottomNav.classList.toggle('hidden', !section || section.id !== 'teacher-dashboard-section'); 
+                const isDashboard = section && section.id === 'teacher-dashboard-section';
+                topNav.classList.toggle('hidden', !isDashboard); 
+                portalHeader.classList.toggle('hidden', !isDashboard);
                 teacherPortal.classList.toggle('auth-view', section === loginSection || section === registerSection);
             };
             const showLoadingSpinner = (container) => { container.innerHTML = `<div class="spinner"></div>`; };
             const navButtons = teacherPortal.querySelectorAll('.nav-btn');
-            navButtons.forEach(button => { button.addEventListener('click', () => { navButtons.forEach(btn=>btn.classList.remove('active')); teacherPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden')); button.classList.add('active'); teacherPortal.querySelector(`#${button.dataset.target}`).classList.remove('hidden'); if(button.dataset.target === 'teacher-create-test-content' && !currentEditingTestId) resetCreateFormState(); }); });
+            navButtons.forEach(button => { button.addEventListener('click', () => { navButtons.forEach(btn=>btn.classList.remove('active')); teacherPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden')); button.classList.add('active'); teacherPortal.querySelector(`#${button.dataset.target}`).classList.remove('hidden'); if(button.dataset.target === 'teacher-create-content' && !currentEditingTestId) resetCreateFormState(); }); });
             const setDefaultTab = () => navButtons[0].click();
             
-            teacherPortal.querySelectorAll('.switch-button').forEach(btn => btn.addEventListener('click', (e) => {
-                teacherPortal.querySelectorAll('.switch-button').forEach(b => { b.classList.remove('active'); b.style.background = 'var(--border-secondary)'; b.style.color = 'var(--text-primary)'; });
-                e.target.classList.add('active'); e.target.style.background = 'var(--accent-primary)'; e.target.style.color = '#fff';
-                currentQuestionType = e.target.dataset.type;
-                teacherPortal.querySelector("#mcq-fields").classList.toggle('hidden', currentQuestionType !== 'mcq');
-                teacherPortal.querySelector("#essay-fields").classList.toggle('hidden', currentQuestionType !== 'essay');
+            createContent.querySelectorAll('.switch-button-container .switch-button').forEach(btn => btn.addEventListener('click', (e) => {
+                const container = e.target.parentElement;
+                container.querySelectorAll('.switch-button').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+
+                if (container.id === 'question-type-switcher') {
+                     currentQuestionType = e.target.dataset.type;
+                     teacherPortal.querySelector("#mcq-fields").classList.toggle('hidden', currentQuestionType !== 'mcq');
+                     teacherPortal.querySelector("#essay-fields").classList.toggle('hidden', currentQuestionType !== 'essay');
+                } else {
+                    const type = e.target.dataset.type;
+                    createTestSection.classList.toggle('hidden', type !== 'test');
+                    createAssessmentSection.classList.toggle('hidden', type !== 'assessment');
+                }
+            }));
+            
+            teacherViewSwitcher.querySelectorAll('.switch-button').forEach(btn => btn.addEventListener('click', (e) => {
+                teacherViewSwitcher.querySelectorAll('.switch-button').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                const view = e.target.dataset.view;
+                myTestsContainer.classList.toggle('hidden', view !== 'tests');
+                myAssessmentsContainer.classList.toggle('hidden', view !== 'assessments');
+                teacherSearchBar.value = '';
+                teacherSearchBar.placeholder = view === 'tests' ? 'ابحث عن اختبار...' : 'ابحث عن تقييم...';
+                if(view === 'tests') renderMyTests(); else renderMyAssessments();
             }));
 
-            const clearQuestionForm = () => { questionText.value=""; questionImageInput.value=""; modelAnswerImageInput.value=""; currentQuestionImageBase64=null; currentModelAnswerImageBase64=null; teacherPortal.querySelectorAll('.image-preview-container').forEach(c=>{c.classList.add('hidden'); c.querySelector('img').src = '#'}); optionInputs.forEach(i=>i.value=""); correctAnswerInput.value=""; questionPointsInput.value = ""; currentEditingQuestionIndex = -1; addQuestionBtn.textContent = 'إضافة سؤال للقائمة'; cancelQuestionEditBtn.classList.add('hidden'); };
-            
-            async function updateDashboard() { if(!currentUser) return; teacherNameSpan.textContent = currentUser; menuIcon.classList.remove('hidden'); setDefaultTab(); showLoadingSpinner(myTestsContainer); const testsRef = ref(db, `tests/${currentUser}`); onValue(testsRef, (snapshot) => { myTests = snapshot.exists() ? snapshot.val() : {}; renderMyTests(); populateResultsSelector(); }); initChatSystem(currentUser, 'teacher'); }
-            
-            refreshBtn.onclick = updateDashboard;
+            const mcqFields = document.getElementById('mcq-fields');
+            mcqFields.addEventListener('click', (e) => {
+                if (e.target.classList.contains('correct-answer-selector')) {
+                    mcqFields.querySelectorAll('.correct-answer-selector').forEach(sel => sel.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    currentCorrectAnswer = parseInt(e.target.dataset.index);
+                }
+            });
 
-            function renderMyTests() {
+            const clearQuestionForm = () => { questionText.value=""; questionImageInput.value=""; modelAnswerImageInput.value=""; currentQuestionImageBase64=null; currentModelAnswerImageBase64=null; teacherPortal.querySelectorAll('.image-preview-container').forEach(c=>{c.classList.add('hidden'); c.querySelector('img').src = '#'}); optionInputs.forEach(i=>i.value=""); mcqFields.querySelectorAll('.correct-answer-selector').forEach(sel => sel.classList.remove('selected')); currentCorrectAnswer=0; questionPointsInput.value = ""; currentEditingQuestionIndex = -1; addQuestionBtn.textContent = 'إضافة سؤال للقائمة'; cancelQuestionEditBtn.classList.add('hidden'); };
+            
+            async function updateDashboard() {
+                if(!currentUser) return;
+                teacherNameSpan.textContent = currentUser;
+                setDefaultTab();
+                
+                showLoadingSpinner(myTestsContainer);
+                const testsRef = ref(db, `tests/${currentUser}`);
+                onValue(testsRef, (snapshot) => {
+                    myTests = snapshot.exists() ? snapshot.val() : {};
+                    renderMyTests();
+                    populateResultsSelector();
+                });
+
+                showLoadingSpinner(myAssessmentsContainer);
+                const assessmentsRef = query(ref(db, 'assessments'), orderByChild('teacher'), equalTo(currentUser));
+                 onValue(assessmentsRef, (snapshot) => {
+                    myAssessments = snapshot.exists() ? snapshot.val() : {};
+                    renderMyAssessments();
+                });
+
+                initChatSystem(currentUser, 'teacher');
+            }
+            
+            teacherRefreshBtn.onclick = updateDashboard;
+            teacherShowSearchBtn.addEventListener('click', () => {
+                teacherSearchBar.classList.toggle('hidden');
+                teacherShowSearchBtn.classList.toggle('active');
+                if (!teacherSearchBar.classList.contains('hidden')) {
+                    teacherSearchBar.focus();
+                } else {
+                    teacherSearchBar.value = '';
+                    renderMyTests();
+                    renderMyAssessments();
+                }
+            });
+            
+            teacherSearchBar.addEventListener('input', e => {
+                const currentView = teacherViewSwitcher.querySelector('.active').dataset.view;
+                if (currentView === 'tests') {
+                    renderMyTests(e.target.value);
+                } else {
+                    renderMyAssessments(e.target.value);
+                }
+            });
+
+
+            function renderMyTests(filter = '') {
                 myTestsContainer.innerHTML = "";
                 if (countdownInterval) clearInterval(countdownInterval);
                 const activeTests = Object.entries(myTests).filter(([id, test]) => (Date.now() - test.timestamp < 48 * 60 * 60 * 1000));
                 
                 if (activeTests.length === 0) { myTestsContainer.innerHTML = "<p>لم تقم بإنشاء أي اختبارات نشطة.</p>"; return; }
                 
+                let found = false;
                 activeTests.sort((a,b) => b[1].timestamp - a[1].timestamp).forEach(([testId, test]) => {
+                    const searchStr = `${test.name}${test.grade}`.toLowerCase();
+                    if(filter && !searchStr.includes(filter.toLowerCase())) return;
+                    found = true;
+
                     const testCard = document.createElement('div'); testCard.className = 'list-item';
                     testCard.style.cssText = `flex-direction: column; align-items: stretch; padding: 12px; gap: 10px;`;
                     testCard.innerHTML = `
@@ -1388,6 +1706,9 @@
                     myTestsContainer.appendChild(testCard);
                 });
 
+                if (!found && filter) {
+                     myTestsContainer.innerHTML = "<p>لا توجد نتائج مطابقة لبحثك.</p>";
+                }
                 startCountdownTimers();
             }
 
@@ -1417,24 +1738,16 @@
                 navButtons[2].click(); currentEditingTestId = testId;
                 createTestSection.querySelector('#create-edit-title').textContent = "تعديل الاختبار"; saveTestBtn.textContent = "تحديث الاختبار"; cancelTestEditBtn.classList.remove('hidden');
                 testNameInput.value = testData.name; testGradeSelect.value = testData.grade; testDurationInput.value = testData.duration;
-                preventGoBackCheckbox.checked = !!testData.preventGoBack; shuffleQuestionsCheckbox.checked = !!testData.shuffle; fatefulTestCheckbox.checked = !!testData.fateful; certificatesCheckbox.checked = !!testData.certificates;
+                preventGoBackCheckbox.checked = !!testData.preventGoBack; shuffleQuestionsCheckbox.checked = !!testData.shuffle; fatefulTestCheckbox.checked = !!testData.fateful;
                 questionsArray = [...(testData.questions || [])]; renderQuestionsList();
             }
 
-            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد"; saveTestBtn.textContent = "حفظ الاختبار"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; shuffleQuestionsCheckbox.checked=false; fatefulTestCheckbox.checked=false; certificatesCheckbox.checked=false; questionsArray = []; renderQuestionsList(); clearQuestionForm(); }
+            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد"; saveTestBtn.textContent = "حفظ الاختبار"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; shuffleQuestionsCheckbox.checked=false; fatefulTestCheckbox.checked=false; questionsArray = []; renderQuestionsList(); clearQuestionForm(); }
             cancelTestEditBtn.onclick = resetCreateFormState;
 
             async function loadStudentResultsForTest(testId) {
-                const certsManagementContainer = document.getElementById('certificates-management-area');
-                certsManagementContainer.innerHTML = '';
                 studentResultsContainer.innerHTML = "";
                 if (!testId) return;
-
-                const testData = myTests[testId];
-                if (testData && testData.certificates) {
-                    certsManagementContainer.innerHTML = `<button id="manage-certs-btn" class="btn-secondary" style="width: auto; padding: 10px 20px;">إدارة شهادات التقدير</button>`;
-                    document.getElementById('manage-certs-btn').onclick = () => openCertificatesModal(testId);
-                }
 
                 showLoadingSpinner(studentResultsContainer);
                 const snapshot = await get(ref(db, `results/${currentUser}/${testId}`));
@@ -1455,7 +1768,19 @@
                 if (result.status === 'pending' && test.questions.some(q => q.type === 'essay')) reviewModalFooter.classList.remove('hidden');
                 test.questions.forEach((q, index) => {
                     const studentAnswer = answers[index] || {}; let reviewHtml = '';
-                    if (q.type === 'mcq') { const isCorrect = studentAnswer.answer === q.correct; reviewHtml = `<div style="background: ${isCorrect ? 'rgba(35, 134, 54, 0.2)' : 'rgba(218, 54, 51, 0.2)'}; padding: 10px; border-radius: 8px;"><b>إجابته:</b> ${studentAnswer.answer ? q.options[studentAnswer.answer - 1] : '<i>لم يجب</i>'}<br><b>الصحيحة:</b> ${q.options[q.correct - 1]}</div>`; } 
+                    if (q.type === 'mcq') { 
+                        reviewHtml = '<div>' + q.options.map((option, i) => {
+                            const optionNum = i + 1;
+                            let classes = 'review-option';
+                            if (optionNum === parseInt(q.correct)) {
+                                classes += ' correct-answer-highlight';
+                            }
+                            if (studentAnswer.answer && parseInt(studentAnswer.answer) === optionNum && optionNum !== parseInt(q.correct)) {
+                                classes += ' incorrect-answer-highlight';
+                            }
+                            return `<div class="${classes}">${option}</div>`;
+                        }).join('') + '</div>';
+                    } 
                     else { const studentText = studentAnswer.textAnswer || '<em>لم يقدم إجابة نصية.</em>', studentImage = studentAnswer.imageAnswer ? `<p><b>صورته:</b></p><img src="${studentAnswer.imageAnswer}" style="max-width:80%; border-radius:8px; cursor:pointer;">` : '', modelImage = q.modelAnswerImage ? `<p><b>النموذجية:</b></p><img src="${q.modelAnswerImage}" style="max-width:80%; border-radius:8px; cursor:pointer;">` : ''; let gradingInput = (result.status === 'pending') ? `<div style="margin-top:15px; text-align: left; display:flex; align-items:center; gap:10px;"><label for="grade-q-${index}" style="margin:0;"><b>ضع الدرجة:</b></label><input type="number" id="grade-q-${index}" data-question-index="${index}" class="essay-grade-input" min="0" max="${q.points || 1}" style="width:80px; margin:0;"><span>/ ${q.points || 1}</span></div>` : `<p><b>الدرجة النهائية للسؤال:</b> ${studentAnswer.pointsAwarded || 0}/${q.points || 1}</p>`; reviewHtml = `<div><p><b>إجابته النصية:</b></p><div style="background:var(--border-secondary); padding:10px; border-radius:8px; white-space: pre-wrap;">${studentText}</div>${studentImage}${modelImage}${gradingInput}</div>`; }
                     const qDiv = document.createElement('div'); qDiv.className = 'list-item';
                     qDiv.style.cssText = 'flex-direction: column; align-items: flex-start;';
@@ -1480,10 +1805,10 @@
             reviewModal.querySelector('.modal-close-btn').onclick = () => reviewModal.classList.remove('visible');
 
             const populateResultsSelector = () => { resultsTestSelector.innerHTML = '<option value="">اختر اختبارًا</option>'; Object.entries(myTests).forEach(([testId, test]) => resultsTestSelector.innerHTML += `<option value="${testId}">${test.name}</option>`); };
-            const handleImagePreview = (input, container, previewImg, storage) => { const f=input.files[0]; if(f) getBase64(f).then(d=>{ if(storage==='q') currentQuestionImageBase64=d; else currentModelAnswerImageBase64=d; previewImg.src=d; container.classList.remove('hidden'); }) };
-            questionImageInput.onchange = () => handleImagePreview(questionImageInput, questionImageInput.nextElementSibling, questionImageInput.nextElementSibling.querySelector('img'), 'q');
-            modelAnswerImageInput.onchange = () => handleImagePreview(modelAnswerImageInput, modelAnswerImageInput.nextElementSibling, modelAnswerImageInput.nextElementSibling.querySelector('img'), 'm');
-
+            const handleImagePreview = (input, container, previewImg, storageVarSetter) => { const f=input.files[0]; if(f) getBase64(f).then(d=>{ storageVarSetter(d); previewImg.src=d; container.classList.remove('hidden'); }) };
+            questionImageInput.onchange = () => handleImagePreview(questionImageInput, questionImageInput.nextElementSibling, questionImageInput.nextElementSibling.querySelector('img'), (val) => currentQuestionImageBase64 = val);
+            modelAnswerImageInput.onchange = () => handleImagePreview(modelAnswerImageInput, modelAnswerImageInput.nextElementSibling, modelAnswerImageInput.nextElementSibling.querySelector('img'), (val) => currentModelAnswerImageBase64 = val);
+            
             const renderQuestionsList = () => {
                 questionsListContainer.innerHTML = questionsArray.length > 0 ? "<h3>الأسئلة المضافة:</h3>" : "";
                 questionsArray.forEach((q, i) => {
@@ -1502,7 +1827,7 @@
                 questionText.value = q.question || '';
                 questionPointsInput.value = q.points || 1;
                 
-                const typeButton = teacherPortal.querySelector(`.switch-button[data-type="${q.type}"]`);
+                const typeButton = teacherPortal.querySelector(`#question-type-switcher .switch-button[data-type="${q.type}"]`);
                 if(typeButton) typeButton.click();
 
                 currentQuestionImageBase64 = q.image || null;
@@ -1516,7 +1841,10 @@
 
                 if (q.type === 'mcq') {
                     optionInputs.forEach((input, i) => input.value = q.options[i] || '');
-                    correctAnswerInput.value = q.correct || '';
+                    currentCorrectAnswer = q.correct || 0;
+                    mcqFields.querySelectorAll('.correct-answer-selector').forEach(sel => {
+                        sel.classList.toggle('selected', parseInt(sel.dataset.index) === currentCorrectAnswer);
+                    });
                 } else if (q.type === 'essay') {
                     currentModelAnswerImageBase64 = q.modelAnswerImage || null;
                     const mImgPreviewContainer = modelAnswerImageInput.nextElementSibling;
@@ -1541,10 +1869,10 @@
                 let questionData = { question: q, type: currentQuestionType, image: currentQuestionImageBase64, points: points };
                 
                 if (currentQuestionType === 'mcq') {
-                    const opts = Array.from(optionInputs).map(i => i.value.trim()), correct = parseInt(correctAnswerInput.value);
+                    const opts = Array.from(optionInputs).map(i => i.value.trim());
                     if (opts.some(o => o === "")) { showCustomAlert("خطأ", "يرجى ملء جميع الخيارات الأربعة."); return; }
-                    if (!correct || correct < 1 || correct > 4) { showCustomAlert("خطأ", "يرجى تحديد رقم الإجابة الصحيحة (من 1 إلى 4)."); return; }
-                    questionData = { ...questionData, options: opts, correct };
+                    if (currentCorrectAnswer === 0) { showCustomAlert("خطأ", "يرجى تحديد الإجابة الصحيحة بالضغط على علامة الصح."); return; }
+                    questionData = { ...questionData, options: opts, correct: currentCorrectAnswer };
                 } else { 
                     questionData.modelAnswerImage = currentModelAnswerImageBase64; 
                 }
@@ -1570,8 +1898,8 @@
                 button.textContent = "جاري الحفظ...";
                 window.location.href = 'go:1';
                 setTimeout(async () => {
-                    const p = preventGoBackCheckbox.checked, s = shuffleQuestionsCheckbox.checked, f = fatefulTestCheckbox.checked, c = certificatesCheckbox.checked;
-                    const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, shuffle: s, fateful: f, certificates: c, questions: questionsArray, timestamp: Date.now() };
+                    const p = preventGoBackCheckbox.checked, s = shuffleQuestionsCheckbox.checked, f = fatefulTestCheckbox.checked;
+                    const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, shuffle: s, fateful: f, questions: questionsArray, timestamp: Date.now() };
                     try {
                         if (currentEditingTestId) {
                             await set(ref(db, `tests/${currentUser}/${currentEditingTestId}`), testData);
@@ -1588,6 +1916,88 @@
                         button.textContent = originalText;
                     }
                 }, 5000);
+            };
+            
+            assessmentImageInput.onchange = () => handleImagePreview(assessmentImageInput, assessmentImageInput.nextElementSibling, assessmentImageInput.nextElementSibling.querySelector('img'), (val) => currentAssessmentImageBase64 = val);
+
+            function renderPendingAssessments() {
+                if (pendingAssessments.length === 0) {
+                    pendingAssessmentsList.innerHTML = '<p>لا توجد تقييمات في القائمة بعد.</p>';
+                    saveAllAssessmentsBtn.classList.add('hidden');
+                    return;
+                }
+
+                pendingAssessmentsList.innerHTML = '';
+                pendingAssessments.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'list-item';
+                    itemDiv.style.cssText = 'flex-direction: column; align-items: flex-start; padding: 10px;';
+                    itemDiv.innerHTML = `
+                        <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:15px;">
+                            <img src="${item.imageUrl}" style="width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer;">
+                            <p style="flex-grow:1; text-align:right; white-space:pre-wrap; font-size:0.9rem;">${item.text || '<em>لا يوجد نص</em>'}</p>
+                            <button data-index="${index}" class="action-btn btn-secondary btn-danger delete-assessment-btn" title="حذف"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    pendingAssessmentsList.appendChild(itemDiv);
+                });
+
+                pendingAssessmentsList.querySelectorAll('.delete-assessment-btn').forEach(btn => {
+                    btn.onclick = (e) => {
+                        const indexToRemove = parseInt(e.currentTarget.dataset.index);
+                        pendingAssessments.splice(indexToRemove, 1);
+                        renderPendingAssessments();
+                    };
+                });
+                saveAllAssessmentsBtn.classList.remove('hidden');
+            }
+
+            function clearAssessmentForm() {
+                assessmentImageInput.value = '';
+                assessmentText.value = '';
+                currentAssessmentImageBase64 = null;
+                const previewContainer = assessmentImageInput.nextElementSibling;
+                previewContainer.classList.add('hidden');
+                previewContainer.querySelector('img').src = '#';
+            }
+
+            addAssessmentBtn.onclick = () => {
+                if (!currentAssessmentImageBase64) {
+                    showCustomAlert("خطأ", "الرجاء اختيار صورة للتقييم أولاً.");
+                    return;
+                }
+                pendingAssessments.push({
+                    imageUrl: currentAssessmentImageBase64,
+                    text: assessmentText.value.trim(),
+                });
+                renderPendingAssessments();
+                clearAssessmentForm();
+            };
+
+            saveAllAssessmentsBtn.onclick = async (e) => {
+                const button = e.target;
+                if (pendingAssessments.length === 0) return;
+                if (!(await showCustomConfirm("تأكيد الحفظ", `هل أنت متأكد من حفظ ${pendingAssessments.length} تقييمات؟`))) return;
+                
+                button.disabled = true; button.textContent = 'جاري الحفظ...';
+                try {
+                    const promises = pendingAssessments.map(item => {
+                        return push(ref(db, 'assessments'), {
+                            ...item,
+                            teacher: currentUser,
+                            timestamp: serverTimestamp()
+                        });
+                    });
+                    await Promise.all(promises);
+                    showCustomAlert("نجاح", `تم حفظ ${pendingAssessments.length} تقييمات بنجاح!`);
+                    pendingAssessments = [];
+                    renderPendingAssessments();
+                    clearAssessmentForm();
+                } catch (err) {
+                    showCustomAlert("خطأ", "حدث خطأ أثناء حفظ التقييمات.");
+                } finally {
+                    button.disabled = false; button.textContent = 'حفظ جميع التقييمات';
+                }
             };
             
             async function authUser(name, password, isRegister) { 
@@ -1626,95 +2036,143 @@
                         if ((await get(ref(db, `users/${newName}`))).exists()) { showCustomAlert("خطأ", "هذا الاسم مستخدم بالفعل."); return; }
                         const oldData = (await get(ref(db, `users/${currentUser}`))).val();
                         const dataToMove = { [`users/${newName}`]: { ...oldData, ...updates }, [`users/${currentUser}`]: null };
-                        for (const path of ['tests', 'results', 'messageLimits', 'certificates']) {
-                            const snap = await get(ref(db, `${path}/${currentUser}`));
-                            if (snap.exists()) { dataToMove[`${path}/${newName}`] = snap.val(); dataToMove[`${path}/${currentUser}`] = null; }
-                        }
+                        
+                        const [testsSnap, resultsSnap, assessmentsSnap] = await Promise.all([
+                            get(ref(db, `tests/${currentUser}`)),
+                            get(ref(db, `results/${currentUser}`)),
+                            get(query(ref(db, 'assessments'), orderByChild('teacher'), equalTo(currentUser)))
+                        ]);
+
+                        if (testsSnap.exists()) { dataToMove[`tests/${newName}`] = testsSnap.val(); dataToMove[`tests/${currentUser}`] = null; }
+                        if (resultsSnap.exists()) { dataToMove[`results/${newName}`] = resultsSnap.val(); dataToMove[`results/${currentUser}`] = null; }
+                        if (assessmentsSnap.exists()) { assessmentsSnap.forEach(snap => { dataToMove[`assessments/${snap.key}/teacher`] = newName; }); }
+                        
                         await update(ref(db), dataToMove);
                         localStorage.setItem('loggedInTeacher', newName); 
                         showCustomAlert("نجاح", "تم تحديث الحساب بنجاح! سيتم إعادة تحميل الصفحة.");
                         setTimeout(() => window.location.href = window.location.pathname, 1500);
                     } else { await update(ref(db, `users/${currentUser}`), updates); showCustomAlert("نجاح", "تم تحديث كلمة المرور بنجاح!"); settingsModal.classList.remove('visible'); }
-                } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); }
+                } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); console.error(e); }
             };
 
-            // Certificate Modal Logic
-            function openCertificatesModal(testId) {
-                currentCertsTestId = testId;
-                certUploadInput.value = ''; // Reset file input
-                loadCertificatesForManagement(testId);
-                certsModal.classList.add('visible');
-            }
-            certsModal.querySelector('.modal-close-btn').onclick = () => certsModal.classList.remove('visible');
-            
-            function loadCertificatesForManagement(testId) {
-                const certsRef = ref(db, `certificates/${currentUser}/${testId}`);
-                onValue(certsRef, (snapshot) => {
-                    certsGrid.innerHTML = '';
-                    if (snapshot.exists()) {
-                        snapshot.forEach(childSnap => {
-                            const certKey = childSnap.key;
-                            const certUrl = childSnap.val();
-                            const item = document.createElement('div');
-                            item.className = 'certificate-item';
-                            item.innerHTML = `
-                                <img src="${certUrl}" class="question-image-preview">
-                                <button class="delete-cert-btn" data-key="${certKey}">&times;</button>
-                            `;
-                            item.querySelector('.delete-cert-btn').onclick = async () => {
-                                if (await showCustomConfirm('تأكيد الحذف', 'هل أنت متأكد من حذف هذه الشهادة؟')) {
-                                    remove(ref(db, `certificates/${currentUser}/${testId}/${certKey}`));
-                                }
-                            };
-                            certsGrid.appendChild(item);
-                        });
-                    } else {
-                        certsGrid.innerHTML = '<p>لم يتم رفع أي شهادات لهذا الاختبار بعد.</p>';
-                    }
-                });
-            }
+            // --- Assessments Management Logic ---
+            function renderMyAssessments(filter = '') {
+                myAssessmentsContainer.innerHTML = "";
+                const assessments = Object.entries(myAssessments).sort((a, b) => b[1].timestamp - a[1].timestamp);
 
-            uploadCertsBtn.onclick = async () => {
-                if (!certUploadInput.files.length) {
-                    showCustomAlert('خطأ', 'الرجاء اختيار صورة واحدة على الأقل.');
+                if (assessments.length === 0) {
+                    myAssessmentsContainer.innerHTML = "<p>لم تقم برفع أي تقييمات.</p>";
                     return;
                 }
-                uploadCertsBtn.disabled = true;
-                uploadCertsBtn.textContent = 'جاري الرفع...';
 
-                const certsRef = ref(db, `certificates/${currentUser}/${currentCertsTestId}`);
-                const promises = Array.from(certUploadInput.files).map(async (file) => {
-                    const base64 = await getBase64(file);
-                    return push(certsRef, base64);
+                let found = false;
+                assessments.forEach(([key, assessment]) => {
+                    if (filter && assessment.text && !assessment.text.toLowerCase().includes(filter.toLowerCase())) {
+                        return;
+                    }
+                    found = true;
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'list-item';
+                    itemDiv.style.cssText = 'flex-direction: column; align-items: stretch; padding: 10px;';
+                    itemDiv.innerHTML = `
+                        <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:15px;">
+                            <img src="${assessment.imageUrl}" style="width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer;">
+                            <p style="flex-grow:1; text-align:right; white-space:pre-wrap; font-size:0.9rem;">${assessment.text || '<em>لا يوجد نص</em>'}</p>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 10px; width: 100%;">
+                            <button class="action-btn btn-secondary" data-action="edit" data-key="${key}" title="تعديل" style="flex-grow: 1;"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-secondary btn-danger" data-action="delete" data-key="${key}" title="حذف" style="flex-grow: 1;"><i class="fas fa-trash"></i></button>
+                        </div>`;
+                    myAssessmentsContainer.appendChild(itemDiv);
                 });
+
+                if (!found && filter) {
+                    myAssessmentsContainer.innerHTML = "<p>لا توجد تقييمات مطابقة لبحثك.</p>";
+                }
                 
+                myAssessmentsContainer.querySelectorAll('[data-action="delete"]').forEach(btn => btn.onclick = () => deleteAssessment(btn.dataset.key));
+                myAssessmentsContainer.querySelectorAll('[data-action="edit"]').forEach(btn => btn.onclick = () => openEditAssessmentModal(btn.dataset.key));
+            }
+            
+            async function deleteAssessment(key) {
+                if (await showCustomConfirm("تأكيد الحذف", "هل أنت متأكد من حذف هذا التقييم؟")) {
+                    try {
+                        await remove(ref(db, `assessments/${key}`));
+                        showCustomAlert("نجاح", "تم حذف التقييم بنجاح.");
+                    } catch (e) {
+                        showCustomAlert("خطأ", "حدث خطأ أثناء الحذف.");
+                    }
+                }
+            }
+            
+            function openEditAssessmentModal(key) {
+                const assessment = myAssessments[key];
+                if (!assessment) return;
+
+                currentEditingAssessmentKey = key;
+                editAssessmentImageBase64 = assessment.imageUrl;
+
+                const modalImg = document.getElementById('edit-assessment-image-preview');
+                const modalText = document.getElementById('edit-assessment-text');
+                
+                modalImg.src = assessment.imageUrl;
+                modalText.value = assessment.text || '';
+                
+                editAssessmentModal.classList.add('visible');
+            }
+            
+            document.getElementById('edit-assessment-image-input').onchange = (e) => {
+                 handleImagePreview(e.target, e.target.nextElementSibling, document.getElementById('edit-assessment-image-preview'), (val) => editAssessmentImageBase64 = val);
+            };
+
+            document.getElementById('update-assessment-btn').onclick = async () => {
+                if (!currentEditingAssessmentKey) return;
+                
+                const newText = document.getElementById('edit-assessment-text').value.trim();
+                const updates = {
+                    text: newText,
+                    imageUrl: editAssessmentImageBase64
+                };
+
                 try {
-                    await Promise.all(promises);
-                    showCustomAlert('نجاح', 'تم رفع الشهادات بنجاح.');
-                    certUploadInput.value = '';
-                } catch (error) {
-                    showCustomAlert('خطأ', 'حدث خطأ أثناء رفع بعض الصور.');
-                } finally {
-                    uploadCertsBtn.disabled = false;
-                    uploadCertsBtn.textContent = 'رفع الصور المختارة';
+                    await update(ref(db, `assessments/${currentEditingAssessmentKey}`), updates);
+                    showCustomAlert("نجاح", "تم تحديث التقييم بنجاح.");
+                    editAssessmentModal.classList.remove('visible');
+                } catch(e) {
+                    showCustomAlert("خطأ", "فشل تحديث التقييم.");
                 }
             };
+            
+            editAssessmentModal.querySelector('.modal-close-btn').onclick = () => editAssessmentModal.classList.remove('visible');
+
         }
 
         async function initStudentApp() {
             const allSections=studentPortal.querySelectorAll('section'),[registerSection,loginSection,dashboard,takeTest,result,review]=allSections, nameSpan=studentPortal.querySelector('#student-name');
-            const menuIcon = studentPortal.querySelector('#student-menu-icon'), dropdownMenu = studentPortal.querySelector('#student-dropdown-menu');
+            const portalHeader = studentPortal.querySelector('.portal-header-controls'), menuIcon = studentPortal.querySelector('#student-menu-icon'), dropdownMenu = studentPortal.querySelector('#student-dropdown-menu');
             const settingsModal = studentPortal.querySelector('#student-settings-modal');
             const testsContainer=studentPortal.querySelector('#available-tests-container'), resultsContainer=studentPortal.querySelector('#my-student-results-container'), searchBar=studentPortal.querySelector('#search-bar');
             const timerDisplay=studentPortal.querySelector('#timer'), timerProgress=studentPortal.querySelector('#timer-progress'), testTitle=studentPortal.querySelector('#current-test-title'), questionsDisplay=studentPortal.querySelector('#questions-display');
-            const finalScore=studentPortal.querySelector('#final-score'), feedbackMsg=studentPortal.querySelector('#feedback-message'), bottomNav=studentPortal.querySelector('#student-bottom-nav');
+            const finalScore=studentPortal.querySelector('#final-score'), feedbackMsg=studentPortal.querySelector('#feedback-message');
             const qNavContainer=studentPortal.querySelector('#question-navigation-container'), [prevQBtn,nextQBtn]=[studentPortal.querySelector('#prev-question-btn'),studentPortal.querySelector('#next-question-btn')], submitBtn=studentPortal.querySelector('#submit-test-btn');
             const reviewContainer=studentPortal.querySelector('#review-container'), updateNameInput = studentPortal.querySelector('#student-update-name'), updatePasswordInput = studentPortal.querySelector('#student-update-password'), updateBtn = studentPortal.querySelector('#student-update-btn');
             const showSearchBtn = studentPortal.querySelector('#show-search-btn');
             const refreshBtn = studentPortal.querySelector('#refresh-tests-btn');
             const backToDashboardBtn = studentPortal.querySelector('#back-to-dashboard-btn');
             const backFromReviewBtn = studentPortal.querySelector('#back-to-dashboard-from-review-btn');
-            const honorRollContainer = document.getElementById('honor-roll-container');
+            const assessmentsContainer = document.getElementById('assessments-container');
+            const groupChatBody = document.getElementById('group-chat-body');
+            const groupChatMessageInput = document.getElementById('group-chat-message-input');
+            const sendGroupChatMessageBtn = document.getElementById('send-group-chat-message-btn');
+            const messageContextMenu = document.getElementById('message-context-menu');
+            
+            const studentTopNav = studentPortal.querySelector('#student-top-nav');
+            const backFromAssessmentsBtn = document.getElementById('back-to-dashboard-from-assessments-btn');
+            const testsNavBtn = studentPortal.querySelector('.nav-btn[data-target="student-tests-content"]');
+            
+            let currentMessageElementForMenu = null;
+            let locallyDeletedMessages = [];
+
 
             let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false;
 
@@ -1744,9 +2202,9 @@
                     feedbackMsg.style.cssText = "background: rgba(255, 193, 7, 0.2); color: var(--warning-primary);";
                     feedbackMsg.textContent = "تم إرسال إجاباتك المقالية للمراجعة! هذه نتيجتك المبدئية.";
                 } else {
-                    const mcqScore = resultData.mcqScore;
-                    const totalTestPoints = resultData.totalPoints;
-                    const percentage = totalTestPoints > 0 ? (mcqScore / totalTestPoints) * 100 : 0;
+                    const finalScoreValue = parseFloat(resultData.score.split('/')[0]);
+                    const totalTestPoints = parseFloat(resultData.score.split('/')[1]);
+                    const percentage = totalTestPoints > 0 ? (finalScoreValue / totalTestPoints) * 100 : 0;
                     feedbackMsg.style.background = 'var(--bg-tertiary)';
                     feedbackMsg.style.color = 'var(--text-primary)';
                     feedbackMsg.style.textAlign = 'center';
@@ -1791,21 +2249,61 @@
                 showSection(loginSection);
             }
 
-            function showSection(s){allSections.forEach(e=>e.classList.add('hidden'));if(s) s.classList.remove('hidden');bottomNav.classList.toggle('hidden',!s || s.id!=='student-dashboard-section' || isDeepLinkSession)};
+            function showSection(s){
+                allSections.forEach(e=>e.classList.add('hidden'));
+                if(s) s.classList.remove('hidden');
+                const isDashboard = s && s.id==='student-dashboard-section';
+                studentTopNav.classList.toggle('hidden', !isDashboard || isDeepLinkSession);
+                portalHeader.classList.toggle('hidden', !isDashboard || isDeepLinkSession);
+                studentPortal.classList.toggle('auth-view', s === loginSection || s === registerSection);
+            };
             const showLoading=c=>{c.innerHTML='<div class="spinner"></div>'};
             
-            async function loadDashboard(){if(!currentStudent)return;nameSpan.textContent=currentStudent;menuIcon.classList.remove('hidden'); setDefaultTab();showLoading(testsContainer);showLoading(resultsContainer);const resultsSnap=await get(ref(db,`studentResults/${currentStudent}`));takenTests=resultsSnap.exists()?resultsSnap.val():{};renderStudentResults();const testsRef=ref(db,'tests');onValue(testsRef,snap=>{allTests=snap.exists()?snap.val():{};renderAvailableTests()}); initChatSystem(currentStudent, 'student');}
+            async function loadDashboard(){
+                if(!currentStudent)return;
+                nameSpan.textContent=currentStudent;
+                setDefaultTab();
+                showLoading(testsContainer);
+                showLoading(resultsContainer);
+                refreshBtn.classList.add('loading');
+                const resultsSnap=await get(ref(db,`studentResults/${currentStudent}`));
+                takenTests=resultsSnap.exists()?resultsSnap.val():{};
+                renderStudentResults();
+                const testsRef=ref(db,'tests');
+                onValue(testsRef,snap=>{
+                    allTests=snap.exists()?snap.val():{};
+                    renderAvailableTests();
+                    refreshBtn.classList.remove('loading');
+                }); 
+                initChatSystem(currentStudent, 'student'); 
+                initGroupChat();
+                loadAssessments();
+            }
             
-            refreshBtn.onclick = loadDashboard;
+            refreshBtn.onclick = () => {
+                 refreshBtn.classList.add('loading');
+                 loadDashboard();
+            };
 
             function renderAvailableTests(filter=''){
-                testsContainer.innerHTML=''; let found=false;
+                testsContainer.innerHTML='<div class="spinner"></div>';
+                let found=false;
                 const testEntries = [];
                 Object.entries(allTests).forEach(([teacherId, teacherTests]) => {
                     Object.entries(teacherTests)
                         .filter(([testId, test]) => (Date.now() - test.timestamp < 48 * 60 * 60 * 1000))
                         .forEach(([testId, test]) => { testEntries.push({ teacherId, testId, test }); }); 
                 });
+                
+                testsContainer.innerHTML='';
+                if (testEntries.length === 0) {
+                     testsContainer.innerHTML='<div style="text-align:center; padding: 40px 0;"><p>لا توجد اختبارات متاحة حاليًا.</p><button id="center-refresh-btn" class="btn-secondary" style="width:auto; padding: 10px 20px !important;">تحديث</button></div>';
+                     document.getElementById('center-refresh-btn').onclick = loadDashboard;
+                     refreshBtn.style.display = 'none';
+                     return;
+                }
+                refreshBtn.style.display = 'flex';
+
                 testEntries.sort((a, b) => b.test.timestamp - a.test.timestamp);
 
                 testEntries.forEach(({teacherId, testId, test}) => {
@@ -1863,15 +2361,15 @@
                     itemContainer.append(actionsBar, card);
                     testsContainer.appendChild(itemContainer);
                 });
-                if(!found) testsContainer.innerHTML='<p>لا توجد اختبارات متاحة حاليًا.</p>';
+                if(!found && filter) testsContainer.innerHTML='<p>لا توجد نتائج مطابقة لبحثك.</p>';
             }
 
             function renderStudentResults(){resultsContainer.innerHTML='';const results=Object.values(takenTests).sort((a,b)=>b.timestamp-a.timestamp);if(results.length===0){resultsContainer.innerHTML='<p>لم تقم بإجراء أي اختبار بعد.</p>';return}results.forEach(r=>{const d=new Date(r.timestamp).toLocaleString('ar-EG'), pendingIndicator = r.status === 'pending' ? `<span style="color:var(--warning-primary); font-weight:bold; font-size: 0.8rem;">(قيد المراجعة)</span>` : '';const div=document.createElement('div');div.className='test-item';div.innerHTML=`<div style="text-align:right; flex-grow:1;"><strong>${r.testName}</strong><br><small>الدرجة: <strong>${r.score}</strong> ${pendingIndicator}</small></div><small>${d}</small>`;resultsContainer.appendChild(div)})}
             
             function startTest(teacherId, testId, testData, isPractice = false) {
                 if (isDeepLinkSession) {
-                    bottomNav.classList.add('hidden');
-                    studentPortal.querySelector('.header-icons').classList.add('hidden');
+                    studentTopNav.classList.add('hidden');
+                    portalHeader.classList.add('hidden');
                 }
                 if (!testData.questions || testData.questions.length === 0) {
                     showCustomAlert("خطأ", "هذا الاختبار لا يحتوي على أسئلة ولا يمكن بدؤه.");
@@ -1951,26 +2449,36 @@
                 clearInterval(testInterval);
                 if(timeUp) showCustomAlert('انتهى الوقت!','تم تسليم إجاباتك الحالية.');
                 if(currentTest.preventGoBack) saveCurrentAnswer();
-                let mcqScore = 0, mcqTotalPoints = 0; const hasEssays = currentTest.questions.some(q => q.type === 'essay'), totalTestPoints = currentTest.questions.reduce((s, q) => s + (q.points || 1), 0);
-                currentTest.questions.forEach((q, idx) => { if (q.type === 'mcq') { mcqTotalPoints += (q.points || 1); if (answers[idx] && answers[idx].answer === q.correct) mcqScore += (q.points || 1); } });
+                let mcqScore = 0;
+                const hasEssays = currentTest.questions.some(q => q.type === 'essay');
+                const totalTestPoints = currentTest.questions.reduce((s, q) => s + (q.points || 1), 0);
                 
-                const scoreString = hasEssays ? `${mcqScore} / ${mcqTotalPoints} (مبدئي)` : `${mcqScore} / ${totalTestPoints}`;
+                currentTest.questions.forEach((q, idx) => {
+                    if (q.type === 'mcq') { 
+                        if (answers[idx] && parseInt(answers[idx].answer) === parseInt(q.correct)) {
+                            mcqScore += (q.points || 1);
+                        }
+                    }
+                });
+                
+                const scoreString = hasEssays ? `${mcqScore} / ${totalTestPoints} (مبدئي)` : `${mcqScore} / ${totalTestPoints}`;
                 finalScore.textContent = `درجتك: ${scoreString}`;
                 
-                const promptShown = localStorage.getItem('appInstallPromptShown');
-                if (!currentTest.isPractice && !promptShown) {
-                    appInstallPrompt.classList.add('show');
-                    localStorage.setItem('appInstallPromptShown', 'true');
-                }
+                // App install prompt is removed as requested
+                // const promptShown = localStorage.getItem('appInstallPromptShown');
+                // if (!currentTest.isPractice && !promptShown) {
+                //     appInstallPrompt.classList.add('show');
+                //     localStorage.setItem('appInstallPromptShown', 'true');
+                // }
 
                 if(currentTest.isPractice){
                     feedbackMsg.style.cssText = "background: #17a2b8; color: #fff;";
                     feedbackMsg.textContent = "هذه نتيجة تدريبك. لن يتم حفظ هذه الدرجة.";
                 } else {
-                    const resultObj = { testId: currentTest.id, testName: currentTest.name, teacherName: currentTest.teacherId, timestamp: serverTimestamp(), answers: answers, mcqScore: mcqScore, totalPoints: totalTestPoints, status: hasEssays ? 'pending' : 'graded', score: scoreString };
+                    const resultObj = { testId: currentTest.id, testName: currentTest.name, teacherName: currentTest.teacherId, timestamp: serverTimestamp(), answers: answers, mcqScore: mcqScore, status: hasEssays ? 'pending' : 'graded', score: scoreString };
                     await set(ref(db, `studentResults/${currentStudent}/${currentTest.id}`), resultObj); 
                     await set(ref(db, `results/${currentTest.teacherId}/${currentTest.id}/${currentStudent}`), resultObj);
-                    takenTests[currentTest.id] = resultObj; 
+                    takenTests[currentTest.id] = { ...resultObj, timestamp: Date.now() }; // Add timestamp for local sorting
                     
                     sessionStorage.setItem('lastSubmittedTest', JSON.stringify({
                         testId: currentTest.id,
@@ -2039,12 +2547,18 @@
                     const ans = studentAnswers[i] || {};
                     let html='';
                     if (q.type === 'mcq') {
-                        const isCorrect = ans.answer === q.correct;
-                        html=`<div style="background:${isCorrect ? 'rgba(35, 134, 54, 0.2)' : 'rgba(218, 54, 51, 0.2)'}; padding:10px; border-radius:8px;">
-                            <b>إجابتك:</b> ${ans.answer ? q.options[ans.answer-1] : '<i>لم تجب</i>'}<br>
-                            <b>الإجابة الصحيحة:</b> ${q.options[q.correct-1]}
-                        </div>`;
-                    } else { // Essay
+                        html = '<div>' + q.options.map((option, idx) => {
+                            const optionNum = idx + 1;
+                            let classes = 'review-option';
+                            if (optionNum === parseInt(q.correct)) {
+                                classes += ' correct-answer-highlight';
+                            }
+                            if (ans.answer && parseInt(ans.answer) === optionNum && parseInt(ans.answer) !== parseInt(q.correct)) {
+                                classes += ' incorrect-answer-highlight';
+                            }
+                            return `<div class="${classes}">${option}</div>`;
+                        }).join('') + '</div>';
+                    } else { 
                         const txt = ans.textAnswer || '<em>لم تقدم إجابة نصية.</em>';
                         const img = ans.imageAnswer ? `<p><b>صورتك:</b></p><img src="${ans.imageAnswer}" style="max-width:80%;border-radius:8px; cursor:pointer;">` : '';
                         const model = q.modelAnswerImage ? `<p><b>الإجابة النموذجية:</b></p><img src="${q.modelAnswerImage}" style="max-width:80%;border-radius:8px; cursor:pointer;">` : '';
@@ -2084,65 +2598,58 @@
                 }
             }
             
-            async function loadHonorRoll() {
-                showLoading(honorRollContainer);
-                const testsSnap = await get(ref(db, 'tests'));
-                const certsSnap = await get(ref(db, 'certificates'));
-                
-                honorRollContainer.innerHTML = '';
-                let foundAny = false;
-
-                if (testsSnap.exists() && certsSnap.exists()) {
-                    const allTests = testsSnap.val();
-                    const allCerts = certsSnap.val();
-                    
-                    for (const teacherId in allTests) {
-                        for (const testId in allTests[teacherId]) {
-                            const test = allTests[teacherId][testId];
-                            if (test.certificates && allCerts[teacherId] && allCerts[teacherId][testId]) {
-                                foundAny = true;
-                                const testCerts = allCerts[teacherId][testId];
-                                const testSection = document.createElement('div');
-                                testSection.className = 'honor-test-section';
-                                testSection.innerHTML = `<h3>${test.name}</h3>`;
-                                
-                                const grid = document.createElement('div');
-                                grid.id = 'certificates-grid';
-                                
-                                for(const certKey in testCerts) {
-                                    const certUrl = testCerts[certKey];
-                                    const item = document.createElement('div');
-                                    item.className = 'certificate-item';
-                                    item.innerHTML = `<img src="${certUrl}" class="question-image-preview">`;
-                                    grid.appendChild(item);
-                                }
-                                testSection.appendChild(grid);
-                                honorRollContainer.appendChild(testSection);
-                            }
-                        }
-                    }
-                }
-                
-                if (!foundAny) {
-                    honorRollContainer.innerHTML = '<p>لا توجد شهادات تقدير متاحة للعرض حاليًا.</p>';
+            async function loadAssessments() {
+                assessmentsContainer.innerHTML = '<div class="spinner"></div>';
+                const assessmentsRef = ref(db, 'assessments');
+                const snapshot = await get(assessmentsRef);
+                assessmentsContainer.innerHTML = '';
+                if (snapshot.exists()) {
+                    snapshot.forEach(childSnap => {
+                        const assessment = childSnap.val();
+                        const item = document.createElement('div');
+                        item.className = 'list-item';
+                        item.style.flexDirection = 'column';
+                        item.style.alignItems = 'flex-start';
+                        item.innerHTML = `
+                            <img src="${assessment.imageUrl}" class="question-image-preview" style="max-height: 300px;">
+                            ${assessment.text ? `<p style="text-align: right; margin-top: 10px; white-space: pre-wrap;">${assessment.text}</p>` : ''}
+                            <small style="align-self: flex-end; color: var(--text-secondary); margin-top: 10px;">من: ${assessment.teacher}</small>
+                        `;
+                        assessmentsContainer.prepend(item); 
+                    });
+                } else {
+                    assessmentsContainer.innerHTML = '<p>لا توجد تقييمات متاحة حاليًا.</p>';
                 }
             }
-            
+
             const formatTime=s=>{const m=Math.floor(s/60),r=s%60;return`${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`};
             
-            const navButtons=studentPortal.querySelectorAll('.nav-btn');
-            navButtons.forEach(b=>{
-                b.addEventListener('click',()=>{
-                    navButtons.forEach(btn=>btn.classList.remove('active'));
-                    studentPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));
+            const navButtons = studentPortal.querySelectorAll('.nav-btn');
+            navButtons.forEach(b => {
+                b.addEventListener('click', (e) => {
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    studentPortal.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
                     b.classList.add('active');
-                    const targetId = b.dataset.target;
-                    studentPortal.querySelector(`#${targetId}`).classList.remove('hidden');
-                    if (targetId === 'student-honor-roll-content') {
-                        loadHonorRoll();
+                    studentPortal.querySelector(`#${b.dataset.target}`).classList.remove('hidden');
+
+                    const isAssessmentsTab = b.dataset.target === 'student-assessments-content';
+                    studentTopNav.classList.toggle('hidden', isAssessmentsTab);
+                    backFromAssessmentsBtn.classList.toggle('hidden', !isAssessmentsTab);
+                    if(isAssessmentsTab) {
+                        portalHeader.classList.add('hidden');
+                    } else {
+                        portalHeader.classList.remove('hidden');
                     }
-                })
+                });
             });
+
+            backFromAssessmentsBtn.onclick = () => {
+                 if (testsNavBtn) {
+                    testsNavBtn.click();
+                    window.location.href = 'go:1';
+                }
+            };
+
             const setDefaultTab=()=>navButtons[0].click();
             studentPortal.querySelector('#student-register-btn').onclick=()=>authUser(studentPortal.querySelector('#student-register-name').value.trim(),studentPortal.querySelector('#student-register-password').value.trim(),true);
             studentPortal.querySelector('#student-login-btn').onclick=()=>authUser(studentPortal.querySelector('#student-login-name').value.trim(),studentPortal.querySelector('#student-login-password').value.trim(),false);
@@ -2155,6 +2662,7 @@
             
             showSearchBtn.addEventListener('click', () => {
                 searchBar.classList.toggle('hidden');
+                showSearchBtn.classList.toggle('active');
                 if (!searchBar.classList.contains('hidden')) {
                     searchBar.focus();
                 } else {
@@ -2165,7 +2673,14 @@
             searchBar.addEventListener('input',e=>renderAvailableTests(e.target.value));
             
             menuIcon.addEventListener('click', () => dropdownMenu.classList.toggle('show'));
-            document.addEventListener('click', (e) => { if (!menuIcon.contains(e.target) && !dropdownMenu.contains(e.target) && !e.target.closest('.theme-toggle-btn')) dropdownMenu.classList.remove('show'); });
+            document.addEventListener('click', (e) => { 
+                if (!menuIcon.contains(e.target) && !dropdownMenu.contains(e.target) && !e.target.closest('.theme-toggle-btn')) {
+                    dropdownMenu.classList.remove('show'); 
+                }
+                if (!e.target.closest('.message-context-menu') && !e.target.closest('.group-chat-message')) {
+                    messageContextMenu.style.display = 'none';
+                }
+            });
             
             dropdownMenu.querySelector('#student-settings-btn').onclick = () => { dropdownMenu.classList.remove('show'); updateNameInput.value = currentStudent; updatePasswordInput.value = ''; settingsModal.classList.add('visible'); };
             dropdownMenu.querySelector('#student-logout-btn').onclick = async () => { dropdownMenu.classList.remove('show'); if (await showCustomConfirm("تأكيد", "هل أنت متأكد من رغبتك في تسجيل الخروج؟")) { localStorage.clear(); sessionStorage.clear(); window.location.href = window.location.pathname; } };
@@ -2196,6 +2711,104 @@
                     } else { await update(ref(db, `students/${currentStudent}`), updates); showCustomAlert("نجاح", "تم تحديث كلمة المرور بنجاح!"); settingsModal.classList.remove('visible'); }
                 } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); console.error(e) }
             };
+
+            function initGroupChat() {
+                const locallyDeletedJSON = localStorage.getItem(`deletedMessages_${currentStudent}`);
+                locallyDeletedMessages = locallyDeletedJSON ? JSON.parse(locallyDeletedJSON) : [];
+
+                const groupChatRef = ref(db, 'groupChat');
+                cleanupOldMessages(groupChatRef);
+                
+                onValue(groupChatRef, (snapshot) => {
+                    groupChatBody.innerHTML = '';
+                    if (snapshot.exists()) {
+                        snapshot.forEach(childSnap => {
+                            const msg = childSnap.val();
+                            const msgKey = childSnap.key;
+                            if (!locallyDeletedMessages.includes(msgKey)) {
+                                renderGroupMessage(msg, msgKey);
+                            }
+                        });
+                    }
+                    groupChatBody.scrollTop = groupChatBody.scrollHeight;
+                });
+            }
+
+            sendGroupChatMessageBtn.onclick = () => {
+                const text = groupChatMessageInput.value.trim();
+                if (!text) return;
+                const message = {
+                    sender: currentStudent,
+                    text: text,
+                    timestamp: serverTimestamp()
+                };
+                push(ref(db, 'groupChat'), message);
+                groupChatMessageInput.value = '';
+            };
+            
+            function renderGroupMessage(msg, key) {
+                const msgDiv = document.createElement('div');
+                msgDiv.dataset.key = key;
+                msgDiv.dataset.sender = msg.sender;
+                msgDiv.className = `group-chat-message ${msg.sender === currentStudent ? 'sent' : 'received'}`;
+                
+                if (msg.sender === currentStudent) {
+                     msgDiv.innerHTML = `<div class="msg-text">${msg.text}</div>`;
+                } else {
+                    msgDiv.innerHTML = `
+                        <div class="msg-sender"><i class="fas fa-user-circle"></i> ${msg.sender}</div>
+                        <div class="msg-text">${msg.text}</div>
+                    `;
+                }
+
+                msgDiv.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    currentMessageElementForMenu = e.currentTarget;
+                    const sender = currentMessageElementForMenu.dataset.sender;
+                    
+                    const deleteAllOption = messageContextMenu.querySelector('[data-action="delete_for_everyone"]');
+                    deleteAllOption.classList.toggle('hidden', sender !== currentStudent);
+                    
+                    messageContextMenu.style.top = `${e.clientY}px`;
+                    messageContextMenu.style.left = `${e.clientX}px`;
+                    messageContextMenu.style.display = 'block';
+                });
+                groupChatBody.appendChild(msgDiv);
+            }
+
+            messageContextMenu.addEventListener('click', async (e) => {
+                const action = e.target.dataset.action;
+                const messageElement = currentMessageElementForMenu;
+                messageContextMenu.style.display = 'none';
+
+                if (!messageElement) return;
+
+                const messageKey = messageElement.dataset.key;
+
+                if (action === 'reply') {
+                    const sender = messageElement.dataset.sender === currentStudent ? 'أنا' : messageElement.dataset.sender;
+                    const text = messageElement.querySelector('.msg-text').textContent;
+                    groupChatMessageInput.value = `ردًا على (${sender}): "${text.substring(0, 20)}..." \n`;
+                    groupChatMessageInput.focus();
+                } else if (action === 'delete_for_me') {
+                    if (!locallyDeletedMessages.includes(messageKey)) {
+                        locallyDeletedMessages.push(messageKey);
+                        localStorage.setItem(`deletedMessages_${currentStudent}`, JSON.stringify(locallyDeletedMessages));
+                    }
+                    messageElement.remove();
+                } else if (action === 'delete_for_everyone') {
+                    if (await showCustomConfirm("تأكيد الحذف", "هل أنت متأكد من حذف هذه الرسالة لدى الجميع؟")) {
+                        try {
+                            await remove(ref(db, `groupChat/${messageKey}`));
+                        } catch (error) {
+                            showCustomAlert('خطأ', 'فشل حذف الرسالة.');
+                            console.error("Delete for everyone failed:", error);
+                        }
+                    }
+                }
+            });
+
+
         }
 
         async function shareTest(testName) {
@@ -2372,6 +2985,23 @@
 
         let currentUserId, currentUserType, recognition;
         let activeChatPartnerId = null, chatMessagesListener = null;
+        
+        async function cleanupOldMessages(messagesRef) {
+            const snapshot = await get(messagesRef);
+            if (snapshot.exists()) {
+                const updates = {};
+                const cutoff = Date.now() - (24 * 60 * 60 * 1000);
+                snapshot.forEach(child => {
+                    if (child.val().timestamp < cutoff) {
+                        updates[child.key] = null;
+                    }
+                });
+                if (Object.keys(updates).length > 0) {
+                    await update(messagesRef, updates);
+                }
+            }
+        }
+
 
         function initChatSystem(userId, userType) {
             currentUserId = userId; currentUserType = userType; initSpeechRecognition();
@@ -2401,6 +3031,7 @@
         async function openChatList(modal, listBody, userType) {
             modal.classList.add('visible'); listBody.innerHTML = '<div class="spinner"></div>';
             const chatsRef = query(ref(db, 'chats'), orderByChild(`participants/${currentUserId}`), equalTo(true));
+            await cleanupOldMessages(chatsRef);
             const snapshot = await get(chatsRef);
             if (!snapshot.exists()) { listBody.innerHTML = `<p>لا توجد محادثات حتى الآن. ${userType === 'student' ? 'يمكنك بدء محادثة من صفحة الاختبارات.' : ''}</p>`; return; }
             listBody.innerHTML = '';
@@ -2436,34 +3067,26 @@
             else { document.getElementById('message-limit-text').textContent = ''; sendMessageBtn.disabled = false; messageInput.disabled = false; }
 
             const chatId = [userId, partnerId].sort().join('_');
+            const messagesRef = ref(db, `chats/${chatId}/messages`);
+
+            await cleanupOldMessages(messagesRef);
+
             const metadataRef = ref(db, `chats/${chatId}/metadata/hasUnread/${userId}`);
             await set(metadataRef, null);
             
-            const messagesRef = query(ref(db, `chats/${chatId}/messages`), orderByChild('timestamp'));
-            chatMessagesListener = onValue(messagesRef, (snapshot) => {
+            const orderedMessagesRef = query(messagesRef, orderByChild('timestamp'));
+            chatMessagesListener = onValue(orderedMessagesRef, (snapshot) => {
                 chatModalBody.innerHTML = '';
                 if (snapshot.exists()) {
-                    const now = Date.now();
-                    const expiryPeriod = 48 * 60 * 60 * 1000;
-                    let messageFound = false;
                     snapshot.forEach(child => {
                         const msg = child.val();
-                        if (now - msg.timestamp < expiryPeriod) {
-                             messageFound = true;
-                             const msgDiv = document.createElement('div');
-                             msgDiv.className = `chat-message ${msg.sender === currentUserId ? 'sent' : 'received'}`;
-                             const time = new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                             msgDiv.innerHTML = `<span>${msg.text}</span><span class="msg-time">${time}</span>`;
-                             chatModalBody.appendChild(msgDiv);
-                        }
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = `chat-message ${msg.sender === currentUserId ? 'sent' : 'received'}`;
+                        const time = new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                        msgDiv.innerHTML = `<span>${msg.text}</span><span class="msg-time">${time}</span>`;
+                        chatModalBody.appendChild(msgDiv);
                     });
-                    
-                    if(messageFound) {
-                        chatModalBody.scrollTop = chatModalBody.scrollHeight;
-                    } else {
-                        chatModalBody.innerHTML = '<p>لا توجد رسائل حديثة. ابدأ المحادثة!</p>';
-                    }
-
+                    chatModalBody.scrollTop = chatModalBody.scrollHeight;
                 } else { chatModalBody.innerHTML = '<p>ابدأ المحادثة!</p>'; }
             });
         }
@@ -2513,27 +3136,8 @@
             textChatModal.classList.remove('visible'); activeChatPartnerId = null; if (chatMessagesListener) off(chatMessagesListener, 'value');
         };
 
-        async function loadSloganWidgetData() {
-            const sloganImage = document.getElementById('slogan-image');
-            const sloganText = document.getElementById('slogan-text');
-            try {
-                const sloganRef = ref(db, 'config/sloganWidget');
-                const snapshot = await get(sloganRef);
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    if (data.imageUrl) {
-                        sloganImage.src = data.imageUrl;
-                        sloganImage.alt = data.text || 'شعار';
-                    }
-                    if (data.text) {
-                        sloganText.textContent = data.text;
-                    }
-                }
-            } catch (error) {
-                console.error("Could not load slogan widget data:", error);
-            }
-        }
-
+        const sloganWidget = document.getElementById('slogan-widget');
+        
         const handleInitialLoad = () => {
             const savedTeacher = localStorage.getItem('loggedInTeacher');
             const savedStudent = localStorage.getItem('loggedInStudent');
@@ -2559,14 +3163,13 @@
             } 
             else { 
                 mainLandingPage.classList.remove('hidden'); 
+                sloganWidget.classList.remove('hidden');
+                loadSloganWidgetData();
             }
-
-            loadSloganWidgetData();
         };
 
         handleInitialLoad();
 
-        const sloganWidget = document.getElementById('slogan-widget');
         if (sloganWidget) {
             sloganWidget.addEventListener('click', () => {
                 const sloganImage = sloganWidget.querySelector('img');
@@ -2575,6 +3178,27 @@
                 }
             });
         }
+         async function loadSloganWidgetData() {
+            const sloganImage = document.getElementById('slogan-image');
+            const sloganText = document.getElementById('slogan-text');
+            try {
+                const sloganRef = ref(db, 'config/sloganWidget');
+                const snapshot = await get(sloganRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data.imageUrl) {
+                        sloganImage.src = data.imageUrl;
+                        sloganImage.alt = data.text || 'شعار';
+                    }
+                    if (data.text) {
+                        sloganText.textContent = data.text;
+                    }
+                }
+            } catch (error) {
+                console.error("Could not load slogan widget data:", error);
+            }
+        }
+
 
     </script>
 
