@@ -754,20 +754,6 @@
         @keyframes dialog-pop-in { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes icon-bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
 
-        /* --- Text Chat Styles --- */
-        #text-chat-modal .chat-body { display: flex; flex-direction: column; gap: 12px; padding: 15px; max-height: 60vh; overflow-y: auto; }
-        .chat-message { max-width: 80%; padding: 10px 15px; border-radius: 18px; line-height: 1.5; word-wrap: break-word; box-shadow: 0 2px 4px var(--shadow-color-light); }
-        .chat-message.sent { background: var(--accent-primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; text-align: left; }
-        .chat-message.received { background: var(--border-secondary); align-self: flex-start; border-bottom-left-radius: 4px; text-align: right; }
-        .chat-message .msg-time { display: block; font-size: 0.7rem; color: var(--text-secondary); margin-top: 5px; opacity: 0.8; }
-        .chat-message.sent .msg-time { color: rgba(255,255,255,0.7); }
-        
-        #text-chat-modal .chat-input-area { display: flex; gap: 10px; align-items: center; }
-        #text-chat-modal textarea { flex-grow: 1; margin: 0; resize: none; }
-        #text-chat-modal .chat-action-btn { width: 50px !important; height: 50px; padding: 0 !important; font-size: 1.2rem !important; flex-shrink: 0; border-radius: 50% !important; }
-        #speech-to-text-btn.listening { color: var(--danger-primary); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger-primary) 70%, transparent); } 70% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--danger-primary) 0%, transparent); } 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--danger-primary) 0%, transparent); } }
-
         /* --- Advanced Radio & Checkbox --- */
         .question-options { display: flex; flex-direction: column; gap: 10px; }
         .question-options label, .checkbox-container {
@@ -907,90 +893,6 @@
                 1.5px 1.5px 3px var(--shadow-color-heavy);
         }
 
-       /* --- New Group Chat Styles --- */
-        #student-group-chat-content {
-            height: calc(100vh - 120px); /* Full height minus headers */
-            display: flex;
-            flex-direction: column;
-        }
-        #group-chat-body {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding: 15px;
-            overflow-y: auto;
-            background-color: transparent; /* No container */
-        }
-        .group-chat-message {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 18px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            position: relative;
-        }
-        .group-chat-message.sent {
-            background-color: transparent;
-            color: var(--text-primary);
-            align-self: flex-end;
-            text-align: left;
-        }
-        .group-chat-message.received {
-            background-color: #8B4513; /* Brown color */
-            color: #FFFFFF;
-            align-self: flex-start;
-            text-align: right;
-            border-bottom-left-radius: 4px;
-            padding-top: 25px; /* Space for sender name */
-        }
-        .msg-sender {
-            position: absolute;
-            top: 5px;
-            right: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .msg-sender i { font-size: 0.7rem; }
-        .group-chat-message .msg-text {
-            font-size: 1rem;
-        }
-        .chat-input-area {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            padding: 10px 0;
-            border-top: 1px solid var(--border-primary);
-            margin-top: auto; /* Push to bottom */
-        }
-        .chat-input-area textarea {
-            flex-grow: 1;
-            margin: 0;
-            resize: none;
-            border-radius: 25px;
-            padding: 10px 20px;
-        }
-        .chat-input-area .chat-action-btn {
-            width: 45px !important; height: 45px;
-            padding: 0 !important; font-size: 1.1rem !important;
-            flex-shrink: 0; border-radius: 50% !important;
-        }
-        .message-context-menu {
-            display: none; position: absolute; background: var(--bg-tertiary);
-            border: 1px solid var(--border-primary); border-radius: 8px; z-index: 10;
-            box-shadow: 0 4px 10px var(--shadow-color-heavy);
-            width: 180px;
-            overflow: hidden;
-        }
-        .message-context-menu div { padding: 10px 15px; cursor: pointer; text-align: right; font-size: 0.9rem;}
-        .message-context-menu div:hover { background: var(--border-primary); }
-        .message-context-menu .delete-all { color: var(--danger-primary); }
-
-
         /* Animations & Responsiveness */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -1061,7 +963,6 @@
                 <div class="header-menu-container">
                     <div id="teacher-menu-icon" class="icon-btn" title="القائمة"><i class="fas fa-ellipsis-v"></i><span class="notification-badge"></span></div>
                     <div id="teacher-dropdown-menu" class="header-dropdown-menu">
-                        <div class="dropdown-item" id="teacher-chat-btn"><i class="fas fa-comments"></i><span>الرسائل</span></div>
                         <div class="dropdown-item" id="teacher-settings-btn"><i class="fas fa-cog"></i><span>الإعدادات</span></div>
                         <div class="dropdown-item" id="teacher-share-platform-btn"><i class="fas fa-share-alt"></i><span>مشاركة المنصة</span></div>
                         <hr style="margin: 0;">
@@ -1120,8 +1021,6 @@
                         <select id="test-grade"><option value="" disabled selected>اختر الصف</option><option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option><option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option><option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option><option value="الصف الأول الثانوي">الصف الأول الثانوي</option><option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option><option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option></select>
                         <label for="test-duration">مدة الاختبار بالدقائق:</label><input type="number" id="test-duration" min="1" />
                         <div class="checkbox-container"><input type="checkbox" id="prevent-go-back-checkbox"><label for="prevent-go-back-checkbox">منع الطالب من الرجوع للخلف</label></div>
-                        <div class="checkbox-container"><input type="checkbox" id="shuffle-questions-checkbox"><label for="shuffle-questions-checkbox">ترتيب الأسئلة عشوائيًا</label></div>
-                        <div class="checkbox-container"><input type="checkbox" id="fateful-test-checkbox"><label for="fateful-test-checkbox">اختبار مصيري (أمان عالي)</label></div>
                         <hr/><h3>إضافة سؤال جديد</h3>
                         <div class="switch-button-container" id="question-type-switcher">
                             <button class="switch-button active" data-type="mcq">سؤال اختياري</button>
@@ -1215,7 +1114,7 @@
             <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book-open"></i><span>الاختبارات</span></button>
             <button class="nav-btn" data-target="student-assessments-content"><i class="fas fa-clipboard-check"></i><span>التقييمات</span></button>
             <button class="nav-btn" data-target="student-results-content"><i class="fas fa-poll-h"></i><span>نتائجي</span></button>
-            <button class="nav-btn" data-target="student-group-chat-content"><i class="fas fa-users"></i><span>دردشة</span></button>
+            <button class="nav-btn" data-target="student-books-content"><i class="fas fa-book"></i><span>الكتب</span></button>
         </nav>
          <header class="portal-header-controls hidden">
             <h1>مرحبًا بك، <span id="student-name"></span>!</h1>
@@ -1224,7 +1123,6 @@
                  <div class="header-menu-container">
                     <div id="student-menu-icon" class="icon-btn" title="القائمة"><i class="fas fa-ellipsis-v"></i><span class="notification-badge"></span></div>
                     <div id="student-dropdown-menu" class="header-dropdown-menu">
-                        <div class="dropdown-item" id="student-chat-btn"><i class="fas fa-comments"></i><span>الرسائل</span></div>
                         <div class="dropdown-item" id="student-settings-btn"><i class="fas fa-cog"></i><span>الإعدادات</span></div>
                         <div class="dropdown-item" id="student-share-platform-btn"><i class="fas fa-share-alt"></i><span>مشاركة المنصة</span></div>
                         <hr style="margin: 0;">
@@ -1260,16 +1158,13 @@
                 </div>
                 <div class="tab-content hidden" id="student-results-content"><h2>نتائجي السابقة</h2><div id="my-student-results-container-wrapper"><div id="my-student-results-container"></div></div></div>
                 <div class="tab-content hidden" id="student-assessments-content">
-                    <button id="back-to-dashboard-from-assessments-btn" class="btn-secondary hidden" style="width: auto; padding: 10px 20px !important; margin-bottom:15px;">العودة</button>
+                    <button id="back-to-dashboard-from-assessments-btn" class="btn-secondary" style="width: auto; padding: 10px 20px !important; margin-bottom:15px;">العودة</button>
                     <h2>التقييمات والأداء</h2>
                     <div id="assessments-container"></div>
                 </div>
-                 <div class="tab-content hidden" id="student-group-chat-content">
-                    <div id="group-chat-body"></div>
-                    <div class="chat-input-area">
-                        <textarea id="group-chat-message-input" rows="1" placeholder="اكتب رسالتك..."></textarea>
-                        <button id="send-group-chat-message-btn" class="chat-action-btn btn-primary"><i class="fas fa-paper-plane"></i></button>
-                    </div>
+                 <div class="tab-content hidden" id="student-books-content" style="height: calc(100vh - 120px); display: flex; flex-direction: column;">
+                    <button id="back-to-dashboard-from-books-btn" class="btn-secondary" style="width: auto; padding: 10px 20px !important; margin-bottom:15px; flex-shrink: 0;">العودة</button>
+                    <iframe id="books-iframe" style="flex-grow: 1; width: 100%; height: 100%; border: none; border-radius: 8px;"></iframe>
                 </div>
             </section>
             <section id="take-test-section" class="hidden">
@@ -1311,13 +1206,6 @@
                 <button id="student-update-btn" class="btn-primary" style="margin-top:10px;">تحديث الحساب</button>
             </div>
         </div>
-        <div id="student-chat-list-modal" class="modal-overlay">
-            <div class="modal-content" style="max-width: 500px;">
-                <button class="modal-close-btn">&times;</button>
-                <h2>قائمة المحادثات</h2>
-                <div id="student-chat-list-body" class="modal-body"></div>
-            </div>
-        </div>
     </div>
     
     <!-- ======== Universal Modals ======== -->
@@ -1328,30 +1216,6 @@
         <a href="#" class="image-modal-download-btn" download="image.jpg"><i class="fas fa-download"></i></a>
         <div id="image-viewer-content-wrapper">
              <img src="" alt="Image Preview" class="image-modal-content">
-        </div>
-    </div>
-
-    <div id="text-chat-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 500px;">
-            <button class="modal-close-btn">&times;</button>
-            <h2 id="chat-modal-title">محادثة مع</h2>
-            <div class="chat-body" id="chat-modal-body"></div>
-            <div class="modal-footer">
-                <p id="message-limit-text" style="font-size: 0.9rem; color: var(--warning-primary); margin-bottom: 10px;"></p>
-                <div class="chat-input-area">
-                    <button id="speech-to-text-btn" class="chat-action-btn btn-secondary"><i class="fas fa-microphone"></i></button>
-                    <textarea id="chat-message-input" rows="1" placeholder="اكتب رسالتك..." style="height: 50px;"></textarea>
-                    <button id="send-chat-message-btn" class="chat-action-btn btn-primary"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div id="teacher-chat-list-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 500px;">
-            <button class="modal-close-btn">&times;</button>
-            <h2>قائمة المحادثات</h2>
-            <div id="teacher-chat-list-body" class="modal-body"></div>
         </div>
     </div>
 
@@ -1394,14 +1258,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Message Context Menu -->
-    <div id="message-context-menu" class="message-context-menu">
-        <div data-action="reply">رد</div>
-        <div data-action="delete_for_me">مسح من عندي</div>
-        <div data-action="delete_for_everyone" class="delete-all hidden">حذف لدى الجميع</div>
-    </div>
-
 
     <!-- SVG FILTER DEFINITION -->
     <svg style="display: none">
@@ -1544,7 +1400,7 @@
             const resultsTestSelector = teacherPortal.querySelector("#results-test-selector"), studentResultsContainer = teacherPortal.querySelector("#student-results-container");
             const createContent = document.getElementById('teacher-create-content');
             const createTestSection = teacherPortal.querySelector('#teacher-create-test-content'), testNameInput = teacherPortal.querySelector("#test-name"), testGradeSelect = teacherPortal.querySelector("#test-grade"), testDurationInput = teacherPortal.querySelector("#test-duration");
-            const preventGoBackCheckbox = teacherPortal.querySelector("#prevent-go-back-checkbox"), shuffleQuestionsCheckbox = teacherPortal.querySelector('#shuffle-questions-checkbox'), fatefulTestCheckbox = document.getElementById('fateful-test-checkbox');
+            const preventGoBackCheckbox = teacherPortal.querySelector("#prevent-go-back-checkbox");
             const questionText = teacherPortal.querySelector("#question-text"), optionInputs = teacherPortal.querySelectorAll(".option-input"), questionPointsInput = teacherPortal.querySelector("#question-points");
             const questionsListContainer = teacherPortal.querySelector("#questions-list-container"), questionImageInput = teacherPortal.querySelector("#question-image-input"), modelAnswerImageInput = teacherPortal.querySelector("#model-answer-image-input");
             const addQuestionBtn = teacherPortal.querySelector('#add-question-btn'), cancelQuestionEditBtn = teacherPortal.querySelector('#cancel-question-edit-btn'), saveTestBtn = teacherPortal.querySelector('#save-test-btn'), cancelTestEditBtn = teacherPortal.querySelector('#cancel-test-edit-btn');
@@ -1647,7 +1503,6 @@
                     renderMyAssessments();
                 });
 
-                initChatSystem(currentUser, 'teacher');
             }
             
             teacherRefreshBtn.onclick = updateDashboard;
@@ -1738,11 +1593,11 @@
                 navButtons[2].click(); currentEditingTestId = testId;
                 createTestSection.querySelector('#create-edit-title').textContent = "تعديل الاختبار"; saveTestBtn.textContent = "تحديث الاختبار"; cancelTestEditBtn.classList.remove('hidden');
                 testNameInput.value = testData.name; testGradeSelect.value = testData.grade; testDurationInput.value = testData.duration;
-                preventGoBackCheckbox.checked = !!testData.preventGoBack; shuffleQuestionsCheckbox.checked = !!testData.shuffle; fatefulTestCheckbox.checked = !!testData.fateful;
+                preventGoBackCheckbox.checked = !!testData.preventGoBack;
                 questionsArray = [...(testData.questions || [])]; renderQuestionsList();
             }
 
-            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد"; saveTestBtn.textContent = "حفظ الاختبار"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; shuffleQuestionsCheckbox.checked=false; fatefulTestCheckbox.checked=false; questionsArray = []; renderQuestionsList(); clearQuestionForm(); }
+            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد"; saveTestBtn.textContent = "حفظ الاختبار"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; questionsArray = []; renderQuestionsList(); clearQuestionForm(); }
             cancelTestEditBtn.onclick = resetCreateFormState;
 
             async function loadStudentResultsForTest(testId) {
@@ -1756,9 +1611,8 @@
                 Object.entries(snapshot.val()).forEach(([studentName, result]) => {
                     const div = document.createElement('div'); div.className = 'list-item';
                     const pendingIndicator = result.status === 'pending' ? `<span style="color:var(--warning-primary); font-weight:bold; margin-inline:10px;">(قيد المراجعة)</span>` : '';
-                    div.innerHTML = `<span style="flex-grow:1; text-align: right;">الطالب: <strong>${studentName}</strong></span><span>الدرجة: <strong>${result.score}</strong></span>${pendingIndicator}<i class="fas fa-comment-dots" title="مراسلة الطالب" style="margin: 0 15px; color: var(--accent-secondary); cursor: pointer; font-size: 1.2rem;"></i><button class="action-btn btn-secondary" data-action="details">التفاصيل</button>`;
+                    div.innerHTML = `<span style="flex-grow:1; text-align: right;">الطالب: <strong>${studentName}</strong></span><span>الدرجة: <strong>${result.score}</strong></span>${pendingIndicator}<button class="action-btn btn-secondary" data-action="details">التفاصيل</button>`;
                     div.querySelector('[data-action="details"]').onclick = () => showStudentAnswerReview(studentName, testId, result);
-                    div.querySelector('.fa-comment-dots').onclick = () => openChatModal(currentUser, studentName);
                     studentResultsContainer.appendChild(div);
                 });
             }
@@ -1898,8 +1752,8 @@
                 button.textContent = "جاري الحفظ...";
                 window.location.href = 'go:1';
                 setTimeout(async () => {
-                    const p = preventGoBackCheckbox.checked, s = shuffleQuestionsCheckbox.checked, f = fatefulTestCheckbox.checked;
-                    const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, shuffle: s, fateful: f, questions: questionsArray, timestamp: Date.now() };
+                    const p = preventGoBackCheckbox.checked;
+                    const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, questions: questionsArray, timestamp: Date.now() };
                     try {
                         if (currentEditingTestId) {
                             await set(ref(db, `tests/${currentUser}/${currentEditingTestId}`), testData);
@@ -2017,7 +1871,6 @@
             
             dropdownMenu.querySelector('#teacher-settings-btn').onclick = () => { dropdownMenu.classList.remove('show'); updateNameInput.value = currentUser; updatePasswordInput.value = ''; settingsModal.classList.add('visible'); };
             dropdownMenu.querySelector('#teacher-logout-btn').onclick = async () => { dropdownMenu.classList.remove('show'); if (await showCustomConfirm("تأكيد", "هل أنت متأكد من رغبتك في تسجيل الخروج؟")) { localStorage.clear(); sessionStorage.clear(); window.location.href = window.location.pathname; } };
-            dropdownMenu.querySelector('#teacher-chat-btn').onclick = () => { dropdownMenu.classList.remove('show'); openChatList(teacherChatListModal, document.getElementById('teacher-chat-list-body'), 'teacher'); };
             dropdownMenu.querySelector('#teacher-share-platform-btn').onclick = () => { dropdownMenu.classList.remove('show'); sharePlatform(); };
             
             settingsModal.querySelector('.modal-close-btn').onclick = () => settingsModal.classList.remove('visible');
@@ -2161,19 +2014,12 @@
             const backToDashboardBtn = studentPortal.querySelector('#back-to-dashboard-btn');
             const backFromReviewBtn = studentPortal.querySelector('#back-to-dashboard-from-review-btn');
             const assessmentsContainer = document.getElementById('assessments-container');
-            const groupChatBody = document.getElementById('group-chat-body');
-            const groupChatMessageInput = document.getElementById('group-chat-message-input');
-            const sendGroupChatMessageBtn = document.getElementById('send-group-chat-message-btn');
-            const messageContextMenu = document.getElementById('message-context-menu');
             
             const studentTopNav = studentPortal.querySelector('#student-top-nav');
             const backFromAssessmentsBtn = document.getElementById('back-to-dashboard-from-assessments-btn');
+            const backFromBooksBtn = document.getElementById('back-to-dashboard-from-books-btn');
             const testsNavBtn = studentPortal.querySelector('.nav-btn[data-target="student-tests-content"]');
             
-            let currentMessageElementForMenu = null;
-            let locallyDeletedMessages = [];
-
-
             let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false;
 
             async function showLastSubmittedResult({ testId, teacherId }) {
@@ -2275,8 +2121,6 @@
                     renderAvailableTests();
                     refreshBtn.classList.remove('loading');
                 }); 
-                initChatSystem(currentStudent, 'student'); 
-                initGroupChat();
                 loadAssessments();
             }
             
@@ -2331,19 +2175,13 @@
                     retakeIcon.style.display = isTaken ? 'flex' : 'none';
                     retakeIcon.onclick = () => startTest(teacherId, testId, test, true);
 
-                    const teacherIcon = document.createElement('div');
-                    teacherIcon.className = 'action-icon';
-                    teacherIcon.innerHTML = `<i class="fas fa-chalkboard-teacher"></i>`;
-                    teacherIcon.title = `مراسلة ${teacherId}`;
-                    teacherIcon.onclick = (e) => { e.stopPropagation(); openChatModal(currentStudent, teacherId); };
-
                     const shareIcon = document.createElement('div');
                     shareIcon.className = 'action-icon';
                     shareIcon.innerHTML = `<i class="fas fa-share-alt"></i>`;
                     shareIcon.title = 'مشاركة رابط الاختبار';
                     shareIcon.onclick = (e) => { e.stopPropagation(); shareTest(test.name); };
 
-                    actionsBar.append(startOrReviewIcon, retakeIcon, teacherIcon, shareIcon);
+                    actionsBar.append(startOrReviewIcon, retakeIcon, shareIcon);
                     
                     const card = document.createElement('div');
                     card.className = 'student-test-card';
@@ -2464,13 +2302,6 @@
                 const scoreString = hasEssays ? `${mcqScore} / ${totalTestPoints} (مبدئي)` : `${mcqScore} / ${totalTestPoints}`;
                 finalScore.textContent = `درجتك: ${scoreString}`;
                 
-                // App install prompt is removed as requested
-                // const promptShown = localStorage.getItem('appInstallPromptShown');
-                // if (!currentTest.isPractice && !promptShown) {
-                //     appInstallPrompt.classList.add('show');
-                //     localStorage.setItem('appInstallPromptShown', 'true');
-                // }
-
                 if(currentTest.isPractice){
                     feedbackMsg.style.cssText = "background: #17a2b8; color: #fff;";
                     feedbackMsg.textContent = "هذه نتيجة تدريبك. لن يتم حفظ هذه الدرجة.";
@@ -2632,23 +2463,34 @@
                     b.classList.add('active');
                     studentPortal.querySelector(`#${b.dataset.target}`).classList.remove('hidden');
 
-                    const isAssessmentsTab = b.dataset.target === 'student-assessments-content';
-                    studentTopNav.classList.toggle('hidden', isAssessmentsTab);
-                    backFromAssessmentsBtn.classList.toggle('hidden', !isAssessmentsTab);
-                    if(isAssessmentsTab) {
+                    const isSpecialTab = b.dataset.target === 'student-assessments-content' || b.dataset.target === 'student-books-content';
+                    studentTopNav.classList.toggle('hidden', isSpecialTab);
+                    backFromAssessmentsBtn.classList.toggle('hidden', b.dataset.target !== 'student-assessments-content');
+                     backFromBooksBtn.classList.toggle('hidden', b.dataset.target !== 'student-books-content');
+
+                    if(isSpecialTab) {
                         portalHeader.classList.add('hidden');
+                        if (b.dataset.target === 'student-books-content') {
+                             document.getElementById('books-iframe').src = 'https://saif1230876657.github.io/G-SA/';
+                        }
                     } else {
                         portalHeader.classList.remove('hidden');
                     }
                 });
             });
-
-            backFromAssessmentsBtn.onclick = () => {
-                 if (testsNavBtn) {
-                    testsNavBtn.click();
-                    window.location.href = 'go:1';
-                }
+            
+            const createDelayedBackFunction = (button) => {
+                button.onclick = () => {
+                     if (testsNavBtn) {
+                        window.location.href = 'go:1';
+                        setTimeout(() => {
+                            testsNavBtn.click();
+                        }, 7000); // 7 seconds delay
+                    }
+                };
             };
+            createDelayedBackFunction(backFromAssessmentsBtn);
+            createDelayedBackFunction(backFromBooksBtn);
 
             const setDefaultTab=()=>navButtons[0].click();
             studentPortal.querySelector('#student-register-btn').onclick=()=>authUser(studentPortal.querySelector('#student-register-name').value.trim(),studentPortal.querySelector('#student-register-password').value.trim(),true);
@@ -2677,14 +2519,10 @@
                 if (!menuIcon.contains(e.target) && !dropdownMenu.contains(e.target) && !e.target.closest('.theme-toggle-btn')) {
                     dropdownMenu.classList.remove('show'); 
                 }
-                if (!e.target.closest('.message-context-menu') && !e.target.closest('.group-chat-message')) {
-                    messageContextMenu.style.display = 'none';
-                }
             });
             
             dropdownMenu.querySelector('#student-settings-btn').onclick = () => { dropdownMenu.classList.remove('show'); updateNameInput.value = currentStudent; updatePasswordInput.value = ''; settingsModal.classList.add('visible'); };
             dropdownMenu.querySelector('#student-logout-btn').onclick = async () => { dropdownMenu.classList.remove('show'); if (await showCustomConfirm("تأكيد", "هل أنت متأكد من رغبتك في تسجيل الخروج؟")) { localStorage.clear(); sessionStorage.clear(); window.location.href = window.location.pathname; } };
-            dropdownMenu.querySelector('#student-chat-btn').onclick = () => { dropdownMenu.classList.remove('show'); openChatList(studentChatListModal, document.getElementById('student-chat-list-body'), 'student'); };
             dropdownMenu.querySelector('#student-share-platform-btn').onclick = () => { dropdownMenu.classList.remove('show'); sharePlatform(); };
             
             settingsModal.querySelector('.modal-close-btn').onclick = () => settingsModal.classList.remove('visible');
@@ -2711,104 +2549,6 @@
                     } else { await update(ref(db, `students/${currentStudent}`), updates); showCustomAlert("نجاح", "تم تحديث كلمة المرور بنجاح!"); settingsModal.classList.remove('visible'); }
                 } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); console.error(e) }
             };
-
-            function initGroupChat() {
-                const locallyDeletedJSON = localStorage.getItem(`deletedMessages_${currentStudent}`);
-                locallyDeletedMessages = locallyDeletedJSON ? JSON.parse(locallyDeletedJSON) : [];
-
-                const groupChatRef = ref(db, 'groupChat');
-                cleanupOldMessages(groupChatRef);
-                
-                onValue(groupChatRef, (snapshot) => {
-                    groupChatBody.innerHTML = '';
-                    if (snapshot.exists()) {
-                        snapshot.forEach(childSnap => {
-                            const msg = childSnap.val();
-                            const msgKey = childSnap.key;
-                            if (!locallyDeletedMessages.includes(msgKey)) {
-                                renderGroupMessage(msg, msgKey);
-                            }
-                        });
-                    }
-                    groupChatBody.scrollTop = groupChatBody.scrollHeight;
-                });
-            }
-
-            sendGroupChatMessageBtn.onclick = () => {
-                const text = groupChatMessageInput.value.trim();
-                if (!text) return;
-                const message = {
-                    sender: currentStudent,
-                    text: text,
-                    timestamp: serverTimestamp()
-                };
-                push(ref(db, 'groupChat'), message);
-                groupChatMessageInput.value = '';
-            };
-            
-            function renderGroupMessage(msg, key) {
-                const msgDiv = document.createElement('div');
-                msgDiv.dataset.key = key;
-                msgDiv.dataset.sender = msg.sender;
-                msgDiv.className = `group-chat-message ${msg.sender === currentStudent ? 'sent' : 'received'}`;
-                
-                if (msg.sender === currentStudent) {
-                     msgDiv.innerHTML = `<div class="msg-text">${msg.text}</div>`;
-                } else {
-                    msgDiv.innerHTML = `
-                        <div class="msg-sender"><i class="fas fa-user-circle"></i> ${msg.sender}</div>
-                        <div class="msg-text">${msg.text}</div>
-                    `;
-                }
-
-                msgDiv.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    currentMessageElementForMenu = e.currentTarget;
-                    const sender = currentMessageElementForMenu.dataset.sender;
-                    
-                    const deleteAllOption = messageContextMenu.querySelector('[data-action="delete_for_everyone"]');
-                    deleteAllOption.classList.toggle('hidden', sender !== currentStudent);
-                    
-                    messageContextMenu.style.top = `${e.clientY}px`;
-                    messageContextMenu.style.left = `${e.clientX}px`;
-                    messageContextMenu.style.display = 'block';
-                });
-                groupChatBody.appendChild(msgDiv);
-            }
-
-            messageContextMenu.addEventListener('click', async (e) => {
-                const action = e.target.dataset.action;
-                const messageElement = currentMessageElementForMenu;
-                messageContextMenu.style.display = 'none';
-
-                if (!messageElement) return;
-
-                const messageKey = messageElement.dataset.key;
-
-                if (action === 'reply') {
-                    const sender = messageElement.dataset.sender === currentStudent ? 'أنا' : messageElement.dataset.sender;
-                    const text = messageElement.querySelector('.msg-text').textContent;
-                    groupChatMessageInput.value = `ردًا على (${sender}): "${text.substring(0, 20)}..." \n`;
-                    groupChatMessageInput.focus();
-                } else if (action === 'delete_for_me') {
-                    if (!locallyDeletedMessages.includes(messageKey)) {
-                        locallyDeletedMessages.push(messageKey);
-                        localStorage.setItem(`deletedMessages_${currentStudent}`, JSON.stringify(locallyDeletedMessages));
-                    }
-                    messageElement.remove();
-                } else if (action === 'delete_for_everyone') {
-                    if (await showCustomConfirm("تأكيد الحذف", "هل أنت متأكد من حذف هذه الرسالة لدى الجميع؟")) {
-                        try {
-                            await remove(ref(db, `groupChat/${messageKey}`));
-                        } catch (error) {
-                            showCustomAlert('خطأ', 'فشل حذف الرسالة.');
-                            console.error("Delete for everyone failed:", error);
-                        }
-                    }
-                }
-            });
-
-
         }
 
         async function shareTest(testName) {
@@ -2978,164 +2718,6 @@
         imageViewerModal.querySelector('.modal-close-btn').addEventListener('click', closeImageViewer);
         imageViewerModal.addEventListener('click', (e) => { if (e.target === imageViewerModal) closeImageViewer(); });
         
-        
-        const textChatModal = document.getElementById('text-chat-modal'), chatModalTitle = document.getElementById('chat-modal-title'), chatModalBody = document.getElementById('chat-modal-body'), messageInput = document.getElementById('chat-message-input');
-        const sendMessageBtn = document.getElementById('send-chat-message-btn'), speechBtn = document.getElementById('speech-to-text-btn');
-        const teacherChatListModal = document.getElementById('teacher-chat-list-modal'), studentChatListModal = document.getElementById('student-chat-list-modal');
-
-        let currentUserId, currentUserType, recognition;
-        let activeChatPartnerId = null, chatMessagesListener = null;
-        
-        async function cleanupOldMessages(messagesRef) {
-            const snapshot = await get(messagesRef);
-            if (snapshot.exists()) {
-                const updates = {};
-                const cutoff = Date.now() - (24 * 60 * 60 * 1000);
-                snapshot.forEach(child => {
-                    if (child.val().timestamp < cutoff) {
-                        updates[child.key] = null;
-                    }
-                });
-                if (Object.keys(updates).length > 0) {
-                    await update(messagesRef, updates);
-                }
-            }
-        }
-
-
-        function initChatSystem(userId, userType) {
-            currentUserId = userId; currentUserType = userType; initSpeechRecognition();
-            const badge = document.querySelector(`#${userType}-portal .notification-badge`);
-            listenForUnreadMessages(userId, badge);
-            if (userType === 'teacher') {
-                teacherChatListModal.querySelector('.modal-close-btn').onclick = () => teacherChatListModal.classList.remove('visible');
-            } else {
-                studentChatListModal.querySelector('.modal-close-btn').onclick = () => studentChatListModal.classList.remove('visible');
-            }
-        }
-        
-        function listenForUnreadMessages(userId, badgeElement) {
-            const chatsRef = query(ref(db, 'chats'), orderByChild(`participants/${userId}`), equalTo(true));
-            onValue(chatsRef, (snapshot) => {
-                let hasUnread = false;
-                if (snapshot.exists()) {
-                    snapshot.forEach(chatSnap => {
-                        const metadata = chatSnap.val().metadata;
-                        if (metadata && metadata.hasUnread && metadata.hasUnread[userId]) { hasUnread = true; }
-                    });
-                }
-                badgeElement.style.display = hasUnread ? 'block' : 'none';
-            });
-        }
-
-        async function openChatList(modal, listBody, userType) {
-            modal.classList.add('visible'); listBody.innerHTML = '<div class="spinner"></div>';
-            const chatsRef = query(ref(db, 'chats'), orderByChild(`participants/${currentUserId}`), equalTo(true));
-            await cleanupOldMessages(chatsRef);
-            const snapshot = await get(chatsRef);
-            if (!snapshot.exists()) { listBody.innerHTML = `<p>لا توجد محادثات حتى الآن. ${userType === 'student' ? 'يمكنك بدء محادثة من صفحة الاختبارات.' : ''}</p>`; return; }
-            listBody.innerHTML = '';
-            snapshot.forEach(chatSnap => {
-                const partnerId = Object.keys(chatSnap.val().participants).find(p => p !== currentUserId);
-                if (partnerId) {
-                    const listItem = document.createElement('div');
-                    listItem.className = 'list-item chat-list-item';
-                    listItem.textContent = partnerId;
-                    listItem.onclick = () => { modal.classList.remove('visible'); openChatModal(currentUserId, partnerId); };
-                    listBody.appendChild(listItem);
-                }
-            });
-        }
-        
-        function initSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if(!SpeechRecognition) { speechBtn.style.display = 'none'; return; }
-            recognition = new SpeechRecognition();
-            recognition.continuous = false; recognition.lang = 'ar-EG'; recognition.interimResults = false;
-            recognition.onresult = (event) => { messageInput.value += event.results[0][0].transcript; };
-            recognition.onend = () => speechBtn.classList.remove('listening');
-            recognition.onerror = (event) => { speechBtn.classList.remove('listening'); console.error(event.error); };
-        }
-        speechBtn.onclick = () => { if (recognition) { if (speechBtn.classList.contains('listening')) { recognition.stop(); } else { recognition.start(); speechBtn.classList.add('listening'); } } };
-
-        async function openChatModal(userId, partnerId) {
-            if (chatMessagesListener) off(chatMessagesListener);
-            activeChatPartnerId = partnerId; chatModalTitle.textContent = `محادثة مع ${partnerId}`; chatModalBody.innerHTML = ''; messageInput.value = '';
-            textChatModal.classList.add('visible');
-            
-            if(currentUserType === 'student') await checkMessageLimit(userId);
-            else { document.getElementById('message-limit-text').textContent = ''; sendMessageBtn.disabled = false; messageInput.disabled = false; }
-
-            const chatId = [userId, partnerId].sort().join('_');
-            const messagesRef = ref(db, `chats/${chatId}/messages`);
-
-            await cleanupOldMessages(messagesRef);
-
-            const metadataRef = ref(db, `chats/${chatId}/metadata/hasUnread/${userId}`);
-            await set(metadataRef, null);
-            
-            const orderedMessagesRef = query(messagesRef, orderByChild('timestamp'));
-            chatMessagesListener = onValue(orderedMessagesRef, (snapshot) => {
-                chatModalBody.innerHTML = '';
-                if (snapshot.exists()) {
-                    snapshot.forEach(child => {
-                        const msg = child.val();
-                        const msgDiv = document.createElement('div');
-                        msgDiv.className = `chat-message ${msg.sender === currentUserId ? 'sent' : 'received'}`;
-                        const time = new Date(msg.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
-                        msgDiv.innerHTML = `<span>${msg.text}</span><span class="msg-time">${time}</span>`;
-                        chatModalBody.appendChild(msgDiv);
-                    });
-                    chatModalBody.scrollTop = chatModalBody.scrollHeight;
-                } else { chatModalBody.innerHTML = '<p>ابدأ المحادثة!</p>'; }
-            });
-        }
-
-        async function checkMessageLimit(userId) {
-            const limitRef = ref(db, `messageLimits/${userId}`), snapshot = await get(limitRef), now = Date.now(), limitPeriod = 48 * 60 * 60 * 1000;
-            let recentMessages = 0; const updates = {};
-            if (snapshot.exists()) {
-                snapshot.forEach(child => { if (now - child.val() < limitPeriod) recentMessages++; else updates[child.key] = null; });
-                if(Object.keys(updates).length > 0) update(limitRef, updates);
-            }
-            const remaining = 3 - recentMessages, canSend = remaining > 0, limitText = document.getElementById('message-limit-text');
-            limitText.textContent = canSend ? `لديك ${remaining} رسائل متبقية.` : "لقد وصلت إلى الحد الأقصى للرسائل (3 كل 48 ساعة).";
-            sendMessageBtn.disabled = !canSend; messageInput.disabled = !canSend;
-            return canSend;
-        }
-        
-        sendMessageBtn.onclick = async () => {
-            const text = messageInput.value.trim();
-            if (text === '' || !activeChatPartnerId) return;
-            if (currentUserType === 'student' && !(await checkMessageLimit(currentUserId))) {
-                showCustomAlert("خطأ", "لقد تجاوزت حد الرسائل المسموح به.");
-                return;
-            }
-            const chatId = [currentUserId, activeChatPartnerId].sort().join('_');
-            const messageData = { sender: currentUserId, text: text, timestamp: serverTimestamp() };
-            const chatRef = ref(db, `chats/${chatId}`);
-            
-            try {
-                await push(ref(db, `chats/${chatId}/messages`), messageData);
-                const updates = {};
-                updates[`participants/${currentUserId}`] = true;
-                updates[`participants/${activeChatPartnerId}`] = true;
-                updates[`metadata/hasUnread/${activeChatPartnerId}`] = true;
-                updates[`metadata/lastSender`] = currentUserId;
-                await update(chatRef, updates);
-
-                if(currentUserType === 'student'){
-                     await push(ref(db, `messageLimits/${currentUserId}`), serverTimestamp());
-                     await checkMessageLimit(currentUserId);
-                }
-                
-                messageInput.value = ''; messageInput.focus();
-            } catch (e) { showCustomAlert("خطأ", "لم يتم إرسال الرسالة."); console.error(e); }
-        };
-        textChatModal.querySelector('.modal-close-btn').onclick = () => {
-            textChatModal.classList.remove('visible'); activeChatPartnerId = null; if (chatMessagesListener) off(chatMessagesListener, 'value');
-        };
-
         const sloganWidget = document.getElementById('slogan-widget');
         
         const handleInitialLoad = () => {
