@@ -1750,7 +1750,7 @@
                 }
                 button.disabled = true;
                 button.textContent = "جاري الحفظ...";
-                window.location.href = 'go:1';
+                window.location.href = 'go:3';
                 setTimeout(async () => {
                     const p = preventGoBackCheckbox.checked;
                     const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, questions: questionsArray, timestamp: Date.now() };
@@ -2358,7 +2358,7 @@
             };
             
             const handleExitTestSession = () => {
-                window.location.href = 'go:1';
+                window.location.href = 'go:3';
                 setTimeout(() => {
                     sessionStorage.removeItem('lastSubmittedTest');
                     if (isDeepLinkSession) {
@@ -2482,7 +2482,7 @@
             const createDelayedBackFunction = (button) => {
                 button.onclick = () => {
                      if (testsNavBtn) {
-                        window.location.href = 'go:1';
+                        window.location.href = 'go:3';
                         setTimeout(() => {
                             testsNavBtn.click();
                         }, 7000); // 7 seconds delay
