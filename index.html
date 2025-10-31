@@ -498,6 +498,50 @@
             color: var(--success-color);
             transform: scale(1.2);
         }
+        
+        /* New AI Question Generation Styles */
+        #ai-test-generation-container {
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: var(--bg-tertiary);
+        }
+        #ai-test-generation-container h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: var(--accent-secondary);
+        }
+        .ai-options-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--border-secondary);
+            border-radius: 8px;
+        }
+        .ai-image-type-switcher {
+             display: flex; 
+             border: 1px solid var(--border-primary); 
+             border-radius: 8px; 
+             overflow: hidden; 
+             margin-top: 5px;
+        }
+        .ai-image-type-switcher .switch-button {
+            flex:1; padding:10px; background: var(--border-secondary); border:none; color: var(--text-primary); cursor: pointer; font-weight: 600;
+            border-radius: 0;
+        }
+        .ai-image-type-switcher .switch-button:first-child { border-top-right-radius: 7px; border-bottom-right-radius: 7px; }
+        .ai-image-type-switcher .switch-button:last-child { border-top-left-radius: 7px; border-bottom-left-radius: 7px; }
+        .ai-image-type-switcher .switch-button.active {
+            background: var(--accent-primary); color: #fff;
+        }
+        
+        /* Inline input styling for points */
+        #ai-mcq-points, #ai-num-questions {
+            width: 100px;
+            display: inline-block;
+            margin-bottom: 0;
+        }
+        /* End New AI Question Generation Styles */
 
 
         /* --- Student Portal --- */
@@ -1062,12 +1106,47 @@
 
                     <div id="teacher-create-test-content">
                         <h2 id="create-edit-title">إنشاء اختبار جديد</h2>
+                        
+                        <!-- AI Generation Section -->
+                        <div id="ai-test-generation-container">
+                            <h3>إنشاء اختبار بالذكاء الاصطناعي (AI)</h3>
+                            
+                            <div class="ai-options-group">
+                                <label for="ai-question-image-input" class="file-input-label" style="margin-bottom: 15px;"><i class="fas fa-image"></i> <span>إرفاق صورة المصدر (إجباري لـ AI)</span></label>
+                                <input type="file" id="ai-question-image-input" accept="image/*" class="hidden" />
+                                <div id="ai-image-preview-container" class="image-preview-container hidden"><img class="image-preview" src="#" alt="معاينة" /></div>
+                                <div class="ai-image-type-switcher">
+                                    <button class="switch-button active" data-type="questions-only">الصورة تحتوي على **أسئلة** جاهزة</button>
+                                    <button class="switch-button" data-type="content-only">الصورة تحتوي على **شرح/محتوى**</button>
+                                </div>
+                            </div>
+
+                            <div class="ai-options-group">
+                                <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                                    <label for="ai-num-questions" style="margin: 0; flex-shrink: 0;">عدد الأسئلة المطلوب (MCQ):</label>
+                                    <input type="number" id="ai-num-questions" min="1" placeholder="مثال: 10" />
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+                                    <label for="ai-mcq-points" style="margin: 0; flex-shrink: 0;">درجة كل سؤال (MCQ):</label>
+                                    <input type="number" id="ai-mcq-points" min="1" placeholder="1" value="1" />
+                                </div>
+                                <div class="checkbox-container"><input type="checkbox" id="ai-allow-increase" disabled><label for="ai-allow-increase">السماح للـ AI بزيادة عدد الأسئلة (متاح فقط مع محتوى/شرح)</label></div>
+                            </div>
+                            
+                            <button id="generate-ai-test-btn" class="btn-primary" style="background: var(--accent-secondary); border-bottom-color: #3b7bb6;"><i class="fas fa-robot"></i> توليد الأسئلة من الصورة</button>
+                            <hr/>
+                        </div>
+                        <!-- End AI Generation Section -->
+                        
                         <label for="test-name">اسم الاختبار:</label><input type="text" id="test-name" />
                         <label for="test-grade">الصف:</label>
                         <select id="test-grade"><option value="" disabled selected>اختر الصف</option><option value="الصف الأول الإعدادي">الصف الأول الإعدادي</option><option value="الصف الثاني الإعدادي">الصف الثاني الإعدادي</option><option value="الصف الثالث الإعدادي">الصف الثالث الإعدادي</option><option value="الصف الأول الثانوي">الصف الأول الثانوي</option><option value="الصف الثاني الثانوي">الصف الثاني الثانوي</option><option value="الصف الثالث الثانوي">الصف الثالث الثانوي</option></select>
                         <label for="test-duration">مدة الاختبار بالدقائق:</label><input type="number" id="test-duration" min="1" />
+                        <label for="scheduled-release-delay">تأخير النشر (بالدقائق):</label>
+                        <input type="number" id="scheduled-release-delay" min="0" placeholder="0 لنشره فوراً" value="0"/>
+                        
                         <div class="checkbox-container"><input type="checkbox" id="prevent-go-back-checkbox"><label for="prevent-go-back-checkbox">منع الطالب من الرجوع للخلف</label></div>
-                        <hr/><h3>إضافة سؤال جديد</h3>
+                        <hr/><h3>إضافة سؤال جديد يدوياً</h3>
                         <div class="switch-button-container" id="question-type-switcher">
                             <button class="switch-button active" data-type="mcq">سؤال اختياري</button>
                             <button class="switch-button" data-type="essay">سؤال مقالي</button>
@@ -1331,6 +1410,9 @@
             appId: "1:41089917871:web:fce49f6f23bd4f679b055a",
             measurementId: "G-4K733KS3CP"
         };
+        
+        // مفتاح API للذكاء الاصطناعي (تم إضافته بناءً على طلبك)
+        const aiApiKey = "AIzaSyArAURCzYl1uxSJxvF7r5Ad-W5kaaz4ANw";
 
         const app = initializeApp(firebaseConfig);
         getAnalytics(app);
@@ -1476,6 +1558,19 @@
 
             let currentUser = null, myTests = {}, myAssessments = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
             
+            // AI-specific elements and variables
+            const aiImageInput = document.getElementById('ai-question-image-input');
+            const aiImagePreviewContainer = document.getElementById('ai-image-preview-container');
+            const aiImagePreview = aiImagePreviewContainer.querySelector('.image-preview');
+            const aiGenerateBtn = document.getElementById('generate-ai-test-btn');
+            const aiImageTypeSwitcher = document.querySelector('.ai-image-type-switcher');
+            let aiImageContentType = 'questions-only'; // 'questions-only' or 'content-only'
+            let currentAIImageBase64 = null;
+            const aiNumQuestionsInput = document.getElementById('ai-num-questions');
+            const aiMcqPointsInput = document.getElementById('ai-mcq-points');
+            const aiAllowIncreaseCheckbox = document.getElementById('ai-allow-increase');
+            const scheduledReleaseDelayInput = document.getElementById('scheduled-release-delay');
+            
             const loggedInUser = localStorage.getItem('loggedInTeacher');
             if (loggedInUser) { currentUser = loggedInUser; showSection(dashboardSection); updateDashboard(); } else { showSection(loginSection); }
 
@@ -1517,6 +1612,14 @@
                 teacherSearchBar.value = '';
                 teacherSearchBar.placeholder = view === 'tests' ? 'ابحث عن اختبار...' : 'ابحث عن تقييم...';
                 if(view === 'tests') renderMyTests(); else renderMyAssessments();
+            }));
+            
+            aiImageTypeSwitcher.querySelectorAll('.switch-button').forEach(btn => btn.addEventListener('click', (e) => {
+                aiImageTypeSwitcher.querySelectorAll('.switch-button').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                aiImageContentType = e.target.dataset.type;
+                aiAllowIncreaseCheckbox.disabled = (aiImageContentType === 'questions-only');
+                if (aiImageContentType === 'questions-only') { aiAllowIncreaseCheckbox.checked = false; }
             }));
 
             const mcqFields = document.getElementById('mcq-fields');
@@ -1578,22 +1681,28 @@
             function renderMyTests(filter = '') {
                 myTestsContainer.innerHTML = "";
                 if (countdownInterval) clearInterval(countdownInterval);
-                const activeTests = Object.entries(myTests).filter(([id, test]) => (Date.now() - test.timestamp < 48 * 60 * 60 * 1000));
+                // تصفية الاختبارات النشطة والتي تم تحديد موعد لها
+                const allTests = Object.entries(myTests).filter(([id, test]) => (Date.now() - test.timestamp < 48 * 60 * 60 * 1000) || (test.releaseTime && test.releaseTime > Date.now()));
                 
-                if (activeTests.length === 0) { myTestsContainer.innerHTML = "<p>لم تقم بإنشاء أي اختبارات نشطة.</p>"; return; }
+                if (allTests.length === 0) { myTestsContainer.innerHTML = "<p>لم تقم بإنشاء أي اختبارات نشطة.</p>"; return; }
                 
                 let found = false;
-                activeTests.sort((a,b) => b[1].timestamp - a[1].timestamp).forEach(([testId, test]) => {
+                allTests.sort((a,b) => b[1].timestamp - a[1].timestamp).forEach(([testId, test]) => {
                     const searchStr = `${test.name}${test.grade}`.toLowerCase();
                     if(filter && !searchStr.includes(filter.toLowerCase())) return;
                     found = true;
 
+                    const isScheduled = test.releaseTime && test.releaseTime > Date.now();
+                    const statusText = isScheduled ? ' (مجدول)' : '';
+                    const expiryTime = isScheduled ? test.releaseTime : test.timestamp + 48 * 60 * 60 * 1000;
+                    const remainingTime = expiryTime - Date.now();
+
                     const testCard = document.createElement('div'); testCard.className = 'list-item';
-                    testCard.style.cssText = `flex-direction: column; align-items: stretch; padding: 12px; gap: 10px;`;
+                    testCard.style.cssText = `flex-direction: column; align-items: stretch; padding: 12px; gap: 10px; opacity: ${isScheduled ? '0.7' : '1'};`;
                     testCard.innerHTML = `
-                        <div style="font-weight: bold; font-size: 1.1rem; text-align: right;">${test.name}</div>
+                        <div style="font-weight: bold; font-size: 1.1rem; text-align: right;">${test.name} ${statusText}</div>
                         <div style="font-size: 0.9rem; color: var(--text-secondary); text-align: right;">${test.grade} - ${test.duration} دقيقة</div>
-                        <div class="test-countdown" data-timestamp="${test.timestamp}"></div>
+                        <div class="test-countdown" data-timestamp="${expiryTime}" data-is-scheduled="${isScheduled ? 'true' : 'false'}"></div>
                         <div style="display: flex; gap: 8px; margin-top: 10px;">
                             <button class="action-btn btn-secondary" data-action="share" title="مشاركة" style="flex-grow: 1;"><i class="fas fa-share-alt"></i></button>
                             <button class="action-btn btn-secondary" data-action="results" title="النتائج" style="flex-grow: 1;"><i class="fas fa-poll-h"></i></button>
@@ -1617,21 +1726,35 @@
             function startCountdownTimers(){
                 const update = () => {
                     document.querySelectorAll('.test-countdown').forEach(el => {
-                        const timestamp = parseInt(el.dataset.timestamp);
-                        const endTime = timestamp + 48 * 60 * 60 * 1000;
-                        const remaining = endTime - Date.now();
-                        if(remaining > 0){
-                            const hours = Math.floor(remaining / (1000 * 60 * 60));
-                            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                            el.textContent = `ينتهي خلال: ${hours} س و ${minutes} د`;
+                        const expiryTime = parseInt(el.dataset.timestamp);
+                        const isScheduled = el.dataset.isScheduled === 'true';
+                        const remaining = expiryTime - Date.now();
+                        
+                        if (isScheduled) {
+                            if (remaining > 0) {
+                                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                                el.textContent = `ينشر خلال: ${hours} س و ${minutes} د و ${seconds} ث`;
+                            } else {
+                                el.textContent = "تم النشر (ينتهي خلال 48 ساعة)";
+                                el.dataset.isScheduled = 'false';
+                                el.dataset.timestamp = expiryTime + 48 * 60 * 60 * 1000;
+                            }
                         } else {
-                            el.textContent = "انتهى";
-                            el.parentElement.style.opacity = '0.5';
+                            if(remaining > 0){
+                                const hours = Math.floor(remaining / (1000 * 60 * 60));
+                                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                                el.textContent = `ينتهي خلال: ${hours} س و ${minutes} د`;
+                            } else {
+                                el.textContent = "انتهى";
+                                el.parentElement.style.opacity = '0.5';
+                            }
                         }
                     });
                 };
                 update();
-                countdownInterval = setInterval(update, 60000);
+                countdownInterval = setInterval(update, 1000); // تحديث كل ثانية
             }
 
             async function deleteTest(testId) { try { await remove(ref(db, `tests/${currentUser}/${testId}`)); await remove(ref(db, `results/${currentUser}/${testId}`)); showCustomAlert("نجاح", "تم حذف الاختبار بنجاح."); } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء حذف الاختبار."); } }
@@ -1641,10 +1764,12 @@
                 createTestSection.querySelector('#create-edit-title').textContent = "تعديل الاختبار"; saveTestBtn.textContent = "تحديث الاختبار"; cancelTestEditBtn.classList.remove('hidden');
                 testNameInput.value = testData.name; testGradeSelect.value = testData.grade; testDurationInput.value = testData.duration;
                 preventGoBackCheckbox.checked = !!testData.preventGoBack;
+                const releaseTimeMinutes = testData.releaseTime ? Math.ceil((testData.releaseTime - Date.now()) / (1000 * 60)) : 0;
+                scheduledReleaseDelayInput.value = Math.max(0, releaseTimeMinutes); // Display remaining time or 0
                 questionsArray = [...(testData.questions || [])]; renderQuestionsList();
             }
 
-            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد"; saveTestBtn.textContent = "حفظ الاختبار"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; questionsArray = []; renderQuestionsList(); clearQuestionForm(); }
+            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "إنشاء اختبار جديد"; saveTestBtn.textContent = "حفظ الاختبار"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; scheduledReleaseDelayInput.value = "0"; questionsArray = []; renderQuestionsList(); clearQuestionForm(); clearAIForm(); }
             cancelTestEditBtn.onclick = resetCreateFormState;
 
             async function loadStudentResultsForTest(testId) {
@@ -1707,9 +1832,179 @@
 
             const populateResultsSelector = () => { resultsTestSelector.innerHTML = '<option value="">اختر اختبارًا</option>'; Object.entries(myTests).forEach(([testId, test]) => resultsTestSelector.innerHTML += `<option value="${testId}">${test.name}</option>`); };
             const handleImagePreview = (input, container, previewImg, storageVarSetter) => { const f=input.files[0]; if(f) getBase64(f).then(d=>{ storageVarSetter(d); previewImg.src=d; container.classList.remove('hidden'); }) };
+            
             questionImageInput.onchange = () => handleImagePreview(questionImageInput, questionImageInput.nextElementSibling, questionImageInput.nextElementSibling.querySelector('img'), (val) => currentQuestionImageBase64 = val);
             modelAnswerImageInput.onchange = () => handleImagePreview(modelAnswerImageInput, modelAnswerImageInput.nextElementSibling, modelAnswerImageInput.nextElementSibling.querySelector('img'), (val) => currentModelAnswerImageBase64 = val);
+            aiImageInput.onchange = () => handleImagePreview(aiImageInput, aiImagePreviewContainer, aiImagePreview, (val) => currentAIImageBase64 = val);
             
+            function clearAIForm() {
+                aiImageInput.value = ""; 
+                currentAIImageBase64 = null; 
+                aiImagePreviewContainer.classList.add('hidden'); 
+                aiImagePreview.src = '#';
+                aiNumQuestionsInput.value = '';
+                aiMcqPointsInput.value = '1';
+                aiAllowIncreaseCheckbox.checked = false;
+                aiAllowIncreaseCheckbox.disabled = true;
+                aiImageTypeSwitcher.querySelector('.switch-button[data-type="questions-only"]').click();
+            }
+            
+            // ====================================================================================================
+            // --- AI Core Logic (Using the structure from the referenced file for better image analysis control) ---
+            // ====================================================================================================
+            async function fetchGeminiResponse(promptParts) {
+                if (!aiApiKey) throw new Error("AI API key is missing.");
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiApiKey}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: promptParts }] })
+                });
+                if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+            }
+
+            async function processQueryWithAI(promptParts) {
+                try {
+                    const responseText = await fetchGeminiResponse(promptParts);
+                    return responseText;
+                } catch (error) {
+                    console.error("Gemini API Error:", error);
+                    throw new Error("فشل التواصل مع الذكاء الاصطناعي. الرجاء التأكد من مفتاح API أو المحاولة لاحقاً.");
+                }
+            }
+
+            async function generateTestFromAI(imageType, numQuestions, mcqPoints, selectedGrade, selectedDuration, allowIncrease) {
+                const base64Parts = currentAIImageBase64.split(';base64,');
+                const mimeType = base64Parts[0].replace('data:', '');
+                const imagePart = { inline_data: { mime_type: mimeType, data: base64Parts[1] } };
+                
+                const questionPrompt = `
+                    أنت خبير لغة عربية ومعلم. مهمتك هي إنشاء اختبار (اختيار من متعدد فقط) من محتوى الصورة المرفقة.
+                    1.  حلل محتوى الصورة بدقة لتحديد الموضوع الرئيسي (مثال: 'النحو - المبتدأ والخبر').
+                    2.  بناءً على الموضوع، قم بتوليد ${numQuestions} سؤال اختيار من متعدد (MCQ) جديد. إذا كانت الصورة تحتوي على أسئلة جاهزة، استنبط أسئلة جديدة مشابهة لها أو تكميلية لها.
+                    3.  **الاسم المقترح:** يجب أن يكون اسم الاختبار في السطر الأول، ويجب أن يعكس الموضوع والمستوى (مثال: 'اختبار مُولد بالذكاء الاصطناعي: ${selectedGrade} - [الموضوع]').
+                    4.  **الأسئلة:** يجب أن تكون الأسئلة كلها في صيغة JSON قابلة للتحليل مباشرة، لا تضف أي نص قبل أو بعد JSON.
+                    5.  **المفتاح الصحيح:** يجب أن يكون أحد الخيارات الأربعة هو الإجابة الصحيحة.
+                    6.  **تجنب المقالي:** يجب أن تكون جميع الأسئلة من نوع 'mcq' فقط.
+
+                    **التنسيق المطلوب (JSON فقط، لا تضف أي شرح أو نصوص أخرى):**
+                    {
+                        "testName": "[الاسم المقترح في السطر الأول]",
+                        "questions": [
+                            {
+                                "question": "نص السؤال الأول",
+                                "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+                                "correct": 2, // رقم الإجابة الصحيحة (1-4)
+                                "type": "mcq"
+                            },
+                            // ... أسئلة أخرى
+                        ]
+                    }
+                    لا تضف أي أسئلة مقالية.
+                `;
+
+                const analysisPrompt = `
+                    حلل محتوى الصورة المرفقة.
+                    إذا كانت الصورة تحتوي على أسئلة، استخرج منها نص الموضوع الرئيسي وعدد الأسئلة المتضمنة.
+                    إذا كانت الصورة تحتوي على شرح/محتوى، استخرج منها نص الموضوع الرئيسي (في مجال اللغة العربية).
+                    الرد يجب أن يكون في سطر واحد فقط يصف المحتوى الرئيسي (مثال: محتوى عن 'إعراب الفعل الماضي').
+                `;
+                
+                // 1. Image Analysis (to determine the name)
+                const analysisResult = await processQueryWithAI([imagePart, {text: analysisPrompt}]);
+                let testNamePrefix = analysisResult.trim().replace(/^محتوى عن /g, '').replace(/\.$/, '') || "تحليل الصورة";
+                
+                // 2. Question Generation
+                const generationPrompt = `
+                    ${questionPrompt}
+                    عدد الأسئلة المطلوبة: ${numQuestions}. درجة كل سؤال: ${mcqPoints}.
+                    الصف المحدد: ${selectedGrade}. نوع الصورة: ${imageType === 'questions-only' ? 'أسئلة جاهزة' : 'محتوى شرح/تعليمي'}.
+                    المحتوى الرئيسي للصورة هو: ${testNamePrefix}
+                `;
+
+                const aiResponse = await processQueryWithAI([imagePart, {text: generationPrompt}]);
+                
+                // 3. Parse JSON
+                const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) {
+                    throw new Error("فشل تحليل استجابة الذكاء الاصطناعي إلى JSON. قد يكون المحتوى معقداً جداً.");
+                }
+
+                const parsedData = JSON.parse(jsonMatch[0]);
+                
+                if (!parsedData.questions || parsedData.questions.length === 0) {
+                    throw new Error("لم يتم توليد أي أسئلة. يرجى التأكد من أن الصورة تحتوي على محتوى واضح ومناسب.");
+                }
+
+                // Final adjustment and validation
+                const finalQuestions = parsedData.questions.map(q => ({
+                    ...q,
+                    points: mcqPoints, // Force points set by user
+                    type: 'mcq' // Force type to mcq
+                }));
+                
+                // Apply the increase logic only for content-only if allowed
+                let finalCount = finalQuestions.length;
+                if (imageType === 'content-only' && allowIncrease) {
+                    const originalCount = numQuestions;
+                    const increaseAmount = finalCount - originalCount;
+                    if (increaseAmount > 0) {
+                        // Keep the generated questions as they already incorporated the increase logic in the prompt
+                        console.log(`AI increased questions from ${originalCount} to ${finalCount}`);
+                    }
+                }
+                
+                return {
+                    name: `اختبار مولد بالذكاء الاصطناعي: ${testNamePrefix}`,
+                    grade: selectedGrade,
+                    duration: selectedDuration, 
+                    questions: finalQuestions
+                };
+            }
+            
+            aiGenerateBtn.onclick = async () => {
+                const n = testNameInput.value.trim(), g = testGradeSelect.value, d = testDurationInput.value.trim();
+                const numQuestions = parseInt(aiNumQuestionsInput.value);
+                const mcqPoints = parseInt(aiMcqPointsInput.value);
+
+                if (!currentAIImageBase64) { showCustomAlert("خطأ", "الرجاء إرفاق صورة المصدر أولاً."); return; }
+                if (numQuestions <= 0 || isNaN(numQuestions)) { showCustomAlert("خطأ", "الرجاء تحديد عدد أسئلة صحيح أكبر من صفر."); return; }
+                if (mcqPoints <= 0 || isNaN(mcqPoints)) { showCustomAlert("خطأ", "الرجاء تحديد درجة صحيحة أكبر من صفر لأسئلة الاختيار من متعدد."); return; }
+                if (!g) { showCustomAlert("خطأ", "الرجاء تحديد الصف الدراسي أولاً."); return; }
+                if (!d || parseInt(d) <= 0 || isNaN(parseInt(d))) { showCustomAlert("خطأ", "الرجاء تحديد مدة اختبار صحيحة أكبر من صفر."); return; }
+                
+                aiGenerateBtn.disabled = true;
+                aiGenerateBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 10px;"></div> جاري التوليد والتحليل...';
+
+                try {
+                    const generatedTest = await generateTestFromAI(
+                        aiImageContentType, 
+                        numQuestions, 
+                        mcqPoints,
+                        g,
+                        parseInt(d),
+                        aiAllowIncreaseCheckbox.checked
+                    );
+                    
+                    questionsArray = generatedTest.questions;
+                    renderQuestionsList();
+                    testNameInput.value = generatedTest.name;
+                    // testGradeSelect.value = generatedTest.grade; // Keep user's grade choice
+                    // testDurationInput.value = generatedTest.duration; // Keep user's duration choice
+                    
+                    showCustomAlert("نجاح", `تم توليد ${questionsArray.length} أسئلة بنجاح! يرجى مراجعتها.`);
+
+                } catch (error) {
+                    showCustomAlert("خطأ", `فشل توليد الاختبار. ${error.message}`);
+                } finally {
+                    aiGenerateBtn.disabled = false;
+                    aiGenerateBtn.innerHTML = '<i class="fas fa-robot"></i> توليد الأسئلة من الصورة';
+                    clearAIForm();
+                }
+            };
+
             const renderQuestionsList = () => {
                 questionsListContainer.innerHTML = questionsArray.length > 0 ? "<h3>الأسئلة المضافة:</h3>" : "";
                 questionsArray.forEach((q, i) => {
@@ -1791,16 +2086,25 @@
             saveTestBtn.onclick = async (e) => {
                 const button = e.target, originalText = button.textContent;
                 const n = testNameInput.value.trim(), g = testGradeSelect.value, d = testDurationInput.value.trim();
+                const delayMinutes = parseInt(scheduledReleaseDelayInput.value) || 0;
                 if (!n || !g || !d || questionsArray.length === 0) {
                     showCustomAlert("خطأ", "يرجى ملء تفاصيل الاختبار وإضافة سؤال واحد على الأقل.");
                     return;
                 }
                 button.disabled = true;
                 button.textContent = "جاري الحفظ...";
-                // تم حذف الإجراء go:3 والتأخير
                 
+                const releaseTime = delayMinutes > 0 ? Date.now() + delayMinutes * 60 * 1000 : 0;
                 const p = preventGoBackCheckbox.checked;
-                const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, questions: questionsArray, timestamp: Date.now() };
+                const testData = { 
+                    name: n, 
+                    grade: g, 
+                    duration: parseInt(d), 
+                    preventGoBack: p, 
+                    questions: questionsArray, 
+                    timestamp: Date.now(), 
+                    releaseTime: releaseTime 
+                };
                 try {
                     if (currentEditingTestId) {
                         await set(ref(db, `tests/${currentUser}/${currentEditingTestId}`), testData);
@@ -1977,6 +2281,7 @@
                         <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:15px;">
                             <img src="${assessment.imageUrl}" style="width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer;">
                             <p style="flex-grow:1; text-align:right; white-space:pre-wrap; font-size:0.9rem;">${assessment.text || '<em>لا يوجد نص</em>'}</p>
+                            <button data-index="${index}" class="action-btn btn-secondary btn-danger delete-assessment-btn" title="حذف"><i class="fas fa-trash"></i></button>
                         </div>
                         <div style="display: flex; gap: 8px; margin-top: 10px; width: 100%;">
                             <button class="action-btn btn-secondary" data-action="edit" data-key="${key}" title="تعديل" style="flex-grow: 1;"><i class="fas fa-edit"></i></button>
@@ -2179,10 +2484,12 @@
             function renderAvailableTests(filter=''){
                 testsContainer.innerHTML='<div class="spinner"></div>';
                 let found=false;
+                const now = Date.now();
                 const testEntries = [];
                 Object.entries(allTests).forEach(([teacherId, teacherTests]) => {
                     Object.entries(teacherTests)
-                        .filter(([testId, test]) => (Date.now() - test.timestamp < 48 * 60 * 60 * 1000))
+                        // تصفية: عرض الاختبارات التي لم تنته مدتها (48 ساعة) وتم نشرها (releaseTime <= now أو releaseTime غير موجود)
+                        .filter(([testId, test]) => (now - test.timestamp < 48 * 60 * 60 * 1000) && (!test.releaseTime || test.releaseTime <= now))
                         .forEach(([testId, test]) => { testEntries.push({ teacherId, testId, test }); }); 
                 });
                 
@@ -2325,7 +2632,7 @@
             
             window.saveAnswer=(idx,val,type)=>{if(type==='mcq')answers[idx]={type:'mcq',answer:parseInt(val)};else if(type==='essay-text'){if(!answers[idx])answers[idx]={type:'essay'};answers[idx].textAnswer=val}};
             window.handleEssayImageUpload=async(idx,input)=>{const file=input.files[0];if(file){const b64=await getBase64(file);if(!answers[idx])answers[idx]={type:'essay'};answers[idx].imageAnswer=b64;input.previousElementSibling.innerHTML=`<i class="fas fa-check-circle"></i> تم الرفع!`}};
-            function saveCurrentAnswer(){const q=currentTest.questions[qIndex];if(q.type==='mcq'){const c=questionsDisplay.querySelector(`input[name="question-${qIndex}"]:checked`);if(c)answers[qIndex]={type:'mcq',answer:parseInt(c.value)}}else{const t=questionsDisplay.querySelector(`#text-answer-${qIndex}`).value;if(t.trim()!==''||(answers[qIndex]&&answers[qIndex].imageAnswer)){if(!answers[qIndex])answers[qIndex]={type:'essay'};answers[qIndex].textAnswer=t}}}
+            function saveCurrentAnswer(){const q=currentTest.questions[qIndex];if(q.type==='mcq'){const c=questionsDisplay.querySelector(`input[name="question-${qIndex}"]:checked`);if(c)answers[qIndex]={type:'mcq',answer:parseInt(c.value)}}else{const t=questionsDisplay.querySelector(`#text-answer-${qIndex}`).value;if(t.trim()!==''||(answers[qIndex]&&answers[qIndex].imageAnswer)){if(!answers[idx])answers[idx]={type:'essay'};answers[idx].textAnswer=t}}}
             nextQBtn.onclick=()=>{if(qIndex<currentTest.questions.length-1){saveCurrentAnswer();qIndex++;renderQuestion(qIndex)}};
             prevQBtn.onclick=()=>{if(qIndex>0){saveCurrentAnswer();qIndex--;renderQuestion(qIndex)}};
             
