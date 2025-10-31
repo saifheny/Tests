@@ -1788,7 +1788,7 @@
                 clearQuestionForm();
             };
 
-            saveTestBtn.onclick = (e) => {
+            saveTestBtn.onclick = async (e) => {
                 const button = e.target, originalText = button.textContent;
                 const n = testNameInput.value.trim(), g = testGradeSelect.value, d = testDurationInput.value.trim();
                 if (!n || !g || !d || questionsArray.length === 0) {
@@ -1797,26 +1797,25 @@
                 }
                 button.disabled = true;
                 button.textContent = "جاري الحفظ...";
-                window.location.href = 'go:3';
-                setTimeout(async () => {
-                    const p = preventGoBackCheckbox.checked;
-                    const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, questions: questionsArray, timestamp: Date.now() };
-                    try {
-                        if (currentEditingTestId) {
-                            await set(ref(db, `tests/${currentUser}/${currentEditingTestId}`), testData);
-                        } else {
-                            await push(ref(db, `tests/${currentUser}`), testData);
-                        }
-                        showCustomAlert("نجاح", `تم ${currentEditingTestId ? 'تحديث' : 'حفظ'} الاختبار بنجاح!`);
-                        resetCreateFormState();
-                        setDefaultTab();
-                    } catch (error) {
-                        showCustomAlert("خطأ", "حدث خطأ أثناء الحفظ.");
-                    } finally {
-                        button.disabled = false;
-                        button.textContent = originalText;
+                // تم حذف الإجراء go:3 والتأخير
+                
+                const p = preventGoBackCheckbox.checked;
+                const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, questions: questionsArray, timestamp: Date.now() };
+                try {
+                    if (currentEditingTestId) {
+                        await set(ref(db, `tests/${currentUser}/${currentEditingTestId}`), testData);
+                    } else {
+                        await push(ref(db, `tests/${currentUser}`), testData);
                     }
-                }, 5000);
+                    showCustomAlert("نجاح", `تم ${currentEditingTestId ? 'تحديث' : 'حفظ'} الاختبار بنجاح!`);
+                    resetCreateFormState();
+                    setDefaultTab();
+                } catch (error) {
+                    showCustomAlert("خطأ", "حدث خطأ أثناء الحفظ.");
+                } finally {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
             };
             
             assessmentImageInput.onchange = () => handleImagePreview(assessmentImageInput, assessmentImageInput.nextElementSibling, assessmentImageInput.nextElementSibling.querySelector('img'), (val) => currentAssessmentImageBase64 = val);
@@ -2406,18 +2405,15 @@
             };
             
             const handleExitTestSession = () => {
-                window.location.href = 'go:3';
-                setTimeout(() => {
-                    sessionStorage.removeItem('lastSubmittedTest');
-                    if (isDeepLinkSession) {
-                        localStorage.removeItem('loggedInStudent');
-                        sessionStorage.clear();
-                        window.location.href = window.location.pathname;
-                    } else {
-                        showSection(dashboard);
-                        loadDashboard();
-                    }
-                }, 7000);
+                sessionStorage.removeItem('lastSubmittedTest');
+                if (isDeepLinkSession) {
+                    localStorage.removeItem('loggedInStudent');
+                    sessionStorage.clear();
+                    window.location.href = window.location.pathname;
+                } else {
+                    showSection(dashboard);
+                    loadDashboard();
+                }
             };
 
             function renderReview(testData, studentAnswers){
@@ -2527,18 +2523,16 @@
                 });
             });
             
-            const createDelayedBackFunction = (button) => {
+            const createInstantBackFunction = (button) => {
                 button.onclick = () => {
                      if (testsNavBtn) {
-                        window.location.href = 'go:3';
-                        setTimeout(() => {
-                            testsNavBtn.click();
-                        }, 7000); // 7 seconds delay
+                        // تم حذف الإجراء go:3 والتأخير
+                        testsNavBtn.click();
                     }
                 };
             };
-            createDelayedBackFunction(backFromAssessmentsBtn);
-            createDelayedBackFunction(backFromBooksBtn);
+            createInstantBackFunction(backFromAssessmentsBtn);
+            createInstantBackFunction(backFromBooksBtn);
 
             const setDefaultTab=()=>navButtons[0].click();
             studentPortal.querySelector('#student-register-btn').onclick=()=>authUser(studentPortal.querySelector('#student-register-name').value.trim(),studentPortal.querySelector('#student-register-password').value.trim(),true);
