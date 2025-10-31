@@ -206,6 +206,46 @@
             position: relative;
             z-index: 1;
         }
+        
+        /* New Re-Register Alert Style */
+        .re-register-alert {
+            background-color: color-mix(in srgb, var(--warning-primary) 20%, transparent);
+            border: 2px solid var(--warning-primary);
+            color: var(--text-primary);
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-align: right;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+            max-width: 500px;
+        }
+        .re-register-alert i {
+            font-size: 1.8rem;
+            color: var(--warning-primary);
+            flex-shrink: 0;
+            text-shadow: none;
+        }
+        .re-register-alert span {
+            flex-grow: 1;
+            text-shadow: none;
+        }
+        
+        @media (max-width: 767px) {
+            .re-register-alert {
+                font-size: 1rem;
+                padding: 12px;
+                gap: 10px;
+            }
+            .re-register-alert i {
+                font-size: 1.5rem;
+            }
+        }
+        /* End New Re-Register Alert Style */
 
         .landing-title {
             font-size: 2.8rem;
@@ -926,6 +966,12 @@
 
     <!-- ======== Main Landing Page Section ======== -->
     <main id="main-landing-page" class="hidden">
+        <!-- رسالة التنبيه الجديدة بضرورة إعادة التسجيل -->
+        <div id="re-register-alert" class="re-register-alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>تنبيه هام: حدثت تحديثات جوهرية على المنصة. يُرجى من جميع المستخدمين (المعلمين والطلاب) **تسجيل حساب جديد** للمتابعة.</span>
+        </div>
+        
         <h2 class="landing-title glass-text-effect">اختر بوابتك للتعلم</h2>
         <div class="role-selection">
             <div id="show-teacher-portal" class="glass-container glass-button">
@@ -1274,15 +1320,16 @@
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
         import { getDatabase, ref, set, get, onValue, push, serverTimestamp, remove, update, query, orderByChild, equalTo, off } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
+        // تم تحديث إعدادات Firebase بناءً على طلبك
         const firebaseConfig = {
-            apiKey: "AIzaSyDb19zrwV84CCbI8s2q8utFdIhasokmrpQ",
-            authDomain: "saif-28e78.firebaseapp.com",
-            databaseURL: "https://saif-28e78-default-rtdb.firebaseio.com",
-            projectId: "saif-28e78",
-            storageBucket: "saif-28e78.appspot.com",
-            messagingSenderId: "979905571539",
-            appId: "1:979905571539:web:3ff28289e17d3180964226",
-            measurementId: "G-47JV5KDDTP"
+            apiKey: "AIzaSyCsnZdFrg-KlWFc0z6OgmXgBp6lPKf14fU",
+            authDomain: "saifsa-b51f1.firebaseapp.com",
+            databaseURL: "https://saifsa-b51f1-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "saifsa-b51f1",
+            storageBucket: "saifsa-b51f1.firebasestorage.app",
+            messagingSenderId: "41089917871",
+            appId: "1:41089917871:web:fce49f6f23bd4f679b055a",
+            measurementId: "G-4K733KS3CP"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -2063,6 +2110,7 @@
                         feedbackMsg.innerHTML = `
                             <p style="margin-bottom: 10px;">مش بطال يلا ماشي</p>
                             <img src="https://i.postimg.cc/2862CPvY/download-12.png" style="max-width: 150px; border-radius: 8px;">
+                            
                         `;
                     }
                 }
@@ -2274,7 +2322,7 @@
             }
 
             function renderAllQuestions(){questionsDisplay.innerHTML='';currentTest.questions?.forEach((q,idx)=>{const qDiv=document.createElement('div');qDiv.style.marginBottom='25px';let ansHtml='';const savedAns=answers[idx];if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>{const checked=savedAns&&savedAns.answer===(i+1)?'checked':'';return`<label><input type="radio" name="question-${idx}" value="${i+1}" onchange="saveAnswer(${idx},this.value,'mcq')" ${checked}><span>${o}</span></label>`}).join('')}</div>`}else{const textVal=savedAns&&savedAns.textAnswer?savedAns.textAnswer:'';const imgUploaded=savedAns&&savedAns.imageAnswer;ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${idx}" oninput="saveAnswer(${idx}, this.value, 'essay-text')">${textVal}</textarea><label for="image-answer-${idx}" class="file-input-label"><i class="fas ${imgUploaded?'fa-check-circle':'fa-upload'}"></i> ${imgUploaded?'تم الرفع':'رفع صورة'}</label><input type="file" id="image-answer-${idx}" accept="image/*" class="hidden" onchange="handleEssayImageUpload(${idx}, this)"></div>`}qDiv.innerHTML=`<h4 style="text-align:right;margin-bottom:15px;">س ${idx+1}: ${q.question}</h4>${q.image?`<img class="question-image-preview" src="${q.image}">`:''}${ansHtml}`;questionsDisplay.appendChild(qDiv)})}
-            function renderQuestion(index){const q=currentTest.questions[index];let ansHtml='';const saved=answers[index];if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>{const checked=saved&&saved.answer===(i+1)?'checked':'';return`<label><input type="radio" name="question-${index}" value="${i+1}" ${checked}/><span>${o}</span></label>`}).join('')}</div>`}else{const text=saved&&saved.textAnswer?saved.textAnswer:'';const uploaded=saved&&saved.imageAnswer;ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${index}">${text}</textarea><label for="image-answer-${index}" class="file-input-label"><i class="fas ${uploaded?'fa-check-circle':'fa-upload'}"></i> ${uploaded?'تغيير الصورة':'رفع صورة'}</label><input type="file" id="image-answer-${index}" accept="image/*" class="hidden"></div>`}questionsDisplay.innerHTML=`<h4 style="margin-bottom:15px;">س ${index+1}/${currentTest.questions.length}: ${q.question}</h4>${q.image?`<img class="question-image-preview" src="${q.image}">`:''}${ansHtml}`;if(q.type==='essay'){document.getElementById(`image-answer-${index}`).onchange=()=>handleEssayImageUpload(index,document.getElementById(`image-answer-${index}`))}prevQBtn.disabled=index===0;nextQBtn.classList.toggle('hidden',index===currentTest.questions.length-1);submitBtn.classList.toggle('hidden',index!==currentTest.questions.length-1)}
+            function renderQuestion(index){const q=currentTest.questions[index];let ansHtml='';const saved=answers[index];if(q.type==='mcq'){ansHtml=`<div class="question-options">${q.options.map((o,i)=>{const checked=saved&&saved.answer===(i+1)?'checked':'';return`<label><input type="radio" name="question-${index}" value="${i+1}" ${checked}/><span>${o}</span></label>`}).join('')}</div>`}else{const text=saved&&saved.textAnswer?saved.textAnswer:'';const uploaded=saved&&saved.imageAnswer;ansHtml=`<div><label>إجابتك:</label><textarea id="text-answer-${index}">${text}</textarea><label for="image-answer-${index}" class="file-input-label"><i class="fas ${uploaded?'fa-check-circle':'fa-upload'}"></i> ${uploaded?'تغيير الصورة':'رفع صورة'}</label><input type="file" id="image-answer-${index}" accept="image/*" class="hidden"></div>`}questionsDisplay.innerHTML=`<h4 style="margin-bottom:15px;">س ${index+1}/${currentTest.questions.length}: ${q.question}</h4>${q.image?`<img class="question-image-preview" src="${q.image}">`:''}${ansHtml}`;if(q.type==='essay'){document.getElementById(`text-answer-${index}`).oninput = (e) => saveAnswer(index, e.target.value, 'essay-text'); document.getElementById(`image-answer-${index}`).onchange=()=>handleEssayImageUpload(index,document.getElementById(`image-answer-${index}`))}prevQBtn.disabled=index===0;nextQBtn.classList.toggle('hidden',index===currentTest.questions.length-1);submitBtn.classList.toggle('hidden',index!==currentTest.questions.length-1)}
             
             window.saveAnswer=(idx,val,type)=>{if(type==='mcq')answers[idx]={type:'mcq',answer:parseInt(val)};else if(type==='essay-text'){if(!answers[idx])answers[idx]={type:'essay'};answers[idx].textAnswer=val}};
             window.handleEssayImageUpload=async(idx,input)=>{const file=input.files[0];if(file){const b64=await getBase64(file);if(!answers[idx])answers[idx]={type:'essay'};answers[idx].imageAnswer=b64;input.previousElementSibling.innerHTML=`<i class="fas fa-check-circle"></i> تم الرفع!`}};
