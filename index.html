@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>منصة الاختبارات الذكية 🚀</title>
+    <title>منصة EDU-GATE 🚀</title>
     <!-- Meta Tags -->
-    <meta property="og:title" content="منصة الاختبارات الذكية 🚀" />
+    <meta property="og:title" content="منصة EDU-GATE 🚀" />
     <meta property="og:description" content="بوابة التعلم الذكي التي تدمج التكنولوجيا بالتعليم!" />
     <meta property="og:image" content="https://i.postimg.cc/3RBYLnd3/818334fa-20ba-431a-ad38-6bec7ef02203.png" />
     <!-- PWA -->
     <link rel="manifest" href="./manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="الاختبارات الذكية">
+    <meta name="apple-mobile-web-app-title" content="EDU-GATE">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/3RBYLnd3/818334fa-20ba-431a-ad38-6bec7ef02203.png">
-    <meta name="theme-color" content="#0d1117">
+    <meta name="theme-color" content="#000000">
     <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -22,48 +22,43 @@
     <style>
         /* --- General & Base Styles --- */
         :root {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #010409;
-            --border-primary: #30363d;
-            --border-secondary: #21262d;
-            --text-primary: #e6edf3;
-            --text-secondary: #8b949e;
-            --accent-primary: #2f81f7;
-            --accent-primary-gradient: linear-gradient(180deg, #3081f7 0%, #1f6feb 100%);
-            --accent-primary-border: #1158c7;
-            --accent-secondary: #58a6ff;
-            --success-color: #238636;
-            --success-glow: rgba(35, 134, 54, 0.5);
-            --success-bg: rgba(35, 134, 54, 0.2);
-            --danger-color: #da3633;
-            --danger-glow: rgba(218, 54, 51, 0.5);
-            --danger-bg: rgba(218, 54, 51, 0.2);
-            --success-gradient: linear-gradient(180deg, var(--success-color) 0%, #1a6328 100%);
-            --success-border: #134b1f;
-            --danger-primary: #da3633;
-            --danger-border: #c82333;
-            --warning-primary: #ffc107;
-            --shadow-color-heavy: rgba(0,0,0,0.5);
-            --shadow-color-light: rgba(0,0,0,0.4);
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #050505;
+            --border-primary: #1a1a1a;
+            --border-secondary: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-primary: #3b82f6;
+            --accent-primary-gradient: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+            --accent-primary-border: #1e40af;
+            --accent-secondary: #60a5fa;
+            --success-color: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.5);
+            --success-bg: rgba(16, 185, 129, 0.2);
+            --danger-color: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.5);
+            --danger-bg: rgba(239, 68, 68, 0.2);
+            --success-gradient: linear-gradient(180deg, var(--success-color) 0%, #047857 100%);
+            --success-border: #065f46;
+            --danger-primary: #ef4444;
+            --danger-border: #dc2626;
+            --warning-primary: #f59e0b;
+            --shadow-color-heavy: rgba(0,0,0,0.8);
+            --shadow-color-light: rgba(0,0,0,0.6);
             --inset-shadow-light: rgba(255,255,255,0.05);
-            --inset-shadow-dark: rgba(0,0,0,0.6);
-            
-            /* Variables for Glass Effect */
-            --lg-bg-color: rgba(255, 255, 255, 0.2);
-            --lg-highlight: rgba(255, 255, 255, 0.75);
-            --lg-text: #ffffff;
+            --inset-shadow-dark: rgba(0,0,0,0.8);
         }
 
         .desert-mode {
-            --bg-primary: #fdf6e3; /* Solarized Light Base */
+            --bg-primary: #fdf6e3;
             --bg-secondary: #f5eeda;
             --bg-tertiary: #eee8d5;
             --border-primary: #d3cbbd;
             --border-secondary: #e6e0d2;
-            --text-primary: #2c2622; /* Very Dark Brown/Black */
+            --text-primary: #2c2622;
             --text-secondary: #8a7a66;
-            --accent-primary: #d2691e; /* Terracotta / Chocolate */
+            --accent-primary: #d2691e;
             --accent-primary-gradient: linear-gradient(180deg, #e67e22 0%, #d35400 100%);
             --accent-primary-border: #a84300;
             --accent-secondary: #d35400;
@@ -73,7 +68,7 @@
             --success-border: #1e7e34;
             --danger-primary: #dc3545;
             --danger-border: #c82333;
-            --warning-primary: #b58900; /* Solarized Yellow */
+            --warning-primary: #b58900;
             --shadow-color-heavy: rgba(88, 76, 60, 0.3);
             --shadow-color-light: rgba(88, 76, 60, 0.2);
             --inset-shadow-light: rgba(0,0,0,0.05);
@@ -91,7 +86,7 @@
             text-align: center;
             overflow-x: hidden;
             transition: background-color 0.4s, color 0.4s;
-            padding: 0 10px; /* Add side padding */
+            padding: 0 10px;
         }
         .hidden { display: none !important; }
         .no-select { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
@@ -152,7 +147,7 @@
             width: 90%;
             max-width: 500px;
             box-shadow: 0 10px 40px var(--shadow-color-heavy), inset 0 2px 2px var(--inset-shadow-light);
-            margin: auto; /* Center modal that is shorter than the viewport */
+            margin: auto;
             position: relative;
         }
 
@@ -173,12 +168,9 @@
         
         /* --- NEW Landing Page Styles --- */
         @keyframes bg-move {
-            from {
-                transform: translateY(0%) scale(1);
-            }
-            to {
-                transform: translateY(-5%) scale(1.05);
-            }
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         #main-landing-page {
@@ -188,18 +180,20 @@
             align-items: center;
             min-height: 100vh;
             padding: 40px 20px;
-            gap: 40px;
+            gap: 20px;
             position: relative;
             overflow: hidden;
+            background: #000000;
+            background: radial-gradient(ellipse at bottom, #000000 0%, #000000 100%);
         }
         
         #main-landing-page::before {
             content: '';
             position: absolute;
-            inset: -5%;
-            background: url("https://images.unsplash.com/photo-1551384963-cccb0b7ed94b?q=80&w=3247&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") center/cover;
-            animation: bg-move 15s ease-in-out infinite alternate;
-            z-index: -1;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/connected.png');
+            opacity: 0.05;
+            z-index: 0;
         }
 
         #main-landing-page > * {
@@ -207,122 +201,202 @@
             z-index: 1;
         }
         
-        /* New Re-Register Alert Style */
-        .re-register-alert {
-            background-color: color-mix(in srgb, var(--warning-primary) 20%, transparent);
-            border: 2px solid var(--warning-primary);
-            color: var(--text-primary);
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            text-align: right;
-            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
-            max-width: 500px;
+        .landing-header {
+            margin-bottom: 30px;
+            text-align: center;
         }
-        .re-register-alert i {
-            font-size: 1.8rem;
-            color: var(--warning-primary);
-            flex-shrink: 0;
-            text-shadow: none;
-        }
-        .re-register-alert span {
-            flex-grow: 1;
-            text-shadow: none;
-        }
-        
-        @media (max-width: 767px) {
-            .re-register-alert {
-                font-size: 1rem;
-                padding: 12px;
-                gap: 10px;
-            }
-            .re-register-alert i {
-                font-size: 1.5rem;
-            }
-        }
-        /* End New Re-Register Alert Style */
 
-        .landing-title {
-            font-size: 2.8rem;
+        .institution-logo {
+            font-size: 2.5rem;
             font-weight: 800;
-            padding: 0;
-            margin: 0;
+            letter-spacing: 1px;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.6);
+        }
+
+        .platform-name {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         
-        .glass-text-effect {
-          background: linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-          filter: url(#lg-dist);
+        .platform-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        .platform-description {
+            background: rgba(10, 10, 10, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+            max-width: 800px;
+        }
+        
+        .platform-description p {
+            margin-bottom: 15px;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+        
+        .platform-description p:last-child {
+            margin-bottom: 0;
         }
 
         .role-selection {
             display: flex;
-            gap: 25px;
+            gap: 40px;
             flex-wrap: wrap;
             justify-content: center;
-        }
-
-        /* --- NEW Glass Effect Styles --- */
-        .glass-container {
-            position: relative;
-            display: flex;
-            font-weight: 800;
-            color: var(--lg-text);
-            cursor: pointer;
-            background: transparent;
-            border-radius: 2rem;
-            overflow: hidden;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25), 0 0 20px rgba(0, 0, 0, 0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.5); /* Adjusted bounce effect */
-        }
-        
-        .glass-button:hover {
-            transform: scale(1.05) translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-        
-        .glass-filter {
-            position: absolute; inset: 0; z-index: 0;
-            backdrop-filter: blur(8px);
-            filter: url(#lg-dist);
-            isolation: isolate;
-        }
-        
-        .glass-overlay {
-            position: absolute; inset: 0; z-index: 1;
-            background: var(--lg-bg-color);
-        }
-        
-        .glass-specular {
-            position: absolute; inset: 0; z-index: 2;
-            border-radius: inherit;
-            overflow: hidden;
-            box-shadow: inset 1px 1px 0 var(--lg-highlight), inset 0 0 5px rgba(255, 255, 255, 0.5);
-        }
-        
-        .glass-content {
-            position: relative; z-index: 3;
-            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-            padding: 1.5rem 2.5rem;
-            font-size: 1.5rem;
+            margin-bottom: 40px;
+        }
+
+        .selection-box {
+            background-color: rgba(10, 10, 10, 0.8);
+            border: 2px solid;
+            border-radius: 20px;
+            width: 320px;
+            padding: 30px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
         }
         
-        .glass-content i {
-            font-size: 1.8rem;
+        .selection-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, currentColor, transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .selection-box:hover {
+            transform: translateY(-10px) scale(1.05);
+        }
+        
+        .selection-box:hover::before {
+            opacity: 1;
         }
 
+        .selection-box.blue-box {
+            border-color: #3b82f6;
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.6), inset 0 0 15px rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+        .selection-box.green-box {
+            border-color: #10b981;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.6), inset 0 0 15px rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        
+        .main-icon {
+            font-size: 4.5rem;
+            filter: drop-shadow(0 0 8px);
+            margin-bottom: 10px;
+        }
+        
+        .box-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .box-description {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .action-button {
+            width: 80%;
+            padding: 12px;
+            border: 2px solid;
+            border-radius: 10px;
+            background-color: transparent;
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+        
+        .blue-box .action-button {
+            border-color: #3b82f6;
+        }
+        .green-box .action-button {
+            border-color: #10b981;
+        }
+        
+        .selection-box:hover .action-button {
+            background-color: currentColor;
+            box-shadow: 0 0 15px currentColor;
+            color: #000;
+        }
 
+        .footer {
+            margin-top: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .copyright {
+            margin-top: 10px;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 767px) {
+            .role-selection {
+                flex-direction: column;
+                gap: 25px;
+            }
+            .selection-box {
+                width: 100%;
+                max-width: 350px;
+            }
+            .platform-name {
+                font-size: 2.5rem;
+            }
+            .institution-logo {
+                font-size: 2rem;
+            }
+            .platform-subtitle {
+                font-size: 1rem;
+            }
+        }
+        
         /* --- General Portal Styles --- */
         .portal-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -336,9 +410,9 @@
             padding-top: 0;
         }
         .portal-content { 
-            max-width: 800px; /* Increased max-width */
+            max-width: 800px;
             margin: 0 auto; 
-            padding: 120px 20px 40px 20px; /* Adjusted top padding for both headers */
+            padding: 120px 20px 40px 20px;
         } 
         
         .portal-container .spinner { border: 4px solid var(--border-primary); border-top: 4px solid var(--accent-primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
@@ -354,7 +428,7 @@
         .portal-container .btn-secondary:not(:disabled):hover { border-bottom-width: 6px; }
         .portal-container .btn-secondary:not(:disabled):active { border-bottom-width: 3px; }
         
-       /* --- Top Navigation & Header Controls --- */
+        /* --- Top Navigation & Header Controls --- */
         .top-nav {
             position: fixed; top: 0; left: 0; right: 0;
             display: flex; justify-content: space-around; align-items: center;
@@ -393,7 +467,7 @@
              text-shadow: 0 0 15px var(--accent-primary);
         }
         .portal-header-controls {
-            position: fixed; top: 65px; /* Positioned below top-nav */
+            position: fixed; top: 65px;
             left: 0; right: 0;
             display: flex; justify-content: space-between; align-items: center; z-index: 999;
             background: color-mix(in srgb, var(--bg-primary) 90%, transparent);
@@ -403,12 +477,12 @@
             margin-bottom: 10px;
         }
         .portal-content {
-            padding-top: 120px; /* 65px (nav) + 45px (header) + 10px (margin) */
+            padding-top: 120px;
         }
         .portal-header-controls h1 {
             font-size: 0.9rem;
             margin: 0;
-            text-align: center; /* Center the welcome message */
+            text-align: center;
             flex-grow: 1;
             color: var(--text-secondary);
         }
@@ -416,10 +490,10 @@
              display: flex; gap: 8px;
         }
         .portal-header-controls .icon-btn {
-            width: 32px; height: 32px; /* Smaller buttons */
+            width: 32px; height: 32px;
             border-radius: 50%; background: transparent;
             border: 1px solid var(--border-primary); color: var(--text-secondary); display: flex; align-items: center;
-            justify-content: center; cursor: pointer; font-size: 14px; /* Smaller icon */
+            justify-content: center; cursor: pointer; font-size: 14px;
             position: relative;
             transition: background-color 0.2s, color 0.2s;
         }
@@ -435,7 +509,6 @@
         #refresh-tests-btn.loading i { animation: spin 1s linear infinite; }
         #show-search-btn i { transition: transform 0.3s ease; }
         #show-search-btn.active i { transform: rotate(90deg); color: var(--accent-secondary); }
-
 
         /* --- Header Dropdown Menu --- */
         .header-menu-container { position: relative; }
@@ -541,8 +614,6 @@
             display: inline-block;
             margin-bottom: 0;
         }
-        /* End New AI Question Generation Styles */
-
 
         /* --- Student Portal --- */
         .student-test-item-container {
@@ -732,14 +803,13 @@
             text-decoration: line-through;
         }
 
-
         /* --- Image Viewer Modal --- */
         .image-modal-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.9);
             backdrop-filter: blur(10px); z-index: 3000;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; visibility: hidden; transition: opacity 0.3s ease;
-            touch-action: none; /* Prevent default touch actions like scrolling */
+            touch-action: none;
         }
         .image-modal-overlay.visible { opacity: 1; visibility: visible; }
         #image-viewer-content-wrapper {
@@ -753,10 +823,10 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             transition: transform 0.2s ease-out;
             will-change: transform;
-            pointer-events: none; /* Let wrapper handle events */
+            pointer-events: none;
         }
         .image-viewer-controls {
-            display: none; /* Hidden as per user request */
+            display: none;
         }
         .image-modal-download-btn {
             position: absolute; top: 20px; right: 20px; z-index: 3010;
@@ -875,7 +945,7 @@
             box-shadow: 0 0 0 3px var(--bg-primary), 0 0 0 5px var(--accent-primary);
         }
         .checkbox-container input[type="checkbox"]:checked + label::after {
-            content: '\f00c'; /* Font Awesome check icon */
+            content: '\f00c';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             position: absolute;
@@ -984,9 +1054,6 @@
         
         @media (max-width: 767px) {
             body { padding: 0 5px; }
-            .landing-title { font-size: 2.2rem; }
-            .glass-content { font-size: 1.2rem; padding: 1.2rem 2rem; }
-            .role-selection { flex-direction: column; }
             .top-nav { flex-wrap: wrap; justify-content: space-around; height: auto; }
             .top-nav .nav-btn { font-size: 0.7rem; padding: 5px; }
             .top-nav .nav-btn i { font-size: 1.3rem; }
@@ -1010,32 +1077,38 @@
 
     <!-- ======== Main Landing Page Section ======== -->
     <main id="main-landing-page" class="hidden">
-        <!-- رسالة التنبيه الجديدة بضرورة إعادة التسجيل -->
-        <div id="re-register-alert" class="re-register-alert">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>تنبيه هام: حدثت تحديثات جوهرية على المنصة. يُرجى من جميع المستخدمين (المعلمين والطلاب) **تسجيل حساب جديد** للمتابعة.</span>
+        <div class="landing-header">
+            <h1 class="institution-logo">مؤسسة SA التعليمية</h1>
+            <div class="platform-name">EDU-GATE</div>
+            <p class="platform-subtitle">بوابة التعلم الذكي التي تدمج التكنولوجيا بالتعليم</p>
         </div>
-        
-        <h2 class="landing-title glass-text-effect">اختر بوابتك للتعلم</h2>
+
+        <div class="platform-description">
+            <p>مرحباً بك في منصة EDU-GATE، المنصة التعليمية المتكاملة التي تهدف إلى تطوير العملية التعليمية باستخدام أحدث التقنيات.</p>
+            <p>نقدم لك بيئة تعليمية تفاعلية متكاملة تشمل الاختبارات الذكية، التقييمات المتقدمة، ومتابعة الأداء التعليمي.</p>
+        </div>
+
         <div class="role-selection">
-            <div id="show-teacher-portal" class="glass-container glass-button">
-                <div class="glass-filter"></div>
-                <div class="glass-overlay"></div>
-                <div class="glass-specular"></div>
-                <div class="glass-content">
-                    <span>دخول المعلمين</span>
-                    <i class="fas fa-chalkboard-teacher"></i>
-                </div>
+            <!-- Teacher/First Box -->
+            <div id="show-teacher-portal" class="selection-box blue-box">
+                <i class="fas fa-chalkboard-teacher main-icon"></i>
+                <h2 class="box-title">دخول المعلم</h2>
+                <p class="box-description">إنشاء الاختبارات، متابعة النتائج، وإدارة التقييمات</p>
+                <button class="action-button">دخول</button>
             </div>
-            <div id="show-student-portal" class="glass-container glass-button">
-                <div class="glass-filter"></div>
-                <div class="glass-overlay"></div>
-                <div class="glass-specular"></div>
-                <div class="glass-content">
-                    <span>دخول الطلاب</span>
-                    <i class="fas fa-user-graduate"></i>
-                </div>
+
+            <!-- Student/Second Box -->
+            <div id="show-student-portal" class="selection-box green-box">
+                <i class="fas fa-user-graduate main-icon"></i>
+                <h2 class="box-title">دخول الطالب</h2>
+                <p class="box-description">أداء الاختبارات، مراجعة النتائج، ومتابعة التقييمات</p>
+                <button class="action-button">دخول</button>
             </div>
+        </div>
+
+        <div class="footer">
+            <p>منصة EDU-GATE لتطوير التعليم باستخدام التكنولوجيا الحديثة</p>
+            <p class="copyright">جميع الحقوق محفوظة © 2025 مؤسسة SA التعليمية</p>
         </div>
     </main>
 
@@ -1107,12 +1180,10 @@
                     <div id="teacher-create-test-content">
                         <h2 id="create-edit-title">إنشاء اختبار جديد</h2>
                         
-                        <!-- AI Generation Toggle Button -->
                         <button id="toggle-ai-generation-btn" class="btn-secondary" style="margin-bottom: 20px;">
                             <i class="fas fa-robot"></i> توليد اختبار بالذكاء الاصطناعي
                         </button>
                         
-                        <!-- AI Generation Section (Initially Hidden) -->
                         <div id="ai-test-generation-container" class="hidden">
                             <h3>توليد الاختبار من صورة</h3>
                             
@@ -1141,7 +1212,6 @@
                             <button id="generate-ai-test-btn" class="btn-primary" style="background: var(--accent-secondary); border-bottom-color: #3b7bb6;"><i class="fas fa-robot"></i> توليد الأسئلة من الصورة</button>
                             <hr/>
                         </div>
-                        <!-- End AI Generation Section -->
                         
                         <label for="test-name">اسم الاختبار:</label><input type="text" id="test-name" />
                         <label for="test-grade">الصف:</label>
@@ -1198,7 +1268,6 @@
                 </div>
             </section>
         </div>
-        <!-- Teacher Modals -->
         <div id="teacher-review-modal" class="modal-overlay">
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
@@ -1372,7 +1441,7 @@
         </div>
     </div>
 
-    <!-- ======== App Install Prompt Modal (Structure remains but will not be called) ======== -->
+    <!-- ======== App Install Prompt Modal ======== -->
     <div id="app-install-prompt-modal" class="custom-dialog-overlay">
         <div class="custom-dialog">
             <div class="app-install-header">
@@ -1389,22 +1458,12 @@
         </div>
     </div>
 
-    <!-- SVG FILTER DEFINITION -->
-    <svg style="display: none">
-      <filter id="lg-dist" x="0%" y="0%" width="100%" height="100%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.008" numOctaves="2" seed="92" result="noise" />
-        <feGaussianBlur in="noise" stdDeviation="2" result="blurred" />
-        <feDisplacementMap in="SourceGraphic" in2="blurred" scale="70" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </svg>
-
     <!-- ======== Main JavaScript Logic =======-->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
         import { getDatabase, ref, set, get, onValue, push, serverTimestamp, remove, update, query, orderByChild, equalTo, off } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
-        // تم تحديث إعدادات Firebase بناءً على طلبك
         const firebaseConfig = {
             apiKey: "AIzaSyCsnZdFrg-KlWFc0z6OgmXgBp6lPKf14fU",
             authDomain: "saifsa-b51f1.firebaseapp.com",
@@ -1416,13 +1475,12 @@
             measurementId: "G-4K733KS3CP"
         };
         
-        // مفتاح API للذكاء الاصطناعي (تم إضافته بناءً على طلبك)
         const aiApiKey = "AIzaSyArAURCzYl1uxSJxvF7r5Ad-W5kaaz4ANw";
 
         const app = initializeApp(firebaseConfig);
         getAnalytics(app);
         const db = getDatabase(app);
-        const appUrl = "https://apk.e-droid.net/apk/app3760290-c4w5f2.apk?v=5";
+        const appUrl = "https://apk.e-droid.net/apk/app3760290-c4w5f2.apk?v=9";
 
         const mainLandingPage = document.getElementById('main-landing-page');
         const teacherPortal = document.getElementById('teacher-portal');
@@ -1469,7 +1527,6 @@
             });
         };
 
-
         async function sharePlatform() {
             try {
                 if (navigator.share) {
@@ -1513,12 +1570,7 @@
             if (savedTheme) {
                 applyTheme(savedTheme);
             } else {
-                const hour = new Date().getHours();
-                if (hour >= 6 && hour < 18) {
-                    applyTheme('desert');
-                } else {
-                    applyTheme('night');
-                }
+                applyTheme('night'); // Default to night mode for the new design
             }
         }
         
@@ -1563,7 +1615,6 @@
 
             let currentUser = null, myTests = {}, myAssessments = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
             
-            // AI-specific elements and variables
             const aiImageInput = document.getElementById('ai-question-image-input');
             const aiImagePreviewContainer = document.getElementById('ai-image-preview-container');
             const aiImagePreview = aiImagePreviewContainer.querySelector('.image-preview');
@@ -1571,7 +1622,7 @@
             const aiImageTypeSwitcher = document.querySelector('.ai-image-type-switcher');
             const toggleAiBtn = document.getElementById('toggle-ai-generation-btn');
             const aiContainer = document.getElementById('ai-test-generation-container');
-            let aiImageContentType = 'questions-only'; // 'questions-only' or 'content-only'
+            let aiImageContentType = 'questions-only';
             let currentAIImageBase64 = null;
             const aiNumQuestionsInput = document.getElementById('ai-num-questions');
             const aiMcqPointsInput = document.getElementById('ai-mcq-points');
@@ -1688,7 +1739,6 @@
             function renderMyTests(filter = '') {
                 myTestsContainer.innerHTML = "";
                 if (countdownInterval) clearInterval(countdownInterval);
-                // تصفية الاختبارات النشطة والتي تم تحديد موعد لها
                 const allTests = Object.entries(myTests).filter(([id, test]) => (Date.now() - test.timestamp < 48 * 60 * 60 * 1000) || (test.releaseTime && test.releaseTime > Date.now()));
                 
                 if (allTests.length === 0) { myTestsContainer.innerHTML = "<p>لم تقم بإنشاء أي اختبارات نشطة.</p>"; return; }
@@ -1703,7 +1753,6 @@
                     const statusText = isScheduled ? ' (مجدول)' : '';
                     const aiFlag = test.isAI ? ' <i class="fas fa-robot" title="تم التوليد بالذكاء الاصطناعي"></i>' : '';
                     const expiryTime = isScheduled ? test.releaseTime : test.timestamp + 48 * 60 * 60 * 1000;
-                    const remainingTime = expiryTime - Date.now();
 
                     const testCard = document.createElement('div'); testCard.className = 'list-item';
                     testCard.style.cssText = `flex-direction: column; align-items: stretch; padding: 12px; gap: 10px; opacity: ${isScheduled ? '0.7' : '1'};`;
@@ -1762,7 +1811,7 @@
                     });
                 };
                 update();
-                countdownInterval = setInterval(update, 1000); // تحديث كل ثانية
+                countdownInterval = setInterval(update, 1000);
             }
 
             async function deleteTest(testId) { try { await remove(ref(db, `tests/${currentUser}/${testId}`)); await remove(ref(db, `results/${currentUser}/${testId}`)); showCustomAlert("نجاح", "تم حذف الاختبار بنجاح."); } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء حذف الاختبار."); } }
@@ -1773,7 +1822,7 @@
                 testNameInput.value = testData.name; testGradeSelect.value = testData.grade; testDurationInput.value = testData.duration;
                 preventGoBackCheckbox.checked = !!testData.preventGoBack;
                 const releaseTimeMinutes = testData.releaseTime ? Math.ceil((testData.releaseTime - Date.now()) / (1000 * 60)) : 0;
-                scheduledReleaseDelayInput.value = Math.max(0, releaseTimeMinutes); // Display remaining time or 0
+                scheduledReleaseDelayInput.value = Math.max(0, releaseTimeMinutes);
                 questionsArray = [...(testData.questions || [])]; renderQuestionsList();
             }
 
@@ -1807,12 +1856,8 @@
                         reviewHtml = '<div>' + q.options.map((option, i) => {
                             const optionNum = i + 1;
                             let classes = 'review-option';
-                            if (optionNum === parseInt(q.correct)) {
-                                classes += ' correct-answer-highlight';
-                            }
-                            if (studentAnswer.answer && parseInt(studentAnswer.answer) === optionNum && optionNum !== parseInt(q.correct)) {
-                                classes += ' incorrect-answer-highlight';
-                            }
+                            if (optionNum === parseInt(q.correct)) classes += ' correct-answer-highlight';
+                            if (studentAnswer.answer && parseInt(studentAnswer.answer) === optionNum && optionNum !== parseInt(q.correct)) classes += ' incorrect-answer-highlight';
                             return `<div class="${classes}">${option}</div>`;
                         }).join('') + '</div>';
                     } 
@@ -1858,12 +1903,9 @@
                 aiImageTypeSwitcher.querySelector('.switch-button[data-type="questions-only"]').click();
             }
             
-            // ====================================================================================================
-            // --- AI Core Logic (Using the structure from the referenced file for better image analysis control) ---
-            // ====================================================================================================
             async function fetchGeminiResponse(promptParts) {
                 if (!aiApiKey) throw new Error("AI API key is missing.");
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiApiKey}`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1891,82 +1933,40 @@
                 
                 const questionPrompt = `
                     أنت خبير لغة عربية ومعلم. مهمتك هي إنشاء اختبار (اختيار من متعدد فقط) من محتوى الصورة المرفقة.
-                    1.  حلل محتوى الصورة بدقة لتحديد الموضوع الرئيسي (مثال: 'النحو - المبتدأ والخبر').
-                    2.  بناءً على الموضوع، قم بتوليد ${numQuestions} سؤال اختيار من متعدد (MCQ) جديد. إذا كانت الصورة تحتوي على أسئلة جاهزة، استنبط أسئلة جديدة مشابهة لها أو تكميلية لها.
-                    3.  **الاسم المقترح:** يجب أن يكون اسم الاختبار في السطر الأول، ويجب أن يعكس الموضوع والمستوى (مثال: 'اختبار ${selectedGrade} - [الموضوع]').
-                    4.  **الأسئلة:** يجب أن تكون الأسئلة كلها في صيغة JSON قابلة للتحليل مباشرة، لا تضف أي نص قبل أو بعد JSON.
-                    5.  **المفتاح الصحيح:** يجب أن يكون أحد الخيارات الأربعة هو الإجابة الصحيحة.
-                    6.  **تجنب المقالي:** يجب أن تكون جميع الأسئلة من نوع 'mcq' فقط.
+                    1.  حلل محتوى الصورة بدقة لتحديد الموضوع الرئيسي.
+                    2.  بناءً على الموضوع، قم بتوليد ${numQuestions} سؤال اختيار من متعدد (MCQ) جديد.
+                    3.  **الاسم المقترح:** يجب أن يكون اسم الاختبار في السطر الأول، ويعكس الموضوع والمستوى.
+                    4.  **الأسئلة:** يجب أن تكون الأسئلة كلها في صيغة JSON قابلة للتحليل مباشرة.
+                    5.  **تجنب المقالي:** يجب أن تكون جميع الأسئلة من نوع 'mcq' فقط.
 
-                    **التنسيق المطلوب (JSON فقط، لا تضف أي شرح أو نصوص أخرى):**
+                    **التنسيق المطلوب (JSON فقط):**
                     {
-                        "testName": "[الاسم المقترح في السطر الأول]",
+                        "testName": "[الاسم المقترح]",
                         "questions": [
-                            {
-                                "question": "نص السؤال الأول",
-                                "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
-                                "correct": 2, // رقم الإجابة الصحيحة (1-4)
-                                "type": "mcq"
-                            },
-                            // ... أسئلة أخرى
+                            { "question": "نص السؤال", "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"], "correct": 2, "type": "mcq" },
                         ]
                     }
-                    لا تضف أي أسئلة مقالية.
                 `;
 
-                const analysisPrompt = `
-                    حلل محتوى الصورة المرفقة.
-                    إذا كانت الصورة تحتوي على أسئلة، استخرج منها نص الموضوع الرئيسي وعدد الأسئلة المتضمنة.
-                    إذا كانت الصورة تحتوي على شرح/محتوى، استخرج منها نص الموضوع الرئيسي (في مجال اللغة العربية).
-                    الرد يجب أن يكون في سطر واحد فقط يصف المحتوى الرئيسي (مثال: إعراب الفعل الماضي).
-                `;
+                const analysisPrompt = `حلل محتوى الصورة المرفقة واستخرج منها نص الموضوع الرئيسي. الرد يجب أن يكون في سطر واحد فقط.`;
                 
-                // 1. Image Analysis (to determine the name)
                 const analysisResult = await processQueryWithAI([imagePart, {text: analysisPrompt}]);
                 let testNamePrefix = analysisResult.trim().replace(/^محتوى عن /g, '').replace(/\.$/, '') || "تحليل الصورة";
                 
-                // 2. Question Generation
-                const generationPrompt = `
-                    ${questionPrompt}
-                    عدد الأسئلة المطلوبة: ${numQuestions}. درجة كل سؤال: ${mcqPoints}.
-                    الصف المحدد: ${selectedGrade}. نوع الصورة: ${imageType === 'questions-only' ? 'أسئلة جاهزة' : 'محتوى شرح/تعليمي'}.
-                    المحتوى الرئيسي للصورة هو: ${testNamePrefix}
-                `;
-
+                const generationPrompt = `${questionPrompt} عدد الأسئلة المطلوبة: ${numQuestions}. درجة كل سؤال: ${mcqPoints}. الصف المحدد: ${selectedGrade}. نوع الصورة: ${imageType}. المحتوى الرئيسي: ${testNamePrefix}`;
                 const aiResponse = await processQueryWithAI([imagePart, {text: generationPrompt}]);
                 
-                // 3. Parse JSON
                 const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) {
-                    throw new Error("فشل تحليل استجابة الذكاء الاصطناعي إلى JSON. قد يكون المحتوى معقداً جداً.");
-                }
+                if (!jsonMatch) throw new Error("فشل تحليل استجابة الذكاء الاصطناعي.");
 
                 const parsedData = JSON.parse(jsonMatch[0]);
                 
-                if (!parsedData.questions || parsedData.questions.length === 0) {
-                    throw new Error("لم يتم توليد أي أسئلة. يرجى التأكد من أن الصورة تحتوي على محتوى واضح ومناسب.");
-                }
+                if (!parsedData.questions || parsedData.questions.length === 0) throw new Error("لم يتم توليد أي أسئلة.");
 
-                // Final adjustment and validation
-                const finalQuestions = parsedData.questions.map(q => ({
-                    ...q,
-                    points: mcqPoints, // Force points set by user
-                    type: 'mcq' // Force type to mcq
-                }));
-                
-                // Apply the increase logic only for content-only if allowed
-                let finalCount = finalQuestions.length;
-                if (imageType === 'content-only' && allowIncrease) {
-                    const originalCount = numQuestions;
-                    const increaseAmount = finalCount - originalCount;
-                    if (increaseAmount > 0) {
-                        // Keep the generated questions as they already incorporated the increase logic in the prompt
-                        console.log(`AI increased questions from ${originalCount} to ${finalCount}`);
-                    }
-                }
+                const finalQuestions = parsedData.questions.map(q => ({ ...q, points: mcqPoints, type: 'mcq' }));
                 
                 return {
-                    name: `اختبار ${selectedGrade} - ${testNamePrefix}`, // الاسم بدون إشارة لـ AI
+                    name: `اختبار ${selectedGrade} - ${testNamePrefix}`,
                     grade: selectedGrade,
                     duration: selectedDuration, 
                     questions: finalQuestions
@@ -1974,43 +1974,29 @@
             }
             
             aiGenerateBtn.onclick = async () => {
-                const n = testNameInput.value.trim(), g = testGradeSelect.value, d = testDurationInput.value.trim();
                 const numQuestions = parseInt(aiNumQuestionsInput.value);
                 const mcqPoints = parseInt(aiMcqPointsInput.value);
+                const g = testGradeSelect.value;
+                const d = testDurationInput.value.trim();
 
-                if (!currentAIImageBase64) { showCustomAlert("خطأ", "الرجاء إرفاق صورة المصدر أولاً."); return; }
-                if (numQuestions <= 0 || isNaN(numQuestions)) { showCustomAlert("خطأ", "الرجاء تحديد عدد أسئلة صحيح أكبر من صفر."); return; }
-                if (mcqPoints <= 0 || isNaN(mcqPoints)) { showCustomAlert("خطأ", "الرجاء تحديد درجة صحيحة أكبر من صفر لأسئلة الاختيار من متعدد."); return; }
-                if (!g) { showCustomAlert("خطأ", "الرجاء تحديد الصف الدراسي أولاً."); return; }
-                if (!d || parseInt(d) <= 0 || isNaN(parseInt(d))) { showCustomAlert("خطأ", "الرجاء تحديد مدة اختبار صحيحة أكبر من صفر."); return; }
+                if (!currentAIImageBase64 || numQuestions <= 0 || mcqPoints <= 0 || !g || !d) { 
+                    showCustomAlert("خطأ", "الرجاء ملء جميع الحقول المطلوبة."); return; 
+                }
                 
                 aiGenerateBtn.disabled = true;
-                aiGenerateBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 10px;"></div> جاري التوليد والتحليل...';
+                aiGenerateBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 10px;"></div> جاري التوليد...';
 
                 try {
-                    const generatedTest = await generateTestFromAI(
-                        aiImageContentType, 
-                        numQuestions, 
-                        mcqPoints,
-                        g,
-                        parseInt(d),
-                        aiAllowIncreaseCheckbox.checked
-                    );
-                    
+                    const generatedTest = await generateTestFromAI(aiImageContentType, numQuestions, mcqPoints, g, parseInt(d), aiAllowIncreaseCheckbox.checked);
                     questionsArray = generatedTest.questions;
                     renderQuestionsList();
                     testNameInput.value = generatedTest.name;
-                    // testGradeSelect.value = generatedTest.grade; // Keep user's grade choice
-                    // testDurationInput.value = generatedTest.duration; // Keep user's duration choice
-                    
-                    showCustomAlert("نجاح", `تم توليد ${questionsArray.length} أسئلة بنجاح! يرجى مراجعتها.`);
-
+                    showCustomAlert("نجاح", `تم توليد ${questionsArray.length} أسئلة بنجاح!`);
                 } catch (error) {
                     showCustomAlert("خطأ", `فشل توليد الاختبار. ${error.message}`);
                 } finally {
                     aiGenerateBtn.disabled = false;
                     aiGenerateBtn.innerHTML = '<i class="fas fa-robot"></i> توليد الأسئلة من الصورة';
-                    // إخفاء الـ AI Container بعد التوليد
                     aiContainer.classList.add('hidden');
                     toggleAiBtn.classList.remove('active');
                 }
@@ -2078,7 +2064,7 @@
                 if (currentQuestionType === 'mcq') {
                     const opts = Array.from(optionInputs).map(i => i.value.trim());
                     if (opts.some(o => o === "")) { showCustomAlert("خطأ", "يرجى ملء جميع الخيارات الأربعة."); return; }
-                    if (currentCorrectAnswer === 0) { showCustomAlert("خطأ", "يرجى تحديد الإجابة الصحيحة بالضغط على علامة الصح."); return; }
+                    if (currentCorrectAnswer === 0) { showCustomAlert("خطأ", "يرجى تحديد الإجابة الصحيحة."); return; }
                     questionData = { ...questionData, options: opts, correct: currentCorrectAnswer };
                 } else { 
                     questionData.modelAnswerImage = currentModelAnswerImageBase64; 
@@ -2095,28 +2081,18 @@
             };
 
             saveTestBtn.onclick = async (e) => {
-                const button = e.target, originalText = button.textContent;
+                const button = e.target;
                 const n = testNameInput.value.trim(), g = testGradeSelect.value, d = testDurationInput.value.trim();
                 const delayMinutes = parseInt(scheduledReleaseDelayInput.value) || 0;
                 if (!n || !g || !d || questionsArray.length === 0) {
                     showCustomAlert("خطأ", "يرجى ملء تفاصيل الاختبار وإضافة سؤال واحد على الأقل.");
                     return;
                 }
-                button.disabled = true;
-                button.textContent = "جاري الحفظ...";
+                button.disabled = true; button.textContent = "جاري الحفظ...";
                 
                 const releaseTime = delayMinutes > 0 ? Date.now() + delayMinutes * 60 * 1000 : 0;
                 const p = preventGoBackCheckbox.checked;
-                const testData = { 
-                    name: n, 
-                    grade: g, 
-                    duration: parseInt(d), 
-                    preventGoBack: p, 
-                    questions: questionsArray, 
-                    timestamp: Date.now(), 
-                    releaseTime: releaseTime,
-                    isAI: !!testNameInput.dataset.isAiGenerated // Add AI flag only if generated
-                };
+                const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, questions: questionsArray, timestamp: Date.now(), releaseTime: releaseTime, isAI: !!testNameInput.dataset.isAiGenerated };
                 try {
                     if (currentEditingTestId) {
                         await set(ref(db, `tests/${currentUser}/${currentEditingTestId}`), testData);
@@ -2129,8 +2105,7 @@
                 } catch (error) {
                     showCustomAlert("خطأ", "حدث خطأ أثناء الحفظ.");
                 } finally {
-                    button.disabled = false;
-                    button.textContent = originalText;
+                    button.disabled = false; button.textContent = currentEditingTestId ? "تحديث الاختبار" : "حفظ الاختبار";
                 }
             };
             
@@ -2269,22 +2244,16 @@
                     } else { await update(ref(db, `users/${currentUser}`), updates); showCustomAlert("نجاح", "تم تحديث كلمة المرور بنجاح!"); settingsModal.classList.remove('visible'); }
                 } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); console.error(e); }
             };
-
-            // --- Assessments Management Logic ---
+            
             function renderMyAssessments(filter = '') {
                 myAssessmentsContainer.innerHTML = "";
                 const assessments = Object.entries(myAssessments).sort((a, b) => b[1].timestamp - a[1].timestamp);
 
-                if (assessments.length === 0) {
-                    myAssessmentsContainer.innerHTML = "<p>لم تقم برفع أي تقييمات.</p>";
-                    return;
-                }
+                if (assessments.length === 0) { myAssessmentsContainer.innerHTML = "<p>لم تقم برفع أي تقييمات.</p>"; return; }
 
                 let found = false;
                 assessments.forEach(([key, assessment]) => {
-                    if (filter && assessment.text && !assessment.text.toLowerCase().includes(filter.toLowerCase())) {
-                        return;
-                    }
+                    if (filter && assessment.text && !assessment.text.toLowerCase().includes(filter.toLowerCase())) return;
                     found = true;
                     const itemDiv = document.createElement('div');
                     itemDiv.className = 'list-item';
@@ -2301,9 +2270,7 @@
                     myAssessmentsContainer.appendChild(itemDiv);
                 });
 
-                if (!found && filter) {
-                    myAssessmentsContainer.innerHTML = "<p>لا توجد تقييمات مطابقة لبحثك.</p>";
-                }
+                if (!found && filter) myAssessmentsContainer.innerHTML = "<p>لا توجد تقييمات مطابقة لبحثك.</p>";
                 
                 myAssessmentsContainer.querySelectorAll('[data-action="delete"]').forEach(btn => btn.onclick = () => deleteAssessment(btn.dataset.key));
                 myAssessmentsContainer.querySelectorAll('[data-action="edit"]').forEach(btn => btn.onclick = () => openEditAssessmentModal(btn.dataset.key));
@@ -2314,9 +2281,7 @@
                     try {
                         await remove(ref(db, `assessments/${key}`));
                         showCustomAlert("نجاح", "تم حذف التقييم بنجاح.");
-                    } catch (e) {
-                        showCustomAlert("خطأ", "حدث خطأ أثناء الحذف.");
-                    }
+                    } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء الحذف."); }
                 }
             }
             
@@ -2344,22 +2309,16 @@
                 if (!currentEditingAssessmentKey) return;
                 
                 const newText = document.getElementById('edit-assessment-text').value.trim();
-                const updates = {
-                    text: newText,
-                    imageUrl: editAssessmentImageBase64
-                };
+                const updates = { text: newText, imageUrl: editAssessmentImageBase64 };
 
                 try {
                     await update(ref(db, `assessments/${currentEditingAssessmentKey}`), updates);
                     showCustomAlert("نجاح", "تم تحديث التقييم بنجاح.");
                     editAssessmentModal.classList.remove('visible');
-                } catch(e) {
-                    showCustomAlert("خطأ", "فشل تحديث التقييم.");
-                }
+                } catch(e) { showCustomAlert("خطأ", "فشل تحديث التقييم."); }
             };
             
             editAssessmentModal.querySelector('.modal-close-btn').onclick = () => editAssessmentModal.classList.remove('visible');
-
         }
 
         async function initStudentApp() {
@@ -2387,22 +2346,12 @@
             async function showLastSubmittedResult({ testId, teacherId }) {
                 const testRef = ref(db, `tests/${teacherId}/${testId}`);
                 const testSnap = await get(testRef);
-                if (!testSnap.exists()) {
-                    sessionStorage.removeItem('lastSubmittedTest');
-                    showSection(dashboard);
-                    loadDashboard();
-                    return;
-                }
+                if (!testSnap.exists()) { sessionStorage.removeItem('lastSubmittedTest'); showSection(dashboard); loadDashboard(); return; }
                 currentTest = { ...testSnap.val(), id: testId, teacherId, isPractice: false };
 
                 const resultRef = ref(db, `studentResults/${currentStudent}/${testId}`);
                 const resultSnap = await get(resultRef);
-                if (!resultSnap.exists()) {
-                     sessionStorage.removeItem('lastSubmittedTest');
-                     showSection(dashboard);
-                     loadDashboard();
-                     return;
-                }
+                if (!resultSnap.exists()) { sessionStorage.removeItem('lastSubmittedTest'); showSection(dashboard); loadDashboard(); return; }
                 const resultData = resultSnap.val();
                 finalScore.textContent = `درجتك: ${resultData.score}`;
 
@@ -2417,16 +2366,9 @@
                     feedbackMsg.style.color = 'var(--text-primary)';
                     feedbackMsg.style.textAlign = 'center';
                     if (percentage < 60) {
-                        feedbackMsg.innerHTML = `
-                            <p style="margin-bottom: 10px;">يا لهوي اعمل ايه معاك تاني بقى... حاول تحسن من نفسك شويه</p>
-                            <img src="https://i.postimg.cc/HntKF5f2/download-13.png" style="max-width: 150px; border-radius: 8px;">
-                        `;
+                        feedbackMsg.innerHTML = `<p style="margin-bottom: 10px;">حاول مرة أخرى لتحسين نتيجتك.</p><img src="https://i.postimg.cc/HntKF5f2/download-13.png" style="max-width: 150px; border-radius: 8px;">`;
                     } else {
-                        feedbackMsg.innerHTML = `
-                            <p style="margin-bottom: 10px;">مش بطال يلا ماشي</p>
-                            <img src="https://i.postimg.cc/2862CPvY/download-12.png" style="max-width: 150px; border-radius: 8px;">
-                            
-                        `;
+                        feedbackMsg.innerHTML = `<p style="margin-bottom: 10px;">أحسنت! نتيجة جيدة.</p><img src="https://i.postimg.cc/2862CPvY/download-12.png" style="max-width: 150px; border-radius: 8px;">`;
                     }
                 }
                 showSection(result);
@@ -2499,7 +2441,6 @@
                 const testEntries = [];
                 Object.entries(allTests).forEach(([teacherId, teacherTests]) => {
                     Object.entries(teacherTests)
-                        // تصفية: عرض الاختبارات التي لم تنته مدتها (48 ساعة) وتم نشرها (releaseTime <= now أو releaseTime غير موجود)
                         .filter(([testId, test]) => (now - test.timestamp < 48 * 60 * 60 * 1000) && (!test.releaseTime || test.releaseTime <= now))
                         .forEach(([testId, test]) => { testEntries.push({ teacherId, testId, test }); }); 
                 });
@@ -2575,7 +2516,7 @@
                     portalHeader.classList.add('hidden');
                 }
                 if (!testData.questions || testData.questions.length === 0) {
-                    showCustomAlert("خطأ", "هذا الاختبار لا يحتوي على أسئلة ولا يمكن بدؤه.");
+                    showCustomAlert("خطأ", "هذا الاختبار لا يحتوي على أسئلة.");
                     return;
                 }
                 currentTest = { ...testData, id: testId, teacherId, isPractice };
@@ -2643,7 +2584,7 @@
             
             window.saveAnswer=(idx,val,type)=>{if(type==='mcq')answers[idx]={type:'mcq',answer:parseInt(val)};else if(type==='essay-text'){if(!answers[idx])answers[idx]={type:'essay'};answers[idx].textAnswer=val}};
             window.handleEssayImageUpload=async(idx,input)=>{const file=input.files[0];if(file){const b64=await getBase64(file);if(!answers[idx])answers[idx]={type:'essay'};answers[idx].imageAnswer=b64;input.previousElementSibling.innerHTML=`<i class="fas fa-check-circle"></i> تم الرفع!`}};
-            function saveCurrentAnswer(){const q=currentTest.questions[qIndex];if(q.type==='mcq'){const c=questionsDisplay.querySelector(`input[name="question-${qIndex}"]:checked`);if(c)answers[qIndex]={type:'mcq',answer:parseInt(c.value)}}else{const t=questionsDisplay.querySelector(`#text-answer-${qIndex}`).value;if(t.trim()!==''||(answers[qIndex]&&answers[qIndex].imageAnswer)){if(!answers[idx])answers[idx]={type:'essay'};answers[idx].textAnswer=t}}}
+            function saveCurrentAnswer(){const q=currentTest.questions[qIndex];if(q.type==='mcq'){const c=questionsDisplay.querySelector(`input[name="question-${qIndex}"]:checked`);if(c)answers[qIndex]={type:'mcq',answer:parseInt(c.value)}}else{const t=questionsDisplay.querySelector(`#text-answer-${qIndex}`).value;if(t.trim()!==''||(answers[qIndex]&&answers[qIndex].imageAnswer)){if(!answers[qIndex])answers[qIndex]={type:'essay'};answers[qIndex].textAnswer=t}}}
             nextQBtn.onclick=()=>{if(qIndex<currentTest.questions.length-1){saveCurrentAnswer();qIndex++;renderQuestion(qIndex)}};
             prevQBtn.onclick=()=>{if(qIndex>0){saveCurrentAnswer();qIndex--;renderQuestion(qIndex)}};
             
@@ -2657,10 +2598,8 @@
                 const totalTestPoints = currentTest.questions.reduce((s, q) => s + (q.points || 1), 0);
                 
                 currentTest.questions.forEach((q, idx) => {
-                    if (q.type === 'mcq') { 
-                        if (answers[idx] && parseInt(answers[idx].answer) === parseInt(q.correct)) {
-                            mcqScore += (q.points || 1);
-                        }
+                    if (q.type === 'mcq' && answers[idx] && parseInt(answers[idx].answer) === parseInt(q.correct)) {
+                        mcqScore += (q.points || 1);
                     }
                 });
                 
@@ -2674,12 +2613,9 @@
                     const resultObj = { testId: currentTest.id, testName: currentTest.name, teacherName: currentTest.teacherId, timestamp: serverTimestamp(), answers: answers, mcqScore: mcqScore, status: hasEssays ? 'pending' : 'graded', score: scoreString };
                     await set(ref(db, `studentResults/${currentStudent}/${currentTest.id}`), resultObj); 
                     await set(ref(db, `results/${currentTest.teacherId}/${currentTest.id}/${currentStudent}`), resultObj);
-                    takenTests[currentTest.id] = { ...resultObj, timestamp: Date.now() }; // Add timestamp for local sorting
+                    takenTests[currentTest.id] = { ...resultObj, timestamp: Date.now() };
                     
-                    sessionStorage.setItem('lastSubmittedTest', JSON.stringify({
-                        testId: currentTest.id,
-                        teacherId: currentTest.teacherId
-                    }));
+                    sessionStorage.setItem('lastSubmittedTest', JSON.stringify({ testId: currentTest.id, teacherId: currentTest.teacherId }));
                     
                     if (hasEssays) { 
                         feedbackMsg.style.cssText = "background: rgba(255, 193, 7, 0.2); color: var(--warning-primary);"; 
@@ -2690,37 +2626,18 @@
                         feedbackMsg.style.color = 'var(--text-primary)';
                         feedbackMsg.style.textAlign = 'center';
                         if (percentage < 60) {
-                            feedbackMsg.innerHTML = `
-                                <p style="margin-bottom: 10px;">يا لهوي اعمل ايه معاك تاني بقى... حاول تحسن من نفسك شويه</p>
-                                <img src="https://i.postimg.cc/HntKF5f2/download-13.png" style="max-width: 150px; border-radius: 8px;">
-                            `;
+                            feedbackMsg.innerHTML = `<p style="margin-bottom: 10px;">حاول مرة أخرى لتحسين نتيجتك.</p><img src="https://i.postimg.cc/HntKF5f2/download-13.png" style="max-width: 150px; border-radius: 8px;">`;
                         } else {
-                            feedbackMsg.innerHTML = `
-                                <p style="margin-bottom: 10px;">مش بطال يلا ماشي</p>
-                                <img src="https://i.postimg.cc/2862CPvY/download-12.png" style="max-width: 150px; border-radius: 8px;">
-                            `;
+                            feedbackMsg.innerHTML = `<p style="margin-bottom: 10px;">أحسنت! نتيجة جيدة.</p><img src="https://i.postimg.cc/2862CPvY/download-12.png" style="max-width: 150px; border-radius: 8px;">`;
                         }
                     }
                 }
 
-                if (isDeepLinkSession) {
-                    backToDashboardBtn.textContent = 'الخروج';
-                    backFromReviewBtn.textContent = 'الخروج';
-                } else {
-                    backToDashboardBtn.textContent = 'العودة للرئيسية';
-                    backFromReviewBtn.textContent = 'العودة';
-                }
-
+                backToDashboardBtn.textContent = isDeepLinkSession ? 'الخروج' : 'العودة للرئيسية';
+                backFromReviewBtn.textContent = isDeepLinkSession ? 'الخروج' : 'العودة';
                 showSection(result);
             }
-            submitBtn.onclick=async (e)=>{ 
-                const button = e.target;
-                if (await showCustomConfirm('تأكيد التسليم', 'هل أنت متأكد من رغبتك في تسليم الاختبار؟')) { 
-                    button.disabled = true;
-                    submitTest(false);
-                    button.disabled = false;
-                } 
-            };
+            submitBtn.onclick=async ()=>{ if (await showCustomConfirm('تأكيد التسليم', 'هل أنت متأكد من رغبتك في تسليم الاختبار؟')) submitTest(false) };
             
             const handleExitTestSession = () => {
                 sessionStorage.removeItem('lastSubmittedTest');
@@ -2743,12 +2660,8 @@
                         html = '<div>' + q.options.map((option, idx) => {
                             const optionNum = idx + 1;
                             let classes = 'review-option';
-                            if (optionNum === parseInt(q.correct)) {
-                                classes += ' correct-answer-highlight';
-                            }
-                            if (ans.answer && parseInt(ans.answer) === optionNum && parseInt(ans.answer) !== parseInt(q.correct)) {
-                                classes += ' incorrect-answer-highlight';
-                            }
+                            if (optionNum === parseInt(q.correct)) classes += ' correct-answer-highlight';
+                            if (ans.answer && parseInt(ans.answer) === optionNum && parseInt(ans.answer) !== parseInt(q.correct)) classes += ' incorrect-answer-highlight';
                             return `<div class="${classes}">${option}</div>`;
                         }).join('') + '</div>';
                     } else { 
@@ -2843,10 +2756,7 @@
             
             const createInstantBackFunction = (button) => {
                 button.onclick = () => {
-                     if (testsNavBtn) {
-                        // تم حذف الإجراء go:3 والتأخير
-                        testsNavBtn.click();
-                    }
+                     if (testsNavBtn) testsNavBtn.click();
                 };
             };
             createInstantBackFunction(backFromAssessmentsBtn);
@@ -2912,7 +2822,7 @@
         }
 
         async function shareTest(testName) {
-            const shareText = `ابحث بهذا الاسم: ${testName}\nوهذا رابط التطبيق إذا لم يكن عندك: ${appUrl}`;
+            const shareText = `ابحث بهذا الاسم: ${testName}\nوهذا رابط التطبيق: ${appUrl}`;
             try {
                 if (navigator.share) {
                     await navigator.share({ text: shareText });
@@ -2922,8 +2832,6 @@
                 }
             } catch (err) {
                 console.error("Share failed:", err);
-                await navigator.clipboard.writeText(shareText);
-                showCustomAlert('تم النسخ', 'فشلت المشاركة، ولكن تم نسخ البيانات بنجاح!');
             }
         }
         
@@ -3105,8 +3013,10 @@
             } 
             else { 
                 mainLandingPage.classList.remove('hidden'); 
-                sloganWidget.classList.remove('hidden');
-                loadSloganWidgetData();
+                if (sloganWidget) {
+                    sloganWidget.classList.remove('hidden');
+                    loadSloganWidgetData();
+                }
             }
         };
 
@@ -3121,6 +3031,7 @@
             });
         }
          async function loadSloganWidgetData() {
+            if (!sloganWidget) return;
             const sloganImage = document.getElementById('slogan-image');
             const sloganText = document.getElementById('slogan-text');
             try {
@@ -3128,11 +3039,11 @@
                 const snapshot = await get(sloganRef);
                 if (snapshot.exists()) {
                     const data = snapshot.val();
-                    if (data.imageUrl) {
+                    if (data.imageUrl && sloganImage) {
                         sloganImage.src = data.imageUrl;
                         sloganImage.alt = data.text || 'شعار';
                     }
-                    if (data.text) {
+                    if (data.text && sloganText) {
                         sloganText.textContent = data.text;
                     }
                 }
@@ -3140,7 +3051,6 @@
                 console.error("Could not load slogan widget data:", error);
             }
         }
-
 
     </script>
 
