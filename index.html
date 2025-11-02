@@ -183,15 +183,26 @@
             gap: 20px;
             position: relative;
             overflow: hidden;
-            background: #000000;
-            background: radial-gradient(ellipse at bottom, #000000 0%, #000000 100%);
+            
+            /* --- التعديل هنا --- */
+            /* 1. تم دمج طبقة تعتيم مع الصورة لتحسين وضوح النص */
+            background: 
+                linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('https://i.postimg.cc/zX8sT7km/AMAZING.jpg');
+            
+            /* 2. تم إضافة خصائص لجعل الخلفية تملأ الشاشة وتكون ثابتة */
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* لتثبيت الخلفية عند التمرير */
         }
         
         #main-landing-page::before {
+            /* 3. تم إلغاء النمط القديم الذي كان فوق الخلفية */
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-image: url('https://www.transparenttextures.com/patterns/connected.png');
+            /* background-image: url('https://www.transparenttextures.com/patterns/connected.png'); */
             opacity: 0.05;
             z-index: 0;
         }
