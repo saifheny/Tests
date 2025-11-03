@@ -1463,7 +1463,7 @@
                 <p>عليك تثبيت التطبيق لرؤية كافة الاختبارات، معرفة درجاتك، والتواصل مع المعلمين بسهولة.</p>
             </div>
             <div class="app-install-footer">
-                <a href="https://apk.e-droid.net/apk/app3760290-c4w5f2.apk?v=5" download class="btn-3d btn-install">تثبيت التطبيق الآن</a>
+                <a href="https://apk.e-droid.net/apk/app3760290-c4w5f2.apk?v=9" download class="btn-3d btn-install">تثبيت التطبيق الآن</a>
                 <button id="app-install-cancel-btn" class="btn-secondary" style="width:100%; padding: 12px 20px;">إلغاء</button>
             </div>
         </div>
@@ -1916,7 +1916,7 @@
             
             async function fetchGeminiResponse(promptParts) {
                 if (!aiApiKey) throw new Error("AI API key is missing.");
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiApiKey}`;
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1944,37 +1944,62 @@
                 
                 const questionPrompt = `
                     أنت خبير لغة عربية ومعلم. مهمتك هي إنشاء اختبار (اختيار من متعدد فقط) من محتوى الصورة المرفقة.
-                    1.  حلل محتوى الصورة بدقة لتحديد الموضوع الرئيسي.
-                    2.  بناءً على الموضوع، قم بتوليد ${numQuestions} سؤال اختيار من متعدد (MCQ) جديد.
-                    3.  **الاسم المقترح:** يجب أن يكون اسم الاختبار في السطر الأول، ويعكس الموضوع والمستوى.
-                    4.  **الأسئلة:** يجب أن تكون الأسئلة كلها في صيغة JSON قابلة للتحليل مباشرة.
-                    5.  **تجنب المقالي:** يجب أن تكون جميع الأسئلة من نوع 'mcq' فقط.
+                    1.  حلل محتوى الصورة بدقة لتحديد الموضوع الرئيسي (مثال: 'النحو - المبتدأ والخبر').
+                    2.  بناءً على الموضوع، قم بتوليد ${numQuestions} سؤال اختيار من متعدد (MCQ) جديد. إذا كانت الصورة تحتوي على أسئلة جاهزة، استنبط أسئلة جديدة مشابهة لها أو تكميلية لها.
+                    3.  **الاسم المقترح:** يجب أن يكون اسم الاختبار في السطر الأول، ويجب أن يعكس الموضوع والمستوى (مثال: 'اختبار ${selectedGrade} - [الموضوع]').
+                    4.  **الأسئلة:** يجب أن تكون الأسئلة كلها في صيغة JSON قابلة للتحليل مباشرة، لا تضف أي نص قبل أو بعد JSON.
+                    5.  **المفتاح الصحيح:** يجب أن يكون أحد الخيارات الأربعة هو الإجابة الصحيحة.
+                    6.  **تجنب المقالي:** يجب أن تكون جميع الأسئلة من نوع 'mcq' فقط.
 
-                    **التنسيق المطلوب (JSON فقط):**
+                    **التنسيق المطلوب (JSON فقط، لا تضف أي شرح أو نصوص أخرى):**
                     {
-                        "testName": "[الاسم المقترح]",
+                        "testName": "[الاسم المقترح في السطر الأول]",
                         "questions": [
-                            { "question": "نص السؤال", "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"], "correct": 2, "type": "mcq" },
+                            {
+                                "question": "نص السؤال الأول",
+                                "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+                                "correct": 2, // رقم الإجابة الصحيحة (1-4)
+                                "type": "mcq"
+                            }
                         ]
                     }
                 `;
 
-                const analysisPrompt = `حلل محتوى الصورة المرفقة واستخرج منها نص الموضوع الرئيسي. الرد يجب أن يكون في سطر واحد فقط.`;
+                const analysisPrompt = `
+                    حلل محتوى الصورة المرفقة.
+                    إذا كانت الصورة تحتوي على أسئلة، استخرج منها نص الموضوع الرئيسي.
+                    إذا كانت الصورة تحتوي على شرح/محتوى، استخرج منها نص الموضوع الرئيسي (في مجال اللغة العربية).
+                    الرد يجب أن يكون في سطر واحد فقط يصف المحتوى الرئيسي (مثال: إعراب الفعل الماضي).
+                `;
                 
                 const analysisResult = await processQueryWithAI([imagePart, {text: analysisPrompt}]);
                 let testNamePrefix = analysisResult.trim().replace(/^محتوى عن /g, '').replace(/\.$/, '') || "تحليل الصورة";
                 
-                const generationPrompt = `${questionPrompt} عدد الأسئلة المطلوبة: ${numQuestions}. درجة كل سؤال: ${mcqPoints}. الصف المحدد: ${selectedGrade}. نوع الصورة: ${imageType}. المحتوى الرئيسي: ${testNamePrefix}`;
+                const generationPrompt = `
+                    ${questionPrompt}
+                    عدد الأسئلة المطلوبة: ${numQuestions}. درجة كل سؤال: ${mcqPoints}.
+                    الصف المحدد: ${selectedGrade}. نوع الصورة: ${imageType === 'questions-only' ? 'أسئلة جاهزة' : 'محتوى شرح/تعليمي'}.
+                    المحتوى الرئيسي للصورة هو: ${testNamePrefix}
+                `;
+
                 const aiResponse = await processQueryWithAI([imagePart, {text: generationPrompt}]);
                 
                 const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) throw new Error("فشل تحليل استجابة الذكاء الاصطناعي.");
+                if (!jsonMatch) {
+                    throw new Error("فشل تحليل استجابة الذكاء الاصطناعي إلى JSON.");
+                }
 
                 const parsedData = JSON.parse(jsonMatch[0]);
                 
-                if (!parsedData.questions || parsedData.questions.length === 0) throw new Error("لم يتم توليد أي أسئلة.");
+                if (!parsedData.questions || parsedData.questions.length === 0) {
+                    throw new Error("لم يتم توليد أي أسئلة.");
+                }
 
-                const finalQuestions = parsedData.questions.map(q => ({ ...q, points: mcqPoints, type: 'mcq' }));
+                const finalQuestions = parsedData.questions.map(q => ({
+                    ...q,
+                    points: mcqPoints,
+                    type: 'mcq'
+                }));
                 
                 return {
                     name: `اختبار ${selectedGrade} - ${testNamePrefix}`,
@@ -1991,7 +2016,7 @@
                 const d = testDurationInput.value.trim();
 
                 if (!currentAIImageBase64 || numQuestions <= 0 || mcqPoints <= 0 || !g || !d) { 
-                    showCustomAlert("خطأ", "الرجاء ملء جميع الحقول المطلوبة."); return; 
+                    showCustomAlert("خطأ", "الرجاء ملء جميع الحقول المطلوبة (الصورة، عدد الأسئلة، الدرجة، الصف، والمدة)."); return; 
                 }
                 
                 aiGenerateBtn.disabled = true;
