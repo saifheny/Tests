@@ -27,7 +27,7 @@
             --accent-secondary: #60a5fa; --success-color: #10b981; --success-glow: rgba(16, 185, 129, 0.5);
             --success-bg: rgba(16, 185, 129, 0.2); --danger-color: #ef4444; --danger-glow: rgba(239, 68, 68, 0.5);
             --danger-bg: rgba(239, 68, 68, 0.2); --success-gradient: linear-gradient(180deg, var(--success-color) 0%, #047857 100%);
-            --success-border: #065f46; --danger-primary: #ef4444; --danger-border: #dc2626; --warning-primary: #f59e0b;
+            --success-border: #065f46; --danger-primary: #ef4444; --danger-border: #b91c1c; --warning-primary: #f59e0b;
             --shadow-color-heavy: rgba(0,0,0,0.8); --shadow-color-light: rgba(0,0,0,0.6); --inset-shadow-light: rgba(255,255,255,0.05);
             --inset-shadow-dark: rgba(0,0,0,0.8);
         }
@@ -149,14 +149,12 @@
         .student-test-item-container { background: var(--bg-secondary); border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px var(--shadow-color-heavy), inset 0 1px 1px var(--inset-shadow-light); border: 1px solid var(--border-primary); overflow: hidden; transition: all 0.3s ease; }
         .student-test-item-container:hover { border-color: var(--accent-secondary); transform: translateY(-3px); box-shadow: 0 8px 25px var(--accent-primary); }
         .student-test-actions-bar { display: flex; justify-content: space-around; background: var(--border-secondary); padding: 8px; border-bottom: 1px solid var(--border-primary); }
-        .student-test-actions-bar .action-icon { background: var(--border-primary); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 5px var(--shadow-color-heavy), inset 0 1px 1px var(--inset-shadow-light); font-size: 1.1rem; }
-        .student-test-actions-bar .action-icon:hover { color: #fff; transform: translateY(-3px) scale(1.1); box-shadow: 0 4px 10px var(--shadow-color-heavy); }
-        .action-icon[title="ابدأ الاختبار"]:hover { background-color: #238636; }
-        .action-icon[title="مراجعة النتيجة"]:hover { background-color: #8957e5; }
-        .action-icon[title^="مراسلة"]:hover { background-color: #1f6feb; }
-        .action-icon[title="مشاركة رابط الاختبار"]:hover { background-color: #e3b341; }
-        .action-icon[title="إعادة (تدريب)"]:hover { background-color: #bf5507; }
-        .student-test-card { padding: 12px 15px; display: flex; flex-direction: column; gap: 6px; position: relative; }
+        .student-test-actions-bar .action-icon { color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.1s ease-in-out; font-size: 1.1rem; border-bottom: 4px solid var(--danger-border); background-color: var(--danger-primary); box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 -2px 1px rgba(255,255,255,0.2); }
+        .student-test-actions-bar .action-icon i { color: #fff !important; }
+        .student-test-actions-bar .action-icon:hover { transform: translateY(-2px) scale(1.1); box-shadow: 0 6px 12px rgba(0,0,0,0.5), inset 0 -2px 1px rgba(255,255,255,0.2); border-bottom-width: 6px; }
+        .student-test-actions-bar .action-icon:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0,0,0,0.4), inset 0 1px 1px rgba(0,0,0,0.8); border-bottom-width: 3px; }
+        .action-icon[title="مشاركة رابط الاختبار"] { background: var(--warning-primary); border-bottom-color: #b45309; }
+        .student-test-card { padding: 15px; }
         .pinned-badge { position: absolute; top: 10px; left: 10px; color: var(--warning-primary); font-size: 1.2rem; text-shadow: 0 0 5px var(--warning-primary); }
         #my-student-results-container .test-item:not(:last-child) { border-bottom: 2px solid var(--border-primary); }
         #my-student-results-container .test-item { border-radius: 0; margin-bottom: 0; border-left: none; border-right: none; border-top: none; }
@@ -167,8 +165,8 @@
         #search-bar:focus, #teacher-search-bar:focus { background-color: var(--bg-tertiary); }
         .dashboard-header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .dashboard-header-controls .header-buttons { display: flex; gap: 10px; }
-        .filter-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; margin-bottom: 20px; }
-        .filter-chip { background: var(--border-secondary); border: 1px solid var(--border-primary); color: var(--text-secondary); padding: 5px 15px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+        .filter-chips { display: flex; gap: 8px; justify-content: flex-start; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 8px; -ms-overflow-style: none; scrollbar-width: none; } .filter-chips::-webkit-scrollbar { display: none; }
+        .filter-chip { background: var(--border-secondary); border: 1px solid var(--border-primary); color: var(--text-secondary); padding: 5px 15px; border-radius: 20px; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; flex-shrink: 0; }
         .filter-chip:hover { background: var(--border-primary); color: var(--text-primary); }
         .filter-chip.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary-border); font-weight: 600; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 2000; display: flex; justify-content: center; align-items: flex-start; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; overflow-y: auto; padding: 40px 15px; }
@@ -206,6 +204,9 @@
         .dialog-buttons button.btn-secondary { background: var(--border-secondary); color: var(--text-primary); border-bottom: 4px solid var(--bg-tertiary); }
         .dialog-buttons button.btn-secondary:hover { transform: translateY(-2px); border-bottom-width: 6px; background: var(--border-primary); }
         .dialog-buttons button.btn-secondary:active { transform: translateY(1px); border-bottom-width: 3px; }
+        .test-main-info { text-align: right; }
+        .test-grade-badge { display: inline-block; background: var(--border-primary); color: var(--accent-secondary); padding: 3px 12px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; border: 1px solid var(--border-secondary); }
+        .test-name { font-weight: bold; font-size: 1.0rem; color: var(--text-primary); }
         @keyframes dialog-pop-in { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes icon-bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
         .question-options { display: flex; flex-direction: column; gap: 10px; }
@@ -892,18 +893,25 @@
                 
                 const allTests = Object.entries(myTests);
                 const filter = teacherSearchBar.value.toLowerCase();
-                const activeFilter = teacherFilterContainer.querySelector('.active')?.dataset.grade || 'all';
-
+                
                 // Update filters
                 const grades = [...new Set(allTests.map(([id, test]) => test.grade))];
-                teacherFilterContainer.innerHTML = '<button class="filter-chip active" data-grade="all">الكل</button>';
+                teacherFilterContainer.innerHTML = '<div class="filter-chip active" data-grade="all">الكل</div>';
                 grades.forEach(grade => {
-                    if(grade) teacherFilterContainer.innerHTML += `<button class="filter-chip" data-grade="${grade}">${grade}</button>`;
+                    if(grade) {
+                        const isHighlighted = grade === 'الصف الأول الثانوي' || grade === 'الصف الثاني الثانوي';
+                        const highlightStyle = isHighlighted ? 'border: 2px solid var(--accent-primary); box-shadow: 0 0 8px var(--accent-secondary); background-color: color-mix(in srgb, var(--accent-primary) 15%, transparent);' : '';
+                        teacherFilterContainer.innerHTML += `<div class="filter-chip" data-grade="${grade}" style="${highlightStyle}">${grade}</div>`;
+                    }
                 });
+
+                const activeFilter = teacherFilterContainer.querySelector('.active')?.dataset.grade || 'all';
+
                 teacherFilterContainer.querySelectorAll('.filter-chip').forEach(chip => {
                     if (chip.dataset.grade === activeFilter) chip.classList.add('active');
                     chip.onclick = (e) => {
-                        teacherFilterContainer.querySelector('.active').classList.remove('active');
+                        const currentActive = teacherFilterContainer.querySelector('.active');
+                        if (currentActive) currentActive.classList.remove('active');
                         e.target.classList.add('active');
                         renderMyTests();
                     };
@@ -1616,10 +1624,6 @@
                 
                 const itemContainer = document.createElement('div');
                 itemContainer.className = 'student-test-item-container';
-                if (isPinned) {
-                    itemContainer.style.border = '2px solid var(--warning-primary)';
-                    itemContainer.style.boxShadow = '0 0 15px var(--warning-primary)';
-                }
 
                 const actionsBar = document.createElement('div');
                 actionsBar.className = 'student-test-actions-bar';
@@ -1663,8 +1667,7 @@
                 testsContainer.innerHTML='<div class="spinner"></div>';
                 const now = Date.now();
                 const filter = searchBar.value.toLowerCase();
-                const activeFilter = studentFilterContainer.querySelector('.active')?.dataset.grade || 'all';
-
+                
                 const pinnedTestsRef = ref(db, 'config/pinnedTests');
                 const pinnedSnap = await get(pinnedTestsRef);
                 const pinnedPaths = pinnedSnap.exists() ? Object.values(pinnedSnap.val() || {}) : [];
@@ -1688,16 +1691,23 @@
                         .forEach(([testId, test]) => { allTestEntries.push({ teacherId, testId, ...test }); }); 
                 });
 
-                // Update filters
                 const grades = [...new Set(allTestEntries.map(test => test.grade))];
                 studentFilterContainer.innerHTML = '<div class="filter-chip active" data-grade="all">الكل</div>';
                 grades.forEach(grade => {
-                    if(grade) studentFilterContainer.innerHTML += `<div class="filter-chip" data-grade="${grade}">${grade}</div>`;
+                    if(grade) {
+                        const isHighlighted = grade === 'الصف الأول الثانوي' || grade === 'الصف الثاني الثانوي';
+                        const highlightStyle = isHighlighted ? 'border: 2px solid var(--accent-primary); box-shadow: 0 0 8px var(--accent-secondary); background-color: color-mix(in srgb, var(--accent-primary) 15%, transparent);' : '';
+                        studentFilterContainer.innerHTML += `<div class="filter-chip" data-grade="${grade}" style="${highlightStyle}">${grade}</div>`;
+                    }
                 });
+                
+                const activeFilter = studentFilterContainer.querySelector('.active')?.dataset.grade || 'all';
+
                 studentFilterContainer.querySelectorAll('.filter-chip').forEach(chip => {
                     if (chip.dataset.grade === activeFilter) chip.classList.add('active');
                     chip.onclick = (e) => {
-                        studentFilterContainer.querySelector('.active').classList.remove('active');
+                        const currentActive = studentFilterContainer.querySelector('.active');
+                        if(currentActive) currentActive.classList.remove('active');
                         e.target.classList.add('active');
                         renderAvailableTests();
                     };
@@ -1706,42 +1716,44 @@
                 testsContainer.innerHTML='';
                 let foundTests = false;
 
-                // Render pinned tests only if "all" filter is selected
                 if (activeFilter === 'all') {
                     pinnedTests
                         .filter(test => test.name.toLowerCase().includes(filter) || test.teacherId.toLowerCase().includes(filter))
-                        .sort((a,b) => b.timestamp - a.timestamp)
                         .forEach(test => {
                             testsContainer.appendChild(createTestCard(test.teacherId, test.testId, test, true));
                             foundTests = true;
                         });
-                }
 
-                // Render other tests
-                allTestEntries
-                    .filter(test => {
-                        const isPinned = pinnedPaths.includes(`${test.teacherId}/${test.testId}`);
-                        if (isPinned && activeFilter === 'all') return false; 
-                        
-                        const matchesSearch = test.name.toLowerCase().includes(filter) || test.teacherId.toLowerCase().includes(filter);
-                        const matchesFilter = activeFilter === 'all' || test.grade === activeFilter;
-                        return matchesSearch && matchesFilter;
-                    })
-                    .sort((a, b) => b.timestamp - a.timestamp)
-                    .forEach(test => {
-                        testsContainer.appendChild(createTestCard(test.teacherId, test.testId, test, false));
-                        foundTests = true;
-                    });
+                    allTestEntries
+                        .filter(test => {
+                            const isPinned = pinnedPaths.includes(`${test.teacherId}/${test.testId}`);
+                            if (isPinned) return false;
+                            return test.name.toLowerCase().includes(filter) || test.teacherId.toLowerCase().includes(filter);
+                        })
+                        .sort((a, b) => b.timestamp - a.timestamp)
+                        .forEach(test => {
+                            testsContainer.appendChild(createTestCard(test.teacherId, test.testId, test, false));
+                            foundTests = true;
+                        });
+                } else {
+                    allTestEntries
+                        .filter(test => {
+                            const isPinned = pinnedPaths.includes(`${test.teacherId}/${test.testId}`);
+                            if (isPinned) return false;
+                            
+                            const matchesSearch = test.name.toLowerCase().includes(filter) || test.teacherId.toLowerCase().includes(filter);
+                            const matchesFilter = test.grade === activeFilter;
+                            return matchesSearch && matchesFilter;
+                        })
+                        .sort((a, b) => b.timestamp - a.timestamp)
+                        .forEach(test => {
+                            testsContainer.appendChild(createTestCard(test.teacherId, test.testId, test, false));
+                            foundTests = true;
+                        });
+                }
                 
                 if(!foundTests) {
-                    if (allTestEntries.length === 0 && pinnedTests.length === 0) {
-                        testsContainer.innerHTML='<div style="text-align:center; padding: 40px 0;"><p>لا توجد اختبارات متاحة حاليًا.</p></div>';
-                        refreshBtn.style.display = 'none';
-                    } else {
-                        testsContainer.innerHTML='<p>لا توجد نتائج مطابقة لبحثك أو الفئة المحددة.</p>';
-                    }
-                } else {
-                     refreshBtn.style.display = 'flex';
+                    testsContainer.innerHTML='<p>لا توجد اختبارات متاحة تطابق بحثك أو الفئة المحددة.</p>';
                 }
             }
 
