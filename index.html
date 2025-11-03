@@ -184,25 +184,20 @@
             position: relative;
             overflow: hidden;
             
-            /* --- التعديل هنا --- */
-            /* 1. تم دمج طبقة تعتيم مع الصورة لتحسين وضوح النص */
             background: 
                 linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
                 url('https://i.postimg.cc/zX8sT7km/AMAZING.jpg');
             
-            /* 2. تم إضافة خصائص لجعل الخلفية تملأ الشاشة وتكون ثابتة */
             background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
-            background-attachment: fixed; /* لتثبيت الخلفية عند التمرير */
+            background-attachment: fixed;
         }
         
         #main-landing-page::before {
-            /* 3. تم إلغاء النمط القديم الذي كان فوق الخلفية */
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            /* background-image: url('https://www.transparenttextures.com/patterns/connected.png'); */
             opacity: 0.05;
             z-index: 0;
         }
@@ -620,10 +615,22 @@
         }
         
         /* Inline input styling for points */
-        #ai-mcq-points, #ai-num-questions {
-            width: 100px;
+        .ai-input-row input {
+            width: 80px;
             display: inline-block;
             margin-bottom: 0;
+            margin-right: 10px;
+        }
+        .ai-input-row {
+            display: flex; 
+            gap: 10px; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 15px;
+        }
+        .ai-input-row label {
+            margin: 0; 
+            flex-shrink: 0;
         }
 
         /* --- Student Portal --- */
@@ -1209,13 +1216,17 @@
                             </div>
 
                             <div class="ai-options-group">
-                                <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                                    <label for="ai-num-questions" style="margin: 0; flex-shrink: 0;">عدد الأسئلة المطلوب (MCQ):</label>
-                                    <input type="number" id="ai-num-questions" min="1" placeholder="مثال: 10" />
+                                <div class="ai-input-row">
+                                    <label for="ai-num-questions">أسئلة اختيارية (MCQ):</label>
+                                    <input type="number" id="ai-num-questions" min="0" placeholder="العدد" value="5" />
+                                    <label for="ai-mcq-points">الدرجة:</label>
+                                    <input type="number" id="ai-mcq-points" min="1" placeholder="الدرجة" value="1" />
                                 </div>
-                                <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between; margin-bottom: 5px;">
-                                    <label for="ai-mcq-points" style="margin: 0; flex-shrink: 0;">درجة كل سؤال (MCQ):</label>
-                                    <input type="number" id="ai-mcq-points" min="1" placeholder="1" value="1" />
+                                <div class="ai-input-row">
+                                    <label for="ai-num-essay-questions">أسئلة مقالية:</label>
+                                    <input type="number" id="ai-num-essay-questions" min="0" placeholder="العدد" value="0"/>
+                                    <label for="ai-essay-points">الدرجة:</label>
+                                    <input type="number" id="ai-essay-points" min="1" placeholder="الدرجة" value="5" />
                                 </div>
                                 <div class="checkbox-container"><input type="checkbox" id="ai-allow-increase" disabled><label for="ai-allow-increase">السماح للـ AI بزيادة عدد الأسئلة (متاح فقط مع محتوى/شرح)</label></div>
                             </div>
@@ -1637,6 +1648,8 @@
             let currentAIImageBase64 = null;
             const aiNumQuestionsInput = document.getElementById('ai-num-questions');
             const aiMcqPointsInput = document.getElementById('ai-mcq-points');
+            const aiNumEssayQuestionsInput = document.getElementById('ai-num-essay-questions');
+            const aiEssayPointsInput = document.getElementById('ai-essay-points');
             const aiAllowIncreaseCheckbox = document.getElementById('ai-allow-increase');
             const scheduledReleaseDelayInput = document.getElementById('scheduled-release-delay');
             
@@ -1750,9 +1763,10 @@
             function renderMyTests(filter = '') {
                 myTestsContainer.innerHTML = "";
                 if (countdownInterval) clearInterval(countdownInterval);
-                const allTests = Object.entries(myTests).filter(([id, test]) => (Date.now() - test.timestamp < 48 * 60 * 60 * 1000) || (test.releaseTime && test.releaseTime > Date.now()));
+
+                const allTests = Object.entries(myTests);
                 
-                if (allTests.length === 0) { myTestsContainer.innerHTML = "<p>لم تقم بإنشاء أي اختبارات نشطة.</p>"; return; }
+                if (allTests.length === 0) { myTestsContainer.innerHTML = "<p>لم تقم بإنشاء أي اختبارات.</p>"; return; }
                 
                 let found = false;
                 allTests.sort((a,b) => b[1].timestamp - a[1].timestamp).forEach(([testId, test]) => {
@@ -1763,14 +1777,13 @@
                     const isScheduled = test.releaseTime && test.releaseTime > Date.now();
                     const statusText = isScheduled ? ' (مجدول)' : '';
                     const aiFlag = test.isAI ? ' <i class="fas fa-robot" title="تم التوليد بالذكاء الاصطناعي"></i>' : '';
-                    const expiryTime = isScheduled ? test.releaseTime : test.timestamp + 48 * 60 * 60 * 1000;
 
                     const testCard = document.createElement('div'); testCard.className = 'list-item';
                     testCard.style.cssText = `flex-direction: column; align-items: stretch; padding: 12px; gap: 10px; opacity: ${isScheduled ? '0.7' : '1'};`;
                     testCard.innerHTML = `
                         <div style="font-weight: bold; font-size: 1.1rem; text-align: right;">${test.name} ${statusText} ${aiFlag}</div>
                         <div style="font-size: 0.9rem; color: var(--text-secondary); text-align: right;">${test.grade} - ${test.duration} دقيقة</div>
-                        <div class="test-countdown" data-timestamp="${expiryTime}" data-is-scheduled="${isScheduled ? 'true' : 'false'}"></div>
+                        ${isScheduled ? `<div class="test-countdown" data-timestamp="${test.releaseTime}"></div>` : ''}
                         <div style="display: flex; gap: 8px; margin-top: 10px;">
                             <button class="action-btn btn-secondary" data-action="share" title="مشاركة" style="flex-grow: 1;"><i class="fas fa-share-alt"></i></button>
                             <button class="action-btn btn-secondary" data-action="results" title="النتائج" style="flex-grow: 1;"><i class="fas fa-poll-h"></i></button>
@@ -1794,30 +1807,19 @@
             function startCountdownTimers(){
                 const update = () => {
                     document.querySelectorAll('.test-countdown').forEach(el => {
-                        const expiryTime = parseInt(el.dataset.timestamp);
-                        const isScheduled = el.dataset.isScheduled === 'true';
-                        const remaining = expiryTime - Date.now();
+                        const releaseTime = parseInt(el.dataset.timestamp);
+                        const remaining = releaseTime - Date.now();
                         
-                        if (isScheduled) {
-                            if (remaining > 0) {
-                                const hours = Math.floor(remaining / (1000 * 60 * 60));
-                                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                                const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-                                el.textContent = `ينشر خلال: ${hours} س و ${minutes} د و ${seconds} ث`;
-                            } else {
-                                el.textContent = "تم النشر (ينتهي خلال 48 ساعة)";
-                                el.dataset.isScheduled = 'false';
-                                el.dataset.timestamp = expiryTime + 48 * 60 * 60 * 1000;
-                            }
+                        if (remaining > 0) {
+                            const hours = Math.floor(remaining / (1000 * 60 * 60));
+                            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+                            el.textContent = `ينشر خلال: ${hours} س و ${minutes} د و ${seconds} ث`;
                         } else {
-                            if(remaining > 0){
-                                const hours = Math.floor(remaining / (1000 * 60 * 60));
-                                const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                                el.textContent = `ينتهي خلال: ${hours} س و ${minutes} د`;
-                            } else {
-                                el.textContent = "انتهى";
-                                el.parentElement.style.opacity = '0.5';
-                            }
+                           el.textContent = "تم النشر";
+                           el.style.color = 'var(--success-color)';
+                           // Optionally remove the element after a delay
+                           setTimeout(() => el.remove(), 5000);
                         }
                     });
                 };
@@ -1907,8 +1909,10 @@
                 currentAIImageBase64 = null; 
                 aiImagePreviewContainer.classList.add('hidden'); 
                 aiImagePreview.src = '#';
-                aiNumQuestionsInput.value = '';
+                aiNumQuestionsInput.value = '5';
                 aiMcqPointsInput.value = '1';
+                aiNumEssayQuestionsInput.value = '0';
+                aiEssayPointsInput.value = '5';
                 aiAllowIncreaseCheckbox.checked = false;
                 aiAllowIncreaseCheckbox.disabled = true;
                 aiImageTypeSwitcher.querySelector('.switch-button[data-type="questions-only"]').click();
@@ -1937,51 +1941,37 @@
                 }
             }
 
-            async function generateTestFromAI(imageType, numQuestions, mcqPoints, selectedGrade, selectedDuration, allowIncrease) {
+            async function generateTestFromAI(numMCQ, mcqPoints, numEssay, essayPoints) {
                 const base64Parts = currentAIImageBase64.split(';base64,');
                 const mimeType = base64Parts[0].replace('data:', '');
                 const imagePart = { inline_data: { mime_type: mimeType, data: base64Parts[1] } };
                 
-                const questionPrompt = `
-                    أنت خبير لغة عربية ومعلم. مهمتك هي إنشاء اختبار (اختيار من متعدد فقط) من محتوى الصورة المرفقة.
-                    1.  حلل محتوى الصورة بدقة لتحديد الموضوع الرئيسي (مثال: 'النحو - المبتدأ والخبر').
-                    2.  بناءً على الموضوع، قم بتوليد ${numQuestions} سؤال اختيار من متعدد (MCQ) جديد. إذا كانت الصورة تحتوي على أسئلة جاهزة، استنبط أسئلة جديدة مشابهة لها أو تكميلية لها.
-                    3.  **الاسم المقترح:** يجب أن يكون اسم الاختبار في السطر الأول، ويجب أن يعكس الموضوع والمستوى (مثال: 'اختبار ${selectedGrade} - [الموضوع]').
-                    4.  **الأسئلة:** يجب أن تكون الأسئلة كلها في صيغة JSON قابلة للتحليل مباشرة، لا تضف أي نص قبل أو بعد JSON.
-                    5.  **المفتاح الصحيح:** يجب أن يكون أحد الخيارات الأربعة هو الإجابة الصحيحة.
-                    6.  **تجنب المقالي:** يجب أن تكون جميع الأسئلة من نوع 'mcq' فقط.
+                const generationPrompt = `
+                    أنت خبير تعليمي متخصص في اللغة العربية. مهمتك هي إنشاء اختبار من محتوى الصورة المرفقة.
+                    المطلوب توليد ${numMCQ} سؤال اختيار من متعدد (MCQ) و ${numEssay} سؤال مقالي.
 
-                    **التنسيق المطلوب (JSON فقط، لا تضف أي شرح أو نصوص أخرى):**
+                    1.  **حلل الصورة:** استخرج الموضوع الرئيسي من الصورة (مثال: 'النحو - المبتدأ والخبر', 'البلاغة - التشبيه', 'قصة عنترة بن شداد').
+                    2.  **اسم الاختبار:** قم باقتراح اسم للاختبار يعكس الموضوع الرئيسي فقط. لا تضف اسم الصف الدراسي.
+                    3.  **الأسئلة:** يجب أن تكون جميع الأسئلة في صيغة JSON قابلة للتحليل مباشرة. لا تضف أي نص قبل أو بعد الـ JSON.
+                    
+                    **التنسيق المطلوب (JSON فقط):**
                     {
-                        "testName": "[الاسم المقترح في السطر الأول]",
+                        "testName": "[الاسم المقترح الذي يعكس الموضوع فقط]",
                         "questions": [
                             {
-                                "question": "نص السؤال الأول",
+                                "question": "نص سؤال الاختيار من متعدد...",
                                 "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
-                                "correct": 2, // رقم الإجابة الصحيحة (1-4)
+                                "correct": 2,
                                 "type": "mcq"
+                            },
+                            {
+                                "question": "نص السؤال المقالي...",
+                                "type": "essay"
                             }
                         ]
                     }
                 `;
-
-                const analysisPrompt = `
-                    حلل محتوى الصورة المرفقة.
-                    إذا كانت الصورة تحتوي على أسئلة، استخرج منها نص الموضوع الرئيسي.
-                    إذا كانت الصورة تحتوي على شرح/محتوى، استخرج منها نص الموضوع الرئيسي (في مجال اللغة العربية).
-                    الرد يجب أن يكون في سطر واحد فقط يصف المحتوى الرئيسي (مثال: إعراب الفعل الماضي).
-                `;
                 
-                const analysisResult = await processQueryWithAI([imagePart, {text: analysisPrompt}]);
-                let testNamePrefix = analysisResult.trim().replace(/^محتوى عن /g, '').replace(/\.$/, '') || "تحليل الصورة";
-                
-                const generationPrompt = `
-                    ${questionPrompt}
-                    عدد الأسئلة المطلوبة: ${numQuestions}. درجة كل سؤال: ${mcqPoints}.
-                    الصف المحدد: ${selectedGrade}. نوع الصورة: ${imageType === 'questions-only' ? 'أسئلة جاهزة' : 'محتوى شرح/تعليمي'}.
-                    المحتوى الرئيسي للصورة هو: ${testNamePrefix}
-                `;
-
                 const aiResponse = await processQueryWithAI([imagePart, {text: generationPrompt}]);
                 
                 const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
@@ -1997,37 +1987,38 @@
 
                 const finalQuestions = parsedData.questions.map(q => ({
                     ...q,
-                    points: mcqPoints,
-                    type: 'mcq'
+                    points: q.type === 'mcq' ? mcqPoints : essayPoints,
                 }));
                 
                 return {
-                    name: `اختبار ${selectedGrade} - ${testNamePrefix}`,
-                    grade: selectedGrade,
-                    duration: selectedDuration, 
+                    name: parsedData.testName || "اختبار مولّد بالذكاء الاصطناعي",
                     questions: finalQuestions
                 };
             }
             
             aiGenerateBtn.onclick = async () => {
-                const numQuestions = parseInt(aiNumQuestionsInput.value);
-                const mcqPoints = parseInt(aiMcqPointsInput.value);
-                const g = testGradeSelect.value;
-                const d = testDurationInput.value.trim();
+                const numMCQ = parseInt(aiNumQuestionsInput.value) || 0;
+                const mcqPoints = parseInt(aiMcqPointsInput.value) || 1;
+                const numEssay = parseInt(aiNumEssayQuestionsInput.value) || 0;
+                const essayPoints = parseInt(aiEssayPointsInput.value) || 5;
 
-                if (!currentAIImageBase64 || numQuestions <= 0 || mcqPoints <= 0 || !g || !d) { 
-                    showCustomAlert("خطأ", "الرجاء ملء جميع الحقول المطلوبة (الصورة، عدد الأسئلة، الدرجة، الصف، والمدة)."); return; 
+                if (!currentAIImageBase64) { 
+                    showCustomAlert("خطأ", "الرجاء إرفاق صورة المصدر أولاً."); return; 
+                }
+                if (numMCQ === 0 && numEssay === 0) {
+                    showCustomAlert("خطأ", "الرجاء تحديد عدد أسئلة أكبر من صفر لنوع واحد على الأقل."); return;
                 }
                 
                 aiGenerateBtn.disabled = true;
-                aiGenerateBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 10px;"></div> جاري التوليد...';
+                aiGenerateBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>';
 
                 try {
-                    const generatedTest = await generateTestFromAI(aiImageContentType, numQuestions, mcqPoints, g, parseInt(d), aiAllowIncreaseCheckbox.checked);
+                    const generatedTest = await generateTestFromAI(numMCQ, mcqPoints, numEssay, essayPoints);
                     questionsArray = generatedTest.questions;
                     renderQuestionsList();
                     testNameInput.value = generatedTest.name;
-                    showCustomAlert("نجاح", `تم توليد ${questionsArray.length} أسئلة بنجاح!`);
+                    testNameInput.dataset.isAiGenerated = true; // Flag as AI generated
+                    showCustomAlert("نجاح", `تم توليد ${questionsArray.length} أسئلة بنجاح! يرجى مراجعتها.`);
                 } catch (error) {
                     showCustomAlert("خطأ", `فشل توليد الاختبار. ${error.message}`);
                 } finally {
@@ -2477,7 +2468,7 @@
                 const testEntries = [];
                 Object.entries(allTests).forEach(([teacherId, teacherTests]) => {
                     Object.entries(teacherTests)
-                        .filter(([testId, test]) => (now - test.timestamp < 48 * 60 * 60 * 1000) && (!test.releaseTime || test.releaseTime <= now))
+                        .filter(([testId, test]) => !test.releaseTime || test.releaseTime <= now)
                         .forEach(([testId, test]) => { testEntries.push({ teacherId, testId, test }); }); 
                 });
                 
@@ -2528,15 +2519,11 @@
                     const card = document.createElement('div');
                     card.className = 'student-test-card';
                     
-                    const expiryTime = new Date(test.timestamp + 48 * 60 * 60 * 1000);
-                    const formattedExpiry = `ينتهي: ${expiryTime.toLocaleDateString('ar-EG')} ${expiryTime.toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'})}`;
-
                     card.innerHTML = `
                         <div class="test-main-info">
                             <span class="test-grade-badge">${test.grade || 'عام'}</span>
                             <div class="test-name" title="${test.name}">${test.name}</div>
-                        </div>
-                        <div class="test-expiry">${formattedExpiry}</div>`;
+                        </div>`;
                     
                     itemContainer.append(actionsBar, card);
                     testsContainer.appendChild(itemContainer);
