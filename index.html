@@ -31,6 +31,13 @@
             --shadow-color-heavy: rgba(0,0,0,0.8); --shadow-color-light: rgba(0,0,0,0.6); --inset-shadow-light: rgba(255,255,255,0.05);
             --inset-shadow-dark: rgba(0,0,0,0.8);
         }
+        .day-mode {
+            --bg-primary: #ffffff; --bg-secondary: #f8f9fa; --bg-tertiary: #e9ecef; --border-primary: #dee2e6;
+            --border-secondary: #ced4da; --text-primary: #212529; --text-secondary: #6c757d; --accent-primary: #007bff;
+            --accent-primary-gradient: linear-gradient(180deg, #007bff 0%, #0056b3 100%); --accent-primary-border: #004085;
+            --accent-secondary: #0069d9; --shadow-color-heavy: rgba(0,0,0,0.2); --shadow-color-light: rgba(0,0,0,0.1);
+            --inset-shadow-light: rgba(0,0,0,0.05); --inset-shadow-dark: rgba(255,255,255,0.8);
+        }
         .desert-mode {
             --bg-primary: #fdf6e3; --bg-secondary: #f5eeda; --bg-tertiary: #eee8d5; --border-primary: #d3cbbd;
             --border-secondary: #e6e0d2; --text-primary: #2c2622; --text-secondary: #8a7a66; --accent-primary: #d2691e;
@@ -161,7 +168,7 @@
         #my-student-results-container-wrapper { border: 1px solid var(--border-primary); border-radius: 12px; overflow: hidden; }
         #my-student-results-container-wrapper .test-item:first-child { border-top: none;}
         #search-bar, #teacher-search-bar { background-color: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: 25px; padding: 10px 45px 10px 20px; font-size: 1rem; position: relative; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238b949e' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: calc(100% - 15px) center; transition: all 0.3s ease-in-out; margin-bottom:20px; width: 100%; }
-        .desert-mode #search-bar, .desert-mode #teacher-search-bar { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23584c3c' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); }
+        .desert-mode #search-bar, .desert-mode #teacher-search-bar, .day-mode #search-bar, .day-mode #teacher-search-bar { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23584c3c' class='bi bi-search' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E"); }
         #search-bar:focus, #teacher-search-bar:focus { background-color: var(--bg-tertiary); }
         .dashboard-header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .dashboard-header-controls .header-buttons { display: flex; gap: 10px; }
@@ -170,15 +177,15 @@
         .filter-chip:hover { background: var(--border-primary); color: var(--text-primary); }
         .filter-chip.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary-border); font-weight: 600; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 2000; display: flex; justify-content: center; align-items: flex-start; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; overflow-y: auto; padding: 40px 15px; }
-        .desert-mode .modal-overlay { background: rgba(253, 246, 227, 0.7); }
+        .desert-mode .modal-overlay, .day-mode .modal-overlay { background: rgba(253, 246, 227, 0.7); }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
         .modal-close-btn { position: absolute; top: 10px; left: 10px; width: 30px; height: 30px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 50%; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; z-index: 10; transition: transform 0.3s, background-color 0.3s; }
-        .desert-mode .modal-close-btn { background: rgba(0,0,0,0.1); color: var(--text-primary); border-color: rgba(0,0,0,0.2); }
+        .desert-mode .modal-close-btn, .day-mode .modal-close-btn { background: rgba(0,0,0,0.1); color: var(--text-primary); border-color: rgba(0,0,0,0.2); }
         .modal-close-btn:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
-        .desert-mode .modal-close-btn:hover { background: rgba(0,0,0,0.2); }
+        .desert-mode .modal-close-btn:hover, .day-mode .modal-close-btn:hover { background: rgba(0,0,0,0.2); }
         .modal-body { flex-grow: 1; }
         .modal-footer { margin-top: 20px; flex-shrink: 0; }
-        #teacher-review-modal .modal-content, #edit-assessment-modal .modal-content { max-width: 800px; }
+        #teacher-review-modal .modal-content { max-width: 800px; }
         .review-option { padding: 10px; border-radius: 8px; margin-bottom: 5px; border: 1px solid var(--border-primary); background: var(--bg-secondary); text-align: right; }
         .review-option.correct-answer-highlight { background: var(--success-bg); border-color: var(--success-color); color: var(--text-primary); box-shadow: 0 0 10px var(--success-glow); }
         .review-option.incorrect-answer-highlight { background: var(--danger-bg); border-color: var(--danger-color); color: var(--text-primary); text-decoration: line-through; }
@@ -189,7 +196,7 @@
         .image-viewer-controls { display: none; }
         .image-modal-download-btn { position: absolute; top: 20px; right: 20px; z-index: 3010; border-radius: 50%; text-decoration: none; background: rgba(40, 40, 40, 0.8); color: #fff; border: none; width: 45px; height: 45px; font-size: 18px; display: flex; align-items: center; justify-content: center; }
         .custom-dialog-overlay { position:fixed; inset:0; display:flex; justify-content:center; align-items:center; background:rgba(0,0,0,.7); backdrop-filter: blur(5px); opacity:0; visibility:hidden; transition:opacity .3s; z-index:9999; }
-        .desert-mode .custom-dialog-overlay { background: rgba(253, 246, 227, 0.6); }
+        .desert-mode .custom-dialog-overlay, .day-mode .custom-dialog-overlay { background: rgba(253, 246, 227, 0.6); }
         .custom-dialog-overlay.show { opacity:1; visibility:visible; }
         .custom-dialog-overlay.show .custom-dialog { transform: scale(1); opacity: 1; animation: dialog-pop-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .custom-dialog { background: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: 20px; padding: 25px 30px; width: 90%; max-width: 420px; text-align: center; box-shadow: 0 10px 40px var(--shadow-color-heavy); border-top: 5px solid var(--accent-primary); transform:scale(0.9); opacity:0; transition:transform .3s,opacity .3s, background-color 0.4s, border-color 0.4s; }
@@ -218,7 +225,7 @@
         .checkbox-container input[type="checkbox"] + label::before { border-radius: 6px; }
         .question-options input[type="radio"]:checked + span::before, .checkbox-container input[type="checkbox"]:checked + label::before { background-color: var(--accent-primary); border-color: var(--accent-secondary); box-shadow: 0 0 0 3px var(--bg-primary), 0 0 0 5px var(--accent-primary); }
         .checkbox-container input[type="checkbox"]:checked + label::after { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 23px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #fff; }
-        .desert-mode .checkbox-container input[type="checkbox"]:checked + label::after { color: var(--bg-primary); }
+        .desert-mode .checkbox-container input[type="checkbox"]:checked + label::after, .day-mode .checkbox-container input[type="checkbox"]:checked + label::after { color: var(--bg-primary); }
         #app-install-prompt-modal .custom-dialog { padding: 0; overflow: hidden; border-top: none; }
         .app-install-header { padding: 20px; text-align: center; }
         .app-install-header img { width: 80px; height: 80px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 4px 15px var(--shadow-color-heavy); }
@@ -231,8 +238,8 @@
         #slogan-widget:hover { transform: translateY(-2px) translateX(-50%); box-shadow: 0 4px 15px var(--shadow-color-light); }
         #slogan-widget img { width: 30px; height: 30px; }
         #slogan-widget span { font-weight: bold; text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.2), 1px 1px 0px rgba(255,255,255,0.2), 1.5px 1.5px 3px var(--shadow-color-heavy); }
-        .desert-mode #slogan-widget { background: rgba(255,255,255,0.5); color: var(--text-primary); border-color: rgba(0,0,0,0.2); }
-        .desert-mode #slogan-widget span { text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.2), 1px 1px 0px rgba(0,0,0,0.2), 1.5px 1.5px 3px var(--shadow-color-heavy); }
+        .desert-mode #slogan-widget, .day-mode #slogan-widget { background: rgba(255,255,255,0.5); color: var(--text-primary); border-color: rgba(0,0,0,0.2); }
+        .desert-mode #slogan-widget span, .day-mode #slogan-widget span { text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.2), 1px 1px 0px rgba(0,0,0,0.2), 1.5px 1.5px 3px var(--shadow-color-heavy); }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -317,19 +324,14 @@
             <section id="teacher-dashboard-section" class="hidden">
                 <div id="teacher-tests-content" class="tab-content">
                     <div class="dashboard-header-controls">
-                        <h2>محتوياتي</h2>
+                        <h2>الاختبارات الخاصة بي</h2>
                          <div class="header-buttons">
                              <button id="teacher-refresh-btn" class="icon-btn" title="تحديث"><i class="fas fa-sync-alt"></i></button>
                         </div>
                     </div>
-                    <div class="switch-button-container" id="teacher-view-switcher">
-                        <button class="switch-button active" data-view="tests">الاختبارات</button>
-                        <button class="switch-button" data-view="assessments">التقييمات</button>
-                    </div>
-                    <input type="text" id="teacher-search-bar" placeholder="ابحث..."/>
+                    <input type="text" id="teacher-search-bar" placeholder="ابحث عن اختبار..."/>
                     <div id="teacher-filter-container" class="filter-chips"></div>
                     <div id="my-tests-container"></div>
-                    <div id="my-assessments-container" class="hidden"></div>
                 </div>
                 <div id="teacher-results-content" class="tab-content hidden">
                     <h2>نتائج الطلاب</h2>
@@ -337,11 +339,6 @@
                     <div id="student-results-container"></div>
                 </div>
                  <div id="teacher-create-content" class="tab-content hidden">
-                    <div class="switch-button-container">
-                        <button class="switch-button active" data-type="test">إنشاء اختبار</button>
-                        <button class="switch-button" data-type="assessment">رفع تقييم</button>
-                    </div>
-
                     <div id="teacher-create-test-content">
                         <h2 id="create-edit-title">إنشاء اختبار جديد</h2>
                         
@@ -419,21 +416,6 @@
                         <button id="save-test-btn" class="btn-primary" style="margin-top: 20px; background: var(--success-gradient); border-bottom-color: var(--success-border);">حفظ الاختبار</button>
                         <button id="cancel-test-edit-btn" class="btn-secondary hidden" style="margin-top: 10px;">إلغاء التعديل</button>
                     </div>
-                     <div id="teacher-create-assessment-content" class="hidden">
-                        <h2>رفع تقييمات جديدة</h2>
-                        <label for="assessment-image-input" class="file-input-label"><i class="fas fa-image"></i> <span>اختر صورة التقييم (إجباري)</span></label>
-                        <input type="file" id="assessment-image-input" accept="image/*" class="hidden" required>
-                        <div class="image-preview-container hidden"><img class="image-preview" src="#" alt="معاينة التقييم" /></div>
-                        <label for="assessment-text">نص التقييم (اختياري):</label>
-                        <textarea id="assessment-text" rows="4"></textarea>
-                        <button id="add-assessment-btn" class="btn-secondary" style="margin-top: 10px;">إضافة تقييم للقائمة</button>
-                        <hr/>
-                        <h3>قائمة التقييمات المجهزة للرفع</h3>
-                        <div id="pending-assessments-list">
-                            <p>لا توجد تقييمات في القائمة بعد.</p>
-                        </div>
-                        <button id="save-all-assessments-btn" class="btn-primary hidden" style="margin-top: 20px;">حفظ جميع التقييمات</button>
-                    </div>
                 </div>
             </section>
         </div>
@@ -455,23 +437,16 @@
                 <input type="text" id="teacher-update-name" placeholder="الاسم الكامل الجديد">
                 <label for="teacher-update-password">كلمة المرور الجديدة:</label>
                 <input type="password" id="teacher-update-password" placeholder="اتركها فارغة لعدم التغيير">
-                <button id="teacher-update-btn" class="btn-primary" style="margin-top: 10px;">تحديث الحساب</button>
-            </div>
-        </div>
-        <div id="edit-assessment-modal" class="modal-overlay">
-            <div class="modal-content">
-                <button class="modal-close-btn">&times;</button>
-                <h2>تعديل التقييم</h2>
-                <div class="modal-body">
-                    <label for="edit-assessment-image-input" class="file-input-label"><i class="fas fa-image"></i> <span>تغيير صورة التقييم</span></label>
-                    <input type="file" id="edit-assessment-image-input" accept="image/*" class="hidden">
-                    <div class="image-preview-container"><img id="edit-assessment-image-preview" class="image-preview" src="#" alt="معاينة التقييم" /></div>
-                    <label for="edit-assessment-text">نص التقييم:</label>
-                    <textarea id="edit-assessment-text" rows="4"></textarea>
+                <div id="theme-settings-container" style="margin-top: 15px; text-align: right;">
+                    <label>إعدادات المظهر:</label>
+                    <select id="theme-selector" style="width: 100%; margin-top: 5px;">
+                        <option value="auto">تلقائي (حسب الوقت)</option>
+                        <option value="night">الوضع الليلي</option>
+                        <option value="day">الوضع النهاري</option>
+                        <option value="desert">الوضع الصحراوي</option>
+                    </select>
                 </div>
-                <div class="modal-footer">
-                    <button id="update-assessment-btn" class="btn-primary">تحديث التقييم</button>
-                </div>
+                <button id="teacher-update-btn" class="btn-primary" style="margin-top: 10px;">تحديث</button>
             </div>
         </div>
     </div>
@@ -480,9 +455,7 @@
     <div id="student-portal" class="portal-container hidden">
          <nav class="top-nav hidden" id="student-top-nav">
             <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book-open"></i><span>الاختبارات</span></button>
-            <button class="nav-btn" data-target="student-assessments-content"><i class="fas fa-clipboard-check"></i><span>التقييمات</span></button>
             <button class="nav-btn" data-target="student-results-content"><i class="fas fa-poll-h"></i><span>نتائجي</span></button>
-            <button class="nav-btn" data-target="student-books-content"><i class="fas fa-book"></i><span>الكتب</span></button>
         </nav>
          <header class="portal-header-controls hidden">
             <h1>مرحبًا بك، <span id="student-name"></span>!</h1>
@@ -525,15 +498,6 @@
                     <div id="available-tests-container"></div>
                 </div>
                 <div class="tab-content hidden" id="student-results-content"><h2>نتائجي السابقة</h2><div id="my-student-results-container-wrapper"><div id="my-student-results-container"></div></div></div>
-                <div class="tab-content hidden" id="student-assessments-content">
-                    <button id="back-to-dashboard-from-assessments-btn" class="btn-secondary" style="width: auto; padding: 10px 20px !important; margin-bottom:15px;">العودة</button>
-                    <h2>التقييمات والأداء</h2>
-                    <div id="assessments-container"></div>
-                </div>
-                 <div class="tab-content hidden" id="student-books-content" style="height: calc(100vh - 120px); display: flex; flex-direction: column;">
-                    <button id="back-to-dashboard-from-books-btn" class="btn-secondary" style="width: auto; padding: 10px 20px !important; margin-bottom:15px; flex-shrink: 0;">العودة</button>
-                    <iframe id="books-iframe" style="flex-grow: 1; width: 100%; height: 100%; border: none; border-radius: 8px;"></iframe>
-                </div>
             </section>
             <section id="take-test-section" class="hidden">
                 <h2 id="current-test-title"></h2>
@@ -571,6 +535,15 @@
                 <input type="text" id="student-update-name" placeholder="الاسم الكامل الجديد">
                 <label for="student-update-password">كلمة المرور الجديدة:</label>
                 <input type="password" id="student-update-password" placeholder="اتركها فارغة لعدم التغيير">
+                 <div id="student-theme-settings-container" style="margin-top: 15px; text-align: right;">
+                    <label>إعدادات المظهر:</label>
+                    <select id="student-theme-selector" style="width: 100%; margin-top: 5px;">
+                        <option value="auto">تلقائي (حسب الوقت)</option>
+                        <option value="night">الوضع الليلي</option>
+                        <option value="day">الوضع النهاري</option>
+                        <option value="desert">الوضع الصحراوي</option>
+                    </select>
+                </div>
                 <button id="student-update-btn" class="btn-primary" style="margin-top:10px;">تحديث الحساب</button>
             </div>
         </div>
@@ -711,39 +684,63 @@
         
         const themeToggleButtons = document.querySelectorAll('.theme-toggle-btn');
         const body = document.body;
+        let themeInterval;
 
         function applyTheme(theme) {
+            body.classList.remove('day-mode', 'desert-mode'); 
             themeToggleButtons.forEach(button => {
                 const icon = button.querySelector('i');
+                icon.classList.remove('fa-sun', 'fa-moon', 'fa-cloud-sun');
                 if (theme === 'desert') {
                     body.classList.add('desert-mode');
-                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-cloud-sun');
+                } else if (theme === 'day') {
+                    body.classList.add('day-mode');
+                     icon.classList.add('fa-sun');
+                } else { // night mode
                     icon.classList.add('fa-moon');
-                } else {
-                    body.classList.remove('desert-mode');
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
                 }
             });
         }
-
-        function toggleTheme() {
-            const currentTheme = body.classList.contains('desert-mode') ? 'desert' : 'night';
-            const newTheme = currentTheme === 'desert' ? 'night' : 'desert';
-            applyTheme(newTheme);
-            localStorage.setItem('preferredTheme', newTheme);
+        
+        function getAutoTheme() {
+            const hour = new Date().getHours();
+            return (hour >= 6 && hour < 18) ? 'day' : 'night';
         }
 
         function initializeTheme() {
-            const savedTheme = localStorage.getItem('preferredTheme');
-            if (savedTheme) {
-                applyTheme(savedTheme);
+            const savedTheme = localStorage.getItem('preferredTheme') || 'auto';
+            
+            if (themeInterval) clearInterval(themeInterval);
+
+            if (savedTheme === 'auto') {
+                applyTheme(getAutoTheme());
+                themeInterval = setInterval(() => applyTheme(getAutoTheme()), 60000); 
             } else {
-                applyTheme('night'); // Default to night mode for the new design
+                applyTheme(savedTheme);
             }
+            
+            document.querySelectorAll('#theme-selector, #student-theme-selector').forEach(selector => {
+                if (selector) selector.value = savedTheme;
+            });
         }
         
-        themeToggleButtons.forEach(button => button.addEventListener('click', toggleTheme));
+        function setThemePreference(theme) {
+            localStorage.setItem('preferredTheme', theme);
+            initializeTheme();
+        }
+
+        document.querySelectorAll('#theme-selector, #student-theme-selector').forEach(selector => {
+            if (selector) selector.addEventListener('change', (e) => setThemePreference(e.target.value));
+        });
+        
+        themeToggleButtons.forEach(button => button.addEventListener('click', () => {
+            const currentTheme = localStorage.getItem('preferredTheme') || 'auto';
+            const themes = ['auto', 'night', 'day', 'desert'];
+            const nextThemeIndex = (themes.indexOf(currentTheme) + 1) % themes.length;
+            setThemePreference(themes[nextThemeIndex]);
+        }));
+        
         initializeTheme();
 
 
@@ -753,7 +750,6 @@
             const settingsModal = teacherPortal.querySelector('#teacher-settings-modal');
             const teacherNameSpan = teacherPortal.querySelector("#teacher-name"), topNav = teacherPortal.querySelector('#teacher-top-nav'), myTestsContainer = teacherPortal.querySelector("#my-tests-container");
             const resultsTestSelector = teacherPortal.querySelector("#results-test-selector"), studentResultsContainer = teacherPortal.querySelector("#student-results-container");
-            const createContent = document.getElementById('teacher-create-content');
             const createTestSection = teacherPortal.querySelector('#teacher-create-test-content'), testNameInput = teacherPortal.querySelector("#test-name"), testGradeSelect = teacherPortal.querySelector("#test-grade"), testDurationInput = teacherPortal.querySelector("#test-duration");
             const preventGoBackCheckbox = teacherPortal.querySelector("#prevent-go-back-checkbox");
             const questionText = teacherPortal.querySelector("#question-text"), optionInputs = teacherPortal.querySelectorAll(".option-input"), questionPointsInput = teacherPortal.querySelector("#question-points");
@@ -765,24 +761,9 @@
             const teacherSearchBar = document.getElementById('teacher-search-bar');
             const teacherFilterContainer = document.getElementById('teacher-filter-container');
             
-            const createAssessmentSection = document.getElementById('teacher-create-assessment-content');
-            const addAssessmentBtn = document.getElementById('add-assessment-btn');
-            const saveAllAssessmentsBtn = document.getElementById('save-all-assessments-btn');
-            const pendingAssessmentsList = document.getElementById('pending-assessments-list');
-            const assessmentImageInput = document.getElementById('assessment-image-input');
-            const assessmentText = document.getElementById('assessment-text');
-            
-            const teacherViewSwitcher = document.getElementById('teacher-view-switcher');
-            const myAssessmentsContainer = document.getElementById('my-assessments-container');
-            const editAssessmentModal = document.getElementById('edit-assessment-modal');
-            let currentEditingAssessmentKey = null;
-            let editAssessmentImageBase64 = null;
-            
-            let currentAssessmentImageBase64 = null;
-            let pendingAssessments = [];
             let currentCorrectAnswer = 0;
 
-            let currentUser = null, myTests = {}, myAssessments = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
+            let currentUser = null, myTests = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
             
             const aiImageInput = document.getElementById('ai-question-image-input');
             const aiImagePreviewContainer = document.getElementById('ai-image-preview-container');
@@ -816,33 +797,15 @@
             navButtons.forEach(button => { button.addEventListener('click', () => { navButtons.forEach(btn=>btn.classList.remove('active')); teacherPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden')); button.classList.add('active'); teacherPortal.querySelector(`#${button.dataset.target}`).classList.remove('hidden'); if(button.dataset.target === 'teacher-create-content' && !currentEditingTestId) resetCreateFormState(); }); });
             const setDefaultTab = () => navButtons[0].click();
             
-            createContent.querySelectorAll('.switch-button-container .switch-button').forEach(btn => btn.addEventListener('click', (e) => {
+            document.getElementById('question-type-switcher').querySelectorAll('.switch-button').forEach(btn => btn.addEventListener('click', (e) => {
                 const container = e.target.parentElement;
                 container.querySelectorAll('.switch-button').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
+                currentQuestionType = e.target.dataset.type;
+                teacherPortal.querySelector("#mcq-fields").classList.toggle('hidden', currentQuestionType !== 'mcq');
+                teacherPortal.querySelector("#essay-fields").classList.toggle('hidden', currentQuestionType !== 'essay');
+            }));
 
-                if (container.id === 'question-type-switcher') {
-                     currentQuestionType = e.target.dataset.type;
-                     teacherPortal.querySelector("#mcq-fields").classList.toggle('hidden', currentQuestionType !== 'mcq');
-                     teacherPortal.querySelector("#essay-fields").classList.toggle('hidden', currentQuestionType !== 'essay');
-                } else {
-                    const type = e.target.dataset.type;
-                    createTestSection.classList.toggle('hidden', type !== 'test');
-                    createAssessmentSection.classList.toggle('hidden', type !== 'assessment');
-                }
-            }));
-            
-            teacherViewSwitcher.querySelectorAll('.switch-button').forEach(btn => btn.addEventListener('click', (e) => {
-                teacherViewSwitcher.querySelectorAll('.switch-button').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                const view = e.target.dataset.view;
-                myTestsContainer.classList.toggle('hidden', view !== 'tests');
-                myAssessmentsContainer.classList.toggle('hidden', view !== 'assessments');
-                teacherSearchBar.value = '';
-                teacherSearchBar.placeholder = view === 'tests' ? 'ابحث عن اختبار...' : 'ابحث عن تقييم...';
-                if(view === 'tests') renderMyTests(); else renderMyAssessments();
-            }));
-            
             aiImageTypeSwitcher.querySelectorAll('.switch-button').forEach(btn => btn.addEventListener('click', (e) => {
                 aiImageTypeSwitcher.querySelectorAll('.switch-button').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
@@ -874,13 +837,6 @@
                     renderMyTests();
                     populateResultsSelector();
                 });
-
-                showLoadingSpinner(myAssessmentsContainer);
-                const assessmentsRef = query(ref(db, 'assessments'), orderByChild('teacher'), equalTo(currentUser));
-                 onValue(assessmentsRef, (snapshot) => {
-                    myAssessments = snapshot.exists() ? snapshot.val() : {};
-                    renderMyAssessments();
-                });
             }
             
             teacherRefreshBtn.onclick = updateDashboard;
@@ -894,7 +850,6 @@
                 const allTests = Object.entries(myTests);
                 const filter = teacherSearchBar.value.toLowerCase();
                 
-                // Update filters
                 const grades = [...new Set(allTests.map(([id, test]) => test.grade))];
                 teacherFilterContainer.innerHTML = '<div class="filter-chip active" data-grade="all">الكل</div>';
                 grades.forEach(grade => {
@@ -925,7 +880,7 @@
                 let found = false;
                 allTests
                     .filter(([testId, test]) => {
-                        const matchesSearch = test.name.toLowerCase().includes(filter) || test.grade.toLowerCase().includes(filter);
+                        const matchesSearch = test.name.toLowerCase().includes(filter) || (test.grade && test.grade.toLowerCase().includes(filter));
                         const matchesFilter = activeFilter === 'all' || test.grade === activeFilter;
                         return matchesSearch && matchesFilter;
                     })
@@ -1293,89 +1248,7 @@
                     button.disabled = false; button.textContent = currentEditingTestId ? "تحديث الاختبار" : "حفظ الاختبار";
                 }
             };
-            
-            assessmentImageInput.onchange = () => handleImagePreview(assessmentImageInput, assessmentImageInput.nextElementSibling, assessmentImageInput.nextElementSibling.querySelector('img'), (val) => currentAssessmentImageBase64 = val);
 
-            function renderPendingAssessments() {
-                if (pendingAssessments.length === 0) {
-                    pendingAssessmentsList.innerHTML = '<p>لا توجد تقييمات في القائمة بعد.</p>';
-                    saveAllAssessmentsBtn.classList.add('hidden');
-                    return;
-                }
-
-                pendingAssessmentsList.innerHTML = '';
-                pendingAssessments.forEach((item, index) => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'list-item';
-                    itemDiv.style.cssText = 'flex-direction: column; align-items: flex-start; padding: 10px;';
-                    itemDiv.innerHTML = `
-                        <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:15px;">
-                            <img src="${item.imageUrl}" style="width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer;">
-                            <p style="flex-grow:1; text-align:right; white-space:pre-wrap; font-size:0.9rem;">${item.text || '<em>لا يوجد نص</em>'}</p>
-                            <button data-index="${index}" class="action-btn btn-secondary btn-danger delete-assessment-btn" title="حذف"><i class="fas fa-trash"></i></button>
-                        </div>
-                    `;
-                    pendingAssessmentsList.appendChild(itemDiv);
-                });
-
-                pendingAssessmentsList.querySelectorAll('.delete-assessment-btn').forEach(btn => {
-                    btn.onclick = (e) => {
-                        const indexToRemove = parseInt(e.currentTarget.dataset.index);
-                        pendingAssessments.splice(indexToRemove, 1);
-                        renderPendingAssessments();
-                    };
-                });
-                saveAllAssessmentsBtn.classList.remove('hidden');
-            }
-
-            function clearAssessmentForm() {
-                assessmentImageInput.value = '';
-                assessmentText.value = '';
-                currentAssessmentImageBase64 = null;
-                const previewContainer = assessmentImageInput.nextElementSibling;
-                previewContainer.classList.add('hidden');
-                previewContainer.querySelector('img').src = '#';
-            }
-
-            addAssessmentBtn.onclick = () => {
-                if (!currentAssessmentImageBase64) {
-                    showCustomAlert("خطأ", "الرجاء اختيار صورة للتقييم أولاً.");
-                    return;
-                }
-                pendingAssessments.push({
-                    imageUrl: currentAssessmentImageBase64,
-                    text: assessmentText.value.trim(),
-                });
-                renderPendingAssessments();
-                clearAssessmentForm();
-            };
-
-            saveAllAssessmentsBtn.onclick = async (e) => {
-                const button = e.target;
-                if (pendingAssessments.length === 0) return;
-                if (!(await showCustomConfirm("تأكيد الحفظ", `هل أنت متأكد من حفظ ${pendingAssessments.length} تقييمات؟`))) return;
-                
-                button.disabled = true; button.textContent = 'جاري الحفظ...';
-                try {
-                    const promises = pendingAssessments.map(item => {
-                        return push(ref(db, 'assessments'), {
-                            ...item,
-                            teacher: currentUser,
-                            timestamp: serverTimestamp()
-                        });
-                    });
-                    await Promise.all(promises);
-                    showCustomAlert("نجاح", `تم حفظ ${pendingAssessments.length} تقييمات بنجاح!`);
-                    pendingAssessments = [];
-                    renderPendingAssessments();
-                    clearAssessmentForm();
-                } catch (err) {
-                    showCustomAlert("خطأ", "حدث خطأ أثناء حفظ التقييمات.");
-                } finally {
-                    button.disabled = false; button.textContent = 'حفظ جميع التقييمات';
-                }
-            };
-            
             async function authUser(name, password, isRegister) { 
                 if (!name || !password) { showCustomAlert("خطأ", "الرجاء تعبئة كل الحقول"); return; }
                 if (!/^[a-zA-Z0-9\s]+$/.test(name)) { showCustomAlert("خطأ", "الرجاء استخدام الحروف والأرقام الإنجليزية فقط في الاسم."); return; }
@@ -1412,15 +1285,13 @@
                         const oldData = (await get(ref(db, `users/${currentUser}`))).val();
                         const dataToMove = { [`users/${newName}`]: { ...oldData, ...updates }, [`users/${currentUser}`]: null };
                         
-                        const [testsSnap, resultsSnap, assessmentsSnap] = await Promise.all([
+                        const [testsSnap, resultsSnap] = await Promise.all([
                             get(ref(db, `tests/${currentUser}`)),
                             get(ref(db, `results/${currentUser}`)),
-                            get(query(ref(db, 'assessments'), orderByChild('teacher'), equalTo(currentUser)))
                         ]);
 
                         if (testsSnap.exists()) { dataToMove[`tests/${newName}`] = testsSnap.val(); dataToMove[`tests/${currentUser}`] = null; }
                         if (resultsSnap.exists()) { dataToMove[`results/${newName}`] = resultsSnap.val(); dataToMove[`results/${currentUser}`] = null; }
-                        if (assessmentsSnap.exists()) { assessmentsSnap.forEach(snap => { dataToMove[`assessments/${snap.key}/teacher`] = newName; }); }
                         
                         await update(ref(db), dataToMove);
                         localStorage.setItem('loggedInTeacher', newName); 
@@ -1429,81 +1300,6 @@
                     } else { await update(ref(db, `users/${currentUser}`), updates); showCustomAlert("نجاح", "تم تحديث كلمة المرور بنجاح!"); settingsModal.classList.remove('visible'); }
                 } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); console.error(e); }
             };
-            
-            function renderMyAssessments(filter = '') {
-                myAssessmentsContainer.innerHTML = "";
-                const assessments = Object.entries(myAssessments).sort((a, b) => b[1].timestamp - a[1].timestamp);
-
-                if (assessments.length === 0) { myAssessmentsContainer.innerHTML = "<p>لم تقم برفع أي تقييمات.</p>"; return; }
-
-                let found = false;
-                assessments.forEach(([key, assessment]) => {
-                    if (filter && assessment.text && !assessment.text.toLowerCase().includes(filter.toLowerCase())) return;
-                    found = true;
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'list-item';
-                    itemDiv.style.cssText = 'flex-direction: column; align-items: stretch; padding: 10px;';
-                    itemDiv.innerHTML = `
-                        <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:15px;">
-                            <img src="${assessment.imageUrl}" class="question-image-preview" style="max-height: 80px;">
-                            <p style="flex-grow:1; text-align:right; white-space:pre-wrap; font-size:0.9rem;">${assessment.text || '<em>لا يوجد نص</em>'}</p>
-                        </div>
-                        <div style="display: flex; gap: 8px; margin-top: 10px; width: 100%;">
-                            <button class="action-btn btn-secondary" data-action="edit" data-key="${key}" title="تعديل" style="flex-grow: 1;"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn btn-secondary btn-danger" data-action="delete" data-key="${key}" title="حذف" style="flex-grow: 1;"><i class="fas fa-trash"></i></button>
-                        </div>`;
-                    myAssessmentsContainer.appendChild(itemDiv);
-                });
-
-                if (!found && filter) myAssessmentsContainer.innerHTML = "<p>لا توجد تقييمات مطابقة لبحثك.</p>";
-                
-                myAssessmentsContainer.querySelectorAll('[data-action="delete"]').forEach(btn => btn.onclick = () => deleteAssessment(btn.dataset.key));
-                myAssessmentsContainer.querySelectorAll('[data-action="edit"]').forEach(btn => btn.onclick = () => openEditAssessmentModal(btn.dataset.key));
-            }
-            
-            async function deleteAssessment(key) {
-                if (await showCustomConfirm("تأكيد الحذف", "هل أنت متأكد من حذف هذا التقييم؟")) {
-                    try {
-                        await remove(ref(db, `assessments/${key}`));
-                        showCustomAlert("نجاح", "تم حذف التقييم بنجاح.");
-                    } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء الحذف."); }
-                }
-            }
-            
-            function openEditAssessmentModal(key) {
-                const assessment = myAssessments[key];
-                if (!assessment) return;
-
-                currentEditingAssessmentKey = key;
-                editAssessmentImageBase64 = assessment.imageUrl;
-
-                const modalImg = document.getElementById('edit-assessment-image-preview');
-                const modalText = document.getElementById('edit-assessment-text');
-                
-                modalImg.src = assessment.imageUrl;
-                modalText.value = assessment.text || '';
-                
-                editAssessmentModal.classList.add('visible');
-            }
-            
-            document.getElementById('edit-assessment-image-input').onchange = (e) => {
-                 handleImagePreview(e.target, e.target.nextElementSibling, document.getElementById('edit-assessment-image-preview'), (val) => editAssessmentImageBase64 = val);
-            };
-
-            document.getElementById('update-assessment-btn').onclick = async () => {
-                if (!currentEditingAssessmentKey) return;
-                
-                const newText = document.getElementById('edit-assessment-text').value.trim();
-                const updates = { text: newText, imageUrl: editAssessmentImageBase64 };
-
-                try {
-                    await update(ref(db, `assessments/${currentEditingAssessmentKey}`), updates);
-                    showCustomAlert("نجاح", "تم تحديث التقييم بنجاح.");
-                    editAssessmentModal.classList.remove('visible');
-                } catch(e) { showCustomAlert("خطأ", "فشل تحديث التقييم."); }
-            };
-            
-            editAssessmentModal.querySelector('.modal-close-btn').onclick = () => editAssessmentModal.classList.remove('visible');
         }
 
         async function initStudentApp() {
@@ -1519,12 +1315,8 @@
             const refreshBtn = studentPortal.querySelector('#refresh-tests-btn');
             const backToDashboardBtn = studentPortal.querySelector('#back-to-dashboard-btn');
             const backFromReviewBtn = studentPortal.querySelector('#back-to-dashboard-from-review-btn');
-            const assessmentsContainer = document.getElementById('assessments-container');
             
             const studentTopNav = studentPortal.querySelector('#student-top-nav');
-            const backFromAssessmentsBtn = document.getElementById('back-to-dashboard-from-assessments-btn');
-            const backFromBooksBtn = document.getElementById('back-to-dashboard-from-books-btn');
-            const testsNavBtn = studentPortal.querySelector('.nav-btn[data-target="student-tests-content"]');
             
             let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false;
 
@@ -1611,7 +1403,6 @@
                     renderAvailableTests();
                     refreshBtn.classList.remove('loading');
                 }); 
-                loadAssessments();
             }
             
             refreshBtn.onclick = () => {
@@ -1954,30 +1745,6 @@
                 }
             }
             
-            async function loadAssessments() {
-                assessmentsContainer.innerHTML = '<div class="spinner"></div>';
-                const assessmentsRef = ref(db, 'assessments');
-                const snapshot = await get(assessmentsRef);
-                assessmentsContainer.innerHTML = '';
-                if (snapshot.exists()) {
-                    snapshot.forEach(childSnap => {
-                        const assessment = childSnap.val();
-                        const item = document.createElement('div');
-                        item.className = 'list-item';
-                        item.style.flexDirection = 'column';
-                        item.style.alignItems = 'flex-start';
-                        item.innerHTML = `
-                            <img src="${assessment.imageUrl}" class="question-image-preview" style="max-height: 300px;">
-                            ${assessment.text ? `<p style="text-align: right; margin-top: 10px; white-space: pre-wrap;">${assessment.text}</p>` : ''}
-                            <small style="align-self: flex-end; color: var(--text-secondary); margin-top: 10px;">من: ${assessment.teacher}</small>
-                        `;
-                        assessmentsContainer.prepend(item); 
-                    });
-                } else {
-                    assessmentsContainer.innerHTML = '<p>لا توجد تقييمات متاحة حاليًا.</p>';
-                }
-            }
-
             const formatTime=s=>{const m=Math.floor(s/60),r=s%60;return`${m.toString().padStart(2,'0')}:${r.toString().padStart(2,'0')}`};
             
             const navButtons = studentPortal.querySelectorAll('.nav-btn');
@@ -1987,31 +1754,9 @@
                     studentPortal.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
                     b.classList.add('active');
                     studentPortal.querySelector(`#${b.dataset.target}`).classList.remove('hidden');
-
-                    const isSpecialTab = b.dataset.target === 'student-assessments-content' || b.dataset.target === 'student-books-content';
-                    studentTopNav.classList.toggle('hidden', isSpecialTab);
-                    backFromAssessmentsBtn.classList.toggle('hidden', b.dataset.target !== 'student-assessments-content');
-                     backFromBooksBtn.classList.toggle('hidden', b.dataset.target !== 'student-books-content');
-
-                    if(isSpecialTab) {
-                        portalHeader.classList.add('hidden');
-                        if (b.dataset.target === 'student-books-content') {
-                             document.getElementById('books-iframe').src = 'https://saif1230876657.github.io/G-SA/';
-                        }
-                    } else {
-                        portalHeader.classList.remove('hidden');
-                    }
                 });
             });
             
-            const createInstantBackFunction = (button) => {
-                button.onclick = () => {
-                     if (testsNavBtn) testsNavBtn.click();
-                };
-            };
-            createInstantBackFunction(backFromAssessmentsBtn);
-            createInstantBackFunction(backFromBooksBtn);
-
             const setDefaultTab=()=>navButtons[0].click();
             studentPortal.querySelector('#student-register-btn').onclick=()=>authUser(studentPortal.querySelector('#student-register-name').value.trim(),studentPortal.querySelector('#student-register-password').value.trim(),true);
             studentPortal.querySelector('#student-login-btn').onclick=()=>authUser(studentPortal.querySelector('#student-login-name').value.trim(),studentPortal.querySelector('#student-login-password').value.trim(),false);
@@ -2048,10 +1793,9 @@
                         if ((await get(ref(db, `students/${newName}`))).exists()) { showCustomAlert("خطأ", "هذا الاسم مستخدم بالفعل."); return; }
                         const oldData = (await get(ref(db, `students/${currentStudent}`))).val();
                         const dataToMove = { [`students/${newName}`]: { ...oldData, ...updates }, [`students/${currentStudent}`]: null };
-                        for (const path of ['studentResults', 'messageLimits']) {
-                            const snap = await get(ref(db, `${path}/${currentStudent}`));
-                            if (snap.exists()) { dataToMove[`${path}/${newName}`] = snap.val(); dataToMove[`${path}/${currentStudent}`] = null; }
-                        }
+                        const resultsSnap = await get(ref(db, `studentResults/${currentStudent}`));
+                        if (resultsSnap.exists()) { dataToMove[`studentResults/${newName}`] = resultsSnap.val(); dataToMove[`studentResults/${currentStudent}`] = null; }
+                        
                         await update(ref(db), dataToMove);
                         localStorage.setItem('loggedInStudent', newName); 
                         showCustomAlert("نجاح", "تم تحديث الحساب بنجاح! سيتم إعادة تحميل الصفحة.");
