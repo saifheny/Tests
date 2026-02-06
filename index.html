@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -246,6 +247,24 @@
         @media (max-width: 767px) { body { padding: 0 5px; } .top-nav { flex-wrap: wrap; justify-content: space-around; height: auto; } .top-nav .nav-btn { font-size: 0.7rem; padding: 5px; } .top-nav .nav-btn i { font-size: 1.3rem; } .portal-header-controls h1 { font-size: 0.8rem; } }
         .tab-content-header { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 10px; }
         .tab-content-header h2 { margin: 0; }
+
+        /* AI Chat Styles */
+        .ai-chat-container { display: flex; flex-direction: column; height: 600px; max-height: 70vh; border: 1px solid var(--border-primary); border-radius: 12px; background: var(--bg-tertiary); overflow: hidden; }
+        .ai-chat-messages { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+        .chat-message { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; position: relative; }
+        .chat-message.ai { align-self: flex-start; background: var(--bg-secondary); border: 1px solid var(--border-primary); color: var(--text-primary); border-bottom-right-radius: 2px; }
+        .chat-message.user { align-self: flex-end; background: var(--accent-primary-gradient); color: #fff; border-bottom-left-radius: 2px; box-shadow: 0 2px 5px var(--shadow-color-heavy); }
+        .chat-message img { max-width: 100%; border-radius: 8px; margin-top: 5px; }
+        .ai-chat-input-box { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg-secondary); border-top: 1px solid var(--border-primary); }
+        .ai-chat-input-box input[type="text"] { margin: 0; padding: 10px; flex-grow: 1; background: var(--bg-tertiary); border-radius: 20px; border: 1px solid var(--border-primary); }
+        .ai-chat-input-box .icon-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-secondary); transition: all 0.2s; background: transparent; border: none; font-size: 1.1rem; }
+        .ai-chat-input-box .icon-btn:hover { background: var(--border-primary); color: var(--accent-secondary); }
+        .ai-chat-input-box .icon-btn.primary { background: var(--accent-primary); color: #fff; }
+        .ai-chat-input-box .icon-btn.primary:hover { background: var(--accent-secondary); }
+        #teacher-ai-image-preview, #student-ai-image-preview { padding: 10px; background: var(--bg-secondary); border-top: 1px solid var(--border-primary); text-align: center; }
+        #teacher-ai-image-preview img, #student-ai-image-preview img { max-height: 100px; border-radius: 8px; border: 1px solid var(--border-primary); }
+        .ai-grade-btn { transition: all 0.2s; }
+        .ai-grade-btn:hover { background: var(--accent-primary) !important; color: #fff !important; border-color: var(--accent-primary) !important; }
     </style>
 </head>
 <body class="no-select">
@@ -290,6 +309,7 @@
             <button class="nav-btn active" data-target="teacher-tests-content"><i class="fas fa-file-alt"></i><span>الاختبارات</span></button>
             <button class="nav-btn" data-target="teacher-results-content"><i class="fas fa-poll-h"></i><span>النتائج</span></button>
             <button class="nav-btn" data-target="teacher-create-content"><i class="fas fa-plus-circle"></i><span>إنشاء</span></button>
+            <button class="nav-btn" data-target="teacher-ai-content"><i class="fas fa-wand-magic-sparkles"></i><span>المساعد الذكي</span></button>
         </nav>
         <header class="portal-header-controls hidden">
              <h1>مرحبًا بك، <span id="teacher-name"></span>!</h1>
@@ -347,16 +367,17 @@
                         </button>
                         
                         <div id="ai-test-generation-container" class="hidden">
-                            <h3>توليد الاختبار من صورة</h3>
+                            <h3>توليد الاختبار بالذكاء الاصطناعي</h3>
                             
                             <div class="ai-options-group">
-                                <label for="ai-question-image-input" class="file-input-label" style="margin-bottom: 15px;"><i class="fas fa-image"></i> <span>إرفاق صورة المصدر (إجباري لـ AI)</span></label>
+                                <label for="ai-question-image-input" class="file-input-label" style="margin-bottom: 15px;"><i class="fas fa-image"></i> <span>إرفاق صورة المصدر (اختياري)</span></label>
                                 <input type="file" id="ai-question-image-input" accept="image/*" class="hidden" />
                                 <div id="ai-image-preview-container" class="image-preview-container hidden"><img class="image-preview" src="#" alt="معاينة" /></div>
                                 <div class="ai-image-type-switcher">
-                                    <button class="switch-button active" data-type="questions-only">الصورة تحتوي على **أسئلة** جاهزة</button>
-                                    <button class="switch-button" data-type="content-only">الصورة تحتوي على **شرح/محتوى**</button>
+                                    <button class="switch-button active" data-type="questions-only">توليد من **صورة أسئلة**</button>
+                                    <button class="switch-button" data-type="content-only">توليد من **محتوى/شرح**</button>
                                 </div>
+                                <textarea id="ai-text-input" rows="3" placeholder="أو اكتب المحتوى/الموضوع هنا لتوليد الأسئلة منه..." style="margin-top: 10px;"></textarea>
                             </div>
 
                             <div class="ai-options-group">
@@ -375,7 +396,7 @@
                                 <div class="checkbox-container"><input type="checkbox" id="ai-allow-increase" disabled><label for="ai-allow-increase">السماح للـ AI بزيادة عدد الأسئلة (متاح فقط مع محتوى/شرح)</label></div>
                             </div>
                             
-                            <button id="generate-ai-test-btn" class="btn-primary" style="background: var(--accent-secondary); border-bottom-color: #3b7bb6;"><i class="fas fa-robot"></i> توليد الأسئلة من الصورة</button>
+                            <button id="generate-ai-test-btn" class="btn-primary" style="background: var(--accent-secondary); border-bottom-color: #3b7bb6;"><i class="fas fa-robot"></i> توليد الأسئلة</button>
                             <hr/>
                         </div>
                         
@@ -417,6 +438,21 @@
                         <button id="cancel-test-edit-btn" class="btn-secondary hidden" style="margin-top: 10px;">إلغاء التعديل</button>
                     </div>
                 </div>
+                <div id="teacher-ai-content" class="tab-content hidden">
+                    <h2>المساعد التعليمي الذكي (Gemini)</h2>
+                    <div class="ai-chat-container">
+                        <div class="ai-chat-messages" id="teacher-ai-messages">
+                            <div class="chat-message ai">مرحبًا بك! أنا مساعدك الذكي. كيف يمكنني مساعدتك في إعداد الاختبارات أو شرح الدروس اليوم؟</div>
+                        </div>
+                        <div id="teacher-ai-image-preview" class="hidden"><img src="" alt="preview"/></div>
+                        <div class="ai-chat-input-box">
+                            <input type="text" id="teacher-ai-input" placeholder="اكتب رسالتك هنا..." />
+                            <label for="teacher-ai-image" class="icon-btn"><i class="fas fa-image"></i></label>
+                            <input type="file" id="teacher-ai-image" class="hidden" accept="image/*" />
+                            <button id="teacher-ai-send" class="icon-btn primary"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
             </section>
         </div>
         <div id="teacher-review-modal" class="modal-overlay">
@@ -456,6 +492,7 @@
          <nav class="top-nav hidden" id="student-top-nav">
             <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book-open"></i><span>الاختبارات</span></button>
             <button class="nav-btn" data-target="student-results-content"><i class="fas fa-poll-h"></i><span>نتائجي</span></button>
+            <button class="nav-btn" data-target="student-ai-content"><i class="fas fa-wand-magic-sparkles"></i><span>المساعد الذكي</span></button>
         </nav>
          <header class="portal-header-controls hidden">
             <h1>مرحبًا بك، <span id="student-name"></span>!</h1>
@@ -498,6 +535,21 @@
                     <div id="available-tests-container"></div>
                 </div>
                 <div class="tab-content hidden" id="student-results-content"><h2>نتائجي السابقة</h2><div id="my-student-results-container-wrapper"><div id="my-student-results-container"></div></div></div>
+                <div class="tab-content hidden" id="student-ai-content">
+                    <h2>رفيق الدراسة الذكي (Gemini)</h2>
+                    <div class="ai-chat-container">
+                        <div class="ai-chat-messages" id="student-ai-messages">
+                            <div class="chat-message ai">أهلاً بك! أنا رفيقك في الدراسة. هل لديك سؤال حول المنهج أو تحتاج لشرح نقطة معينة؟</div>
+                        </div>
+                        <div id="student-ai-image-preview" class="hidden"><img src="" alt="preview"/></div>
+                        <div class="ai-chat-input-box">
+                            <input type="text" id="student-ai-input" placeholder="اسألني عن أي شيء..." />
+                            <label for="student-ai-image" class="icon-btn"><i class="fas fa-image"></i></label>
+                            <input type="file" id="student-ai-image" class="hidden" accept="image/*" />
+                            <button id="student-ai-send" class="icon-btn primary"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
             </section>
             <section id="take-test-section" class="hidden">
                 <h2 id="current-test-title"></h2>
@@ -602,9 +654,9 @@
 
     <!-- ======== Main JavaScript Logic =======-->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
-        import { getDatabase, ref, set, get, onValue, push, serverTimestamp, remove, update, query, orderByChild, equalTo, off } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+        import { getDatabase, ref, set, get, onValue, push, serverTimestamp, remove, update, query, orderByChild, equalTo, off } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAjE-2q6PONBkCin9ZN22gDp9Q8pAH9ZW8",
@@ -617,10 +669,10 @@
             measurementId: "G-9DPPWX7CF0"
         };
         
-        const aiApiKey = "AIzaSyArAURCzYl1uxSJxvF7r5Ad-W5kaaz4ANw";
+        const aiApiKey = "AIzaSyC5aKq0yTiEqDIVawe0HmvUgMBKOnS3IQ0";
 
         const app = initializeApp(firebaseConfig);
-        getAnalytics(app);
+        const analytics = getAnalytics(app);
         const db = getDatabase(app);
         const appUrl = "https://apk.e-droid.net/apk/app3760290-c4w5f2.apk?v=9";
 
@@ -742,6 +794,30 @@
         }));
         
         initializeTheme();
+        
+        // --- GEMINI AI FUNCTIONS ---
+        async function fetchGeminiResponse(promptParts) {
+            if (!aiApiKey) throw new Error("AI API key is missing.");
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiApiKey}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: promptParts }] })
+            });
+            if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
+            const data = await response.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
+        }
+
+        async function processQueryWithAI(promptParts) {
+            try {
+                const responseText = await fetchGeminiResponse(promptParts);
+                return responseText;
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                throw new Error("فشل التواصل مع الذكاء الاصطناعي. الرجاء التأكد من مفتاح API أو المحاولة لاحقاً.");
+            }
+        }
 
 
         function initTeacherApp() {
@@ -761,6 +837,14 @@
             const teacherSearchBar = document.getElementById('teacher-search-bar');
             const teacherFilterContainer = document.getElementById('teacher-filter-container');
             
+            // AI Chat Elements
+            const teacherAiInput = document.getElementById('teacher-ai-input');
+            const teacherAiSend = document.getElementById('teacher-ai-send');
+            const teacherAiMessages = document.getElementById('teacher-ai-messages');
+            const teacherAiImageInput = document.getElementById('teacher-ai-image');
+            const teacherAiImagePreview = document.getElementById('teacher-ai-image-preview');
+            let currentTeacherChatImage = null;
+
             let currentCorrectAnswer = 0;
 
             let currentUser = null, myTests = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
@@ -772,6 +856,7 @@
             const aiImageTypeSwitcher = document.querySelector('.ai-image-type-switcher');
             const toggleAiBtn = document.getElementById('toggle-ai-generation-btn');
             const aiContainer = document.getElementById('ai-test-generation-container');
+            const aiTextInput = document.getElementById('ai-text-input');
             let aiImageContentType = 'questions-only';
             let currentAIImageBase64 = null;
             const aiNumQuestionsInput = document.getElementById('ai-num-questions');
@@ -987,10 +1072,54 @@
                             return `<div class="${classes}">${option}</div>`;
                         }).join('') + '</div>';
                     } 
-                    else { const studentText = studentAnswer.textAnswer || '<em>لم يقدم إجابة نصية.</em>', studentImage = studentAnswer.imageAnswer ? `<p><b>صورته:</b></p><img src="${studentAnswer.imageAnswer}" style="max-width:80%; border-radius:8px; cursor:pointer;">` : '', modelImage = q.modelAnswerImage ? `<p><b>النموذجية:</b></p><img src="${q.modelAnswerImage}" style="max-width:80%; border-radius:8px; cursor:pointer;">` : ''; let gradingInput = (result.status === 'pending') ? `<div style="margin-top:15px; text-align: left; display:flex; align-items:center; gap:10px;"><label for="grade-q-${index}" style="margin:0;"><b>ضع الدرجة:</b></label><input type="number" id="grade-q-${index}" data-question-index="${index}" class="essay-grade-input" min="0" max="${q.points || 1}" style="width:80px; margin:0;"><span>/ ${q.points || 1}</span></div>` : `<p><b>الدرجة النهائية للسؤال:</b> ${studentAnswer.pointsAwarded || 0}/${q.points || 1}</p>`; reviewHtml = `<div><p><b>إجابته النصية:</b></p><div style="background:var(--border-secondary); padding:10px; border-radius:8px; white-space: pre-wrap;">${studentText}</div>${studentImage}${modelImage}${gradingInput}</div>`; }
+                    else { 
+                        const studentText = studentAnswer.textAnswer || '<em>لم يقدم إجابة نصية.</em>';
+                        const studentImage = studentAnswer.imageAnswer ? `<p><b>صورته:</b></p><img src="${studentAnswer.imageAnswer}" style="max-width:80%; border-radius:8px; cursor:pointer;">` : '';
+                        const modelImage = q.modelAnswerImage ? `<p><b>النموذجية:</b></p><img src="${q.modelAnswerImage}" style="max-width:80%; border-radius:8px; cursor:pointer;">` : ''; 
+                        let gradingInput = (result.status === 'pending') ? `
+                            <div style="margin-top:15px; text-align: left; display:flex; flex-direction: column; gap: 5px;">
+                                <div style="display: flex; align-items: center; gap:10px;">
+                                    <label for="grade-q-${index}" style="margin:0;"><b>ضع الدرجة:</b></label>
+                                    <input type="number" id="grade-q-${index}" data-question-index="${index}" class="essay-grade-input" min="0" max="${q.points || 1}" style="width:80px; margin:0;">
+                                    <span>/ ${q.points || 1}</span>
+                                </div>
+                                <button class="btn-secondary ai-grade-btn" data-index="${index}" style="margin-top:5px; font-size:0.8rem; width: fit-content;"><i class="fas fa-magic"></i> تصحيح تلقائي (AI)</button>
+                            </div>` : `<p><b>الدرجة النهائية للسؤال:</b> ${studentAnswer.pointsAwarded || 0}/${q.points || 1}</p>`; 
+                        reviewHtml = `<div><p><b>إجابته النصية:</b></p><div style="background:var(--border-secondary); padding:10px; border-radius:8px; white-space: pre-wrap;">${studentText}</div>${studentImage}${modelImage}${gradingInput}</div>`; 
+                    }
                     const qDiv = document.createElement('div'); qDiv.className = 'list-item';
                     qDiv.style.cssText = 'flex-direction: column; align-items: flex-start;';
                     qDiv.innerHTML = `<h4 style="margin-bottom:10px;">س ${index+1} (${q.points || 1} درجات): ${q.question}</h4>${q.image ? `<img class="question-image-preview" src="${q.image}">` : ''}${reviewHtml}`;
+                    
+                    const aiBtn = qDiv.querySelector('.ai-grade-btn');
+                    if(aiBtn) {
+                        aiBtn.onclick = async () => {
+                            aiBtn.disabled = true; aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحليل...';
+                            const prompt = `Act as a strict teacher grading an exam. 
+                            Question: "${q.question}". 
+                            Max Points: ${q.points || 1}. 
+                            Student Answer: "${studentAnswer.textAnswer || '(No Text)'}". 
+                            ${q.modelAnswerImage ? "(Note: A model answer image exists, consider checking generic conceptual validity)" : ""}
+                            Evaluate the student's answer (0 to ${q.points || 1}). 
+                            Return ONLY a JSON object: {"score": number, "feedback": "string"}.`;
+                            try {
+                                const response = await processQueryWithAI([{text: prompt}]);
+                                const jsonMatch = response.match(/\{[\s\S]*\}/);
+                                if (jsonMatch) {
+                                    const result = JSON.parse(jsonMatch[0]);
+                                    const input = document.getElementById(`grade-q-${index}`);
+                                    if(input) input.value = result.score;
+                                    showCustomAlert("تقييم الذكاء الاصطناعي", `الدرجة المقترحة: ${result.score}/${q.points || 1}<br>ملاحظات: ${result.feedback}`);
+                                } else {
+                                    throw new Error("Invalid AI response format");
+                                }
+                            } catch (e) {
+                                showCustomAlert("خطأ", "فشل التقييم التلقائي. حاول مرة أخرى.");
+                            } finally {
+                                aiBtn.disabled = false; aiBtn.innerHTML = '<i class="fas fa-magic"></i> تصحيح تلقائي (AI)';
+                            }
+                        };
+                    }
                     reviewModalBody.appendChild(qDiv);
                 });
                 finalizeGradesBtn.onclick = () => finalizeGrades(studentName, testId, test, result); reviewModal.classList.add('visible');
@@ -1029,47 +1158,38 @@
                 aiAllowIncreaseCheckbox.checked = false;
                 aiAllowIncreaseCheckbox.disabled = true;
                 aiImageTypeSwitcher.querySelector('.switch-button[data-type="questions-only"]').click();
-            }
-            
-            async function fetchGeminiResponse(promptParts) {
-                if (!aiApiKey) throw new Error("AI API key is missing.");
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiApiKey}`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: promptParts }] })
-                });
-                if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
-                const data = await response.json();
-                return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
-            }
-
-            async function processQueryWithAI(promptParts) {
-                try {
-                    const responseText = await fetchGeminiResponse(promptParts);
-                    return responseText;
-                } catch (error) {
-                    console.error("Gemini API Error:", error);
-                    throw new Error("فشل التواصل مع الذكاء الاصطناعي. الرجاء التأكد من مفتاح API أو المحاولة لاحقاً.");
-                }
+                aiTextInput.value = "";
             }
 
             async function generateTestFromAI(numMCQ, mcqPoints, numEssay, essayPoints) {
-                const base64Parts = currentAIImageBase64.split(';base64,');
-                const mimeType = base64Parts[0].replace('data:', '');
-                const imagePart = { inline_data: { mime_type: mimeType, data: base64Parts[1] } };
-                
-                const generationPrompt = `
-                    أنت خبير تعليمي متخصص في اللغة العربية. مهمتك هي إنشاء اختبار من محتوى الصورة المرفقة.
-                    المطلوب توليد ${numMCQ} سؤال اختيار من متعدد (MCQ) و ${numEssay} سؤال مقالي.
+                let promptParts = [];
+                const textInput = aiTextInput.value.trim();
 
-                    1.  **حلل الصورة:** استخرج الموضوع الرئيسي من الصورة (مثال: 'النحو - المبتدأ والخبر', 'البلاغة - التشبيه', 'قصة عنترة بن شداد').
+                if (currentAIImageBase64) {
+                    const base64Parts = currentAIImageBase64.split(';base64,');
+                    const mimeType = base64Parts[0].replace('data:', '');
+                    promptParts.push({ inline_data: { mime_type: mimeType, data: base64Parts[1] } });
+                }
+                
+                if (textInput) {
+                    promptParts.push({ text: `Content/Topic to generate from: ${textInput}` });
+                }
+
+                if (promptParts.length === 0) {
+                     throw new Error("يجب توفير صورة أو نص لتوليد الاختبار.");
+                }
+
+                const generationPrompt = `
+                    أنت خبير تعليمي متخصص في اللغة العربية. مهمتك هي إنشاء اختبار من المحتوى المقدم (صورة أو نص).
+                    المطلوب توليد ${numMCQ} سؤال اختيار من متعدد (MCQ) و ${numEssay} سؤال مقالي.
+                    
+                    1.  **حلل المحتوى:** استخرج الموضوع الرئيسي.
                     2.  **اسم الاختبار:** قم باقتراح اسم للاختبار يعكس الموضوع الرئيسي فقط. لا تضف اسم الصف الدراسي.
-                    3.  **الأسئلة:** يجب أن تكون جميع الأسئلة في صيغة JSON قابلة للتحليل مباشرة. لا تضف أي نص قبل أو بعد الـ JSON.
+                    3.  **الأسئلة:** يجب أن تكون جميع الأسئلة في صيغة JSON قابلة للتحليل مباشرة.
                     
                     **التنسيق المطلوب (JSON فقط):**
                     {
-                        "testName": "[الاسم المقترح الذي يعكس الموضوع فقط]",
+                        "testName": "[الاسم المقترح]",
                         "questions": [
                             {
                                 "question": "نص سؤال الاختيار من متعدد...",
@@ -1084,8 +1204,9 @@
                         ]
                     }
                 `;
+                promptParts.push({ text: generationPrompt });
                 
-                const aiResponse = await processQueryWithAI([imagePart, {text: generationPrompt}]);
+                const aiResponse = await processQueryWithAI(promptParts);
                 
                 const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
                 if (!jsonMatch) {
@@ -1115,8 +1236,8 @@
                 const numEssay = parseInt(aiNumEssayQuestionsInput.value) || 0;
                 const essayPoints = parseInt(aiEssayPointsInput.value) || 5;
 
-                if (!currentAIImageBase64) { 
-                    showCustomAlert("خطأ", "الرجاء إرفاق صورة المصدر أولاً."); return; 
+                if (!currentAIImageBase64 && !aiTextInput.value.trim()) { 
+                    showCustomAlert("خطأ", "الرجاء إرفاق صورة المصدر أو كتابة محتوى لتوليد الأسئلة."); return; 
                 }
                 if (numMCQ === 0 && numEssay === 0) {
                     showCustomAlert("خطأ", "الرجاء تحديد عدد أسئلة أكبر من صفر لنوع واحد على الأقل."); return;
@@ -1136,7 +1257,7 @@
                     showCustomAlert("خطأ", `فشل توليد الاختبار. ${error.message}`);
                 } finally {
                     aiGenerateBtn.disabled = false;
-                    aiGenerateBtn.innerHTML = '<i class="fas fa-robot"></i> توليد الأسئلة من الصورة';
+                    aiGenerateBtn.innerHTML = '<i class="fas fa-robot"></i> توليد الأسئلة';
                     aiContainer.classList.add('hidden');
                     toggleAiBtn.classList.remove('active');
                 }
@@ -1300,6 +1421,14 @@
                     } else { await update(ref(db, `users/${currentUser}`), updates); showCustomAlert("نجاح", "تم تحديث كلمة المرور بنجاح!"); settingsModal.classList.remove('visible'); }
                 } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); console.error(e); }
             };
+
+            // AI Assistant Logic for Teacher
+            teacherAiImageInput.onchange = () => handleImagePreview(teacherAiImageInput, teacherAiImagePreview, teacherAiImagePreview.querySelector('img'), (val) => currentTeacherChatImage = val);
+            teacherAiSend.onclick = () => handleAiChat(teacherAiInput, teacherAiMessages, currentTeacherChatImage, () => {
+                 currentTeacherChatImage = null; 
+                 teacherAiImagePreview.classList.add('hidden'); 
+                 teacherAiImageInput.value = "";
+            });
         }
 
         async function initStudentApp() {
@@ -1318,6 +1447,14 @@
             
             const studentTopNav = studentPortal.querySelector('#student-top-nav');
             
+            // AI Chat Elements Student
+            const studentAiInput = document.getElementById('student-ai-input');
+            const studentAiSend = document.getElementById('student-ai-send');
+            const studentAiMessages = document.getElementById('student-ai-messages');
+            const studentAiImageInput = document.getElementById('student-ai-image');
+            const studentAiImagePreview = document.getElementById('student-ai-image-preview');
+            let currentStudentChatImage = null;
+
             let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false;
 
             async function showLastSubmittedResult({ testId, teacherId }) {
@@ -1803,6 +1940,61 @@
                     } else { await update(ref(db, `students/${currentStudent}`), updates); showCustomAlert("نجاح", "تم تحديث كلمة المرور بنجاح!"); settingsModal.classList.remove('visible'); }
                 } catch (e) { showCustomAlert("خطأ", "حدث خطأ أثناء تحديث الحساب."); console.error(e) }
             };
+
+            // AI Chat Logic Student
+            studentAiImageInput.onchange = () => handleImagePreview(studentAiImageInput, studentAiImagePreview, studentAiImagePreview.querySelector('img'), (val) => currentStudentChatImage = val);
+            studentAiSend.onclick = () => handleAiChat(studentAiInput, studentAiMessages, currentStudentChatImage, () => {
+                 currentStudentChatImage = null; 
+                 studentAiImagePreview.classList.add('hidden'); 
+                 studentAiImageInput.value = "";
+            });
+        }
+        
+        async function handleAiChat(inputElem, messagesContainer, imageBase64, onSend) {
+            const message = inputElem.value.trim();
+            if (!message && !imageBase64) return;
+
+            // Render User Message
+            renderChatMessage(messagesContainer, message, imageBase64, 'user');
+            inputElem.value = "";
+            if(onSend) onSend();
+
+            // Render Loading
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'chat-message ai';
+            loadingDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التفكير...';
+            messagesContainer.appendChild(loadingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                let parts = [];
+                if (imageBase64) {
+                     const base64Parts = imageBase64.split(';base64,');
+                     const mimeType = base64Parts[0].replace('data:', '');
+                     parts.push({ inline_data: { mime_type: mimeType, data: base64Parts[1] } });
+                }
+                if (message) parts.push({ text: message });
+                
+                // Add Context
+                parts.unshift({ text: "You are a helpful educational AI assistant for students and teachers using the EDU-GATE platform. Be polite, encouraging, and informative. Answer in Arabic." });
+
+                const response = await processQueryWithAI(parts);
+                messagesContainer.removeChild(loadingDiv);
+                renderChatMessage(messagesContainer, response, null, 'ai');
+            } catch (error) {
+                messagesContainer.removeChild(loadingDiv);
+                renderChatMessage(messagesContainer, "عذراً، حدث خطأ في الاتصال بالمساعد الذكي.", null, 'ai');
+            }
+        }
+
+        function renderChatMessage(container, text, image, sender) {
+            const div = document.createElement('div');
+            div.className = `chat-message ${sender}`;
+            let content = text ? `<div style="white-space: pre-wrap;">${text}</div>` : '';
+            if (image) content += `<img src="${image}" alt="attachment" onclick="window.open(this.src, '_blank')">`;
+            div.innerHTML = content;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
         }
 
         async function shareTest(testName) {
