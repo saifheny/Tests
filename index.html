@@ -76,15 +76,33 @@
             border: 1px solid var(--glass-border);
             box-shadow: none;
         }
-        .modern-btn.danger {
-            background: rgba(239, 68, 68, 0.15); color: var(--danger);
-            box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.3);
-        }
         .icon-btn-small {
             width: 30px; height: 30px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             border: none; cursor: pointer; font-size: 0.9rem;
         }
+
+        /* Icons Action Bar */
+        .icon-actions {
+            display: flex; gap: 10px; justify-content: space-around;
+            padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 5px;
+        }
+        .action-icon {
+            background: transparent; border: none;
+            color: var(--text-secondary); font-size: 1.1rem;
+            cursor: pointer; transition: 0.2s;
+            padding: 8px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px;
+        }
+        .action-icon:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .action-icon.edit:hover { color: var(--accent-primary); background: rgba(59, 130, 246, 0.1); }
+        .action-icon.delete:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+        .action-icon.share:hover { color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .action-icon.gold:hover { color: var(--accent-gold); background: rgba(255, 215, 0, 0.1); }
+        .action-icon.view:hover { color: #d946ef; background: rgba(217, 70, 239, 0.1); }
+
 
         /* Back Button */
         .back-btn-header {
@@ -138,12 +156,14 @@
             border: 1px solid var(--glass-border);
             border-radius: 18px;
             padding: 15px;
-            margin-bottom: 12px;
+            margin-bottom: 0; /* Remove margin bottom for ad spacing control */
             position: relative;
             transition: all 0.2s;
             display: flex; flex-direction: column; gap: 10px;
         }
-        .mini-card:active { transform: scale(0.99); }
+        .card-wrapper {
+            margin-bottom: 15px;
+        }
         
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .card-title { font-weight: 700; font-size: 1rem; color: #fff; margin: 0; line-height: 1.4; }
@@ -154,19 +174,6 @@
             border: 1px solid rgba(255, 215, 0, 0.3);
             padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold;
         }
-
-        .card-actions {
-            display: flex; gap: 8px; margin-top: 5px;
-            padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);
-        }
-        .action-btn {
-            flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 0.8rem; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
-            transition: 0.2s;
-        }
-        .btn-primary { background: var(--accent-primary); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); }
-        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #ccc; }
-        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
 
         /* ======== 4. Inputs ======== */
         .smart-input {
@@ -204,13 +211,13 @@
 
         /* ======== 6. Chat AI UI (Fixed Position) ======== */
         .ai-layout {
-            position: fixed; top: var(--nav-height); left: 0; right: 0; bottom: 70px; /* Space for input bar */
+            position: fixed; top: var(--nav-height); left: 0; right: 0; bottom: 0;
             display: flex; flex-direction: column;
             background: var(--bg-deep); z-index: 100;
         }
         .ai-messages {
             flex: 1; overflow-y: auto;
-            padding: 15px; padding-bottom: 20px;
+            padding: 15px; padding-bottom: 100px; /* Space for floating bar */
             display: flex; flex-direction: column; gap: 12px;
         }
         
@@ -226,15 +233,19 @@
         }
         .chat-msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
 
-        /* Fixed Bottom Input Bar */
+        /* Floating Input Bar */
         .ai-input-bar {
-            position: fixed; bottom: 0; left: 0; right: 0;
+            position: fixed; 
+            bottom: 25px; left: 15px; right: 15px;
             background: rgba(30, 30, 30, 0.95);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 10px 15px; padding-bottom: 20px; /* Safe area */
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 25px;
+            padding: 10px;
             display: flex; align-items: center; gap: 10px;
             z-index: 2000;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            max-width: 800px; margin: 0 auto;
         }
         .ai-input-field {
             flex: 1; background: #111; border: 1px solid #444; border-radius: 20px;
@@ -242,19 +253,20 @@
             outline: none; padding: 10px 15px;
         }
         .attach-btn {
-            color: #aaa; font-size: 1.3rem; padding: 8px; cursor: pointer; transition: 0.3s;
+            color: #aaa; font-size: 1.3rem; padding: 0 10px; cursor: pointer; transition: 0.3s;
         }
         .attach-btn:hover { color: #fff; }
         .send-btn {
-            background: #fff; color: #000; border: none;
+            background: var(--accent-primary); color: #fff; border: none;
             width: 42px; height: 42px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; font-size: 1.1rem; transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
         .send-btn:active { transform: scale(0.9); }
         
         .chat-img-preview {
-            position: absolute; bottom: 80px; left: 15px;
+            position: absolute; bottom: 85px; left: 0;
             background: #222; padding: 5px; border-radius: 10px;
             border: 1px solid var(--glass-border);
             display: none; z-index: 2001;
@@ -267,7 +279,7 @@
         }
 
         /* ======== 7. Menu & Profile ======== */
-        #menu-modal, #ai-gen-modal {
+        #menu-modal, #ai-gen-modal, #phone-modal, #teacher-detail-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000;
             display: flex; flex-direction: column; justify-content: flex-end;
         }
@@ -323,6 +335,19 @@
         }
         .option-input.correct {
             border-color: var(--success); background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* Ad Banner Style */
+        .ad-banner {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+            padding: 5px;
         }
 
     </style>
@@ -476,7 +501,7 @@
                         <div class="chat-msg ai">مرحباً أستاذي! أنا SA AI، كيف أساعدك في تحضير الدروس؟</div>
                     </div>
                 </div>
-                <!-- Fixed Bottom Input Bar -->
+                <!-- Floating Input Bar -->
                 <div class="ai-input-bar">
                     <label for="t-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
                     <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
@@ -519,7 +544,7 @@
             </section>
 
             <section id="s-grades" class="app-section hidden">
-                <h2 style="margin-bottom: 20px;">لوحة الشرف</h2>
+                <h2 style="margin-bottom: 20px;">لوحة الشرف (درجاتي)</h2>
                 <div id="s-grades-list"></div>
             </section>
 
@@ -529,7 +554,7 @@
                         <div class="chat-msg ai">أهلاً بك يا بطل! أرفق صورة لسؤالك وسأشرحه لك.</div>
                     </div>
                 </div>
-                <!-- Fixed Bottom Input Bar -->
+                <!-- Floating Input Bar -->
                 <div class="ai-input-bar">
                     <label for="s-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
                     <input type="file" id="s-ai-file" hidden accept="image/*" onchange="previewChatImg('s')">
@@ -552,7 +577,7 @@
             <section id="s-taking-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <button class="back-btn-header" onclick="closeExam()"><i class="fas fa-times"></i> خروج</button>
+                        <button class="back-btn-header" onclick="closeExam()"><i class="fas fa-sign-out-alt"></i> خروج</button>
                         <div id="test-timer" style="font-size: 1.5rem; font-weight: bold; color: var(--accent-primary);">00:00</div>
                     </div>
                     
@@ -564,7 +589,7 @@
                 </div>
             </section>
             
-            <!-- Review Interface -->
+            <!-- Review Interface (For Student & Teacher) -->
             <section id="s-review-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div class="back-btn-header" onclick="document.getElementById('s-review-test').classList.add('hidden')"><i class="fas fa-arrow-right"></i> إغلاق المراجعة</div>
@@ -657,6 +682,35 @@
         </div>
     </div>
 
+    <!-- Phone Number Modal (New) -->
+    <div id="phone-modal" class="hidden">
+        <div class="menu-content" style="background: #111; height: auto; text-align:center;">
+            <i class="fas fa-mobile-alt" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 15px;"></i>
+            <h3>مطلوب رقم للتواصل</h3>
+            <p style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">يرجى إدخال رقم هاتف ولي الأمر أو رقمك الشخصي لحفظ النتائج.</p>
+            <input type="tel" id="student-phone-input" class="smart-input" placeholder="01xxxxxxxxx" style="text-align:center; font-size:1.1rem; letter-spacing:2px;">
+            <button onclick="savePhoneAndStart()" class="modern-btn" style="margin-top:15px;">حفظ وبدء الاختبار</button>
+        </div>
+    </div>
+
+    <!-- Teacher Detail Modal (New) -->
+    <div id="teacher-detail-modal" class="hidden">
+        <div class="menu-content" style="background: #111; max-height: 90vh;">
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                 <h3 style="margin:0;">تفاصيل الطالب</h3>
+                 <button onclick="document.getElementById('teacher-detail-modal').classList.add('hidden')" style="background:none; border:none; color:#fff;"><i class="fas fa-times fa-lg"></i></button>
+             </div>
+             
+             <div style="text-align:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:20px;">
+                 <div id="td-name" style="font-weight:bold; font-size:1.2rem;"></div>
+                 <div id="td-phone" style="color:var(--accent-gold); font-size:1.1rem; margin-top:5px; font-family:monospace;"></div>
+             </div>
+
+             <h4 style="color:#888;">سجل الإجابات:</h4>
+             <div id="td-answers-list" style="max-height: 50vh; overflow-y:auto;"></div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -682,6 +736,47 @@
         let currentQuestions = [];
         let currentImgBase64 = null;
         let aiGenImgBase64 = null;
+        let chatMessageCounter = 0; // For Ads in Chat
+
+        // ======== Ad Generation ========
+        function createAdBanner() {
+            const container = document.createElement('div');
+            container.className = 'ad-banner';
+            
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '468px';
+            iframe.style.height = '60px';
+            iframe.style.border = 'none';
+            iframe.style.overflow = 'hidden';
+            iframe.style.maxWidth = '100%'; 
+            
+            const adContent = `
+                <html>
+                <body style="margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;">
+                    <script>
+                      atOptions = {
+                        'key' : 'e0f63746bfceb42ce1134aaff1b6709d',
+                        'format' : 'iframe',
+                        'height' : 60,
+                        'width' : 468,
+                        'params' : {}
+                      };
+                    <\/script>
+                    <script src="https://www.highperformanceformat.com/e0f63746bfceb42ce1134aaff1b6709d/invoke.js"><\/script>
+                </body>
+                </html>
+            `;
+            
+            container.appendChild(iframe);
+            setTimeout(() => {
+                const doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(adContent);
+                doc.close();
+            }, 100);
+
+            return container;
+        }
 
         // ======== Helper Functions ========
         const getBase64 = (file) => new Promise((resolve) => {
@@ -749,6 +844,8 @@
             localStorage.setItem('sa_role', selectedRole);
             localStorage.setItem('sa_icon', icon || (selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie'));
             
+            // Fix UI Bug: Ensure only one layer is visible
+            document.getElementById('landing-layer').classList.add('hidden');
             document.getElementById('auth-layer').classList.add('hidden');
             updateMenuInfo();
 
@@ -758,6 +855,7 @@
             } else {
                 document.getElementById('student-app').classList.remove('hidden');
                 loadStudentExams();
+                loadStudentGrades(); // New function for Honor Board
             }
         }
 
@@ -824,10 +922,12 @@
         };
 
         window.shareApp = () => {
+            const url = window.location.href;
+            const text = "انضم لمنصة SA EDU التعليمية المتطورة!";
             if (navigator.share) {
-                navigator.share({ title: 'SA EDU', text: 'انضم إلينا', url: window.location.href });
+                navigator.share({ title: 'SA EDU', text: text, url: url }).catch(err => console.log(err));
             } else {
-                alert("تم نسخ الرابط!");
+                navigator.clipboard.writeText(url).then(() => alert("تم نسخ رابط المنصة!"));
             }
         };
 
@@ -845,6 +945,7 @@
                 document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
+            if(tabId === 's-grades') loadStudentGrades(); // Reload grades when tab is clicked
         };
 
         function loadTeacherTests() {
@@ -853,9 +954,10 @@
             
             onValue(ref(db, 'tests'), (snap) => {
                 list.innerHTML = '';
-                resultSelect.innerHTML = '<option>اختر الاختبار</option>';
+                resultSelect.innerHTML = '<option>اختر الاختبار للعرض</option>';
                 const data = snap.val() || {};
                 
+                let counter = 0;
                 Object.entries(data).forEach(([key, val]) => {
                     if (val.teacher === currentUser) {
                         const opt = document.createElement('option');
@@ -863,7 +965,9 @@
                         resultSelect.appendChild(opt);
 
                         const hiddenStyle = val.isHidden ? 'opacity:0.6; border:1px dashed #666;' : '';
-                        list.innerHTML += `
+                        const cardWrapper = document.createElement('div');
+                        cardWrapper.className = 'card-wrapper';
+                        cardWrapper.innerHTML = `
                             <div class="mini-card" style="${hiddenStyle}">
                                 <div class="card-header">
                                     <div>
@@ -874,16 +978,28 @@
                                     </div>
                                     <div class="teacher-badge">نشط</div>
                                 </div>
-                                <div class="card-actions">
-                                    <button class="action-btn btn-outline" onclick="toggleTestVisibility('${key}', ${!val.isHidden})">
-                                        <i class="fas fa-eye${val.isHidden ? '' : '-slash'}"></i> ${val.isHidden ? 'إظهار' : 'إخفاء'}
+                                <div class="icon-actions">
+                                    <button class="action-icon edit" onclick="alert('خاصية التعديل قيد التطوير')">
+                                        <i class="fas fa-pen"></i>
                                     </button>
-                                    <button class="action-btn btn-danger" onclick="deleteTest('${key}')">
-                                        <i class="fas fa-trash"></i>
+                                    <button class="action-icon share" onclick="shareTest('${val.title}')">
+                                        <i class="fas fa-share-alt"></i>
+                                    </button>
+                                    <button class="action-icon gold" onclick="toggleTestVisibility('${key}', ${!val.isHidden})">
+                                        <i class="fas fa-eye${val.isHidden ? '' : '-slash'}"></i>
+                                    </button>
+                                    <button class="action-icon delete" onclick="deleteTest('${key}')">
+                                        <i class="fas fa-eraser"></i>
                                     </button>
                                 </div>
                             </div>
                         `;
+                        
+                        list.appendChild(cardWrapper);
+                        
+                        // Add ad every 2 items
+                        counter++;
+                        if (counter % 2 === 0) list.appendChild(createAdBanner());
                     }
                 });
             });
@@ -998,6 +1114,7 @@
             alert("تم نشر الاختبار بنجاح!");
             currentQuestions = [];
             document.getElementById('added-questions-list').innerHTML = '';
+            document.getElementById('new-test-name').value = '';
             switchTab('t-library');
         };
 
@@ -1007,63 +1124,238 @@
         };
         
         window.toggleTestVisibility = (k, s) => update(ref(db, `tests/${k}`), { isHidden: s });
-        window.deleteTest = (k) => { if(confirm("حذف؟")) remove(ref(db, `tests/${k}`)); };
+        window.deleteTest = (k) => { 
+            if(confirm("هل أنت متأكد من حذف هذا الاختبار؟")) {
+                remove(ref(db, `tests/${k}`));
+                remove(ref(db, `results/${k}`)); // Remove associated results
+            }
+        };
+        window.shareTest = (title) => {
+            const shareData = {
+                title: 'SA EDU',
+                text: `اختبار جديد: ${title}. ادخل المنصة الآن!`,
+                url: window.location.href
+            };
+            if(navigator.share) navigator.share(shareData).catch(err=>console.log(err));
+            else {
+                navigator.clipboard.writeText(shareData.url);
+                alert("تم نسخ رابط المنصة!");
+            }
+        };
         function getGradeLabel(c) { return ({'1p':'1 ابتدائي','3s':'3 ثانوي'})[c] || c; }
 
-        // Results
-        function loadTestResults(testId) {
+        // ======== Teacher Results (Updated) ========
+        window.loadTestResults = (testId) => {
+            if(!testId || testId.includes('اختر')) return;
             const div = document.getElementById('t-results-container');
-            div.innerHTML = '...';
-            get(ref(db, `results/${testId}`)).then(snap => {
+            div.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i></div>';
+            
+            get(ref(db, `results/${testId}`)).then(async snap => {
                 div.innerHTML = '';
-                if(!snap.exists()) return div.innerHTML = '<p style="text-align:center; color:#666;">لا توجد نتائج</p>';
+                if(!snap.exists()) return div.innerHTML = '<p style="text-align:center; color:#666;">لا توجد نتائج لهذا الاختبار بعد</p>';
+                
+                let counter = 0;
                 snap.forEach(c => {
+                    const studentName = c.key;
                     const v = c.val();
                     const color = v.percentage >= 50 ? 'var(--success)' : 'var(--danger)';
-                    div.innerHTML += `
-                        <div class="mini-card" style="flex-direction:row; justify-content:space-between; align-items:center;">
-                            <span>${c.key}</span>
-                            <span style="font-weight:bold; color:${color}; font-size:1.2rem;">${v.percentage}%</span>
-                        </div>`;
+                    
+                    const el = document.createElement('div');
+                    el.className = 'mini-card';
+                    el.style = "flex-direction:row; justify-content:space-between; align-items:center; margin-bottom:10px;";
+                    el.innerHTML = `
+                        <div>
+                            <span style="font-weight:bold; display:block;">${studentName}</span>
+                            <span style="font-size:0.8rem; color:#888;">${new Date(v.timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-weight:bold; color:${color}; font-size:1.1rem;">${v.percentage}%</span>
+                            <button class="action-icon view" onclick="viewStudentDetails('${testId}', '${studentName}')"><i class="fas fa-eye"></i></button>
+                        </div>
+                    `;
+                    div.appendChild(el);
+
+                    counter++;
+                    if(counter % 3 === 0) div.appendChild(createAdBanner());
                 });
             });
-        }
+        };
+
+        window.viewStudentDetails = async (testId, studentName) => {
+            // Get Student Phone
+            let phone = "غير مسجل";
+            const userSnap = await get(ref(db, `users/students/${studentName}`));
+            if(userSnap.exists() && userSnap.val().phone) phone = userSnap.val().phone;
+
+            // Get Results
+            const resSnap = await get(ref(db, `results/${testId}/${studentName}`));
+            const res = resSnap.val();
+
+            document.getElementById('td-name').innerText = studentName;
+            document.getElementById('td-phone').innerText = phone;
+            
+            const list = document.getElementById('td-answers-list');
+            list.innerHTML = '';
+
+            if (res.details && Array.isArray(res.details)) {
+                res.details.forEach((d, i) => {
+                    const statusColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
+                    list.innerHTML += `
+                        <div style="background:#222; padding:10px; border-radius:10px; margin-bottom:10px; border-right:3px solid ${statusColor}">
+                            <p style="margin:0 0 5px; font-weight:bold;">س${i+1}: ${d.q}</p>
+                            <div style="font-size:0.9rem; color:#aaa;">إجابة الطالب: <span style="color:#fff;">${d.user}</span></div>
+                            ${!d.isCorrect ? `<div style="font-size:0.9rem; color:var(--success);">الصحيحة: ${d.correct}</div>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                list.innerHTML = '<p>لا توجد تفاصيل.</p>';
+            }
+
+            document.getElementById('teacher-detail-modal').classList.remove('hidden');
+        };
 
         // ======== Student Logic ========
         function loadStudentExams() {
             const list = document.getElementById('s-exams-list');
             onValue(ref(db, 'tests'), async (snap) => {
                 list.innerHTML = '';
-                for (const [key, val] of Object.entries(snap.val() || {})) {
+                const tests = snap.val() || {};
+                let counter = 0;
+
+                for (const [key, val] of Object.entries(tests)) {
                     if (val.isHidden) continue;
                     const resSnap = await get(ref(db, `results/${key}/${currentUser}`));
                     const hasTaken = resSnap.exists();
                     
-                    let btnHtml = hasTaken 
-                        ? `<button onclick="startTest('${key}')" class="action-btn btn-outline">إعادة</button>
-                           <button onclick="reviewTest('${key}')" class="action-btn btn-primary">مراجعة</button>`
-                        : `<button onclick="startTest('${key}')" class="action-btn btn-primary w-full">ابدأ الآن</button>`;
+                    const cardWrapper = document.createElement('div');
+                    cardWrapper.className = 'card-wrapper';
+                    
+                    // Buttons logic: Start/Redo, Review, Share
+                    let buttonsHtml = '';
+                    if (hasTaken) {
+                         buttonsHtml = `
+                            <button class="action-icon share" onclick="shareTest('${val.title}')"><i class="fas fa-share-alt"></i></button>
+                            <button class="action-icon edit" onclick="checkPhoneAndStart('${key}')"><i class="fas fa-redo"></i></button>
+                            <button class="action-icon gold" onclick="reviewTest('${key}')"><i class="fas fa-file-alt"></i></button>
+                         `;
+                    } else {
+                        buttonsHtml = `
+                             <button class="action-icon share" onclick="shareTest('${val.title}')"><i class="fas fa-share-alt"></i></button>
+                             <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white;" onclick="checkPhoneAndStart('${key}')">
+                                <i class="fas fa-rocket"></i> ابدأ الآن
+                             </button>
+                        `;
+                    }
 
-                    list.innerHTML += `
+                    cardWrapper.innerHTML = `
                         <div class="mini-card">
                             <div class="card-header">
                                 <div><h3 class="card-title">${val.title}</h3><div class="card-meta"><span>${val.teacher}</span></div></div>
                                 ${hasTaken ? `<span style="color:var(--success)">${resSnap.val().percentage}%</span>` : ''}
                             </div>
-                            <div class="card-actions">${btnHtml}</div>
+                            <div class="icon-actions">
+                                ${buttonsHtml}
+                            </div>
                         </div>`;
+                    
+                    list.appendChild(cardWrapper);
+                    counter++;
+                    if(counter % 2 === 0) list.appendChild(createAdBanner());
                 }
             });
         }
 
-        // Taking Exam
+        // Student Grades Tab (Honor Board) Logic
+        window.loadStudentGrades = () => {
+             const list = document.getElementById('s-grades-list');
+             list.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> جارِ التحميل...</div>';
+             
+             // Inefficient but functional for now: Get all tests, check results for current user
+             get(ref(db, 'tests')).then(async (testSnap) => {
+                 list.innerHTML = '';
+                 const tests = testSnap.val() || {};
+                 let foundAny = false;
+                 let counter = 0;
+
+                 for(const [testId, testData] of Object.entries(tests)) {
+                     const resSnap = await get(ref(db, `results/${testId}/${currentUser}`));
+                     if(resSnap.exists()) {
+                         foundAny = true;
+                         const res = resSnap.val();
+                         const color = res.percentage >= 90 ? 'var(--accent-gold)' : (res.percentage >= 50 ? 'var(--success)' : 'var(--danger)');
+                         
+                         const div = document.createElement('div');
+                         div.className = 'mini-card';
+                         div.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <h3 style="font-size:1rem; margin:0;">${testData.title}</h3>
+                                    <span style="font-size:0.8rem; color:#888;">${new Date(res.timestamp).toLocaleDateString()}</span>
+                                </div>
+                                <div style="text-align:left;">
+                                    <div style="font-weight:bold; font-size:1.4rem; color:${color};">${res.percentage}%</div>
+                                    <div style="font-size:0.8rem; color:#aaa;">${res.score} / ${res.total}</div>
+                                </div>
+                            </div>
+                            <button onclick="reviewTest('${testId}')" class="modern-btn secondary" style="margin-top:10px; font-size:0.8rem; padding:8px;">
+                                <i class="fas fa-list-alt"></i> مراجعة التفاصيل
+                            </button>
+                         `;
+                         list.appendChild(div);
+
+                         counter++;
+                         if(counter % 3 === 0) list.appendChild(createAdBanner());
+                     }
+                 }
+                 if(!foundAny) list.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">لم تقم بأي اختبارات بعد.</p>';
+             });
+        };
+
+        // Taking Exam Logic with Phone Check
+        let tempTestId = null;
+
+        window.checkPhoneAndStart = async (id) => {
+            tempTestId = id;
+            const userSnap = await get(ref(db, `users/students/${currentUser}`));
+            if(userSnap.exists() && userSnap.val().phone) {
+                // Phone exists, start directly
+                startTest(id);
+            } else {
+                // Ask for phone
+                document.getElementById('phone-modal').classList.remove('hidden');
+            }
+        };
+
+        window.savePhoneAndStart = async () => {
+            const phone = document.getElementById('student-phone-input').value.trim();
+            if(!phone || phone.length < 10) return alert("يرجى إدخال رقم صحيح");
+            
+            await update(ref(db, `users/students/${currentUser}`), { phone: phone });
+            document.getElementById('phone-modal').classList.add('hidden');
+            startTest(tempTestId);
+        };
+
         let activeTest = null;
         let timerInt = null;
         let answers = {};
 
         window.startTest = async (id) => {
-            activeTest = (await get(ref(db, `tests/${id}`))).val();
+            const snap = await get(ref(db, `tests/${id}`));
+            if (!snap.exists()) {
+                alert("عذراً، هذا الاختبار لم يعد موجوداً.");
+                return;
+            }
+            activeTest = snap.val();
             activeTest.id = id;
+            
+            // Fix for undefined 'forEach' error
+            if (!activeTest.questions) {
+                activeTest.questions = [];
+            } else if (!Array.isArray(activeTest.questions)) {
+                activeTest.questions = Object.values(activeTest.questions);
+            }
+
             answers = {};
             document.getElementById('s-taking-test').classList.remove('hidden');
             document.getElementById('active-test-title').innerText = activeTest.title;
@@ -1071,19 +1363,24 @@
             const div = document.getElementById('test-questions-render');
             div.innerHTML = '';
             
-            activeTest.questions.forEach((q, i) => {
-                const shuffled = [...q.options].sort(() => Math.random() - 0.5);
-                div.innerHTML += `
-                    <div style="margin-bottom:25px;">
-                        <p style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${i+1}. ${q.text}</p>
-                        ${q.image ? `<img src="${q.image}" style="max-width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
-                        ${shuffled.map(o => `
-                            <label class="mini-card" style="flex-direction:row; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px; padding:12px;">
-                                <input type="radio" name="q${i}" value="${o}" onchange="saveAns(${i}, '${o}')">
-                                <span>${o}</span>
-                            </label>`).join('')}
-                    </div>`;
-            });
+            if (activeTest.questions.length === 0) {
+                div.innerHTML = '<p style="text-align:center;">لا توجد أسئلة في هذا الاختبار.</p>';
+            } else {
+                activeTest.questions.forEach((q, i) => {
+                    if (!q.options) q.options = [];
+                    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+                    div.innerHTML += `
+                        <div style="margin-bottom:25px;">
+                            <p style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${i+1}. ${q.text}</p>
+                            ${q.image ? `<img src="${q.image}" style="max-width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
+                            ${shuffled.map(o => `
+                                <label class="mini-card" style="flex-direction:row; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px; padding:12px;">
+                                    <input type="radio" name="q${i}" value="${o}" onchange="saveAns(${i}, '${o}')">
+                                    <span>${o}</span>
+                                </label>`).join('')}
+                        </div>`;
+                });
+            }
 
             let time = activeTest.duration * 60;
             clearInterval(timerInt);
@@ -1096,38 +1393,63 @@
         };
 
         window.saveAns = (i, v) => answers[i] = v;
-        window.closeExam = () => { if(confirm("خروج؟")) { clearInterval(timerInt); document.getElementById('s-taking-test').classList.add('hidden'); }};
+        window.closeExam = () => { if(confirm("خروج من الامتحان؟ ستفقد تقدمك.")) { clearInterval(timerInt); document.getElementById('s-taking-test').classList.add('hidden'); }};
         
         window.submitExam = async () => {
             clearInterval(timerInt);
             let score = 0, total = 0, details = [];
-            activeTest.questions.forEach((q, i) => {
-                const pts = parseInt(q.points);
+            
+            const questions = activeTest.questions || [];
+            
+            questions.forEach((q, i) => {
+                const pts = parseInt(q.points) || 1;
                 total += pts;
                 const isCorrect = answers[i] === q.correct;
                 if(isCorrect) score += pts;
                 details.push({ q: q.text, user: answers[i]||'-', correct: q.correct, isCorrect });
             });
             
-            const pct = Math.round((score/total)*100);
+            const pct = total === 0 ? 0 : Math.round((score/total)*100);
             await set(ref(db, `results/${activeTest.id}/${currentUser}`), { score, total, percentage: pct, timestamp: Date.now(), details });
             alert(`النتيجة: ${pct}%`);
             document.getElementById('s-taking-test').classList.add('hidden');
             loadStudentExams();
+            loadStudentGrades(); // Refresh grades tab
         };
 
         window.reviewTest = async (id) => {
-            const res = (await get(ref(db, `results/${id}/${currentUser}`))).val();
+            const resSnap = await get(ref(db, `results/${id}/${currentUser}`));
+            if(!resSnap.exists()) return alert("لم تقم بهذا الاختبار");
+            const res = resSnap.val();
+            
             const div = document.getElementById('review-content');
-            div.innerHTML = `<h1 style="text-align:center; color:var(--accent-primary);">${res.percentage}%</h1>`;
-            res.details.forEach((d, i) => {
-                div.innerHTML += `
-                    <div class="mini-card" style="border-right:4px solid ${d.isCorrect?'green':'red'}">
-                        <p><strong>${i+1}. ${d.q}</strong></p>
-                        <p style="color:#aaa;">إجابتك: ${d.user} ${d.isCorrect?'✅':'❌'}</p>
-                        ${!d.isCorrect ? `<p style="color:green">الصحيح: ${d.correct}</p>` : ''}
-                    </div>`;
-            });
+            div.innerHTML = `<h1 style="text-align:center; color:var(--accent-primary); margin-bottom:20px;">${res.percentage}%</h1>`;
+            
+            if (res.details && Array.isArray(res.details)) {
+                res.details.forEach((d, i) => {
+                    const borderColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
+                    const icon = d.isCorrect ? '<i class="fas fa-check-circle" style="color:var(--success)"></i>' : '<i class="fas fa-times-circle" style="color:var(--danger)"></i>';
+                    
+                    div.innerHTML += `
+                        <div class="mini-card" style="border-right:4px solid ${borderColor}">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>س${i+1}: ${d.q}</strong>
+                                ${icon}
+                            </div>
+                            <div style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">
+                                <p style="margin:0; font-size:0.9rem; color:#aaa;">إجابتك:</p>
+                                <p style="margin:5px 0 0 0; font-weight:bold; color:${d.isCorrect ? 'var(--success)' : 'var(--danger)'}">${d.user}</p>
+                            </div>
+                            ${!d.isCorrect ? `
+                            <div style="margin-top:5px; background:rgba(16, 185, 129, 0.1); padding:10px; border-radius:8px;">
+                                <p style="margin:0; font-size:0.9rem; color:var(--success);">الإجابة الصحيحة:</p>
+                                <p style="margin:5px 0 0 0; font-weight:bold;">${d.correct}</p>
+                            </div>` : ''}
+                        </div>`;
+                });
+            } else {
+                div.innerHTML += '<p>لا توجد تفاصيل متاحة للمراجعة.</p>';
+            }
             document.getElementById('s-review-test').classList.remove('hidden');
         };
 
@@ -1176,6 +1498,12 @@
             msgs.innerHTML += `<div class="chat-msg ai" id="${loadId}"><i class="fas fa-circle-notch fa-spin"></i></div>`;
             msgs.scrollTop = msgs.scrollHeight;
 
+            // Logic to add Ad every 2 messages
+            chatMessageCounter++;
+            if(chatMessageCounter % 2 === 0) {
+                 msgs.appendChild(createAdBanner());
+            }
+
             const parts = [];
             if(txt) parts.push({ text: txt });
             if(imgData) parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
@@ -1205,8 +1533,15 @@
         if (savedUser && savedRole) {
             currentUser = savedUser; selectedRole = savedRole;
             loginSuccess(currentUser, savedIcon);
+        } else {
+            // Fix: Ensure Landing is shown, others hidden on fresh load
+            document.getElementById('landing-layer').classList.remove('hidden');
+            document.getElementById('auth-layer').classList.add('hidden');
+            document.getElementById('teacher-app').classList.add('hidden');
+            document.getElementById('student-app').classList.add('hidden');
         }
 
     </script>
 </body>
 </html>
+
