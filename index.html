@@ -4,800 +4,481 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>SA Educational Institution</title>
-    <!-- Meta Tags -->
-    <meta property="og:title" content="SA Educational Institution" />
-    <meta property="og:description" content="Enter the modern world of education." />
-    <!-- PWA -->
-    <link rel="manifest" href="./manifest.json">
+    
+    <!-- PWA Setup -->
+    <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SA Education">
-    <meta name="theme-color" content="#050505">
-    <!-- Fonts and Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Cairo:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            /* Palette: Premium Dark Mode */
-            --bg-deep: #050505;
-            --bg-surface: #0f0f0f;
-            --glass-bg: rgba(255, 255, 255, 0.03);
+            /* Premium Dark Theme */
+            --bg-deep: #000000;
+            --bg-surface: #101010;
+            --bg-card: #1c1c1c;
+            
+            --glass-bg: rgba(20, 20, 20, 0.85);
             --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-highlight: rgba(255, 255, 255, 0.12);
             
-            /* Text Colors */
             --text-main: #ffffff;
-            --text-secondary: #a1a1a1;
-            --text-muted: #555555;
+            --text-secondary: #a0a0a0;
             
-            /* Modern Accents (Neon Minimal) */
-            --accent-primary: #3b82f6; /* Electric Blue */
-            --accent-glow: rgba(59, 130, 246, 0.5);
-            --accent-secondary: #8b5cf6; /* Violet */
-            --gradient-main: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --accent-primary: #3b82f6; 
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             
-            /* System Colors */
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
-            
-            --font-main: 'Cairo', 'Outfit', sans-serif;
-            --radius-md: 16px;
-            --radius-lg: 24px;
+            --nav-height: 70px;
+            --radius-xl: 24px;
             --radius-full: 999px;
-            --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.5);
-            --ease-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            --font-main: 'Cairo', sans-serif;
         }
 
+        /* Reset & Base */
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html { scroll-behavior: smooth; }
-        
-        body { 
-            font-family: var(--font-main); 
-            background-color: var(--bg-deep); 
-            color: var(--text-main); 
-            min-height: 100vh; 
-            direction: rtl; 
-            overflow-x: hidden; 
-            margin: 0;
-            padding: 0;
-            /* Subtle abstract background */
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.08) 0%, transparent 40%);
-            background-attachment: fixed;
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08), transparent 50%);
         }
 
         /* Utilities */
         .hidden { display: none !important; }
-        .no-select { user-select: none; -webkit-user-select: none; }
         .flex-center { display: flex; align-items: center; justify-content: center; }
         
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
-
-        /* ======== 1) Navbar (Unified Top Strip) ======== */
+        /* ======== 1. Navigation (Fixed Top) ======== */
         .top-nav {
-            position: fixed; top: 0; left: 0; right: 0; 
-            height: 70px;
-            background: rgba(5, 5, 5, 0.85); /* Darker, blurrier */
+            position: fixed; top: 0; left: 0; right: 0;
+            height: var(--nav-height);
+            background: var(--glass-bg);
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--glass-border);
+            z-index: 1000;
             display: flex; align-items: center; justify-content: center;
-            z-index: 1000; padding: 0 20px;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.4);
-            transition: all 0.3s ease;
-        }
-        
-        .top-nav .nav-container {
-            display: flex; gap: 10px;
-            width: 100%; max-width: 600px;
-            justify-content: center;
+            transition: transform 0.3s;
         }
 
-        .top-nav .nav-btn {
+        .nav-container {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; max-width: 600px; padding: 0 15px;
+        }
+
+        .nav-btn {
             background: transparent; border: none; color: var(--text-secondary);
-            font-size: 1rem; padding: 8px 16px; 
-            position: relative; cursor: pointer; transition: all 0.3s var(--ease-elastic);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border-radius: var(--radius-md);
-            flex: 1; /* Distribute space evenly */
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            cursor: pointer; transition: 0.3s; position: relative;
         }
+        .nav-btn i { font-size: 1.3rem; transition: 0.3s; }
+        .nav-btn span { font-size: 0.6rem; font-weight: 600; opacity: 0.7; }
         
-        .top-nav .nav-btn i { font-size: 1.2rem; margin-bottom: 4px; transition: transform 0.3s; }
-        .top-nav .nav-btn span { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; opacity: 0.8; }
-        
-        /* Active State Modernized */
-        .top-nav .nav-btn.active { color: var(--text-main); background: rgba(255,255,255,0.05); }
-        .top-nav .nav-btn.active i { color: var(--accent-primary); transform: translateY(-2px); }
-        .top-nav .nav-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.02); }
+        .nav-btn.active { color: var(--text-main); }
+        .nav-btn.active i { color: var(--accent-primary); transform: translateY(-2px); text-shadow: 0 0 10px var(--accent-glow); }
+        .nav-btn.active span { opacity: 1; }
 
-        /* ======== 2) Header Controls (Profile/Menu) ======== */
-        .portal-header-controls {
-            position: fixed; top: 0; left: 0; right: 0; 
-            height: 70px; pointer-events: none; z-index: 1001;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px;
-            max-width: 1200px; margin: 0 auto;
-        }
-        
-        .header-logo-area { pointer-events: auto; font-weight: 800; font-size: 1.2rem; background: var(--gradient-main); -webkit-background-clip: text; color: transparent; letter-spacing: -0.5px; opacity: 0; animation: fadeIn 0.5s forwards; }
-        .header-icons { pointer-events: auto; display: flex; gap: 10px; }
-        
-        .icon-btn {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-            color: var(--text-main); display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s;
-            position: relative;
-        }
-        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: var(--glass-highlight); transform: scale(1.05); }
-        .icon-btn.primary { background: var(--text-main); color: #000; border: none; }
-        
-        /* ======== 3) Main Content Area ======== */
-        /* Increased padding-top because navbar is always top */
-        .portal-content { 
-            padding-top: 110px; padding-bottom: 40px; padding-left: 20px; padding-right: 20px;
-            max-width: 900px; margin: 0 auto; 
-        }
-        
-        h1, h2, h3 { 
-            font-weight: 800; letter-spacing: -0.02em; 
-            color: var(--text-main); margin-bottom: 25px; 
-            position: relative;
-        }
-        
-        /* Inputs & Forms - Modernized */
-        input, select, textarea {
-            background: var(--bg-surface); border: 1px solid var(--glass-border);
-            color: var(--text-main); padding: 16px 20px; border-radius: var(--radius-md);
-            width: 100%; margin-bottom: 20px; font-family: var(--font-main);
-            transition: all 0.3s; outline: none; font-size: 1rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--accent-primary); background: rgba(59, 130, 246, 0.05);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
-        
-        /* Buttons - Modernized */
-        button.btn-primary {
-            background: var(--text-main);
-            border: none; color: #000; font-weight: 700; padding: 16px; border-radius: var(--radius-full);
-            cursor: pointer; box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
-            transition: all 0.3s; width: 100%; font-size: 1rem;
-            position: relative; overflow: hidden;
-        }
-        button.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2); }
-        button.btn-primary::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(255,255,255,0.2), transparent);
-            opacity: 0; transition: 0.3s;
-        }
-        button.btn-primary:hover::after { opacity: 1; }
-
-        button.btn-secondary {
-            background: transparent; border: 1px solid var(--glass-border);
-            color: var(--text-secondary); padding: 15px; border-radius: var(--radius-full);
-            cursor: pointer; transition: all 0.3s; width: 100%; font-size: 1rem; font-weight: 500;
-        }
-        button.btn-secondary:hover { color: var(--text-main); border-color: var(--text-main); background: rgba(255,255,255,0.02); }
-
-        /* Cards / List Items */
-        .list-item, .test-item, .student-test-item-container {
-            background: var(--bg-surface); border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg); padding: 25px; margin-bottom: 16px;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            position: relative; overflow: hidden;
-        }
-        .list-item::before {
-            content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%;
-            background: var(--gradient-main); opacity: 0; transition: 0.3s;
-        }
-        .list-item:hover, .student-test-item-container:hover {
-            transform: translateY(-4px); border-color: var(--glass-highlight);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
-            background: #141414;
-        }
-        .list-item:hover::before { opacity: 1; }
-
-        /* Chips & Filters */
-        .filter-chips { justify-content: center; margin-bottom: 30px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .filter-chip {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-secondary);
-            border-radius: var(--radius-full); padding: 8px 24px; font-size: 0.9rem; font-weight: 500;
-            cursor: pointer; transition: 0.3s;
-        }
-        .filter-chip.active {
-            background: var(--text-main); color: #000; border-color: var(--text-main); 
-            font-weight: 700; box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        /* ======== 2. Content Areas ======== */
+        .portal-container {
+            padding-top: calc(var(--nav-height) + 20px);
+            padding-bottom: 120px; /* Extra space for bottom inputs/bars */
+            padding-left: 20px; padding-right: 20px;
+            max-width: 800px; margin: 0 auto;
+            min-height: 100vh;
         }
 
-        /* FAB (Floating Action Button) */
-        #add-question-btn {
-            position: fixed; bottom: 40px; right: 30px;
-            width: 64px; height: 64px; border-radius: 50%;
-            background: var(--text-main); color: #000;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0 !important; 
-            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.2);
-            z-index: 900; border: none; transition: 0.4s var(--ease-elastic);
-        }
-        #add-question-btn::after {
-            content: "\f067"; font-family: "Font Awesome 6 Free"; font-weight: 900;
-            font-size: 1.5rem;
-        }
-        #add-question-btn:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 15px 50px rgba(255, 255, 255, 0.4); }
-
-        /* Role Selection (Landing) - Modernized */
-        #main-landing-page {
-            position: fixed; inset: 0; z-index: 2000;
+        /* ======== 3. Landing & Auth Overlay (High Z-Index) ======== */
+        #landing-layer, #auth-layer, #transition-layer {
+            position: fixed; inset: 0;
             background: var(--bg-deep);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            overflow: hidden;
+            z-index: 5000; /* Above everything */
+            display: flex; flex-direction: column;
+            overflow-y: auto;
         }
-        
-        .role-selection { display: flex; gap: 30px; z-index: 2; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 800px; padding: 20px; }
-        .selection-box { 
-            flex: 1; min-width: 250px; max-width: 300px; height: 200px;
-            background: linear-gradient(145deg, #111, #0a0a0a);
+
+        /* Landing Cards */
+        .landing-header { text-align: center; margin-top: 60px; margin-bottom: 40px; }
+        .role-cards-container {
+            display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; width: 100%; padding: 0 20px;
+        }
+        .role-card {
+            flex: 1; min-width: 140px; max-width: 250px; height: 180px;
+            background: linear-gradient(145deg, #181818, #0f0f0f);
             border: 1px solid var(--glass-border);
             border-radius: 30px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.4s ease;
-            position: relative; overflow: hidden;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .selection-box:hover { 
-            border-color: var(--accent-primary); 
-            transform: translateY(-10px); 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        .role-card:hover, .role-card.selected {
+            border-color: var(--accent-primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
         }
-        .selection-box i { 
-            font-size: 3.5rem; margin-bottom: 20px; 
-            background: -webkit-linear-gradient(#fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        .role-card i { font-size: 3rem; margin-bottom: 15px; color: var(--text-secondary); transition: 0.3s; }
+        .role-card:hover i, .role-card.selected i { color: var(--accent-primary); transform: scale(1.1); }
+        
+        /* Modern White Button (Transition) */
+        .modern-enter-btn {
+            background: #ffffff; color: #000000;
+            font-family: var(--font-main); font-weight: 800;
+            padding: 18px 40px; border-radius: 50px;
+            border: none; font-size: 1.1rem;
+            box-shadow: 0 0 30px rgba(255,255,255,0.2);
+            cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 40px;
+            animation: pulseWhite 2s infinite;
+        }
+        @keyframes pulseWhite { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 15px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
+
+        /* Auth Form (Clean) */
+        .auth-box {
+            width: 90%; max-width: 350px; margin: auto;
+            text-align: center;
+        }
+        .smart-input {
+            width: 100%; background: var(--bg-surface);
+            border: 1px solid var(--glass-border);
+            padding: 18px 20px; border-radius: 20px;
+            color: #fff; font-size: 1rem; margin-bottom: 15px;
+            outline: none; transition: 0.3s; text-align: center;
+            font-family: var(--font-main);
+        }
+        .smart-input:focus { border-color: var(--accent-primary); background: #151515; }
+        
+        /* ======== 4. Google Style Search ======== */
+        .search-container { position: relative; width: 100%; margin-bottom: 20px; }
+        .google-bar {
+            width: 100%; background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 40px; padding: 14px 20px; padding-left: 50px; /* Space for icon */
+            color: #fff; font-family: var(--font-main);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: 0.3s;
         }
-        .selection-box:hover i { transform: scale(1.1); background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* AI Chat Modern */
-        .chat-message {
-            padding: 18px 24px; border-radius: 20px; font-size: 0.95rem; line-height: 1.6;
-            margin-bottom: 15px; max-width: 85%; position: relative;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .google-bar:focus { border-color: var(--accent-primary); box-shadow: 0 4px 25px rgba(59, 130, 246, 0.15); }
+        .search-icon {
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            color: var(--text-secondary);
         }
-        .chat-message.ai {
-            align-self: flex-start;
-            background: #1a1a1a;
-            color: var(--text-main);
-            border-bottom-left-radius: 4px;
-            border: 1px solid var(--glass-border);
-        }
-        .chat-message.user {
-            align-self: flex-end;
-            background: var(--text-main);
-            color: #000; font-weight: 600;
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 5px 20px rgba(255,255,255,0.15);
-        }
-        
-        /* Dropdowns */
-        .header-dropdown-menu {
-            background: #111; border: 1px solid var(--glass-border);
-            border-radius: 16px; padding: 8px; min-width: 200px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-            backdrop-filter: blur(20px);
-        }
-        .dropdown-item {
-            padding: 12px 16px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; color: var(--text-secondary);
-        }
-        .dropdown-item:hover { background: rgba(255,255,255,0.1); color: var(--text-main); }
-        .dropdown-item i { width: 20px; text-align: center; }
 
-        /* Responsive Fixes for Navbar */
-        @media (max-width: 768px) {
-            .role-selection { flex-direction: column; align-items: center; }
-            .selection-box { width: 100%; height: 140px; flex-direction: row; justify-content: flex-start; padding: 0 40px; gap: 25px; }
-            
-            /* Keeping Top Nav at Top */
-            .top-nav { 
-                height: 65px; 
-                padding: 0 10px;
-            }
-            .header-logo-area { display: none; } /* Hide logo in nav on mobile to save space if needed, or keep minimal */
-            .top-nav .nav-btn span { font-size: 0.6rem; margin-top: 2px; }
-            .top-nav .nav-btn i { font-size: 1.1rem; }
-            
-            .portal-content { padding-top: 90px; }
-            
-            /* Move header controls slightly */
-            .portal-header-controls { 
-                padding: 0 15px; 
-                justify-content: flex-end; /* Push menu to right, nav is centered/left */
-                z-index: 1002; /* Above nav if needed */
-                pointer-events: none;
-            }
-            .portal-header-controls .header-icons { pointer-events: auto; }
+        /* ======== 5. AI Chat UI (Clean) ======== */
+        .ai-layout { display: flex; flex-direction: column; height: calc(100vh - 160px); position: relative; }
+        .ai-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px;}
+        
+        .chat-msg { max-width: 85%; padding: 12px 18px; border-radius: 18px; line-height: 1.5; font-size: 0.95rem; }
+        .chat-msg.ai { align-self: flex-start; background: var(--bg-card); color: var(--text-main); border-bottom-left-radius: 4px; }
+        .chat-msg.user { align-self: flex-end; background: var(--text-main); color: #000; font-weight: 600; border-bottom-right-radius: 4px; }
+        
+        /* Fixed Bottom AI Input */
+        .ai-input-fixed {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--bg-deep); border-top: 1px solid var(--glass-border);
+            padding: 15px; display: flex; gap: 10px; align-items: center; z-index: 2000;
         }
+        .ai-field-wrap {
+            flex: 1; background: var(--bg-surface); border-radius: 30px;
+            display: flex; align-items: center; padding: 5px 15px; border: 1px solid var(--glass-border);
+        }
+        .ai-field { flex: 1; background: transparent; border: none; padding: 10px; color: #fff; outline: none; }
+
+        /* ======== 6. Create Test (Inline Design) ======== */
+        .question-editor-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .question-editor-card h3 { margin-top: 0; color: var(--text-secondary); font-size: 1rem; margin-bottom: 15px; }
+
+        .type-toggle-btn {
+            background: transparent; border: 1px solid var(--glass-border);
+            color: var(--text-secondary); padding: 8px 16px; border-radius: 20px;
+            cursor: pointer; font-size: 0.9rem; transition: 0.3s;
+        }
+        .type-toggle-btn.active { background: var(--text-main); color: #000; font-weight: bold; border-color: var(--text-main); }
+
+        /* ======== 7. List Items & Cards ======== */
+        .card-item {
+            background: var(--bg-card); border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 20px; margin-bottom: 15px;
+            position: relative; overflow: hidden;
+        }
+
     </style>
 </head>
-<body class="no-select">
+<body>
 
-    <!-- ======== Main Landing Page Section ======== -->
-    <main id="main-landing-page" class="hidden">
+    <!-- ============ LAYER 1: Landing Page (Role Selection) ============ -->
+    <div id="landing-layer">
         <div class="landing-header">
-            <h1 style="font-size: 3.5rem; background: linear-gradient(to right, #fff, #999); -webkit-background-clip: text; color: transparent; margin-bottom: 10px;">EDU-GATE</h1>
-            <p style="color: var(--text-secondary); letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;">SA Educational Institution</p>
+            <h1 style="font-size: 2.5rem; background: var(--gradient-primary); -webkit-background-clip: text; color: transparent; margin: 0;">SA EDU</h1>
+            <p style="color: var(--text-secondary); letter-spacing: 2px; font-size: 0.8rem;">FUTURE GENERATION</p>
         </div>
 
-        <div class="role-selection" style="margin-top: 50px;">
-            <!-- Student Role -->
-            <div id="show-student-portal" class="selection-box">
+        <div class="role-cards-container">
+            <div class="role-card" onclick="selectRole('student', this)">
                 <i class="fas fa-user-astronaut"></i>
-                <div>
-                    <h2 style="margin:0; font-size: 1.5rem;">Student</h2>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">Access exams & results</span>
-                </div>
+                <h3>طالب</h3>
             </div>
-            <!-- Teacher Role -->
-            <div id="show-teacher-portal" class="selection-box">
+            <div class="role-card" onclick="selectRole('teacher', this)">
                 <i class="fas fa-chalkboard-user"></i>
-                 <div>
-                    <h2 style="margin:0; font-size: 1.5rem;">Teacher</h2>
-                    <span style="font-size: 0.8rem; color: var(--text-muted);">Manage assessments</span>
-                </div>
+                <h3>معلم</h3>
             </div>
         </div>
-    </main>
 
-    <!-- ======== Teacher Portal Section ======== -->
-    <div id="teacher-portal" class="portal-container hidden">
-        <!-- Unified Top Navbar -->
-        <nav class="top-nav hidden" id="teacher-top-nav">
+        <!-- Hidden by default, shows after selection -->
+        <div id="transition-area" class="hidden flex-center" style="margin-top: 50px;">
+            <button class="modern-enter-btn" onclick="goToAuth()">
+                <span>الذهاب إلى العالم الحديث</span>
+                <i class="fas fa-arrow-left"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- ============ LAYER 2: Smart Auth (One Form) ============ -->
+    <div id="auth-layer" class="hidden">
+        <div class="flex-center" style="height: 100vh; flex-direction: column;">
+            <div onclick="backToLanding()" style="position: absolute; top: 30px; right: 30px; padding: 10px; cursor: pointer; color: var(--text-secondary);"><i class="fas fa-arrow-right fa-lg"></i></div>
+            
+            <h2 style="margin-bottom: 10px;">تسجيل الدخول الذكي</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">أدخل اسمك للدخول أو إنشاء حساب جديد</p>
+            
+            <div class="auth-box">
+                <input type="text" id="auth-name" class="smart-input" placeholder="الاسم (مثال: أحمد)" autocomplete="off">
+                <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري المميز" autocomplete="new-password">
+                <button onclick="handleSmartAuth()" class="modern-enter-btn" style="width: 100%; margin-top: 10px; justify-content: center; font-size: 1rem; padding: 15px;">
+                    اتصال <i class="fas fa-bolt"></i>
+                </button>
+                <div id="auth-status" style="margin-top: 20px; color: var(--accent-primary); height: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ LAYER 3: Main App (Teacher & Student) ============ -->
+    
+    <!-- TEACHER APP -->
+    <div id="teacher-app" class="hidden">
+        <nav class="top-nav">
             <div class="nav-container">
-                <button class="nav-btn active" data-target="teacher-tests-content">
-                    <i class="fas fa-layer-group"></i><span>Library</span>
-                </button>
-                <button class="nav-btn" data-target="teacher-results-content">
-                    <i class="fas fa-chart-pie"></i><span>Results</span>
-                </button>
-                <button class="nav-btn" data-target="teacher-create-content">
-                    <i class="fas fa-pen-nib"></i><span>Create</span>
-                </button>
-                <button class="nav-btn" data-target="teacher-ai-content">
-                    <i class="fas fa-brain"></i><span>AI Assist</span>
-                </button>
+                <button class="nav-btn active" onclick="switchTab('t-library', this)"><i class="fas fa-book"></i><span>المكتبة</span></button>
+                <button class="nav-btn" onclick="switchTab('t-results', this)"><i class="fas fa-chart-pie"></i><span>النتائج</span></button>
+                <button class="nav-btn" onclick="switchTab('t-create', this)"><i class="fas fa-plus-circle"></i><span>إنشاء</span></button>
+                <button class="nav-btn" onclick="switchTab('t-ai', this)"><i class="fas fa-sparkles"></i><span>SA AI</span></button>
+                <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
-        
-        <header class="portal-header-controls hidden">
-             <div class="header-logo-area">SA EDU</div>
-             <div class="header-icons">
-                <div class="header-menu-container">
-                    <div id="teacher-menu-icon" class="icon-btn"><i class="fas fa-bars"></i></div>
-                    <div id="teacher-dropdown-menu" class="header-dropdown-menu hidden" style="position: absolute; top: 60px; left: 0; z-index: 5000;">
-                        <div class="dropdown-item" id="teacher-settings-btn"><i class="fas fa-cog"></i><span>Settings</span></div>
-                        <div class="dropdown-item" id="teacher-share-platform-btn"><i class="fas fa-share-alt"></i><span>Share Platform</span></div>
-                        <hr style="margin: 5px 0; border-color: rgba(255,255,255,0.1);">
-                        <div class="dropdown-item" id="teacher-logout-btn" style="color: var(--danger);"><i class="fas fa-power-off"></i><span>Logout</span></div>
-                    </div>
+
+        <div class="portal-container">
+            <!-- Library -->
+            <section id="t-library" class="app-section">
+                <h2>مكتبة الاختبارات</h2>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="google-bar" id="t-search" placeholder="ابحث في اختباراتك...">
                 </div>
-            </div>
-        </header>
-
-        <!-- Back Arrow (For Auth screens) -->
-        <div onclick="window.location.reload()" class="back-arrow-glass hidden" id="teacher-home-back" style="position:fixed; top:20px; right:20px; z-index:2000; width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fas fa-arrow-right"></i></div>
-
-        <div class="portal-content">
-            <!-- Register -->
-            <section id="teacher-register-section">
-                <div onclick="document.getElementById('main-landing-page').classList.remove('hidden'); document.getElementById('teacher-portal').classList.add('hidden');" class="icon-btn" style="margin-bottom: 20px;"><i class="fas fa-arrow-right"></i></div>
-                <h1 style="text-align: center; margin-top: 20px;">Teacher Access</h1>
-                <input type="text" id="teacher-register-name" placeholder="Full Name (English)" required />
-                <input type="password" id="teacher-register-password" placeholder="Password" required />
-                <button id="teacher-register-btn" class="btn-primary">Create Account</button>
-                <p style="text-align: center; margin-top: 20px; color: var(--text-secondary);">Already have an account? <a href="#" class="to-login" style="color: var(--text-main); font-weight:bold;">Login</a></p>
-            </section>
-            
-            <!-- Login -->
-            <section id="teacher-login-section" class="hidden">
-                <div onclick="document.getElementById('main-landing-page').classList.remove('hidden'); document.getElementById('teacher-portal').classList.add('hidden');" class="icon-btn" style="margin-bottom: 20px;"><i class="fas fa-arrow-right"></i></div>
-                <h1 style="text-align: center; margin-top: 20px;">Welcome Back</h1>
-                <input type="text" id="teacher-login-name" placeholder="Full Name (English)" required />
-                <input type="password" id="teacher-login-password" placeholder="Password" required />
-                <button id="teacher-login-btn" class="btn-primary">Enter Dashboard</button>
-                <p style="text-align: center; margin-top: 20px; color: var(--text-secondary);">New here? <a href="#" class="to-register" style="color: var(--text-main); font-weight:bold;">Register</a></p>
+                <div id="t-tests-list"></div>
             </section>
 
-            <section id="teacher-dashboard-section" class="hidden">
-                <!-- Tests List -->
-                <div id="teacher-tests-content" class="tab-content">
-                    <div class="dashboard-header-controls" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2 style="margin:0;">Library</h2>
-                        <button id="teacher-refresh-btn" class="icon-btn"><i class="fas fa-sync-alt"></i></button>
-                    </div>
-                    <input type="text" id="teacher-search-bar" placeholder="Search tests..."/>
-                    <div id="teacher-filter-container" class="filter-chips"></div>
-                    <div id="my-tests-container"></div>
+            <!-- Results -->
+            <section id="t-results" class="app-section hidden">
+                <h2>نتائج الطلاب</h2>
+                <select id="t-result-select" class="smart-input" style="text-align: right;"><option>اختر الاختبار</option></select>
+                <div id="t-results-container"></div>
+            </section>
+
+            <!-- Create -->
+            <section id="t-create" class="app-section hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>اختبار جديد</h2>
+                    <button onclick="toggleAiGenerator()" style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent-primary); color: var(--accent-primary); padding: 8px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;">
+                        <i class="fas fa-magic"></i> SA AI Generator
+                    </button>
                 </div>
                 
-                <!-- Results -->
-                <div id="teacher-results-content" class="tab-content hidden">
-                    <h2>Student Performance</h2>
-                    <select id="results-test-selector"></select>
-                    <div id="student-results-container"></div>
+                <!-- Main Test Info -->
+                <input type="text" id="new-test-name" class="smart-input" placeholder="عنوان الاختبار" style="text-align: right; font-weight: bold; margin-top: 15px;">
+                <div style="display: flex; gap: 10px;">
+                    <select id="new-test-grade" class="smart-input" style="text-align: right;">
+                        <option value="" disabled selected>الصف الدراسي</option>
+                        <option value="الصف الأول">الصف الأول</option>
+                        <option value="الصف الثاني">الصف الثاني</option>
+                        <option value="الصف الثالث">الصف الثالث</option>
+                    </select>
+                    <input type="number" id="new-test-duration" class="smart-input" placeholder="دقيقة" style="width: 80px;">
                 </div>
 
-                <!-- Create Test -->
-                 <div id="teacher-create-content" class="tab-content hidden">
-                    <div id="teacher-create-test-content">
-                        <h2 id="create-edit-title">New Assessment</h2>
-                        
-                        <!-- AI Trigger -->
-                        <button id="toggle-ai-generation-btn" class="btn-secondary" style="margin-bottom: 25px; border-color: var(--accent-glow); color: var(--accent-primary); background: rgba(59,130,246,0.1);">
-                            <i class="fas fa-sparkles"></i> Generate with AI
-                        </button>
-                        
-                        <!-- AI GENERATION SCREEN (Full Overlay) -->
-                        <div id="ai-test-generation-container" class="hidden" style="position: fixed; inset: 0; background: var(--bg-deep); z-index: 5000; padding: 100px 20px; overflow-y: auto;">
-                            <div class="close-ai-trigger" onclick="document.getElementById('toggle-ai-generation-btn').click()" style="position: absolute; top: 30px; left: 30px; font-size: 1.5rem; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border-radius: 50%;">
-                                <i class="fas fa-times"></i>
-                            </div>
-                            
-                            <div style="text-align: center;">
-                                <i class="fas fa-fingerprint ai-header-icon" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 15px;"></i>
-                                <div class="ai-title-label" style="font-size: 1.5rem; font-weight: 700; margin-bottom: 30px;">Intelligent Generator</div>
-                            </div>
-                            
-                            <div class="ai-options-group" style="max-width: 500px; margin: 0 auto;">
-                                <label for="ai-question-image-input" class="file-input-label" style="display: block; text-align: center; padding: 30px; border: 1px dashed var(--glass-border); border-radius: 20px; margin-bottom: 20px; cursor: pointer; transition: 0.3s; background: var(--bg-surface);">
-                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 10px; color: var(--text-secondary);"></i><br>
-                                    <span style="color: var(--text-secondary);">Upload Source Material</span>
-                                </label>
-                                <input type="file" id="ai-question-image-input" accept="image/*" class="hidden" />
-                                <div id="ai-image-preview-container" class="image-preview-container hidden"><img class="image-preview" src="#" alt="Preview" style="max-height: 150px; border-radius: 10px; margin: 0 auto; display: block;" /></div>
-                                
-                                <textarea id="ai-text-input" rows="3" placeholder="Or paste topic/content here..." style="margin-top: 15px;"></textarea>
-                                
-                                <div class="ai-input-row" style="display: flex; gap: 15px; margin-top: 20px;">
-                                    <div style="flex: 1;">
-                                        <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--text-secondary);">MCQ Count</label>
-                                        <input type="number" id="ai-num-questions" min="0" value="5" />
-                                    </div>
-                                    <div style="flex: 1;">
-                                        <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--text-secondary);">Points/Q</label>
-                                        <input type="number" id="ai-mcq-points" min="1" value="1" />
-                                    </div>
-                                </div>
-                                <div class="ai-input-row" style="display: flex; gap: 15px;">
-                                    <div style="flex: 1;">
-                                        <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--text-secondary);">Essay Count</label>
-                                        <input type="number" id="ai-num-essay-questions" min="0" value="0"/>
-                                    </div>
-                                    <div style="flex: 1;">
-                                        <label style="display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--text-secondary);">Points/Q</label>
-                                        <input type="number" id="ai-essay-points" min="1" value="5" />
-                                    </div>
-                                </div>
-                                
-                                <button id="generate-ai-test-btn" class="btn-primary" style="margin-top: 30px;">
-                                    <i class="fas fa-magic"></i> Create Assessment
-                                </button>
-                            </div>
-                            <!-- Hidden unused fields to prevent errors -->
-                            <div class="hidden">
-                                <div class="ai-image-type-switcher"><button class="switch-button active" data-type="questions-only"></button></div>
-                                <input type="checkbox" id="ai-allow-increase">
-                            </div>
-                        </div>
-                        
-                        <!-- Manual Creation Form -->
-                        <div style="background: var(--bg-surface); padding: 20px; border-radius: var(--radius-lg); margin-bottom: 20px;">
-                            <input type="text" id="test-name" placeholder="Assessment Title" style="font-weight: 700;" />
-                            
-                            <select id="test-grade">
-                                <option value="" disabled selected>Select Grade Level</option>
-                                <optgroup label="Primary Education">
-                                    <option value="Grade 1">Grade 1</option>
-                                    <option value="Grade 2">Grade 2</option>
-                                    <option value="Grade 3">Grade 3</option>
-                                    <option value="Grade 4">Grade 4</option>
-                                    <option value="Grade 5">Grade 5</option>
-                                    <option value="Grade 6">Grade 6</option>
-                                </optgroup>
-                                <optgroup label="Secondary Education">
-                                    <option value="Grade 1 Secondary">Grade 1 Secondary</option>
-                                    <option value="Grade 2 Secondary - Science">Grade 2 Secondary (Science)</option>
-                                    <option value="Grade 2 Secondary - Literature">Grade 2 Secondary (Literature)</option>
-                                    <option value="Grade 3 Secondary - Science (Bio)">Grade 3 Secondary (Biology)</option>
-                                    <option value="Grade 3 Secondary - Science (Math)">Grade 3 Secondary (Math)</option>
-                                    <option value="Grade 3 Secondary - Literature">Grade 3 Secondary (Literature)</option>
-                                </optgroup>
-                            </select>
-
-                            <div style="display: flex; gap: 10px;">
-                                <input type="number" id="test-duration" min="1" placeholder="Duration (Mins)" />
-                                <input type="number" id="scheduled-release-delay" min="0" placeholder="Delay Start (Mins)" />
-                            </div>
-                            
-                            <div class="checkbox-container" style="margin-bottom: 10px; display: flex; align-items: center;">
-                                <input type="checkbox" id="prevent-go-back-checkbox" style="width: 20px; margin: 0; margin-left: 10px;">
-                                <label for="prevent-go-back-checkbox" style="margin: 0; cursor:pointer;">Strict Mode (No Back Navigation)</label>
-                            </div>
-                        </div>
-
-                        <!-- Add Question Trigger -->
-                        <button id="add-question-btn" class="icon-btn" title="Add Question">
-                           <i class="fas fa-plus"></i>
-                        </button>
-
-                        <!-- Manual Question Form -->
-                        <div style="border-top: 1px solid var(--glass-border); margin: 30px 0; padding-top: 20px;">
-                            <h3 style="font-size: 1.1rem;">Question Editor</h3>
-                            <div class="switch-button-container" id="question-type-switcher" style="background: rgba(0,0,0,0.3); padding: 5px; border-radius: 50px; display: flex; margin-bottom: 15px;">
-                                <button class="switch-button active" data-type="mcq" style="flex: 1; padding: 10px; background: transparent; border: none; border-radius: 50px; color: var(--text-secondary); cursor: pointer; transition: 0.3s;">Multiple Choice</button>
-                                <button class="switch-button" data-type="essay" style="flex: 1; padding: 10px; background: transparent; border: none; border-radius: 50px; color: var(--text-secondary); cursor: pointer; transition: 0.3s;">Essay / Text</button>
-                                <style> .switch-button.active { background: var(--glass-highlight) !important; color: var(--text-main) !important; font-weight: bold; } </style>
-                            </div>
-                            
-                            <textarea id="question-text" rows="2" placeholder="Question Text..." style="margin-bottom: 10px;"></textarea>
-                            
-                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                                <label for="question-image-input" class="btn-secondary" style="flex: 1; text-align: center; padding: 10px; cursor: pointer;">
-                                    <i class="fas fa-camera"></i> Image
-                                </label>
-                                <input type="number" id="question-points" min="1" placeholder="Pts" style="width: 80px; margin: 0; text-align: center;">
-                            </div>
-                            <input type="file" id="question-image-input" accept="image/*" class="hidden" />
-                            <div class="image-preview-container hidden" style="margin-bottom: 10px;"><img class="image-preview" src="#" alt="Preview" style="max-height: 100px; border-radius: 8px;" /></div>
-                            
-                            <div id="mcq-fields">
-                                <div class="option-container" style="position: relative; margin-bottom: 8px;"><input type="text" class="option-input" placeholder="Option 1" style="margin: 0; padding-left: 40px;" /><i class="fas fa-check-circle correct-answer-selector" data-index="1" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--glass-border); font-size: 1.2rem;"></i></div>
-                                <div class="option-container" style="position: relative; margin-bottom: 8px;"><input type="text" class="option-input" placeholder="Option 2" style="margin: 0; padding-left: 40px;" /><i class="fas fa-check-circle correct-answer-selector" data-index="2" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--glass-border); font-size: 1.2rem;"></i></div>
-                                <div class="option-container" style="position: relative; margin-bottom: 8px;"><input type="text" class="option-input" placeholder="Option 3" style="margin: 0; padding-left: 40px;" /><i class="fas fa-check-circle correct-answer-selector" data-index="3" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--glass-border); font-size: 1.2rem;"></i></div>
-                                <div class="option-container" style="position: relative; margin-bottom: 8px;"><input type="text" class="option-input" placeholder="Option 4" style="margin: 0; padding-left: 40px;" /><i class="fas fa-check-circle correct-answer-selector" data-index="4" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--glass-border); font-size: 1.2rem;"></i></div>
-                                <style> .correct-answer-selector.selected { color: var(--success) !important; } </style>
-                            </div>
-                            <div id="essay-fields" class="hidden">
-                                 <label for="model-answer-image-input" class="btn-secondary" style="display: block; text-align: center; margin-bottom: 10px;"><i class="fas fa-file-image"></i> Model Answer Image (Optional)</label>
-                                 <input type="file" id="model-answer-image-input" accept="image/*" class="hidden"><div class="image-preview-container hidden"><img class="image-preview" src="#" alt="preview" style="max-height: 100px; border-radius: 8px;" /></div>
-                            </div>
-                            
-                            <!-- Hidden triggers -->
-                            <button id="add-question-btn-real" class="hidden">Add</button>
-                            <button id="cancel-question-edit-btn" class="btn-secondary hidden" style="margin-top: 10px; border-color: var(--danger); color: var(--danger);">Cancel Question Edit</button>
-                        </div>
-                        
-                        <!-- List -->
-                        <div id="questions-list-container" style="margin-top: 20px;"></div>
-                        
-                        <div style="height: 100px;"></div> <!-- Spacer for FAB -->
-                        <div style="position: fixed; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(to top, #000 80%, transparent); z-index: 899; display: flex; gap: 10px; justify-content: center;">
-                             <button id="save-test-btn" class="btn-primary" style="max-width: 400px;">Save Assessment</button>
-                             <button id="cancel-test-edit-btn" class="btn-secondary hidden" style="width: auto; background: var(--bg-surface);">Cancel</button>
-                        </div>
+                <!-- Inline Question Editor (Old Design Restored) -->
+                <div class="question-editor-card">
+                    <h3><i class="fas fa-edit"></i> محرر الأسئلة</h3>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                        <button id="type-mcq" class="type-toggle-btn active" onclick="setQType('mcq')">اختياري</button>
+                        <button id="type-essay" class="type-toggle-btn" onclick="setQType('essay')">مقال</button>
                     </div>
+
+                    <textarea id="q-text" class="smart-input" rows="2" placeholder="اكتب نص السؤال هنا..." style="text-align: right; margin-bottom: 10px;"></textarea>
+                    
+                    <div id="mcq-options-area">
+                        <div style="position: relative; margin-bottom: 8px;">
+                            <input type="text" class="smart-input q-opt" placeholder="الخيار 1 (الإجابة الصحيحة)" style="border-color: var(--success); padding-left: 10px;">
+                            <i class="fas fa-check-circle" style="position: absolute; left: 15px; top: 15px; color: var(--success);"></i>
+                        </div>
+                        <input type="text" class="smart-input q-opt" placeholder="الخيار 2">
+                        <input type="text" class="smart-input q-opt" placeholder="الخيار 3">
+                        <input type="text" class="smart-input q-opt" placeholder="الخيار 4">
+                    </div>
+
+                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+                        <input type="number" id="q-points" value="1" class="smart-input" style="width: 70px; margin: 0;" placeholder="درجة">
+                        <label for="q-image-input" style="flex: 1; text-align: center; padding: 12px; border: 1px dashed var(--glass-border); border-radius: 15px; cursor: pointer; color: var(--text-secondary); transition: 0.3s;">
+                            <i class="fas fa-image"></i> إرفاق صورة
+                        </label>
+                        <input type="file" id="q-image-input" hidden accept="image/*">
+                        <div id="q-img-preview" class="hidden" style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden;"><img src="" style="width: 100%; height: 100%; object-fit: cover;"></div>
+                    </div>
+
+                    <button onclick="addQuestionToList()" class="modern-enter-btn" style="width: 100%; margin-top: 15px; padding: 12px; font-size: 0.95rem; background: var(--bg-surface); border: 1px solid var(--glass-border); color: var(--text-main);">
+                        <i class="fas fa-plus"></i> إضافة للسؤال
+                    </button>
                 </div>
 
-                <!-- Smart Assistant -->
-                <div id="teacher-ai-content" class="tab-content hidden">
-                    <h2 style="text-align: center; background: var(--gradient-main); -webkit-background-clip: text; color: transparent;">Smart Assistant</h2>
-                    <div class="ai-chat-container">
-                        <div class="ai-chat-messages" id="teacher-ai-messages" style="flex: 1; overflow-y: auto; padding: 10px;">
-                            <div class="chat-message ai">Hello. I am your intelligent assistant. How can I optimize your workflow today?</div>
-                        </div>
-                        <div id="teacher-ai-image-preview" class="hidden" style="padding: 10px;"><img src="" alt="preview" style="max-height: 100px; border-radius: 10px;"/></div>
-                        <div class="ai-chat-input-box" style="display: flex; gap: 10px; padding: 10px; background: var(--bg-surface); border-radius: 50px; border: 1px solid var(--glass-border);">
-                            <label for="teacher-ai-image" class="icon-btn" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); cursor: pointer;"><i class="fas fa-paperclip"></i></label>
-                            <input type="file" id="teacher-ai-image" class="hidden" accept="image/*" />
-                            <input type="text" id="teacher-ai-input" placeholder="Type your query..." style="flex: 1; border: none; background: transparent; margin: 0; padding: 0 10px; height: 40px; color: #fff;" />
-                            <button id="teacher-ai-send" class="icon-btn primary" style="width: 40px; height: 40px; border-radius: 50%;"><i class="fas fa-arrow-up"></i></button>
-                        </div>
+                <!-- Questions List -->
+                <div id="added-questions-list" style="margin-bottom: 20px;"></div>
+
+                <!-- Save Button (Bottom of Page) -->
+                <button class="modern-enter-btn" onclick="saveTest()" style="width: 100%; justify-content: center; background: var(--success); color: white; margin-bottom: 50px;">
+                    <i class="fas fa-save"></i> حفظ الاختبار النهائي
+                </button>
+            </section>
+
+            <!-- AI -->
+            <section id="t-ai" class="app-section hidden">
+                <div class="ai-layout">
+                    <div class="ai-messages" id="t-ai-msgs">
+                        <div class="chat-msg ai">مرحباً يا أستاذ. أنا SA AI، كيف أساعدك اليوم؟</div>
                     </div>
+                </div>
+                <div class="ai-input-fixed">
+                    <div class="ai-field-wrap">
+                        <label for="t-ai-file" style="cursor: pointer;"><i class="fas fa-paperclip" style="color: #888;"></i></label>
+                        <input type="file" id="t-ai-file" hidden>
+                        <input type="text" id="t-ai-input" class="ai-field" placeholder="تحدث مع الذكاء الاصطناعي...">
+                    </div>
+                    <button onclick="sendAiMsg('t')" style="width: 45px; height: 45px; border-radius: 50%; background: var(--text-main); border: none; cursor: pointer;">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
                 </div>
             </section>
-        </div>
-        
-        <!-- Teacher Modals -->
-        <div id="teacher-review-modal" class="modal-overlay hidden" style="position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center;">
-            <div class="modal-content" style="background: var(--bg-surface); width: 95%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-radius: 20px; padding: 25px; border: 1px solid var(--glass-border);">
-                <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 id="review-modal-title" style="margin:0;">Review</h2>
-                    <button class="modal-close-btn" style="background:transparent; border:none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer;">&times;</button>
-                </div>
-                <div id="review-modal-body" class="modal-body"></div>
-                <div id="review-modal-footer" class="modal-footer hidden" style="margin-top: 20px;">
-                    <button id="finalize-grades-btn" class="btn-primary">Finalize</button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="teacher-settings-modal" class="modal-overlay hidden" style="position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center;">
-            <div class="modal-content" style="background: var(--bg-surface); width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; border: 1px solid var(--glass-border);">
-                <button class="modal-close-btn" style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
-                <h2>Settings</h2>
-                <input type="text" id="teacher-update-name" placeholder="New Name">
-                <input type="password" id="teacher-update-password" placeholder="New Password">
-                <div class="hidden"><select id="theme-selector"><option value="auto">Auto</option></select></div>
-                <button id="teacher-update-btn" class="btn-primary" style="margin-top: 10px;">Update Profile</button>
-            </div>
         </div>
     </div>
 
-    <!-- ======== Student Portal Section ======== -->
-    <div id="student-portal" class="portal-container hidden">
-         <nav class="top-nav hidden" id="student-top-nav">
-             <div class="nav-container">
-                <button class="nav-btn active" data-target="student-tests-content"><i class="fas fa-book"></i><span>Exams</span></button>
-                <button class="nav-btn" data-target="student-results-content"><i class="fas fa-trophy"></i><span>Grades</span></button>
-                <button class="nav-btn" data-target="student-ai-content"><i class="fas fa-robot"></i><span>Assist</span></button>
+    <!-- STUDENT APP -->
+    <div id="student-app" class="hidden">
+        <nav class="top-nav">
+            <div class="nav-container">
+                <button class="nav-btn active" onclick="switchTab('s-exams', this)"><i class="fas fa-pen-nib"></i><span>اختبارات</span></button>
+                <button class="nav-btn" onclick="switchTab('s-grades', this)"><i class="fas fa-trophy"></i><span>درجاتي</span></button>
+                <button class="nav-btn" onclick="switchTab('s-ai', this)"><i class="fas fa-robot"></i><span>SA AI</span></button>
+                <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
-        
-         <header class="portal-header-controls hidden">
-            <div class="header-logo-area">SA EDU</div>
-            <div class="header-icons">
-                 <div class="header-menu-container">
-                    <div id="student-menu-icon" class="icon-btn"><i class="fas fa-bars"></i></div>
-                    <div id="student-dropdown-menu" class="header-dropdown-menu hidden" style="position: absolute; top: 60px; left: 0; z-index: 5000;">
-                        <div class="dropdown-item" id="student-settings-btn"><i class="fas fa-cog"></i><span>Settings</span></div>
-                        <div class="dropdown-item" id="student-share-platform-btn"><i class="fas fa-share-alt"></i><span>Share Platform</span></div>
-                        <hr style="margin: 5px 0; border-color: rgba(255,255,255,0.1);">
-                        <div class="dropdown-item" id="student-logout-btn" style="color: var(--danger);"><i class="fas fa-power-off"></i><span>Logout</span></div>
-                    </div>
-                </div>
-            </div>
-        </header>
 
-         <div class="portal-content">
-            <!-- Auth Student -->
-            <section id="student-register-section">
-                <div onclick="document.getElementById('main-landing-page').classList.remove('hidden'); document.getElementById('student-portal').classList.add('hidden');" class="icon-btn" style="margin-bottom: 20px;"><i class="fas fa-arrow-right"></i></div>
-                <h1 style="text-align: center; margin-top: 20px;">Student Registration</h1>
-                <input type="text" id="student-register-name" placeholder="Full Name (English)" required autocomplete="off">
-                <input type="password" id="student-register-password" placeholder="Password" required autocomplete="new-password">
-                <button id="student-register-btn" class="btn-primary">Join Now</button>
-                <p style="text-align: center; margin-top: 20px; color: var(--text-secondary);">Registered? <a href="#" class="to-login" style="color: var(--text-main); font-weight:bold;">Login</a></p>
+        <div class="portal-container">
+            <section id="s-exams" class="app-section">
+                <h2>الاختبارات المتاحة</h2>
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="google-bar" id="s-search" placeholder="ابحث عن اختبار...">
+                </div>
+                <div id="s-exams-list"></div>
             </section>
             
-            <section id="student-login-section" class="hidden">
-                <div onclick="document.getElementById('main-landing-page').classList.remove('hidden'); document.getElementById('student-portal').classList.add('hidden');" class="icon-btn" style="margin-bottom: 20px;"><i class="fas fa-arrow-right"></i></div>
-                <h1 style="text-align: center; margin-top: 20px;">Student Login</h1>
-                <input type="text" id="student-login-name" placeholder="Full Name (English)" required autocomplete="off">
-                <input type="password" id="student-login-password" placeholder="Password" required autocomplete="current-password">
-                <button id="student-login-btn" class="btn-primary">Enter</button>
-                <p style="text-align: center; margin-top: 20px; color: var(--text-secondary);">Need account? <a href="#" class="to-register" style="color: var(--text-main); font-weight:bold;">Register</a></p>
+            <section id="s-grades" class="app-section hidden">
+                <h2>سجل الدرجات</h2>
+                <div id="s-grades-list"></div>
             </section>
 
-            <section id="student-dashboard-section" class="hidden">
-                <div class="tab-content" id="student-tests-content">
-                    <div class="dashboard-header-controls" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                        <h2 style="margin:0;">Available Exams</h2>
-                        <button id="refresh-tests-btn" class="icon-btn"><i class="fas fa-sync-alt"></i></button>
+            <section id="s-ai" class="app-section hidden">
+                <div class="ai-layout">
+                    <div class="ai-messages" id="s-ai-msgs">
+                        <div class="chat-msg ai">أهلاً بك! أنا SA AI، مساعدك الدراسي الذكي.</div>
                     </div>
-                    <input type="text" id="search-bar" placeholder="Find exams..."/>
-                    <div id="student-filter-container" class="filter-chips"></div>
-                    <div id="available-tests-container"></div>
                 </div>
-                
-                <div class="tab-content hidden" id="student-results-content">
-                    <h2>History</h2>
-                    <div id="my-student-results-container-wrapper"><div id="my-student-results-container"></div></div>
-                </div>
-                
-                <div class="tab-content hidden" id="student-ai-content">
-                    <h2 style="text-align: center; background: var(--gradient-main); -webkit-background-clip: text; color: transparent;">Study Companion</h2>
-                    <div class="ai-chat-container">
-                        <div class="ai-chat-messages" id="student-ai-messages" style="flex: 1; overflow-y: auto; padding: 10px;">
-                            <div class="chat-message ai">Hi there! I'm your study companion. Need help with a topic?</div>
-                        </div>
-                        <div id="student-ai-image-preview" class="hidden" style="padding: 10px;"><img src="" alt="preview" style="max-height: 100px; border-radius: 10px;" /></div>
-                        <div class="ai-chat-input-box" style="display: flex; gap: 10px; padding: 10px; background: var(--bg-surface); border-radius: 50px; border: 1px solid var(--glass-border);">
-                            <label for="student-ai-image" class="icon-btn" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); cursor: pointer;"><i class="fas fa-paperclip"></i></label>
-                            <input type="file" id="student-ai-image" class="hidden" accept="image/*" />
-                            <input type="text" id="student-ai-input" placeholder="Ask me anything..." style="flex: 1; border: none; background: transparent; margin: 0; padding: 0 10px; height: 40px; color: #fff;" />
-                            <button id="student-ai-send" class="icon-btn primary" style="width: 40px; height: 40px; border-radius: 50%;"><i class="fas fa-arrow-up"></i></button>
-                        </div>
+                <div class="ai-input-fixed">
+                    <div class="ai-field-wrap">
+                        <label for="s-ai-file" style="cursor: pointer;"><i class="fas fa-paperclip" style="color: #888;"></i></label>
+                        <input type="file" id="s-ai-file" hidden>
+                        <input type="text" id="s-ai-input" class="ai-field" placeholder="اسألني أي شيء...">
                     </div>
+                    <button onclick="sendAiMsg('s')" style="width: 45px; height: 45px; border-radius: 50%; background: var(--text-main); border: none; cursor: pointer;">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
                 </div>
             </section>
 
-            <!-- Taking Test UI -->
-            <section id="take-test-section" class="hidden">
+            <!-- Taking Test Interface -->
+            <section id="s-taking-test" class="app-section hidden">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <h2 id="current-test-title" style="font-size: 1.2rem; margin: 0; color: var(--text-secondary);"></h2>
-                    <div id="timer" style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); font-variant-numeric: tabular-nums;"></div>
+                    <h2 id="active-test-title" style="justify-content: center;">...</h2>
+                    <div id="test-timer" style="font-size: 2rem; font-weight: bold; color: var(--accent-primary);">00:00</div>
                 </div>
-                <div style="width:100%; height:6px; background:rgba(255,255,255,0.05); border-radius:10px; overflow:hidden; margin-bottom:30px;">
-                    <div id="timer-progress" style="height:100%; width:100%; background: var(--gradient-main); transition:width .5s linear;"></div>
-                </div>
-                
-                <div id="questions-display"></div>
-                
-                <div id="question-navigation-container" style="display:flex; gap:10px; margin-top: 20px;" class="hidden">
-                    <button id="prev-question-btn" class="btn-secondary">Back</button>
-                    <button id="next-question-btn" class="btn-primary">Next</button>
-                </div>
-                
-                <div style="display: flex; gap: 10px; margin-top: 40px;">
-                    <button id="cancel-test-btn" class="btn-secondary" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);">Cancel</button>
-                    <button id="submit-test-btn" class="btn-primary" style="background: var(--success); color: #fff;">Submit Exam</button>
-                </div>
+                <div id="test-questions-render"></div>
+                <button onclick="submitExam()" class="modern-enter-btn" style="width: 100%; justify-content: center; background: var(--success); color: white;">تسليم الإجابة</button>
             </section>
-            
-            <section id="test-result-section" class="hidden">
-                <div style="text-align: center; padding: 60px 0;">
-                    <h1 style="font-size: 2rem;">Results</h1>
-                    <h2 id="final-score" style="font-size: 4rem; margin: 20px 0; background: var(--gradient-main); -webkit-background-clip: text; color: transparent;"></h2>
-                    <div id="feedback-message" style="padding: 20px; background: var(--bg-surface); border-radius: 20px; margin-top: 15px; border: 1px solid var(--glass-border);"></div>
-                </div>
-                <button id="review-answers-btn" class="btn-primary">Review Answers</button>
-                <button id="back-to-dashboard-btn" class="btn-secondary" style="margin-top: 10px;">Back to Home</button>
-            </section>
-            
-            <section id="review-section" class="hidden">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-                     <h1>Review</h1>
-                     <button id="back-to-dashboard-from-review-btn" class="btn-secondary" style="width: auto; padding: 8px 20px !important; margin:0;">Close</button>
-                </div>
-                <div id="review-container"></div>
-            </section>
-         </div>
-         
-         <div id="student-settings-modal" class="modal-overlay hidden" style="position: fixed; inset: 0; z-index: 4000; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center;">
-            <div class="modal-content" style="background: var(--bg-surface); width: 90%; max-width: 400px; border-radius: 20px; padding: 30px; border: 1px solid var(--glass-border);">
-                <button class="modal-close-btn" style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
-                <h2>Settings</h2>
-                <input type="text" id="student-update-name" placeholder="New Name">
-                <input type="password" id="student-update-password" placeholder="New Password">
-                <div class="hidden"><select id="student-theme-selector"><option value="auto">Auto</option></select></div>
-                <button id="student-update-btn" class="btn-primary" style="margin-top:10px;">Update Profile</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- ======== Universal Modals ======== -->
-    <div id="image-viewer-modal" class="image-modal-overlay" style="position: fixed; inset: 0; z-index: 6000; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s;">
-        <div class="image-viewer-controls"></div>
-        <button class="modal-close-btn" style="position: absolute; top: 30px; right: 30px; font-size: 2rem; color: #fff; background: transparent; border: none; cursor: pointer;">&times;</button>
-        <div id="image-viewer-content-wrapper" style="max-width: 90%; max-height: 90%;">
-             <img src="" alt="Image Preview" class="image-modal-content" style="max-width: 100%; max-height: 90vh; border-radius: 10px;">
-        </div>
-        <style> .image-modal-overlay.visible { opacity: 1; pointer-events: auto; } </style>
-    </div>
-
-    <!-- ======== Dialogs ======== -->
-    <div id="custom-alert-container" class="custom-dialog-overlay" style="position: fixed; inset: 0; z-index: 6000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s;">
-        <div class="custom-dialog" style="background: var(--bg-surface); padding: 30px; border-radius: 24px; text-align: center; max-width: 90%; width: 350px; border: 1px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-            <div class="dialog-icon" style="font-size: 2rem; color: var(--accent-primary); margin-bottom: 15px;"><i class="fas fa-info-circle"></i></div>
-            <h3 id="custom-alert-title" style="margin-bottom: 10px;"></h3>
-            <p id="custom-alert-message" style="color: var(--text-secondary); margin-bottom: 20px;"></p>
-            <div class="dialog-buttons">
-                <button id="custom-alert-close-btn" class="btn-primary">OK</button>
-            </div>
-        </div>
-        <style> .custom-dialog-overlay.show { opacity: 1; pointer-events: auto; } </style>
-    </div>
-    
-    <div id="custom-confirm-container" class="custom-dialog-overlay" style="position: fixed; inset: 0; z-index: 6000; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s;">
-        <div class="custom-dialog" style="background: var(--bg-surface); padding: 30px; border-radius: 24px; text-align: center; max-width: 90%; width: 350px; border: 1px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-            <div class="dialog-icon" style="font-size: 2rem; color: var(--warning); margin-bottom: 15px;"><i class="fas fa-question"></i></div>
-            <h3 id="custom-confirm-title" style="margin-bottom: 10px;"></h3>
-            <p id="custom-confirm-message" style="color: var(--text-secondary); margin-bottom: 20px;"></p>
-            <div class="dialog-buttons" style="display: flex; gap: 10px;">
-                <button id="custom-confirm-cancel-btn" class="btn-secondary">Cancel</button>
-                <button id="custom-confirm-ok-btn" class="btn-primary">Confirm</button>
-            </div>
         </div>
     </div>
 
-    <!-- ======== Main JavaScript Logic =======-->
+    <!-- AI Generator Modal -->
+    <div id="ai-gen-modal" class="hidden" style="position: fixed; inset: 0; background: var(--bg-deep); z-index: 6000; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="max-width: 500px; width: 100%; text-align: center;">
+            <i class="fas fa-brain" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 20px;"></i>
+            <h2>توليد اختبار بالذكاء الاصطناعي</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">ارفع صورة للمنهج أو اكتب الموضوع، وسأقوم بإنشاء الأسئلة.</p>
+            
+            <textarea id="ai-gen-text" class="smart-input" rows="3" placeholder="موضوع الاختبار أو نص المحتوى..."></textarea>
+            
+            <label for="ai-gen-img" style="display: block; width: 100%; padding: 20px; border: 1px dashed var(--glass-border); border-radius: 20px; margin-bottom: 20px; cursor: pointer;">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem;"></i><br>
+                <span>رفع صورة المصدر (اختياري)</span>
+            </label>
+            <input type="file" id="ai-gen-img" hidden accept="image/*">
+            <div id="ai-gen-preview" class="hidden" style="margin-bottom: 10px;"><img src="" style="height: 60px; border-radius: 10px;"></div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="number" id="ai-gen-count" class="smart-input" value="5" placeholder="عدد الأسئلة">
+                <input type="number" id="ai-gen-points" class="smart-input" value="1" placeholder="الدرجة">
+            </div>
+
+            <button onclick="generateAiQuestions()" class="modern-enter-btn" style="width: 100%; justify-content: center;">
+                <i class="fas fa-magic"></i> توليد الآن
+            </button>
+            <button onclick="toggleAiGenerator()" class="modern-enter-btn" style="width: 100%; justify-content: center; background: transparent; border: 1px solid var(--glass-border); color: #fff; margin-top: 10px;">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- Menu Modal -->
+    <div id="menu-modal" class="hidden" style="position: fixed; inset: 0; background: var(--bg-deep); z-index: 4000; padding: 80px 20px;">
+        <h2 style="text-align: center;">الإعدادات</h2>
+        <div style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: auto;">
+            <div class="card-item" onclick="shareApp()"><i class="fas fa-share-alt"></i> مشاركة المنصة</div>
+            <div class="card-item" style="color: var(--danger); border-color: rgba(239,68,68,0.3);" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</div>
+            <button onclick="toggleMenu()" class="modern-enter-btn" style="margin-top: 20px; justify-content: center; background: #333; color: #fff;">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { getDatabase, ref, set, get, onValue, push, serverTimestamp, remove, update, query, orderByChild, equalTo, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAjE-2q6PONBkCin9ZN22gDp9Q8pAH9ZW8",
@@ -806,922 +487,378 @@
             projectId: "story-97cf7",
             storageBucket: "story-97cf7.firebasestorage.app",
             messagingSenderId: "742801388214",
-            appId: "1:742801388214:web:32a305a8057b0582c5ec17",
-            measurementId: "G-9DPPWX7CF0"
+            appId: "1:742801388214:web:32a305a8057b0582c5ec17"
         };
-        
-        const aiApiKey = "AIzaSyC5aKq0yTiEqDIVawe0HmvUgMBKOnS3IQ0";
 
         const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
         const db = getDatabase(app);
-        const appUrl = "https://apk.e-droid.net/apk/app3760290-c4w5f2.apk?v=9";
+        const aiApiKey = "AIzaSyC5aKq0yTiEqDIVawe0HmvUgMBKOnS3IQ0";
 
-        const mainLandingPage = document.getElementById('main-landing-page');
-        const teacherPortal = document.getElementById('teacher-portal');
-        const studentPortal = document.getElementById('student-portal');
-        let countdownInterval = null;
+        // Global State
+        let selectedRole = null;
+        let currentUser = null;
+        let currentQuestions = [];
+        let currentImgBase64 = null;
+        let aiGenImgBase64 = null;
+        let qType = 'mcq';
+        let aiChatImg = null;
 
-        document.getElementById('show-teacher-portal').addEventListener('click', (e) => { e.preventDefault(); mainLandingPage.classList.add('hidden'); teacherPortal.classList.remove('hidden'); initTeacherApp(); });
-        document.getElementById('show-student-portal').addEventListener('click', (e) => { e.preventDefault(); mainLandingPage.classList.add('hidden'); studentPortal.classList.remove('hidden'); initStudentApp(); });
-        
-        const getBase64 = (file) => new Promise((resolve, reject) => { const reader=new FileReader();reader.readAsDataURL(file);reader.onload=()=>resolve(reader.result);reader.onerror=e=>reject(e) });
-        
-        const alertCont = document.getElementById('custom-alert-container');
-        const confirmCont = document.getElementById('custom-confirm-container');
-        
-        const showCustomAlert = (title, message) => { 
-            alertCont.querySelector('#custom-alert-title').textContent = title; 
-            alertCont.querySelector('#custom-alert-message').innerHTML = message; 
-            alertCont.classList.add('show'); 
-        };
-        alertCont.querySelector('#custom-alert-close-btn').onclick = () => alertCont.classList.remove('show');
-
-        const showCustomConfirm = (title, message) => {
-            return new Promise(resolve => {
-                confirmCont.querySelector('#custom-confirm-title').textContent = title; 
-                confirmCont.querySelector('#custom-confirm-message').textContent = message; 
-                confirmCont.classList.add('show');
-                const okBtn = confirmCont.querySelector('#custom-confirm-ok-btn');
-                const cancelBtn = confirmCont.querySelector('#custom-confirm-cancel-btn');
-                
-                const newOkBtn = okBtn.cloneNode(true);
-                okBtn.parentNode.replaceChild(newOkBtn, okBtn);
-                const newCancelBtn = cancelBtn.cloneNode(true);
-                cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-
-                const cleanup = (result) => { 
-                    confirmCont.classList.remove('show'); 
-                    resolve(result); 
-                };
-                newOkBtn.addEventListener('click', () => cleanup(true), { once: true });
-                newCancelBtn.addEventListener('click', () => cleanup(false), { once: true });
-            });
+        // ======== UI Logic ========
+        window.selectRole = (role, card) => {
+            selectedRole = role;
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            document.getElementById('transition-area').classList.remove('hidden');
         };
 
-        async function sharePlatform() {
+        window.goToAuth = () => {
+            document.getElementById('landing-layer').classList.add('hidden');
+            document.getElementById('auth-layer').classList.remove('hidden');
+        };
+
+        window.backToLanding = () => {
+            document.getElementById('auth-layer').classList.add('hidden');
+            document.getElementById('landing-layer').classList.remove('hidden');
+        };
+
+        // ======== Smart Auth Logic ========
+        window.handleSmartAuth = async () => {
+            const name = document.getElementById('auth-name').value.trim();
+            const pass = document.getElementById('auth-pass').value.trim();
+            const status = document.getElementById('auth-status');
+
+            if (!name || !pass) {
+                status.innerText = "يرجى كتابة الاسم والرمز";
+                return;
+            }
+
+            status.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري الاتصال...';
+
+            const userPath = `users/${selectedRole}s/${name}`;
+            const userRef = ref(db, userPath);
+            
             try {
-                if (navigator.share) {
-                    await navigator.share({ text: `App Link: ${appUrl}` });
-                } else {
-                    await navigator.clipboard.writeText(appUrl);
-                    showCustomAlert('Copied', 'Link copied successfully!');
-                }
-            } catch (err) {
-                console.error("Share failed:", err);
-            }
-        }
-        
-        // --- AI FUNCTIONS ---
-        async function fetchGeminiResponse(promptParts) {
-            if (!aiApiKey) throw new Error("AI API key is missing.");
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${aiApiKey}`;
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: promptParts }] })
-            });
-            if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
-            const data = await response.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response received.";
-        }
-
-        async function processQueryWithAI(promptParts) {
-            try {
-                const responseText = await fetchGeminiResponse(promptParts);
-                return responseText;
-            } catch (error) {
-                console.error("AI API Error:", error);
-                throw new Error("Connection failed. Please try again.");
-            }
-        }
-        
-        async function handleAiChat(inputElem, messagesContainer, imageBase64, onSend) {
-            const message = inputElem.value.trim();
-            if (!message && !imageBase64) return;
-            renderChatMessage(messagesContainer, message, imageBase64, 'user');
-            inputElem.value = ""; if(onSend) onSend();
-            
-            const loadingDiv = document.createElement('div'); loadingDiv.className = 'chat-message ai'; loadingDiv.innerHTML = '...';
-            messagesContainer.appendChild(loadingDiv); messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-            try {
-                let parts = [];
-                if (imageBase64) {
-                     const base64Parts = imageBase64.split(';base64,');
-                     const mimeType = base64Parts[0].replace('data:', '');
-                     parts.push({ inline_data: { mime_type: mimeType, data: base64Parts[1] } });
-                }
-                if (message) parts.push({ text: message });
-                parts.unshift({ text: "You are a smart educational assistant. Helpful, professional, calm." });
-
-                const response = await processQueryWithAI(parts);
-                messagesContainer.removeChild(loadingDiv);
-                renderChatMessage(messagesContainer, response, null, 'ai');
-            } catch (error) {
-                messagesContainer.removeChild(loadingDiv);
-                renderChatMessage(messagesContainer, "Connection error.", null, 'ai');
-            }
-        }
-
-        function renderChatMessage(container, text, image, sender) {
-            const div = document.createElement('div'); div.className = `chat-message ${sender}`;
-            let content = text ? `<div>${text}</div>` : '';
-            if (image) content += `<img src="${image}" style="max-width:100px; border-radius:10px; margin-top:5px;">`;
-            div.innerHTML = content; container.appendChild(div); container.scrollTop = container.scrollHeight;
-        }
-
-        function initTeacherApp() {
-            const allSections = teacherPortal.querySelectorAll('section'), dashboardSection = teacherPortal.querySelector('#teacher-dashboard-section'), loginSection = teacherPortal.querySelector('#teacher-login-section'), registerSection = teacherPortal.querySelector('#teacher-register-section');
-            const portalHeader = teacherPortal.querySelector('.portal-header-controls'), menuIcon = teacherPortal.querySelector('#teacher-menu-icon'), dropdownMenu = teacherPortal.querySelector('#teacher-dropdown-menu');
-            const settingsModal = teacherPortal.querySelector('#teacher-settings-modal');
-            const topNav = teacherPortal.querySelector('#teacher-top-nav'), myTestsContainer = teacherPortal.querySelector("#my-tests-container");
-            const resultsTestSelector = teacherPortal.querySelector("#results-test-selector"), studentResultsContainer = teacherPortal.querySelector("#student-results-container");
-            const createTestSection = teacherPortal.querySelector('#teacher-create-test-content'), testNameInput = teacherPortal.querySelector("#test-name"), testGradeSelect = teacherPortal.querySelector("#test-grade"), testDurationInput = teacherPortal.querySelector("#test-duration");
-            const preventGoBackCheckbox = teacherPortal.querySelector("#prevent-go-back-checkbox");
-            const questionText = teacherPortal.querySelector("#question-text"), optionInputs = teacherPortal.querySelectorAll(".option-input"), questionPointsInput = teacherPortal.querySelector("#question-points");
-            const questionsListContainer = teacherPortal.querySelector("#questions-list-container"), questionImageInput = teacherPortal.querySelector("#question-image-input"), modelAnswerImageInput = teacherPortal.querySelector("#model-answer-image-input");
-            const addQuestionBtn = teacherPortal.querySelector('#add-question-btn-real'), fabAddBtn = teacherPortal.querySelector('#add-question-btn'), cancelQuestionEditBtn = teacherPortal.querySelector('#cancel-question-edit-btn'), saveTestBtn = teacherPortal.querySelector('#save-test-btn'), cancelTestEditBtn = teacherPortal.querySelector('#cancel-test-edit-btn');
-            const reviewModal = teacherPortal.querySelector('#teacher-review-modal'), reviewModalBody = teacherPortal.querySelector('#review-modal-body'), reviewModalTitle = teacherPortal.querySelector('#review-modal-title'), reviewModalFooter = teacherPortal.querySelector('#review-modal-footer'), finalizeGradesBtn = teacherPortal.querySelector('#finalize-grades-btn');
-            const updateNameInput = teacherPortal.querySelector('#teacher-update-name'), updatePasswordInput = teacherPortal.querySelector('#teacher-update-password'), updateBtn = teacherPortal.querySelector('#teacher-update-btn');
-            const teacherRefreshBtn = document.getElementById('teacher-refresh-btn');
-            const teacherSearchBar = document.getElementById('teacher-search-bar');
-            const teacherFilterContainer = document.getElementById('teacher-filter-container');
-            
-            const teacherAiInput = document.getElementById('teacher-ai-input');
-            const teacherAiSend = document.getElementById('teacher-ai-send');
-            const teacherAiMessages = document.getElementById('teacher-ai-messages');
-            const teacherAiImageInput = document.getElementById('teacher-ai-image');
-            const teacherAiImagePreview = document.getElementById('teacher-ai-image-preview');
-            let currentTeacherChatImage = null;
-
-            let currentCorrectAnswer = 0;
-
-            let currentUser = null, myTests = {}, questionsArray = [], currentQuestionImageBase64 = null, currentModelAnswerImageBase64 = null, currentQuestionType = 'mcq', currentEditingTestId = null, currentEditingQuestionIndex = -1;
-            
-            const aiImageInput = document.getElementById('ai-question-image-input');
-            const aiImagePreviewContainer = document.getElementById('ai-image-preview-container');
-            const aiImagePreview = aiImagePreviewContainer.querySelector('.image-preview');
-            const aiGenerateBtn = document.getElementById('generate-ai-test-btn');
-            const aiImageTypeSwitcher = document.querySelector('.ai-image-type-switcher');
-            const toggleAiBtn = document.getElementById('toggle-ai-generation-btn');
-            const aiContainer = document.getElementById('ai-test-generation-container');
-            const aiTextInput = document.getElementById('ai-text-input');
-            let aiImageContentType = 'questions-only';
-            let currentAIImageBase64 = null;
-            const aiNumQuestionsInput = document.getElementById('ai-num-questions');
-            const aiMcqPointsInput = document.getElementById('ai-mcq-points');
-            const aiNumEssayQuestionsInput = document.getElementById('ai-num-essay-questions');
-            const aiEssayPointsInput = document.getElementById('ai-essay-points');
-            const scheduledReleaseDelayInput = document.getElementById('scheduled-release-delay');
-            
-            fabAddBtn.onclick = () => { addQuestionBtn.click(); };
-
-            const loggedInUser = localStorage.getItem('loggedInTeacher');
-            if (loggedInUser) { currentUser = loggedInUser; showSection(dashboardSection); updateDashboard(); } else { showSection(loginSection); }
-
-            function showSection(section) { 
-                allSections.forEach(s=>s.classList.add('hidden')); 
-                if(section) section.classList.remove('hidden'); 
-                const isDashboard = section && section.id === 'teacher-dashboard-section';
-                topNav.classList.toggle('hidden', !isDashboard); 
-                portalHeader.classList.toggle('hidden', !isDashboard);
-                teacherPortal.classList.toggle('auth-view', section === loginSection || section === registerSection);
-                if(section === loginSection || section === registerSection) { document.getElementById('teacher-home-back').classList.remove('hidden'); } else { document.getElementById('teacher-home-back').classList.add('hidden'); }
-            };
-            const navButtons = teacherPortal.querySelectorAll('.nav-btn');
-            navButtons.forEach(button => { button.addEventListener('click', () => { navButtons.forEach(btn=>btn.classList.remove('active')); teacherPortal.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden')); button.classList.add('active'); teacherPortal.querySelector(`#${button.dataset.target}`).classList.remove('hidden'); if(button.dataset.target === 'teacher-create-content' && !currentEditingTestId) resetCreateFormState(); }); });
-            const setDefaultTab = () => navButtons[0].click();
-            
-            document.getElementById('question-type-switcher').querySelectorAll('.switch-button').forEach(btn => btn.addEventListener('click', (e) => {
-                const container = e.target.parentElement;
-                container.querySelectorAll('.switch-button').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                currentQuestionType = e.target.dataset.type;
-                teacherPortal.querySelector("#mcq-fields").classList.toggle('hidden', currentQuestionType !== 'mcq');
-                teacherPortal.querySelector("#essay-fields").classList.toggle('hidden', currentQuestionType !== 'essay');
-            }));
-
-            aiImageTypeSwitcher.querySelectorAll('.switch-button').forEach(btn => btn.addEventListener('click', (e) => {
-                aiImageTypeSwitcher.querySelectorAll('.switch-button').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                aiImageContentType = e.target.dataset.type;
-            }));
-
-            const mcqFields = document.getElementById('mcq-fields');
-            mcqFields.addEventListener('click', (e) => {
-                if (e.target.classList.contains('correct-answer-selector')) {
-                    mcqFields.querySelectorAll('.correct-answer-selector').forEach(sel => sel.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                    currentCorrectAnswer = parseInt(e.target.dataset.index);
-                }
-            });
-
-            const clearQuestionForm = () => { questionText.value=""; questionImageInput.value=""; modelAnswerImageInput.value=""; currentQuestionImageBase64=null; currentModelAnswerImageBase64=null; teacherPortal.querySelectorAll('.image-preview-container').forEach(c=>{c.classList.add('hidden'); c.querySelector('img').src = '#'}); optionInputs.forEach(i=>i.value=""); mcqFields.querySelectorAll('.correct-answer-selector').forEach(sel => sel.classList.remove('selected')); currentCorrectAnswer=0; questionPointsInput.value = ""; currentEditingQuestionIndex = -1; cancelQuestionEditBtn.classList.add('hidden'); };
-            
-            async function updateDashboard() {
-                if(!currentUser) return;
-                setDefaultTab();
+                const snapshot = await get(userRef);
                 
-                const testsRef = ref(db, `tests/${currentUser}`);
-                onValue(testsRef, (snapshot) => {
-                    myTests = snapshot.exists() ? snapshot.val() : {};
-                    renderMyTests();
-                    populateResultsSelector();
-                });
-            }
-            
-            teacherRefreshBtn.onclick = updateDashboard;
-            
-            teacherSearchBar.addEventListener('input', () => renderMyTests());
-            
-            function renderMyTests() {
-                if (countdownInterval) clearInterval(countdownInterval);
-                myTestsContainer.innerHTML = "";
-                
-                const allTests = Object.entries(myTests);
-                const filter = teacherSearchBar.value.toLowerCase();
-                
-                const grades = [...new Set(allTests.map(([id, test]) => test.grade))];
-                teacherFilterContainer.innerHTML = '<div class="filter-chip active" data-grade="all">All</div>';
-                grades.forEach(grade => {
-                    if(grade) {
-                        teacherFilterContainer.innerHTML += `<div class="filter-chip" data-grade="${grade}">${grade}</div>`;
+                if (snapshot.exists()) {
+                    // Login attempt
+                    const userData = snapshot.val();
+                    if (userData.password === pass) {
+                        loginSuccess(name);
+                    } else {
+                        status.innerText = "الاسم موجود ولكن الرمز خطأ. إذا كنت مستخدماً جديداً، اختر اسماً مختلفاً.";
                     }
-                });
-
-                const activeFilter = teacherFilterContainer.querySelector('.active')?.dataset.grade || 'all';
-
-                teacherFilterContainer.querySelectorAll('.filter-chip').forEach(chip => {
-                    if (chip.dataset.grade === activeFilter) chip.classList.add('active');
-                    chip.onclick = (e) => {
-                        const currentActive = teacherFilterContainer.querySelector('.active');
-                        if (currentActive) currentActive.classList.remove('active');
-                        e.target.classList.add('active');
-                        renderMyTests();
-                    };
-                });
-
-                if (allTests.length === 0) {
-                    myTestsContainer.innerHTML = "<p style='text-align:center; color: var(--text-muted);'>No tests created yet.</p>";
-                    return;
+                } else {
+                    // Register new
+                    await set(userRef, { password: pass, joined: Date.now() });
+                    status.innerText = "تم إنشاء حساب جديد!";
+                    setTimeout(() => loginSuccess(name), 800);
                 }
-                
-                let found = false;
-                allTests
-                    .filter(([testId, test]) => {
-                        const matchesSearch = test.name.toLowerCase().includes(filter) || (test.grade && test.grade.toLowerCase().includes(filter));
-                        const matchesFilter = activeFilter === 'all' || test.grade === activeFilter;
-                        return matchesSearch && matchesFilter;
-                    })
-                    .sort((a,b) => b[1].timestamp - a[1].timestamp)
-                    .forEach(([testId, test]) => {
-                        found = true;
-                        const isScheduled = test.releaseTime && test.releaseTime > Date.now();
-                        const statusText = isScheduled ? ' (Scheduled)' : '';
-                        
-                        const testCard = document.createElement('div'); testCard.className = 'list-item';
-                        testCard.style.cssText = `display: flex; flex-direction: column; gap: 10px; opacity: ${isScheduled ? '0.7' : '1'};`;
-                        testCard.innerHTML = `
-                            <div style="font-weight: bold; font-size: 1.1rem; color: var(--text-main);">${test.name} ${statusText}</div>
-                            <div style="font-size: 0.9rem; color: var(--text-secondary);">${test.grade} - ${test.duration} min</div>
-                            ${isScheduled ? `<div class="test-countdown" data-timestamp="${test.releaseTime}" style="color: var(--accent-primary); font-size: 0.8rem;"></div>` : ''}
-                            <div style="display: flex; gap: 8px; margin-top: 10px;">
-                                <button class="action-btn btn-secondary" data-action="share" style="flex:1; border-radius:10px;"><i class="fas fa-share-alt"></i></button>
-                                <button class="action-btn btn-secondary" data-action="results" style="flex:1; border-radius:10px;"><i class="fas fa-chart-bar"></i></button>
-                                <button class="action-btn btn-secondary" data-action="edit" style="flex:1; border-radius:10px;"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn btn-secondary" data-action="delete" style="flex:1; color: var(--danger); border-color: rgba(239, 68, 68, 0.3); border-radius:10px;"><i class="fas fa-trash"></i></button>
+            } catch (error) {
+                status.innerText = "خطأ في الاتصال، حاول مجدداً";
+            }
+        };
+
+        function loginSuccess(name) {
+            currentUser = name;
+            localStorage.setItem('sa_user', name);
+            localStorage.setItem('sa_role', selectedRole);
+            
+            document.getElementById('auth-layer').classList.add('hidden');
+            
+            if (selectedRole === 'teacher') {
+                document.getElementById('teacher-app').classList.remove('hidden');
+                loadTeacherData();
+            } else {
+                document.getElementById('student-app').classList.remove('hidden');
+                loadStudentData();
+            }
+        }
+
+        // ======== Tab Switching ========
+        window.switchTab = (tabId, btn) => {
+            const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
+            document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+        };
+
+        window.toggleMenu = () => {
+            document.getElementById('menu-modal').classList.toggle('hidden');
+        };
+
+        window.logout = () => {
+            localStorage.clear();
+            location.reload();
+        };
+
+        // ======== Helper: Image Base64 ========
+        const getBase64 = (file) => new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+        });
+
+        // ======== Teacher Functions ========
+        function loadTeacherData() {
+            onValue(ref(db, 'tests'), (snap) => {
+                const list = document.getElementById('t-tests-list');
+                list.innerHTML = '';
+                const data = snap.val() || {};
+                Object.entries(data).forEach(([key, val]) => {
+                    if (val.teacher === currentUser) {
+                        list.innerHTML += `
+                            <div class="card-item">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <h3>${val.title}</h3>
+                                    <span style="font-size:0.8rem; background:#333; padding:5px 10px; border-radius:10px;">${val.grade}</span>
+                                </div>
+                                <p style="color:#aaa;">${val.questions ? val.questions.length : 0} أسئلة • ${val.duration} دقيقة</p>
+                                <button onclick="deleteTest('${key}')" style="color:red; background:transparent; border:none; margin-top:10px;">حذف</button>
                             </div>
                         `;
-                        testCard.querySelector('[data-action="share"]').onclick = () => shareTest(test.name);
-                        testCard.querySelector('[data-action="results"]').onclick = () => { navButtons[1].click(); resultsTestSelector.value = testId; loadStudentResultsForTest(testId); };
-                        testCard.querySelector('[data-action="edit"]').onclick = () => startEditingTest(testId, test);
-                        testCard.querySelector('[data-action="delete"]').onclick = async () => { if (await showCustomConfirm("Delete", "Are you sure?")) deleteTest(testId); };
-                        myTestsContainer.appendChild(testCard);
-                    });
-
-                if (!found) {
-                     myTestsContainer.innerHTML = "<p style='text-align:center;'>No matches found.</p>";
-                }
-                startCountdownTimers();
-            }
-
-
-            function startCountdownTimers(){
-                const update = () => {
-                    document.querySelectorAll('.test-countdown').forEach(el => {
-                        const releaseTime = parseInt(el.dataset.timestamp);
-                        const remaining = releaseTime - Date.now();
-                        
-                        if (remaining > 0) {
-                            const hours = Math.floor(remaining / (1000 * 60 * 60));
-                            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                            el.textContent = `Live in: ${hours}h ${minutes}m`;
-                        } else {
-                           el.textContent = "Published";
-                           setTimeout(() => el.remove(), 5000);
-                        }
-                    });
-                };
-                update();
-                countdownInterval = setInterval(update, 1000);
-            }
-
-            async function deleteTest(testId) { try { await remove(ref(db, `tests/${currentUser}/${testId}`)); await remove(ref(db, `results/${currentUser}/${testId}`)); showCustomAlert("Success", "Test deleted."); } catch (e) { showCustomAlert("Error", "Failed to delete."); } }
-            
-            function startEditingTest(testId, testData) {
-                navButtons[2].click(); currentEditingTestId = testId;
-                createTestSection.querySelector('#create-edit-title').textContent = "Edit Assessment"; saveTestBtn.textContent = "Update"; cancelTestEditBtn.classList.remove('hidden');
-                testNameInput.value = testData.name; testGradeSelect.value = testData.grade; testDurationInput.value = testData.duration;
-                preventGoBackCheckbox.checked = !!testData.preventGoBack;
-                const releaseTimeMinutes = testData.releaseTime ? Math.ceil((testData.releaseTime - Date.now()) / (1000 * 60)) : 0;
-                scheduledReleaseDelayInput.value = Math.max(0, releaseTimeMinutes);
-                questionsArray = [...(testData.questions || [])]; renderQuestionsList();
-            }
-
-            function resetCreateFormState() { currentEditingTestId = null; createTestSection.querySelector('#create-edit-title').textContent = "New Assessment"; saveTestBtn.textContent = "Save Assessment"; cancelTestEditBtn.classList.add('hidden'); testNameInput.value = ""; testGradeSelect.value = ""; testDurationInput.value = ""; preventGoBackCheckbox.checked=false; scheduledReleaseDelayInput.value = ""; questionsArray = []; renderQuestionsList(); clearQuestionForm(); clearAIForm(); }
-            cancelTestEditBtn.onclick = resetCreateFormState;
-            toggleAiBtn.onclick = () => { aiContainer.classList.toggle('hidden'); };
-
-            async function loadStudentResultsForTest(testId) {
-                studentResultsContainer.innerHTML = "";
-                if (!testId) return;
-
-                const snapshot = await get(ref(db, `results/${currentUser}/${testId}`));
-                if (!snapshot.exists()) { studentResultsContainer.innerHTML = "<p>No results yet.</p>"; return; }
-                studentResultsContainer.innerHTML = "";
-                Object.entries(snapshot.val()).forEach(([studentName, result]) => {
-                    const div = document.createElement('div'); div.className = 'list-item';
-                    const pendingIndicator = result.status === 'pending' ? `<span style="color:var(--warning); margin-inline:10px;">(Review Needed)</span>` : '';
-                    div.innerHTML = `<span style="flex-grow:1;">${studentName} - <strong style="color: var(--accent-primary);">${result.score}</strong> ${pendingIndicator}</span><button class="action-btn btn-secondary" style="width: auto; padding: 5px 10px; border-radius:10px;" data-action="details">Details</button>`;
-                    div.querySelector('[data-action="details"]').onclick = () => showStudentAnswerReview(studentName, testId, result);
-                    studentResultsContainer.appendChild(div);
-                });
-            }
-
-            function showStudentAnswerReview(studentName, testId, result) {
-                const test = myTests[testId], answers = result.answers; reviewModalTitle.textContent = `Review: ${studentName}`; reviewModalBody.innerHTML = ''; reviewModalFooter.classList.add('hidden');
-                if (result.status === 'pending' && test.questions.some(q => q.type === 'essay')) reviewModalFooter.classList.remove('hidden');
-                test.questions.forEach((q, index) => {
-                    const studentAnswer = answers[index] || {}; let reviewHtml = '';
-                    if (q.type === 'mcq') { 
-                        reviewHtml = '<div>' + q.options.map((option, i) => {
-                            const optionNum = i + 1;
-                            let classes = 'review-option';
-                            if (optionNum === parseInt(q.correct)) { classes += ' correct-answer-highlight'; } else { classes += ' option-normal'; }
-                            if (studentAnswer.answer && parseInt(studentAnswer.answer) === optionNum && optionNum !== parseInt(q.correct)) classes += ' incorrect-answer-highlight';
-                            return `<div class="${classes}" style="padding:10px; border:1px solid #333; margin:2px; border-radius:10px; ${classes.includes('correct') ? 'border-color:var(--success); color:var(--success);' : ''} ${classes.includes('incorrect') ? 'border-color:var(--danger); color:var(--danger);' : ''}">${option}</div>`;
-                        }).join('') + '</div>';
-                    } 
-                    else { 
-                        const studentText = studentAnswer.textAnswer || '<em>No answer.</em>';
-                        const studentImage = studentAnswer.imageAnswer ? `<img src="${studentAnswer.imageAnswer}" style="max-width:100px; border-radius:8px; cursor:pointer; margin-top:5px;">` : '';
-                        let gradingInput = (result.status === 'pending') ? `
-                            <div style="margin-top:15px; display:flex; flex-direction: column; gap: 5px;">
-                                <div style="display: flex; align-items: center; gap:10px;">
-                                    <label>Grade:</label>
-                                    <input type="number" id="grade-q-${index}" data-question-index="${index}" class="essay-grade-input" min="0" max="${q.points || 1}" style="width:60px; margin:0; text-align:center;">
-                                    <span>/ ${q.points || 1}</span>
-                                </div>
-                                <button class="btn-secondary ai-grade-btn" data-index="${index}" style="margin-top:5px; font-size:0.8rem; width: fit-content; border-color: var(--accent-primary);">Auto-Grade (AI)</button>
-                            </div>` : `<p>Score: ${studentAnswer.pointsAwarded || 0}/${q.points || 1}</p>`; 
-                        reviewHtml = `<div><p style="color:var(--text-secondary); margin-bottom:5px;">Answer:</p><div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:10px; white-space: pre-wrap;">${studentText}</div>${studentImage}${gradingInput}</div>`; 
                     }
-                    const qDiv = document.createElement('div'); qDiv.className = 'list-item';
-                    qDiv.innerHTML = `<h4 style="margin-bottom:10px;">Q${index+1} (${q.points || 1} pts): ${q.question}</h4>${q.image ? `<img class="question-image-preview" src="${q.image}" style="max-height:100px; border-radius:10px; margin-bottom:10px;">` : ''}${reviewHtml}`;
-                    
-                    const aiBtn = qDiv.querySelector('.ai-grade-btn');
-                    if(aiBtn) {
-                        aiBtn.onclick = async () => {
-                            aiBtn.disabled = true; aiBtn.innerHTML = 'Analyzing...';
-                            const prompt = `Act as a strict teacher grading an exam. Question: "${q.question}". Max Points: ${q.points || 1}. Student Answer: "${studentAnswer.textAnswer || '(No Text)'}". Evaluate and return ONLY JSON: {"score": number, "feedback": "string"}.`;
-                            try {
-                                const response = await processQueryWithAI([{text: prompt}]);
-                                const jsonMatch = response.match(/\{[\s\S]*\}/);
-                                if (jsonMatch) {
-                                    const result = JSON.parse(jsonMatch[0]);
-                                    const input = document.getElementById(`grade-q-${index}`);
-                                    if(input) input.value = result.score;
-                                    showCustomAlert("AI Grading", `Suggested: ${result.score}/${q.points || 1}<br>${result.feedback}`);
-                                }
-                            } catch (e) { showCustomAlert("Error", "AI Grading failed."); } finally { aiBtn.disabled = false; aiBtn.innerHTML = 'Auto-Grade (AI)'; }
-                        };
-                    }
-                    reviewModalBody.appendChild(qDiv);
                 });
-                finalizeGradesBtn.onclick = () => finalizeGrades(studentName, testId, test, result); 
-                reviewModal.classList.remove('hidden');
-            }
-
-            async function finalizeGrades(studentName, testId, test, originalResult) {
-                let totalEssayScore = 0, allGraded = true; const updatedAnswers = [...originalResult.answers];
-                reviewModalBody.querySelectorAll('.essay-grade-input').forEach(input => {
-                    const points = parseInt(input.value);
-                    if (isNaN(points)) { allGraded = false; return; }
-                    totalEssayScore += points; updatedAnswers[parseInt(input.dataset.questionIndex)] = {...(updatedAnswers[parseInt(input.dataset.questionIndex)] || {type: 'essay'}), pointsAwarded: points};
-                });
-                if (!allGraded) return;
-                const finalScore = originalResult.mcqScore + totalEssayScore, totalTestPoints = test.questions.reduce((sum, q) => sum + (q.points || 1), 0);
-                const finalResult = { ...originalResult, score: `${finalScore} / ${totalTestPoints}`, status: 'graded', answers: updatedAnswers };
-                try { await update(ref(db), { [`results/${currentUser}/${testId}/${studentName}`]: finalResult, [`studentResults/${studentName}/${testId}`]: finalResult }); showCustomAlert("Success", "Grades saved."); reviewModal.classList.add('hidden'); loadStudentResultsForTest(testId); } catch (e) { showCustomAlert("Error", "Save failed."); }
-            }
-            reviewModal.querySelector('.modal-close-btn').onclick = () => { reviewModal.classList.add('hidden'); };
-
-            const populateResultsSelector = () => { resultsTestSelector.innerHTML = '<option value="">Select Test</option>'; Object.entries(myTests).forEach(([testId, test]) => resultsTestSelector.innerHTML += `<option value="${testId}">${test.name}</option>`); };
-            const handleImagePreview = (input, container, previewImg, storageVarSetter) => { const f=input.files[0]; if(f) getBase64(f).then(d=>{ storageVarSetter(d); previewImg.src=d; container.classList.remove('hidden'); }) };
-            
-            questionImageInput.onchange = () => handleImagePreview(questionImageInput, questionImageInput.nextElementSibling, questionImageInput.nextElementSibling.querySelector('img'), (val) => currentQuestionImageBase64 = val);
-            modelAnswerImageInput.onchange = () => handleImagePreview(modelAnswerImageInput, modelAnswerImageInput.nextElementSibling, modelAnswerImageInput.nextElementSibling.querySelector('img'), (val) => currentModelAnswerImageBase64 = val);
-            aiImageInput.onchange = () => handleImagePreview(aiImageInput, aiImagePreviewContainer, aiImagePreview, (val) => currentAIImageBase64 = val);
-            
-            function clearAIForm() {
-                aiImageInput.value = ""; 
-                currentAIImageBase64 = null; 
-                aiImagePreviewContainer.classList.add('hidden'); 
-                aiImagePreview.src = '#';
-                aiNumQuestionsInput.value = '5';
-                aiMcqPointsInput.value = '1';
-                aiNumEssayQuestionsInput.value = '0';
-                aiEssayPointsInput.value = '5';
-                aiTextInput.value = "";
-            }
-
-            async function generateTestFromAI(numMCQ, mcqPoints, numEssay, essayPoints) {
-                let promptParts = [];
-                const textInput = aiTextInput.value.trim();
-
-                if (currentAIImageBase64) {
-                    const base64Parts = currentAIImageBase64.split(';base64,');
-                    const mimeType = base64Parts[0].replace('data:', '');
-                    promptParts.push({ inline_data: { mime_type: mimeType, data: base64Parts[1] } });
-                }
-                
-                if (textInput) {
-                    promptParts.push({ text: `Content/Topic: ${textInput}` });
-                }
-
-                if (promptParts.length === 0) {
-                     throw new Error("Provide image or text.");
-                }
-
-                const generationPrompt = `Generate a JSON exam. ${numMCQ} MCQs, ${numEssay} Essays. Format: { "testName": "string", "questions": [ { "question": "string", "options": ["a","b","c","d"], "correct": 1-4, "type": "mcq" }, { "question": "string", "type": "essay" } ] }`;
-                promptParts.push({ text: generationPrompt });
-                
-                const aiResponse = await processQueryWithAI(promptParts);
-                
-                const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) {
-                    throw new Error("AI response error.");
-                }
-
-                const parsedData = JSON.parse(jsonMatch[0]);
-                
-                const finalQuestions = parsedData.questions.map(q => ({
-                    ...q,
-                    points: q.type === 'mcq' ? mcqPoints : essayPoints,
-                }));
-                
-                return {
-                    name: parsedData.testName || "AI Assessment",
-                    questions: finalQuestions
-                };
-            }
-            
-            aiGenerateBtn.onclick = async () => {
-                const numMCQ = parseInt(aiNumQuestionsInput.value) || 0;
-                const mcqPoints = parseInt(aiMcqPointsInput.value) || 1;
-                const numEssay = parseInt(aiNumEssayQuestionsInput.value) || 0;
-                const essayPoints = parseInt(aiEssayPointsInput.value) || 5;
-
-                if (!currentAIImageBase64 && !aiTextInput.value.trim()) { 
-                    showCustomAlert("Error", "Please provide content."); return; 
-                }
-                
-                aiGenerateBtn.disabled = true;
-                aiGenerateBtn.innerHTML = 'Generating...';
-
-                try {
-                    const generatedTest = await generateTestFromAI(numMCQ, mcqPoints, numEssay, essayPoints);
-                    questionsArray = generatedTest.questions;
-                    renderQuestionsList();
-                    testNameInput.value = generatedTest.name;
-                    showCustomAlert("Success", `${questionsArray.length} questions generated.`);
-                } catch (error) {
-                    showCustomAlert("Error", `Generation failed.`);
-                } finally {
-                    aiGenerateBtn.disabled = false;
-                    aiGenerateBtn.innerHTML = '<i class="fas fa-magic"></i> Create Assessment';
-                    aiContainer.classList.add('hidden');
-                }
-            };
-
-            const renderQuestionsList = () => {
-                questionsListContainer.innerHTML = questionsArray.length > 0 ? "<h3>Questions</h3>" : "";
-                questionsArray.forEach((q, i) => {
-                    const d=document.createElement('div'); d.className='list-item';
-                    d.innerHTML=`<span style="flex-grow:1;">${i+1}. [${q.type}] ${q.question ? q.question.substring(0,30) : 'Image Question'}... (${q.points} pts)</span><div style="display:flex; gap: 5px;"><button data-index="${i}" class="action-btn btn-secondary delete-q-btn" style="color:var(--danger); border-color:rgba(239,68,68,0.3); border-radius:8px;"><i class="fas fa-trash"></i></button></div>`;
-                    questionsListContainer.appendChild(d);
-                    d.querySelector('.delete-q-btn').onclick = () => { questionsArray.splice(i,1); renderQuestionsList(); };
-                });
-            };
-
-            addQuestionBtn.onclick = () => {
-                const q = questionText.value.trim(), points = parseInt(questionPointsInput.value);
-                if ((!q && !currentQuestionImageBase64) || !points) { showCustomAlert("Error", "Invalid question data."); return; }
-                
-                let questionData = { question: q, type: currentQuestionType, image: currentQuestionImageBase64, points: points };
-                
-                if (currentQuestionType === 'mcq') {
-                    const opts = Array.from(optionInputs).map(i => i.value.trim());
-                    if (opts.some(o => o === "")) { showCustomAlert("Error", "Fill options."); return; }
-                    if (currentCorrectAnswer === 0) { showCustomAlert("Error", "Select correct answer."); return; }
-                    questionData = { ...questionData, options: opts, correct: currentCorrectAnswer };
-                } else { 
-                    questionData.modelAnswerImage = currentModelAnswerImageBase64; 
-                }
-                
-                questionsArray.push(questionData);
-                renderQuestionsList(); 
-                clearQuestionForm();
-            };
-
-            saveTestBtn.onclick = async (e) => {
-                const button = e.target;
-                const n = testNameInput.value.trim(), g = testGradeSelect.value, d = testDurationInput.value.trim();
-                const delayMinutes = parseInt(scheduledReleaseDelayInput.value) || 0;
-                if (!n || !g || !d || questionsArray.length === 0) {
-                    showCustomAlert("Error", "Missing details or questions.");
-                    return;
-                }
-                button.disabled = true; button.textContent = "Saving...";
-                
-                const releaseTime = delayMinutes > 0 ? Date.now() + delayMinutes * 60 * 1000 : 0;
-                const p = preventGoBackCheckbox.checked;
-                const testData = { name: n, grade: g, duration: parseInt(d), preventGoBack: p, questions: questionsArray, timestamp: Date.now(), releaseTime: releaseTime };
-                try {
-                    if (currentEditingTestId) {
-                        await set(ref(db, `tests/${currentUser}/${currentEditingTestId}`), testData);
-                    } else {
-                        await push(ref(db, `tests/${currentUser}`), testData);
-                    }
-                    showCustomAlert("Success", "Assessment saved.");
-                    resetCreateFormState();
-                    setDefaultTab();
-                } catch (error) {
-                    showCustomAlert("Error", "Save failed.");
-                } finally {
-                    button.disabled = false; button.textContent = "Save Assessment";
-                }
-            };
-
-            async function authUser(name, password, isRegister) { 
-                if (!name || !password) { showCustomAlert("Error", "Fill all fields"); return; }
-                const userRef = ref(db, `users/${name}`); const snapshot = await get(userRef); 
-                if (isRegister) { if (snapshot.exists()) { showCustomAlert("Error", "User exists."); return; } await set(userRef, { password }); currentUser = name; } 
-                else { if (!snapshot.exists() || snapshot.val().password !== password) { showCustomAlert("Error", "Invalid credentials."); return; } currentUser = name; }
-                localStorage.setItem("loggedInTeacher", currentUser); showSection(dashboardSection); updateDashboard(); 
-            }
-            
-            teacherPortal.querySelector('#teacher-login-btn').onclick = () => authUser(teacherPortal.querySelector("#teacher-login-name").value.trim(), teacherPortal.querySelector("#teacher-login-password").value.trim(), false);
-            teacherPortal.querySelector('#teacher-register-btn').onclick = () => authUser(teacherPortal.querySelector("#teacher-register-name").value.trim(), teacherPortal.querySelector("#teacher-register-password").value.trim(), true);
-            
-            menuIcon.addEventListener('click', () => dropdownMenu.classList.toggle('hidden'));
-            document.addEventListener('click', (e) => { if (!menuIcon.contains(e.target) && !dropdownMenu.contains(e.target)) dropdownMenu.classList.add('hidden'); });
-            
-            dropdownMenu.querySelector('#teacher-settings-btn').onclick = () => { dropdownMenu.classList.add('hidden'); updateNameInput.value = currentUser; updatePasswordInput.value = ''; settingsModal.classList.remove('hidden'); };
-            dropdownMenu.querySelector('#teacher-logout-btn').onclick = async () => { dropdownMenu.classList.add('hidden'); if (await showCustomConfirm("Logout", "Confirm?")) { localStorage.clear(); window.location.reload(); } };
-            dropdownMenu.querySelector('#teacher-share-platform-btn').onclick = () => { dropdownMenu.classList.add('hidden'); sharePlatform(); };
-            
-            settingsModal.querySelector('.modal-close-btn').onclick = () => { settingsModal.classList.add('hidden'); };
-            resultsTestSelector.onchange = (e) => loadStudentResultsForTest(e.target.value);
-            teacherPortal.querySelectorAll('.to-login').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(loginSection)});
-            teacherPortal.querySelectorAll('.to-register').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(registerSection)});
-
-            updateBtn.onclick = async () => {
-                showCustomAlert("Info", "Update logic available via backend.");
-            };
-
-            // AI Assistant Logic for Teacher
-            teacherAiImageInput.onchange = () => handleImagePreview(teacherAiImageInput, teacherAiImagePreview, teacherAiImagePreview.querySelector('img'), (val) => currentTeacherChatImage = val);
-            teacherAiSend.onclick = () => handleAiChat(teacherAiInput, teacherAiMessages, currentTeacherChatImage, () => {
-                 currentTeacherChatImage = null; 
-                 teacherAiImagePreview.classList.add('hidden'); 
-                 teacherAiImageInput.value = "";
             });
         }
 
-        async function initStudentApp() {
-            const allSections=studentPortal.querySelectorAll('section'),[registerSection,loginSection,dashboard,takeTest,result,review]=allSections, nameSpan=studentPortal.querySelector('#student-name');
-            const portalHeader = studentPortal.querySelector('.portal-header-controls'), menuIcon = studentPortal.querySelector('#student-menu-icon'), dropdownMenu = studentPortal.querySelector('#student-dropdown-menu');
-            const settingsModal = studentPortal.querySelector('#student-settings-modal');
-            const testsContainer=studentPortal.querySelector('#available-tests-container'), resultsContainer=studentPortal.querySelector('#my-student-results-container'), searchBar=studentPortal.querySelector('#search-bar');
-            const studentFilterContainer = document.getElementById('student-filter-container');
-            const timerDisplay=studentPortal.querySelector('#timer'), timerProgress=studentPortal.querySelector('#timer-progress'), testTitle=studentPortal.querySelector('#current-test-title'), questionsDisplay=studentPortal.querySelector('#questions-display');
-            const finalScore=studentPortal.querySelector('#final-score'), feedbackMsg=studentPortal.querySelector('#feedback-message');
-            const qNavContainer=studentPortal.querySelector('#question-navigation-container'), [prevQBtn,nextQBtn]=[studentPortal.querySelector('#prev-question-btn'),studentPortal.querySelector('#next-question-btn')], submitBtn=studentPortal.querySelector('#submit-test-btn');
-            const reviewContainer=studentPortal.querySelector('#review-container'), updateNameInput = studentPortal.querySelector('#student-update-name'), updatePasswordInput = studentPortal.querySelector('#student-update-password'), updateBtn = studentPortal.querySelector('#student-update-btn');
-            const refreshBtn = studentPortal.querySelector('#refresh-tests-btn');
-            const backToDashboardBtn = studentPortal.querySelector('#back-to-dashboard-btn');
-            const backFromReviewBtn = studentPortal.querySelector('#back-to-dashboard-from-review-btn');
-            const studentTopNav = studentPortal.querySelector('#student-top-nav');
-            
-            const studentAiInput = document.getElementById('student-ai-input');
-            const studentAiSend = document.getElementById('student-ai-send');
-            const studentAiMessages = document.getElementById('student-ai-messages');
-            const studentAiImageInput = document.getElementById('student-ai-image');
-            const studentAiImagePreview = document.getElementById('student-ai-image-preview');
-            let currentStudentChatImage = null;
-
-            let currentStudent=null,takenTests={},allTests={},currentTest=null,testInterval=null,totalSec=0,remainSec=0,answers=[], qIndex=0, isDeepLinkSession = false;
-            
-            // Expose saveAnswer to window for inline HTML events
-            window.saveAnswer = (idx, val, type) => {
-                if(type === 'mcq') answers[idx] = {type:'mcq', answer: parseInt(val)};
-                else if(type === 'essay-text') { if(!answers[idx]) answers[idx] = {type:'essay'}; answers[idx].textAnswer = val; }
-            };
-
-            const loggedInUser = localStorage.getItem('loggedInStudent');
-            if(loggedInUser){
-                currentStudent = loggedInUser;
-                showSection(dashboard); loadDashboard();
-            } else {
-                showSection(loginSection);
+        // Question Editing Logic (Inline)
+        document.getElementById('q-image-input').onchange = async (e) => {
+            if(e.target.files[0]) {
+                currentImgBase64 = await getBase64(e.target.files[0]);
+                const prev = document.getElementById('q-img-preview');
+                prev.classList.remove('hidden');
+                prev.querySelector('img').src = currentImgBase64;
             }
-
-            function showSection(s){
-                allSections.forEach(e=>e.classList.add('hidden'));
-                if(s) s.classList.remove('hidden');
-                const isDashboard = s && s.id==='student-dashboard-section';
-                studentTopNav.classList.toggle('hidden', !isDashboard || isDeepLinkSession);
-                portalHeader.classList.toggle('hidden', !isDashboard || isDeepLinkSession);
-                studentPortal.classList.toggle('auth-view', s === loginSection || s === registerSection);
-                if(s === loginSection || s === registerSection) { document.querySelector('#student-portal .back-arrow-glass').classList.remove('hidden'); }
-            };
-            
-            async function loadDashboard(){
-                if(!currentStudent)return;
-                setDefaultTab();
-                const resultsSnap=await get(ref(db,`studentResults/${currentStudent}`));
-                takenTests=resultsSnap.exists()?resultsSnap.val():{};
-                renderStudentResults();
-                const testsRef=ref(db,'tests');
-                onValue(testsRef,snap=>{
-                    allTests=snap.exists()?snap.val():{};
-                    renderAvailableTests();
-                }); 
-            }
-            
-            refreshBtn.onclick = () => { loadDashboard(); };
-
-            function createTestCard(teacherId, testId, test, isPinned = false) {
-                const isTaken = !!takenTests[testId];
-                
-                const itemContainer = document.createElement('div');
-                itemContainer.className = 'student-test-item-container';
-                itemContainer.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-weight:700; font-size:1.1rem; color:var(--text-main);">${test.name}</div>
-                            <div style="font-size:0.8rem; color:var(--text-secondary);">${test.grade || ''}</div>
-                        </div>
-                        <button class="action-btn btn-primary" style="width:auto; padding:8px 20px; font-size:0.9rem;">
-                            ${isTaken ? 'Review' : 'Start'}
-                        </button>
-                    </div>
-                `;
-                itemContainer.onclick = () => isTaken ? openStudentReview(testId) : startTest(teacherId, testId, test, false);
-                return itemContainer;
-            }
-
-            async function renderAvailableTests(){
-                testsContainer.innerHTML='';
-                const now = Date.now();
-                const filter = searchBar.value.toLowerCase();
-                
-                const allTestEntries = [];
-                Object.entries(allTests).forEach(([teacherId, teacherTests]) => {
-                    Object.entries(teacherTests)
-                        .filter(([testId, test]) => (!test.releaseTime || test.releaseTime <= now))
-                        .forEach(([testId, test]) => { allTestEntries.push({ teacherId, testId, ...test }); }); 
-                });
-
-                const grades = [...new Set(allTestEntries.map(test => test.grade))];
-                studentFilterContainer.innerHTML = '<div class="filter-chip active" data-grade="all">All</div>';
-                grades.forEach(grade => {
-                    if(grade) studentFilterContainer.innerHTML += `<div class="filter-chip" data-grade="${grade}">${grade}</div>`;
-                });
-                
-                const activeFilter = studentFilterContainer.querySelector('.active')?.dataset.grade || 'all';
-
-                studentFilterContainer.querySelectorAll('.filter-chip').forEach(chip => {
-                    chip.onclick = (e) => {
-                        studentFilterContainer.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-                        e.target.classList.add('active');
-                        renderAvailableTests();
-                    };
-                });
-
-                allTestEntries
-                        .filter(test => {
-                            const matchesSearch = test.name.toLowerCase().includes(filter);
-                            const matchesFilter = activeFilter === 'all' || test.grade === activeFilter;
-                            return matchesSearch && matchesFilter;
-                        })
-                        .forEach(test => {
-                            testsContainer.appendChild(createTestCard(test.teacherId, test.testId, test, false));
-                        });
-                
-                if(testsContainer.children.length === 0) { testsContainer.innerHTML='<p style="text-align:center;">No exams available.</p>'; }
-            }
-
-
-            function renderStudentResults(){
-                resultsContainer.innerHTML='';
-                const results=Object.values(takenTests).sort((a,b)=>b.timestamp-a.timestamp);
-                if(results.length===0){resultsContainer.innerHTML='<p style="text-align:center;">No history.</p>';return}
-                results.forEach(r=>{
-                    const div=document.createElement('div');div.className='list-item';
-                    div.innerHTML=`<div style="display:flex; justify-content:space-between;"><span>${r.testName}</span><strong style="color:var(--accent-primary);">${r.score}</strong></div>`;
-                    resultsContainer.appendChild(div);
-                })
-            }
-            
-            function startTest(teacherId, testId, testData, isPractice = false) {
-                currentTest = { ...testData, id: testId, teacherId, isPractice };
-                totalSec = currentTest.duration * 60;
-                remainSec = totalSec;
-                answers = new Array(currentTest.questions.length).fill(null);
-                qIndex = 0;
-                setupTestUI();
-            }
-
-            function setupTestUI() {
-                testTitle.textContent = currentTest.name;
-                if (testInterval) clearInterval(testInterval);
-                testInterval = setInterval(() => {
-                    remainSec--;
-                    timerDisplay.textContent = formatTime(remainSec);
-                    timerProgress.style.width = ((remainSec / totalSec) * 100) + '%';
-                    if (remainSec <= 0) { clearInterval(testInterval); submitTest(true); }
-                }, 1000);
-
-                if (currentTest.preventGoBack) {
-                    submitBtn.classList.add('hidden');
-                    qNavContainer.classList.remove('hidden');
-                    renderQuestion(qIndex);
-                } else {
-                    submitBtn.classList.remove('hidden');
-                    qNavContainer.classList.add('hidden');
-                    renderAllQuestions();
-                }
-                showSection(takeTest);
-            }
-
-            async function openStudentReview(testId) {
-                const result = takenTests[testId]; if (!result) return;
-                const testRef = ref(db, `tests/${result.teacherName}/${testId}`), testSnap = await get(testRef);
-                if (testSnap.exists()) { renderReview(testSnap.val(), result.answers); showSection(review); }
-            }
-
-            function renderAllQuestions() {
-                questionsDisplay.innerHTML = '';
-                currentTest.questions?.forEach((q, idx) => {
-                    const qDiv = document.createElement('div');
-                    qDiv.className = 'list-item';
-                    let ansHtml = '';
-                    const savedAns = answers[idx];
-                    if (q.type === 'mcq') {
-                        ansHtml = `<div style="display:flex; flex-direction:column; gap:10px;">${q.options.map((o, i) => {
-                            const checked = savedAns && savedAns.answer === (i + 1) ? 'checked' : '';
-                            return `<label style="display:block; padding:15px; border:1px solid var(--glass-border); border-radius:12px; cursor:pointer;"><input type="radio" name="question-${idx}" value="${i + 1}" onchange="saveAnswer(${idx},this.value,'mcq')" ${checked}> <span style="margin-left:10px;">${o}</span></label>`
-                        }).join('')}</div>`
-                    } else {
-                        ansHtml = `<textarea id="text-answer-${idx}" oninput="saveAnswer(${idx}, this.value, 'essay-text')" placeholder="Type answer..."></textarea>`
-                    }
-                    qDiv.innerHTML = `<h4 style="margin-bottom:15px;">Q${idx + 1}: ${q.question}</h4>${q.image ? `<img class="question-image-preview" src="${q.image}" style="max-height:150px; border-radius:10px; margin-bottom:15px;">` : ''}${ansHtml}`;
-                    questionsDisplay.appendChild(qDiv)
-                })
-            }
-
-            function renderQuestion(index){
-                const q=currentTest.questions[index];
-                let ansHtml='';
-                if(q.type==='mcq'){ansHtml=`<div>${q.options.map((o,i)=>`<label style="display:block; padding:15px; border:1px solid var(--glass-border); margin-bottom:10px; border-radius:12px; cursor:pointer;"><input type="radio" name="question-${index}" value="${i+1}"> ${o}</label>`).join('')}</div>`}
-                else{ansHtml=`<textarea id="text-answer-${index}" placeholder="Answer..."></textarea>`}
-                questionsDisplay.innerHTML=`<div class="list-item"><h4>Q${index+1}: ${q.question}</h4>${ansHtml}</div>`;
-                if(q.type==='essay') document.getElementById(`text-answer-${index}`).oninput = (e) => saveAnswer(index, e.target.value, 'essay-text');
-                prevQBtn.disabled=index===0; nextQBtn.classList.toggle('hidden',index===currentTest.questions.length-1); submitBtn.classList.toggle('hidden',index!==currentTest.questions.length-1);
-            }
-            
-            function saveCurrentAnswer(){
-                 const q=currentTest.questions[qIndex];
-                 if(q.type==='mcq'){ const c=questionsDisplay.querySelector(`input[name="question-${qIndex}"]:checked`); if(c) answers[qIndex]={type:'mcq',answer:parseInt(c.value)}; }
-                 else { const t=questionsDisplay.querySelector(`#text-answer-${qIndex}`).value; if(t) answers[qIndex]={type:'essay', textAnswer:t}; }
-            }
-            nextQBtn.onclick=()=>{if(qIndex<currentTest.questions.length-1){saveCurrentAnswer();qIndex++;renderQuestion(qIndex)}};
-            prevQBtn.onclick=()=>{if(qIndex>0){saveCurrentAnswer();qIndex--;renderQuestion(qIndex)}};
-            
-            async function submitTest(timeUp=false){
-                clearInterval(testInterval);
-                if(currentTest.preventGoBack) saveCurrentAnswer();
-                let mcqScore = 0;
-                const totalTestPoints = currentTest.questions.reduce((s, q) => s + (q.points || 1), 0);
-                currentTest.questions.forEach((q, idx) => { if (q.type === 'mcq' && answers[idx] && parseInt(answers[idx].answer) === parseInt(q.correct)) { mcqScore += (q.points || 1); } });
-                
-                const scoreString = `${mcqScore} / ${totalTestPoints}`;
-                finalScore.textContent = scoreString;
-                
-                const resultObj = { testId: currentTest.id, testName: currentTest.name, teacherName: currentTest.teacherId, timestamp: serverTimestamp(), answers: answers, mcqScore: mcqScore, status: 'graded', score: scoreString };
-                await set(ref(db, `studentResults/${currentStudent}/${currentTest.id}`), resultObj); 
-                await set(ref(db, `results/${currentTest.teacherId}/${currentTest.id}/${currentStudent}`), resultObj);
-                takenTests[currentTest.id] = { ...resultObj, timestamp: Date.now() };
-                
-                showSection(result);
-            }
-            submitBtn.onclick=async ()=>{ if (await showCustomConfirm('Submit', 'Are you sure?')) submitTest(false) };
-            
-            function renderReview(testData, studentAnswers){
-                reviewContainer.innerHTML = '';
-                testData.questions.forEach((q,i) => {
-                    const ans = studentAnswers[i] || {};
-                    const qDiv = document.createElement('div');
-                    qDiv.className = 'list-item';
-                    let html = '';
-                     if (q.type === 'mcq') {
-                        html = q.options.map((o, idx) => {
-                            let style = 'padding:10px; margin:5px 0; border-radius:8px; border:1px solid rgba(255,255,255,0.1);';
-                            if (idx + 1 === parseInt(q.correct)) style = 'color:var(--success); border-color:var(--success); background:rgba(16, 185, 129, 0.1);';
-                            if (ans.answer && parseInt(ans.answer) === idx+1 && parseInt(ans.answer) !== parseInt(q.correct)) style = 'color:var(--danger); border-color:var(--danger); background:rgba(239, 68, 68, 0.1);';
-                            return `<div style="${style}">${o}</div>`;
-                        }).join('');
-                     } else {
-                         html = `<div>Your Answer: ${ans.textAnswer || '-'}</div>`;
-                     }
-                    qDiv.innerHTML = `<h4>Q${i+1}: ${q.question}</h4>${html}`;
-                    reviewContainer.appendChild(qDiv);
-                });
-            }
-            
-            async function authUser(name,pass,isRegister){
-                if(!name||!pass) { showCustomAlert('Error','Fields required'); return; }
-                const userRef=ref(db,`students/${name}`); const snap=await get(userRef);
-                if(isRegister){ if(snap.exists()) { showCustomAlert('Error','Taken'); return; } await set(userRef,{password:pass}); currentStudent = name; } 
-                else { if(!snap.exists()||snap.val().password!==pass) { showCustomAlert('Error','Invalid'); return; } currentStudent=name; }
-                localStorage.setItem('loggedInStudent',currentStudent);
-                showSection(dashboard);loadDashboard();
-            }
-
-            const formatTime=s=>{const m=Math.floor(s/60),r=s%60;return`${m}:${r.toString().padStart(2,'0')}`};
-            const navButtons = studentPortal.querySelectorAll('.nav-btn');
-            navButtons.forEach(b => { b.addEventListener('click', () => { navButtons.forEach(btn => btn.classList.remove('active')); studentPortal.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden')); b.classList.add('active'); studentPortal.querySelector(`#${b.dataset.target}`).classList.remove('hidden'); }); });
-            const setDefaultTab=()=>navButtons[0].click();
-            
-            studentPortal.querySelector('#student-register-btn').onclick=()=>authUser(studentPortal.querySelector('#student-register-name').value.trim(),studentPortal.querySelector('#student-register-password').value.trim(),true);
-            studentPortal.querySelector('#student-login-btn').onclick=()=>authUser(studentPortal.querySelector('#student-login-name').value.trim(),studentPortal.querySelector('#student-login-password').value.trim(),false);
-            studentPortal.querySelectorAll('.to-login').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(loginSection)});
-            studentPortal.querySelectorAll('.to-register').forEach(el=>el.onclick=e=>{e.preventDefault();showSection(registerSection)});
-            backToDashboardBtn.onclick = () => { showSection(dashboard); loadDashboard(); };
-            studentPortal.querySelector('#cancel-test-btn').onclick= async ()=>{ if(await showCustomConfirm('Cancel', 'Abort exam?')){ clearInterval(testInterval); showSection(dashboard); } };
-            studentPortal.querySelector('#review-answers-btn').onclick = () => { openStudentReview(currentTest.id); };
-            backFromReviewBtn.onclick = () => { showSection(dashboard); };
-            searchBar.addEventListener('input', () => renderAvailableTests());
-            
-            menuIcon.addEventListener('click', () => dropdownMenu.classList.toggle('hidden'));
-            document.addEventListener('click', (e) => { if (!menuIcon.contains(e.target) && !dropdownMenu.contains(e.target)) dropdownMenu.classList.add('hidden'); });
-            
-            dropdownMenu.querySelector('#student-settings-btn').onclick = () => { dropdownMenu.classList.add('hidden'); settingsModal.classList.remove('hidden'); };
-            dropdownMenu.querySelector('#student-logout-btn').onclick = async () => { dropdownMenu.classList.add('hidden'); if (await showCustomConfirm("Logout", "Confirm?")) { localStorage.clear(); window.location.reload(); } };
-            settingsModal.querySelector('.modal-close-btn').onclick = () => { settingsModal.classList.add('hidden'); };
-
-            // AI Chat Logic Student
-            studentAiImageInput.onchange = () => handleImagePreview(studentAiImageInput, studentAiImagePreview, studentAiImagePreview.querySelector('img'), (val) => currentStudentChatImage = val);
-            studentAiSend.onclick = () => handleAiChat(studentAiInput, studentAiMessages, currentStudentChatImage, () => {
-                 currentStudentChatImage = null; 
-                 studentAiImagePreview.classList.add('hidden'); 
-                 studentAiImageInput.value = "";
-            });
-        }
-
-        async function shareTest(testName) {
-            try { await navigator.clipboard.writeText(testName); showCustomAlert('Copied', 'Test Name copied.'); } catch (err) {}
-        }
-        
-        const imageViewerModal = document.getElementById('image-viewer-modal');
-        const modalImage = imageViewerModal.querySelector('.image-modal-content');
-        function openImageViewer(src) { if (!src || src.endsWith('#')) return; modalImage.src = src; imageViewerModal.classList.add('visible'); }
-        function closeImageViewer() { imageViewerModal.classList.remove('visible'); }
-        document.addEventListener('click', (e) => { if (e.target.tagName === 'IMG' && e.target.closest('.portal-container, .modal-content')) { if (e.target.src && (e.target.src.startsWith('data:image') || e.target.src.includes('firebase'))) { e.preventDefault(); openImageViewer(e.target.src); } } });
-        imageViewerModal.querySelector('.modal-close-btn').addEventListener('click', closeImageViewer);
-
-        const handleInitialLoad = () => {
-            const savedTeacher = localStorage.getItem('loggedInTeacher');
-            const savedStudent = localStorage.getItem('loggedInStudent');
-            if (savedTeacher) { teacherPortal.classList.remove('hidden'); initTeacherApp(); } 
-            else if (savedStudent) { studentPortal.classList.remove('hidden'); initStudentApp(); } 
-            else { mainLandingPage.classList.remove('hidden'); }
         };
 
-        handleInitialLoad();
+        window.setQType = (type) => {
+            qType = type;
+            document.querySelectorAll('.type-toggle-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`type-${type}`).classList.add('active');
+            document.getElementById('mcq-options-area').classList.toggle('hidden', type === 'essay');
+        };
+
+        window.addQuestionToList = () => {
+            const text = document.getElementById('q-text').value;
+            const points = document.getElementById('q-points').value;
+            
+            if (!text && !currentImgBase64) return alert("أضف نصاً أو صورة");
+
+            const q = { type: qType, text, points, image: currentImgBase64 };
+            if (qType === 'mcq') {
+                const opts = Array.from(document.querySelectorAll('.q-opt')).map(i => i.value);
+                if (opts.some(o => !o)) return alert("املأ جميع الخيارات");
+                q.options = opts;
+                q.correct = opts[0];
+            }
+            
+            currentQuestions.push(q);
+            renderAddedQuestions();
+            
+            // Clear fields
+            document.getElementById('q-text').value = '';
+            currentImgBase64 = null;
+            document.getElementById('q-img-preview').classList.add('hidden');
+            document.querySelectorAll('.q-opt').forEach(i => i.value = '');
+        };
+
+        function renderAddedQuestions() {
+            const container = document.getElementById('added-questions-list');
+            container.innerHTML = '';
+            currentQuestions.forEach((q, i) => {
+                container.innerHTML += `
+                    <div class="card-item" style="padding:10px; display:flex; justify-content:space-between; background:rgba(255,255,255,0.05);">
+                        <span>س ${i+1}: ${q.text.substring(0, 20)}...</span>
+                        <i class="fas fa-trash" style="color:var(--danger); cursor:pointer;" onclick="deleteQ(${i})"></i>
+                    </div>
+                `;
+            });
+        }
+
+        window.deleteQ = (i) => {
+            currentQuestions.splice(i, 1);
+            renderAddedQuestions();
+        };
+
+        window.saveTest = async () => {
+            const title = document.getElementById('new-test-name').value;
+            const grade = document.getElementById('new-test-grade').value;
+            const duration = document.getElementById('new-test-duration').value;
+
+            if (!title || !grade || !duration || currentQuestions.length === 0) return alert("املأ البيانات وأضف أسئلة");
+
+            await push(ref(db, 'tests'), {
+                teacher: currentUser,
+                title, grade, duration,
+                questions: currentQuestions,
+                timestamp: Date.now()
+            });
+
+            alert("تم حفظ الاختبار");
+            currentQuestions = [];
+            document.getElementById('new-test-name').value = '';
+            renderAddedQuestions();
+            switchTab('t-library');
+        };
+
+        window.deleteTest = async (id) => {
+            if(confirm("حذف الاختبار؟")) await remove(ref(db, `tests/${id}`));
+        };
+
+        // ======== AI Generation Logic ========
+        window.toggleAiGenerator = () => {
+            document.getElementById('ai-gen-modal').classList.toggle('hidden');
+        };
+
+        document.getElementById('ai-gen-img').onchange = async (e) => {
+            if(e.target.files[0]) {
+                aiGenImgBase64 = await getBase64(e.target.files[0]);
+                const prev = document.getElementById('ai-gen-preview');
+                prev.classList.remove('hidden');
+                prev.querySelector('img').src = aiGenImgBase64;
+            }
+        };
+
+        window.generateAiQuestions = async () => {
+            const text = document.getElementById('ai-gen-text').value;
+            const count = document.getElementById('ai-gen-count').value;
+            const points = document.getElementById('ai-gen-points').value;
+            
+            if(!text && !aiGenImgBase64) return alert("أدخل نصاً أو صورة");
+            
+            const btn = document.querySelector('#ai-gen-modal button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوليد...';
+
+            const parts = [];
+            if(aiGenImgBase64) {
+                 parts.push({ inline_data: { mime_type: "image/jpeg", data: aiGenImgBase64.split(',')[1] } });
+            }
+            parts.push({ text: `Generate a JSON array of ${count} exam questions about: "${text}". 
+            Format: [{"question": "string", "options": ["correct", "wrong1", "wrong2", "wrong3"], "correct": "correct", "type": "mcq"}]. 
+            Make sure the first option is the correct one in the data array.` });
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts }] })
+                });
+                const data = await res.json();
+                const raw = data.candidates[0].content.parts[0].text;
+                const jsonStr = raw.match(/\[.*\]/s)[0];
+                const questions = JSON.parse(jsonStr);
+                
+                questions.forEach(q => {
+                    q.points = points;
+                    currentQuestions.push(q);
+                });
+                
+                renderAddedQuestions();
+                toggleAiGenerator();
+                alert(`تم إضافة ${questions.length} أسئلة بنجاح!`);
+
+            } catch(e) {
+                alert("فشل التوليد، حاول مرة أخرى");
+            }
+            
+            btn.innerHTML = originalText;
+        };
+
+        // ======== Student Functions ========
+        function loadStudentData() {
+            onValue(ref(db, 'tests'), (snap) => {
+                const list = document.getElementById('s-exams-list');
+                list.innerHTML = '';
+                const data = snap.val() || {};
+                Object.entries(data).forEach(([key, val]) => {
+                    list.innerHTML += `
+                        <div class="card-item">
+                            <h3>${val.title}</h3>
+                            <p style="color:#aaa;">المعلم: ${val.teacher} • ${val.grade}</p>
+                            <button onclick="startTest('${key}')" class="modern-enter-btn" style="width:100%; margin-top:10px; padding:10px; font-size:0.9rem;">ابدأ الاختبار</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+        
+        // Search Student
+        document.getElementById('s-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('#s-exams-list .card-item').forEach(el => {
+                el.style.display = el.innerText.toLowerCase().includes(term) ? 'block' : 'none';
+            });
+        });
+
+        // AI Chat
+        window.sendAiMsg = async (prefix) => {
+            const input = document.getElementById(`${prefix}-ai-input`);
+            const msgs = document.getElementById(`${prefix}-ai-msgs`);
+            const fileInput = document.getElementById(`${prefix}-ai-file`);
+            
+            const txt = input.value.trim();
+            if (!txt && !fileInput.files[0]) return;
+
+            // User Msg
+            msgs.innerHTML += `<div class="chat-msg user">${txt} ${fileInput.files[0] ? '<br>[صورة مرفقة]' : ''}</div>`;
+            input.value = '';
+            msgs.scrollTop = msgs.scrollHeight;
+
+            // AI Logic (Simulation or API)
+            const loadingId = Date.now();
+            msgs.innerHTML += `<div class="chat-msg ai" id="${loadingId}">...</div>`;
+            msgs.scrollTop = msgs.scrollHeight;
+
+            let imgPart = null;
+            if (fileInput.files[0]) {
+                const b64 = await getBase64(fileInput.files[0]);
+                imgPart = { inline_data: { mime_type: "image/jpeg", data: b64.split(',')[1] } };
+                fileInput.value = ''; // clear
+            }
+
+            const parts = [{ text: `أنت SA AI، مساعد تعليمي ذكي للمستخدم: ${currentUser}. أجب بالعربية.` }];
+            if (txt) parts.push({ text: txt });
+            if (imgPart) parts.push(imgPart);
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts }] })
+                });
+                const data = await res.json();
+                const reply = data.candidates[0].content.parts[0].text;
+                document.getElementById(loadingId).innerText = reply;
+            } catch (e) {
+                document.getElementById(loadingId).innerText = "عذراً، حدث خطأ في الاتصال.";
+            }
+            msgs.scrollTop = msgs.scrollHeight;
+        };
+
+        // Init Check
+        const savedUser = localStorage.getItem('sa_user');
+        const savedRole = localStorage.getItem('sa_role');
+        
+        if (savedUser && savedRole) {
+            document.getElementById('landing-layer').classList.add('hidden');
+            currentUser = savedUser;
+            selectedRole = savedRole;
+            if (selectedRole === 'teacher') {
+                document.getElementById('teacher-app').classList.remove('hidden');
+                loadTeacherData();
+            } else {
+                document.getElementById('student-app').classList.remove('hidden');
+                loadStudentData();
+            }
+        }
+
     </script>
 </body>
 </html>
+
+
