@@ -21,21 +21,25 @@
             --bg-surface: #101010;
             --bg-card: #1c1c1c;
             
-            --glass-bg: rgba(20, 20, 20, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(20, 20, 20, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.1);
             
             --text-main: #ffffff;
             --text-secondary: #a0a0a0;
             
             --accent-primary: #3b82f6; 
+            --accent-gold: #ffd700; 
             --accent-glow: rgba(59, 130, 246, 0.4);
-            --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             
-            --nav-height: 70px;
+            --nav-height: 60px;
             --radius-xl: 24px;
-            --radius-full: 999px;
             
             --font-main: 'Cairo', sans-serif;
+            
+            /* Status Colors */
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
         /* Reset & Base */
@@ -47,13 +51,50 @@
             margin: 0; padding: 0;
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08), transparent 50%);
+            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.05), transparent 60%);
         }
 
         /* Utilities */
         .hidden { display: none !important; }
         .flex-center { display: flex; align-items: center; justify-content: center; }
+        .w-full { width: 100%; }
         
+        /* Buttons Style Restoration */
+        .modern-btn {
+            background: #ffffff; color: #000000;
+            font-family: var(--font-main); font-weight: 700;
+            padding: 12px 25px; border-radius: 50px;
+            border: none; font-size: 0.95rem;
+            box-shadow: 0 5px 20px rgba(255,255,255,0.15);
+            cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%;
+        }
+        .modern-btn:active { transform: scale(0.97); }
+        .modern-btn.secondary {
+            background: rgba(255,255,255,0.1); color: #fff;
+            border: 1px solid var(--glass-border);
+            box-shadow: none;
+        }
+        .modern-btn.danger {
+            background: rgba(239, 68, 68, 0.15); color: var(--danger);
+            box-shadow: none; border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .icon-btn-small {
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; font-size: 0.9rem;
+        }
+
+        /* Back Button */
+        .back-btn-header {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px; cursor: pointer;
+            color: var(--text-secondary); transition: 0.3s;
+            font-weight: bold; background: rgba(255,255,255,0.05);
+            padding: 8px 15px; border-radius: 20px; width: fit-content;
+        }
+        .back-btn-header:hover { color: #fff; background: rgba(255,255,255,0.1); }
+
         /* ======== 1. Navigation (Fixed Top) ======== */
         .top-nav {
             position: fixed; top: 0; left: 0; right: 0;
@@ -63,7 +104,6 @@
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex; align-items: center; justify-content: center;
-            transition: transform 0.3s;
         }
 
         .nav-container {
@@ -76,203 +116,266 @@
             flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
             cursor: pointer; transition: 0.3s; position: relative;
         }
-        .nav-btn i { font-size: 1.3rem; transition: 0.3s; }
-        .nav-btn span { font-size: 0.6rem; font-weight: 600; opacity: 0.7; }
+        .nav-btn i { font-size: 1.2rem; transition: 0.3s; }
+        .nav-btn span { font-size: 0.65rem; font-weight: 600; opacity: 0.7; }
         
         .nav-btn.active { color: var(--text-main); }
-        .nav-btn.active i { color: var(--accent-primary); transform: translateY(-2px); text-shadow: 0 0 10px var(--accent-glow); }
-        .nav-btn.active span { opacity: 1; }
+        .nav-btn.active i { color: var(--accent-primary); transform: translateY(-3px); text-shadow: 0 0 15px var(--accent-glow); }
+        .magic-btn.active i { color: #d946ef; text-shadow: 0 0 15px rgba(217, 70, 239, 0.6); }
 
         /* ======== 2. Content Areas ======== */
         .portal-container {
-            padding-top: calc(var(--nav-height) + 20px);
-            padding-bottom: 120px; /* Extra space for bottom inputs/bars */
-            padding-left: 20px; padding-right: 20px;
+            padding-top: calc(var(--nav-height) + 15px);
+            padding-bottom: 100px; /* Adjusted padding */
+            padding-left: 15px; padding-right: 15px;
             max-width: 800px; margin: 0 auto;
             min-height: 100vh;
         }
 
-        /* ======== 3. Landing & Auth Overlay (High Z-Index) ======== */
-        #landing-layer, #auth-layer, #transition-layer {
-            position: fixed; inset: 0;
-            background: var(--bg-deep);
-            z-index: 5000; /* Above everything */
-            display: flex; flex-direction: column;
-            overflow-y: auto;
-        }
-
-        /* Landing Cards */
-        .landing-header { text-align: center; margin-top: 60px; margin-bottom: 40px; }
-        .role-cards-container {
-            display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; width: 100%; padding: 0 20px;
-        }
-        .role-card {
-            flex: 1; min-width: 140px; max-width: 250px; height: 180px;
-            background: linear-gradient(145deg, #181818, #0f0f0f);
+        /* ======== 3. Cards ======== */
+        .mini-card {
+            background: linear-gradient(145deg, #1c1c1c, #151515);
             border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border-radius: 18px;
+            padding: 15px;
+            margin-bottom: 12px;
+            position: relative;
+            transition: all 0.2s;
+            display: flex; flex-direction: column; gap: 10px;
         }
-        .role-card:hover, .role-card.selected {
-            border-color: var(--accent-primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
-        }
-        .role-card i { font-size: 3rem; margin-bottom: 15px; color: var(--text-secondary); transition: 0.3s; }
-        .role-card:hover i, .role-card.selected i { color: var(--accent-primary); transform: scale(1.1); }
+        .mini-card:active { transform: scale(0.99); }
         
-        /* Modern White Button (Transition) */
-        .modern-enter-btn {
-            background: #ffffff; color: #000000;
-            font-family: var(--font-main); font-weight: 800;
-            padding: 18px 40px; border-radius: 50px;
-            border: none; font-size: 1.1rem;
-            box-shadow: 0 0 30px rgba(255,255,255,0.2);
-            cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; gap: 10px;
-            margin-top: 40px;
-            animation: pulseWhite 2s infinite;
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-title { font-weight: 700; font-size: 1rem; color: #fff; margin: 0; line-height: 1.4; }
+        .card-meta { font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+        
+        .teacher-badge {
+            background: rgba(255, 215, 0, 0.15); color: var(--accent-gold);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold;
         }
-        @keyframes pulseWhite { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); } 70% { box-shadow: 0 0 0 15px rgba(255,255,255,0); } 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } }
 
-        /* Auth Form (Clean) */
-        .auth-box {
-            width: 90%; max-width: 350px; margin: auto;
-            text-align: center;
+        .card-actions {
+            display: flex; gap: 8px; margin-top: 5px;
+            padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);
         }
+        .action-btn {
+            flex: 1; padding: 8px; border-radius: 10px; border: none; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;
+            transition: 0.2s;
+        }
+        .btn-primary { background: var(--accent-primary); color: white; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2); }
+        .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #ccc; }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        /* ======== 4. Inputs ======== */
         .smart-input {
-            width: 100%; background: var(--bg-surface);
+            width: 100%; background: #151515;
             border: 1px solid var(--glass-border);
-            padding: 18px 20px; border-radius: 20px;
-            color: #fff; font-size: 1rem; margin-bottom: 15px;
-            outline: none; transition: 0.3s; text-align: center;
-            font-family: var(--font-main);
+            padding: 14px 18px; border-radius: 14px;
+            color: #fff; font-size: 0.95rem; margin-bottom: 10px;
+            outline: none; transition: 0.3s; font-family: var(--font-main);
         }
-        .smart-input:focus { border-color: var(--accent-primary); background: #151515; }
-        
-        /* ======== 4. Google Style Search ======== */
-        .search-container { position: relative; width: 100%; margin-bottom: 20px; }
+        .smart-input:focus { border-color: var(--accent-primary); background: #0a0a0a; }
+
         .google-bar {
-            width: 100%; background: var(--bg-card);
+            width: 100%; background: #1c1c1c;
             border: 1px solid var(--glass-border);
-            border-radius: 40px; padding: 14px 20px; padding-left: 50px; /* Space for icon */
+            border-radius: 50px; padding: 12px 20px 12px 45px;
             color: #fff; font-family: var(--font-main);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .search-wrap { position: relative; margin-bottom: 20px; }
+        .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #666; font-size: 1rem; }
+
+        /* ======== 5. Avatars ======== */
+        .avatar-frame {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: linear-gradient(135deg, #2a2a2a, #111);
+            border: 2px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; margin: 0 auto 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: relative; overflow: hidden;
+        }
+        .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-student { border-color: var(--accent-primary); color: var(--accent-primary); }
+        .avatar-teacher { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+        /* ======== 6. Chat AI UI (Fixed Position) ======== */
+        .ai-layout {
+            position: fixed; top: var(--nav-height); left: 0; right: 0; bottom: 70px; /* Space for input bar */
+            display: flex; flex-direction: column;
+            background: var(--bg-deep); z-index: 100;
+        }
+        .ai-messages {
+            flex: 1; overflow-y: auto;
+            padding: 15px; padding-bottom: 20px;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        
+        .chat-msg {
+            max-width: 85%; padding: 10px 16px; border-radius: 18px;
+            font-size: 0.95rem; line-height: 1.5; position: relative; word-wrap: break-word;
+        }
+        .chat-msg.ai {
+            background: #252525; align-self: flex-start; border-bottom-left-radius: 4px; color: #eee;
+        }
+        .chat-msg.user {
+            background: #f0f0f0; color: #000; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 600;
+        }
+        .chat-msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
+
+        /* Fixed Bottom Input Bar */
+        .ai-input-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: rgba(30, 30, 30, 0.95);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 10px 15px; padding-bottom: 20px; /* Safe area */
+            display: flex; align-items: center; gap: 10px;
+            z-index: 2000;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+        }
+        .ai-input-field {
+            flex: 1; background: #111; border: 1px solid #444; border-radius: 20px;
+            color: #fff; font-family: var(--font-main); font-size: 1rem;
+            outline: none; padding: 10px 15px;
+        }
+        .attach-btn {
+            color: #aaa; font-size: 1.3rem; padding: 8px; cursor: pointer; transition: 0.3s;
+        }
+        .attach-btn:hover { color: #fff; }
+        .send-btn {
+            background: #fff; color: #000; border: none;
+            width: 42px; height: 42px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1.1rem; transition: 0.3s;
+        }
+        .send-btn:active { transform: scale(0.9); }
+        
+        .chat-img-preview {
+            position: absolute; bottom: 80px; left: 15px;
+            background: #222; padding: 5px; border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            display: none; z-index: 2001;
+        }
+        .chat-img-preview img { height: 60px; border-radius: 6px; }
+        .chat-img-preview i { 
+            position: absolute; top: -8px; right: -8px; 
+            background: red; color: white; border-radius: 50%; width: 20px; height: 20px; 
+            display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer;
+        }
+
+        /* ======== 7. Menu & Profile ======== */
+        #menu-modal, #ai-gen-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000;
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .menu-content {
+            background: #181818; border-top: 1px solid #333;
+            border-radius: 25px 25px 0 0; padding: 25px;
+            padding-bottom: 50px; /* Extra padding for bottom */
+            animation: slideUp 0.3s ease-out;
+            max-height: 85vh; overflow-y: auto; /* Scrollable if too long */
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .menu-item {
+            background: rgba(255,255,255,0.03); padding: 16px;
+            border-radius: 16px; display: flex; align-items: center; gap: 15px;
+            margin-bottom: 10px; cursor: pointer; border: 1px solid transparent;
             transition: 0.3s;
         }
-        .google-bar:focus { border-color: var(--accent-primary); box-shadow: 0 4px 25px rgba(59, 130, 246, 0.15); }
-        .search-icon {
-            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-            color: var(--text-secondary);
-        }
-
-        /* ======== 5. AI Chat UI (Clean) ======== */
-        .ai-layout { display: flex; flex-direction: column; height: calc(100vh - 160px); position: relative; }
-        .ai-messages { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px;}
+        .menu-item:active { background: rgba(255,255,255,0.08); }
+        .menu-item.active-edit { border-color: var(--accent-primary); background: #111; }
         
-        .chat-msg { max-width: 85%; padding: 12px 18px; border-radius: 18px; line-height: 1.5; font-size: 0.95rem; }
-        .chat-msg.ai { align-self: flex-start; background: var(--bg-card); color: var(--text-main); border-bottom-left-radius: 4px; }
-        .chat-msg.user { align-self: flex-end; background: var(--text-main); color: #000; font-weight: 600; border-bottom-right-radius: 4px; }
-        
-        /* Fixed Bottom AI Input */
-        .ai-input-fixed {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: var(--bg-deep); border-top: 1px solid var(--glass-border);
-            padding: 15px; display: flex; gap: 10px; align-items: center; z-index: 2000;
+        .avatar-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            margin-top: 15px; margin-bottom: 20px;
         }
-        .ai-field-wrap {
-            flex: 1; background: var(--bg-surface); border-radius: 30px;
-            display: flex; align-items: center; padding: 5px 15px; border: 1px solid var(--glass-border);
+        .avatar-option {
+            background: #222; border-radius: 50%; aspect-ratio: 1;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; cursor: pointer; border: 2px solid transparent;
         }
-        .ai-field { flex: 1; background: transparent; border: none; padding: 10px; color: #fff; outline: none; }
+        .avatar-option.selected { border-color: var(--success); background: #000; }
 
-        /* ======== 6. Create Test (Inline Design) ======== */
-        .question-editor-card {
-            background: var(--bg-card);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 20px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            position: relative;
+        /* ======== 8. Landing ======== */
+        .landing-wrap {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; text-align: center; padding: 30px;
         }
-        .question-editor-card h3 { margin-top: 0; color: var(--text-secondary); font-size: 1rem; margin-bottom: 15px; }
-
-        .type-toggle-btn {
-            background: transparent; border: 1px solid var(--glass-border);
-            color: var(--text-secondary); padding: 8px 16px; border-radius: 20px;
-            cursor: pointer; font-size: 0.9rem; transition: 0.3s;
+        .role-card {
+            background: #111; border: 1px solid #333; border-radius: 25px;
+            padding: 30px; width: 140px; cursor: pointer; transition: 0.3s;
         }
-        .type-toggle-btn.active { background: var(--text-main); color: #000; font-weight: bold; border-color: var(--text-main); }
+        .role-card:active { transform: scale(0.95); border-color: var(--accent-primary); }
 
-        /* ======== 7. List Items & Cards ======== */
-        .card-item {
-            background: var(--bg-card); border: 1px solid var(--glass-border);
-            border-radius: 20px; padding: 20px; margin-bottom: 15px;
-            position: relative; overflow: hidden;
+        /* Dynamic Options */
+        .option-row {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+        }
+        .option-radio {
+            width: 20px; height: 20px; accent-color: var(--success); cursor: pointer;
+        }
+        .option-input {
+            flex: 1; margin: 0; border: 1px solid #333;
+        }
+        .option-input.correct {
+            border-color: var(--success); background: rgba(16, 185, 129, 0.1);
         }
 
     </style>
 </head>
 <body>
 
-    <!-- ============ LAYER 1: Landing Page (Role Selection) ============ -->
+    <!-- ============ LAYER 1: Landing Page ============ -->
     <div id="landing-layer">
-        <div class="landing-header">
-            <h1 style="font-size: 2.5rem; background: var(--gradient-primary); -webkit-background-clip: text; color: transparent; margin: 0;">SA EDU</h1>
-            <p style="color: var(--text-secondary); letter-spacing: 2px; font-size: 0.8rem;">FUTURE GENERATION</p>
-        </div>
+        <div class="landing-wrap">
+            <h1 style="font-size: 3.5rem; background: linear-gradient(to bottom right, #fff, #999); -webkit-background-clip: text; color: transparent; margin: 0;">SA EDU</h1>
+            <p style="color: var(--text-secondary); letter-spacing: 4px; font-size: 0.9rem; margin-top: 10px;">FUTURE GENERATION</p>
 
-        <div class="role-cards-container">
-            <div class="role-card" onclick="selectRole('student', this)">
-                <i class="fas fa-user-astronaut"></i>
-                <h3>طالب</h3>
+            <div style="display: flex; gap: 20px; margin-top: 60px;">
+                <div class="role-card" onclick="selectRole('student')">
+                    <div class="avatar-frame avatar-student" style="width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px; border-width: 0;"><i class="fas fa-user-astronaut"></i></div>
+                    <h3>طالب</h3>
+                </div>
+                <div class="role-card" onclick="selectRole('teacher')">
+                    <div class="avatar-frame avatar-teacher" style="width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px; border-width: 0;"><i class="fas fa-user-tie"></i></div>
+                    <h3>معلم</h3>
+                </div>
             </div>
-            <div class="role-card" onclick="selectRole('teacher', this)">
-                <i class="fas fa-chalkboard-user"></i>
-                <h3>معلم</h3>
-            </div>
-        </div>
-
-        <!-- Hidden by default, shows after selection -->
-        <div id="transition-area" class="hidden flex-center" style="margin-top: 50px;">
-            <button class="modern-enter-btn" onclick="goToAuth()">
-                <span>الذهاب إلى العالم الحديث</span>
-                <i class="fas fa-arrow-left"></i>
-            </button>
         </div>
     </div>
 
-    <!-- ============ LAYER 2: Smart Auth (One Form) ============ -->
+    <!-- ============ LAYER 2: Auth ============ -->
     <div id="auth-layer" class="hidden">
-        <div class="flex-center" style="height: 100vh; flex-direction: column;">
-            <div onclick="backToLanding()" style="position: absolute; top: 30px; right: 30px; padding: 10px; cursor: pointer; color: var(--text-secondary);"><i class="fas fa-arrow-right fa-lg"></i></div>
+        <div class="flex-center" style="height: 100%; flex-direction: column; padding: 30px;">
+            <div onclick="backToLanding()" style="position: absolute; top: 40px; right: 30px; cursor: pointer; padding: 10px;"><i class="fas fa-arrow-right fa-xl"></i></div>
             
-            <h2 style="margin-bottom: 10px;">تسجيل الدخول الذكي</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 30px;">أدخل اسمك للدخول أو إنشاء حساب جديد</p>
+            <div id="auth-avatar-display" class="avatar-frame"></div>
             
-            <div class="auth-box">
-                <input type="text" id="auth-name" class="smart-input" placeholder="الاسم (مثال: أحمد)" autocomplete="off">
-                <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري المميز" autocomplete="new-password">
-                <button onclick="handleSmartAuth()" class="modern-enter-btn" style="width: 100%; margin-top: 10px; justify-content: center; font-size: 1rem; padding: 15px;">
-                    اتصال <i class="fas fa-bolt"></i>
-                </button>
-                <div id="auth-status" style="margin-top: 20px; color: var(--accent-primary); height: 20px;"></div>
-            </div>
+            <h2 style="margin: 20px 0 5px;">تسجيل الدخول</h2>
+            <p style="color: #666; margin-bottom: 40px;">مرحباً بك مجدداً</p>
+            
+            <input type="text" id="auth-name" class="smart-input" placeholder="الاسم الثنائي" style="text-align: center;">
+            <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري" style="text-align: center;">
+            
+            <button onclick="handleSmartAuth()" class="modern-btn" style="margin-top: 20px;">
+                ابدأ الرحلة <i class="fas fa-rocket"></i>
+            </button>
+            <div id="auth-status" style="margin-top: 20px; color: var(--warning); font-size: 0.9rem;"></div>
         </div>
     </div>
 
-    <!-- ============ LAYER 3: Main App (Teacher & Student) ============ -->
-    
-    <!-- TEACHER APP -->
+    <!-- ============ LAYER 3: TEACHER APP ============ -->
     <div id="teacher-app" class="hidden">
         <nav class="top-nav">
             <div class="nav-container">
-                <button class="nav-btn active" onclick="switchTab('t-library', this)"><i class="fas fa-book"></i><span>المكتبة</span></button>
-                <button class="nav-btn" onclick="switchTab('t-results', this)"><i class="fas fa-chart-pie"></i><span>النتائج</span></button>
-                <button class="nav-btn" onclick="switchTab('t-create', this)"><i class="fas fa-plus-circle"></i><span>إنشاء</span></button>
-                <button class="nav-btn" onclick="switchTab('t-ai', this)"><i class="fas fa-sparkles"></i><span>SA AI</span></button>
+                <button class="nav-btn active" onclick="switchTab('t-library', this)"><i class="fas fa-layer-group"></i><span>المكتبة</span></button>
+                <button class="nav-btn" onclick="switchTab('t-results', this)"><i class="fas fa-poll"></i><span>النتائج</span></button>
+                <button class="nav-btn" onclick="switchTab('t-create', this)"><i class="fas fa-plus-circle" style="font-size: 1.8rem;"></i><span>إنشاء</span></button>
+                <button class="nav-btn magic-btn" onclick="switchTab('t-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
@@ -280,8 +383,8 @@
         <div class="portal-container">
             <!-- Library -->
             <section id="t-library" class="app-section">
-                <h2>مكتبة الاختبارات</h2>
-                <div class="search-container">
+                <h2 style="margin-bottom: 20px;">مكتبة الاختبارات</h2>
+                <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="google-bar" id="t-search" placeholder="ابحث في اختباراتك...">
                 </div>
@@ -290,195 +393,274 @@
 
             <!-- Results -->
             <section id="t-results" class="app-section hidden">
+                <div class="back-btn-header" onclick="switchTab('t-library')"><i class="fas fa-arrow-right"></i> الرئيسية</div>
                 <h2>نتائج الطلاب</h2>
-                <select id="t-result-select" class="smart-input" style="text-align: right;"><option>اختر الاختبار</option></select>
+                <select id="t-result-select" class="smart-input" style="text-align: right;"><option>اختر الاختبار للعرض</option></select>
                 <div id="t-results-container"></div>
             </section>
 
-            <!-- Create -->
+            <!-- Create Test -->
             <section id="t-create" class="app-section hidden">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h2>اختبار جديد</h2>
-                    <button onclick="toggleAiGenerator()" style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent-primary); color: var(--accent-primary); padding: 8px 15px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;">
-                        <i class="fas fa-magic"></i> SA AI Generator
+                <div class="back-btn-header" onclick="switchTab('t-library')"><i class="fas fa-arrow-right"></i> إلغاء</div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">اختبار جديد</h2>
+                    <button onclick="toggleAiGenerator()" style="background: rgba(217, 70, 239, 0.1); border: 1px solid #d946ef; color: #d946ef; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; font-weight: bold;">
+                        <i class="fas fa-wand-magic-sparkles"></i> توليد بالـ AI
                     </button>
                 </div>
                 
-                <!-- Main Test Info -->
-                <input type="text" id="new-test-name" class="smart-input" placeholder="عنوان الاختبار" style="text-align: right; font-weight: bold; margin-top: 15px;">
+                <input type="text" id="new-test-name" class="smart-input" placeholder="عنوان الاختبار (مثال: فيزياء - الوحدة الأولى)" style="font-weight: bold;">
+                
                 <div style="display: flex; gap: 10px;">
-                    <select id="new-test-grade" class="smart-input" style="text-align: right;">
+                    <select id="new-test-grade" class="smart-input" onchange="checkCustomGrade(this)">
                         <option value="" disabled selected>الصف الدراسي</option>
-                        <option value="الصف الأول">الصف الأول</option>
-                        <option value="الصف الثاني">الصف الثاني</option>
-                        <option value="الصف الثالث">الصف الثالث</option>
+                        <option value="1p">الأول الابتدائي</option>
+                        <option value="2p">الثاني الابتدائي</option>
+                        <option value="3p">الثالث الابتدائي</option>
+                        <option value="4p">الرابع الابتدائي</option>
+                        <option value="5p">الخامس الابتدائي</option>
+                        <option value="6p">السادس الابتدائي</option>
+                        <option value="1m">الأول الإعدادي</option>
+                        <option value="2m">الثاني الإعدادي</option>
+                        <option value="3m">الثالث الإعدادي</option>
+                        <option value="1s">الأول الثانوي</option>
+                        <option value="2s">الثاني الثانوي</option>
+                        <option value="3s">الثالث الثانوي</option>
+                        <option value="custom" style="color: var(--accent-gold);">-- كتابة صف مخصص --</option>
                     </select>
-                    <input type="number" id="new-test-duration" class="smart-input" placeholder="دقيقة" style="width: 80px;">
+                    <input type="number" id="new-test-duration" class="smart-input" placeholder="المدة (د)" style="width: 100px; text-align: center;">
                 </div>
+                <input type="text" id="custom-grade-input" class="smart-input hidden" placeholder="اكتب اسم الصف هنا..." style="border-color: var(--accent-gold);">
 
-                <!-- Inline Question Editor (Old Design Restored) -->
-                <div class="question-editor-card">
-                    <h3><i class="fas fa-edit"></i> محرر الأسئلة</h3>
+                <!-- Question Editor (Dynamic Options) -->
+                <div style="background: #151515; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-top: 20px;">
+                    <h3 style="font-size: 1rem; color: #888; margin-top: 0; margin-bottom: 15px;">إضافة سؤال</h3>
                     
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <button id="type-mcq" class="type-toggle-btn active" onclick="setQType('mcq')">اختياري</button>
-                        <button id="type-essay" class="type-toggle-btn" onclick="setQType('essay')">مقال</button>
+                    <textarea id="q-text" class="smart-input" rows="2" placeholder="اكتب نص السؤال (يمكن تركه فارغاً إذا أرفقت صورة)"></textarea>
+                    
+                    <!-- Dynamic Options Container -->
+                    <div id="mcq-options-container">
+                        <!-- Default 2 options will be generated by JS -->
                     </div>
 
-                    <textarea id="q-text" class="smart-input" rows="2" placeholder="اكتب نص السؤال هنا..." style="text-align: right; margin-bottom: 10px;"></textarea>
-                    
-                    <div id="mcq-options-area">
-                        <div style="position: relative; margin-bottom: 8px;">
-                            <input type="text" class="smart-input q-opt" placeholder="الخيار 1 (الإجابة الصحيحة)" style="border-color: var(--success); padding-left: 10px;">
-                            <i class="fas fa-check-circle" style="position: absolute; left: 15px; top: 15px; color: var(--success);"></i>
-                        </div>
-                        <input type="text" class="smart-input q-opt" placeholder="الخيار 2">
-                        <input type="text" class="smart-input q-opt" placeholder="الخيار 3">
-                        <input type="text" class="smart-input q-opt" placeholder="الخيار 4">
-                    </div>
+                    <button onclick="addOptionField()" class="modern-btn secondary" style="width: auto; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 15px;">
+                        <i class="fas fa-plus"></i> إضافة خيار آخر
+                    </button>
 
-                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
-                        <input type="number" id="q-points" value="1" class="smart-input" style="width: 70px; margin: 0;" placeholder="درجة">
-                        <label for="q-image-input" style="flex: 1; text-align: center; padding: 12px; border: 1px dashed var(--glass-border); border-radius: 15px; cursor: pointer; color: var(--text-secondary); transition: 0.3s;">
-                            <i class="fas fa-image"></i> إرفاق صورة
+                    <div style="display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid #333; padding-top: 15px;">
+                        <input type="number" id="q-points" value="1" class="smart-input" style="width: 80px; text-align: center; margin:0;" placeholder="درجة">
+                        <label class="smart-input" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px dashed #444; margin:0;">
+                            <i class="fas fa-image"></i> إرفاق صورة للسؤال
+                            <input type="file" id="q-image-input" hidden accept="image/*">
                         </label>
-                        <input type="file" id="q-image-input" hidden accept="image/*">
-                        <div id="q-img-preview" class="hidden" style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden;"><img src="" style="width: 100%; height: 100%; object-fit: cover;"></div>
                     </div>
+                    <div id="q-img-preview" class="hidden" style="margin-top: 10px; text-align: center;"><img src="" style="height: 80px; border-radius: 10px;"></div>
 
-                    <button onclick="addQuestionToList()" class="modern-enter-btn" style="width: 100%; margin-top: 15px; padding: 12px; font-size: 0.95rem; background: var(--bg-surface); border: 1px solid var(--glass-border); color: var(--text-main);">
-                        <i class="fas fa-plus"></i> إضافة للسؤال
+                    <button onclick="addQuestionToList()" class="modern-btn" style="margin-top: 15px; background: #333; color: #fff;">
+                        <i class="fas fa-check"></i> حفظ السؤال
                     </button>
                 </div>
 
-                <!-- Questions List -->
-                <div id="added-questions-list" style="margin-bottom: 20px;"></div>
+                <div id="added-questions-list" style="margin: 20px 0;"></div>
 
-                <!-- Save Button (Bottom of Page) -->
-                <button class="modern-enter-btn" onclick="saveTest()" style="width: 100%; justify-content: center; background: var(--success); color: white; margin-bottom: 50px;">
-                    <i class="fas fa-save"></i> حفظ الاختبار النهائي
+                <button class="modern-btn" onclick="saveTest()" style="background: var(--success); color: white; margin-bottom: 50px;">
+                    <i class="fas fa-save"></i> نشر الاختبار النهائي
                 </button>
             </section>
 
-            <!-- AI -->
+            <!-- AI Section (Fixed) -->
             <section id="t-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-messages" id="t-ai-msgs">
-                        <div class="chat-msg ai">مرحباً يا أستاذ. أنا SA AI، كيف أساعدك اليوم؟</div>
+                        <div class="chat-msg ai">مرحباً أستاذي! أنا SA AI، كيف أساعدك في تحضير الدروس؟</div>
                     </div>
                 </div>
-                <div class="ai-input-fixed">
-                    <div class="ai-field-wrap">
-                        <label for="t-ai-file" style="cursor: pointer;"><i class="fas fa-paperclip" style="color: #888;"></i></label>
-                        <input type="file" id="t-ai-file" hidden>
-                        <input type="text" id="t-ai-input" class="ai-field" placeholder="تحدث مع الذكاء الاصطناعي...">
-                    </div>
-                    <button onclick="sendAiMsg('t')" style="width: 45px; height: 45px; border-radius: 50%; background: var(--text-main); border: none; cursor: pointer;">
+                <!-- Fixed Bottom Input Bar -->
+                <div class="ai-input-bar">
+                    <label for="t-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
+                    <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
+                    
+                    <input type="text" id="t-ai-input" class="ai-input-field" placeholder="اكتب رسالة...">
+                    
+                    <button onclick="sendAiMsg('t')" class="send-btn">
                         <i class="fas fa-arrow-up"></i>
                     </button>
+                    
+                    <!-- Preview Container -->
+                    <div id="t-chat-preview" class="chat-img-preview">
+                        <i class="fas fa-times" onclick="clearChatImg('t')"></i>
+                        <img src="" id="t-chat-img-tag">
+                    </div>
                 </div>
             </section>
         </div>
     </div>
 
-    <!-- STUDENT APP -->
+    <!-- ============ LAYER 4: STUDENT APP ============ -->
     <div id="student-app" class="hidden">
         <nav class="top-nav">
             <div class="nav-container">
-                <button class="nav-btn active" onclick="switchTab('s-exams', this)"><i class="fas fa-pen-nib"></i><span>اختبارات</span></button>
-                <button class="nav-btn" onclick="switchTab('s-grades', this)"><i class="fas fa-trophy"></i><span>درجاتي</span></button>
-                <button class="nav-btn" onclick="switchTab('s-ai', this)"><i class="fas fa-robot"></i><span>SA AI</span></button>
+                <button class="nav-btn active" onclick="switchTab('s-exams', this)"><i class="fas fa-book-open"></i><span>اختبارات</span></button>
+                <button class="nav-btn" onclick="switchTab('s-grades', this)"><i class="fas fa-medal"></i><span>درجاتي</span></button>
+                <button class="nav-btn magic-btn" onclick="switchTab('s-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
 
         <div class="portal-container">
             <section id="s-exams" class="app-section">
-                <h2>الاختبارات المتاحة</h2>
-                <div class="search-container">
+                <h2 style="margin-bottom: 20px;">الاختبارات المتاحة</h2>
+                <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="google-bar" id="s-search" placeholder="ابحث عن اختبار...">
                 </div>
                 <div id="s-exams-list"></div>
             </section>
-            
+
             <section id="s-grades" class="app-section hidden">
-                <h2>سجل الدرجات</h2>
+                <h2 style="margin-bottom: 20px;">لوحة الشرف</h2>
                 <div id="s-grades-list"></div>
             </section>
 
             <section id="s-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-messages" id="s-ai-msgs">
-                        <div class="chat-msg ai">أهلاً بك! أنا SA AI، مساعدك الدراسي الذكي.</div>
+                        <div class="chat-msg ai">أهلاً بك يا بطل! أرفق صورة لسؤالك وسأشرحه لك.</div>
                     </div>
                 </div>
-                <div class="ai-input-fixed">
-                    <div class="ai-field-wrap">
-                        <label for="s-ai-file" style="cursor: pointer;"><i class="fas fa-paperclip" style="color: #888;"></i></label>
-                        <input type="file" id="s-ai-file" hidden>
-                        <input type="text" id="s-ai-input" class="ai-field" placeholder="اسألني أي شيء...">
-                    </div>
-                    <button onclick="sendAiMsg('s')" style="width: 45px; height: 45px; border-radius: 50%; background: var(--text-main); border: none; cursor: pointer;">
+                <!-- Fixed Bottom Input Bar -->
+                <div class="ai-input-bar">
+                    <label for="s-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
+                    <input type="file" id="s-ai-file" hidden accept="image/*" onchange="previewChatImg('s')">
+                    
+                    <input type="text" id="s-ai-input" class="ai-input-field" placeholder="اسألني عن أي شيء...">
+                    
+                    <button onclick="sendAiMsg('s')" class="send-btn">
                         <i class="fas fa-arrow-up"></i>
                     </button>
+
+                    <!-- Preview Container -->
+                    <div id="s-chat-preview" class="chat-img-preview">
+                        <i class="fas fa-times" onclick="clearChatImg('s')"></i>
+                        <img src="" id="s-chat-img-tag">
+                    </div>
                 </div>
             </section>
 
-            <!-- Taking Test Interface -->
-            <section id="s-taking-test" class="app-section hidden">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h2 id="active-test-title" style="justify-content: center;">...</h2>
-                    <div id="test-timer" style="font-size: 2rem; font-weight: bold; color: var(--accent-primary);">00:00</div>
+            <!-- Test Interface -->
+            <section id="s-taking-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
+                <div style="max-width: 800px; margin: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <button class="back-btn-header" onclick="closeExam()"><i class="fas fa-times"></i> خروج</button>
+                        <div id="test-timer" style="font-size: 1.5rem; font-weight: bold; color: var(--accent-primary);">00:00</div>
+                    </div>
+                    
+                    <h2 id="active-test-title" style="text-align: center; color: var(--accent-gold); margin-bottom: 30px;">...</h2>
+                    
+                    <div id="test-questions-render" style="margin-bottom: 60px;"></div>
+                    
+                    <button onclick="submitExam()" class="modern-btn" style="background: var(--success); color: white; margin-bottom: 50px;">تسليم الإجابة</button>
                 </div>
-                <div id="test-questions-render"></div>
-                <button onclick="submitExam()" class="modern-enter-btn" style="width: 100%; justify-content: center; background: var(--success); color: white;">تسليم الإجابة</button>
             </section>
+            
+            <!-- Review Interface -->
+            <section id="s-review-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
+                <div style="max-width: 800px; margin: auto;">
+                    <div class="back-btn-header" onclick="document.getElementById('s-review-test').classList.add('hidden')"><i class="fas fa-arrow-right"></i> إغلاق المراجعة</div>
+                    <h2 style="color: var(--accent-primary);">مراجعة الإجابات</h2>
+                    <div id="review-content"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- ============ MENU MODAL ============ -->
+    <div id="menu-modal" class="hidden" onclick="if(event.target === this) toggleMenu()">
+        <div class="menu-content">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <div class="avatar-frame" id="menu-avatar" style="width: 80px; height: 80px; font-size: 2.5rem; border-width: 2px;"></div>
+                <h3 id="menu-username" style="margin: 10px 0 5px;">User</h3>
+                <span id="menu-role" style="font-size: 0.8rem; background: #333; padding: 4px 12px; border-radius: 20px; color: #aaa;">Role</span>
+            </div>
+            
+            <!-- Edit Profile Section -->
+            <div id="menu-edit-section" class="hidden" style="background: #222; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
+                <label style="color: #888; font-size: 0.8rem;">تعديل الاسم:</label>
+                <div style="display: flex; gap: 10px; margin-top: 5px;">
+                    <input type="text" id="edit-name-input" class="smart-input" style="margin: 0; padding: 10px;">
+                    <button onclick="saveProfileName()" class="modern-btn" style="width: auto; padding: 0 20px; font-size: 0.9rem;">حفظ</button>
+                </div>
+            </div>
+
+            <!-- Avatar Section -->
+            <div id="menu-avatar-section" class="hidden">
+                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">اختر شكلاً جديداً:</p>
+                <div class="avatar-grid">
+                    <div class="avatar-option" onclick="saveAvatar('fa-user-astronaut')"><i class="fas fa-user-astronaut"></i></div>
+                    <div class="avatar-option" onclick="saveAvatar('fa-user-tie')"><i class="fas fa-user-tie"></i></div>
+                    <div class="avatar-option" onclick="saveAvatar('fa-user-graduate')"><i class="fas fa-user-graduate"></i></div>
+                    <div class="avatar-option" onclick="saveAvatar('fa-user-ninja')"><i class="fas fa-user-ninja"></i></div>
+                    <div class="avatar-option" onclick="saveAvatar('fa-robot')"><i class="fas fa-robot"></i></div>
+                    <div class="avatar-option" onclick="saveAvatar('fa-cat')"><i class="fas fa-cat"></i></div>
+                    <div class="avatar-option" onclick="saveAvatar('fa-dragon')"><i class="fas fa-dragon"></i></div>
+                    <div class="avatar-option" onclick="saveAvatar('fa-user-secret')"><i class="fas fa-user-secret"></i></div>
+                </div>
+            </div>
+
+            <!-- Menu Items -->
+            <div class="menu-item" onclick="toggleEditProfile()">
+                <i class="fas fa-user-edit" style="color: var(--accent-primary);"></i>
+                <span>تعديل الملف الشخصي</span>
+            </div>
+            
+            <div class="menu-item" onclick="toggleAvatarSelect()">
+                <i class="fas fa-theater-masks" style="color: #d946ef;"></i>
+                <span>تغيير الأفاتار</span>
+            </div>
+
+            <div class="menu-item" onclick="shareApp()">
+                <i class="fas fa-share-alt" style="color: var(--success);"></i>
+                <span>مشاركة المنصة</span>
+            </div>
+            
+            <div class="menu-item" style="border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);" onclick="logout()">
+                <i class="fas fa-sign-out-alt" style="color: var(--danger);"></i>
+                <span style="color: var(--danger);">تسجيل الخروج</span>
+            </div>
         </div>
     </div>
 
     <!-- AI Generator Modal -->
-    <div id="ai-gen-modal" class="hidden" style="position: fixed; inset: 0; background: var(--bg-deep); z-index: 6000; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <div style="max-width: 500px; width: 100%; text-align: center;">
-            <i class="fas fa-brain" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 20px;"></i>
-            <h2>توليد اختبار بالذكاء الاصطناعي</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 30px;">ارفع صورة للمنهج أو اكتب الموضوع، وسأقوم بإنشاء الأسئلة.</p>
-            
-            <textarea id="ai-gen-text" class="smart-input" rows="3" placeholder="موضوع الاختبار أو نص المحتوى..."></textarea>
-            
-            <label for="ai-gen-img" style="display: block; width: 100%; padding: 20px; border: 1px dashed var(--glass-border); border-radius: 20px; margin-bottom: 20px; cursor: pointer;">
-                <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem;"></i><br>
-                <span>رفع صورة المصدر (اختياري)</span>
-            </label>
-            <input type="file" id="ai-gen-img" hidden accept="image/*">
-            <div id="ai-gen-preview" class="hidden" style="margin-bottom: 10px;"><img src="" style="height: 60px; border-radius: 10px;"></div>
-            
-            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                <input type="number" id="ai-gen-count" class="smart-input" value="5" placeholder="عدد الأسئلة">
-                <input type="number" id="ai-gen-points" class="smart-input" value="1" placeholder="الدرجة">
+    <div id="ai-gen-modal" class="hidden">
+        <div class="menu-content" style="background: #111; height: auto;">
+            <div style="text-align: center;">
+                <i class="fas fa-brain" style="font-size: 3rem; color: #d946ef; margin-bottom: 15px;"></i>
+                <h2>المولد الذكي للأسئلة</h2>
             </div>
-
-            <button onclick="generateAiQuestions()" class="modern-enter-btn" style="width: 100%; justify-content: center;">
-                <i class="fas fa-magic"></i> توليد الآن
-            </button>
-            <button onclick="toggleAiGenerator()" class="modern-enter-btn" style="width: 100%; justify-content: center; background: transparent; border: 1px solid var(--glass-border); color: #fff; margin-top: 10px;">إلغاء</button>
-        </div>
-    </div>
-
-    <!-- Menu Modal -->
-    <div id="menu-modal" class="hidden" style="position: fixed; inset: 0; background: var(--bg-deep); z-index: 4000; padding: 80px 20px;">
-        <h2 style="text-align: center;">الإعدادات</h2>
-        <div style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: auto;">
-            <div class="card-item" onclick="shareApp()"><i class="fas fa-share-alt"></i> مشاركة المنصة</div>
-            <div class="card-item" style="color: var(--danger); border-color: rgba(239,68,68,0.3);" onclick="logout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</div>
-            <button onclick="toggleMenu()" class="modern-enter-btn" style="margin-top: 20px; justify-content: center; background: #333; color: #fff;">إغلاق</button>
+            
+            <textarea id="ai-gen-text" class="smart-input" rows="3" placeholder="اكتب الموضوع هنا..."></textarea>
+            
+            <label class="smart-input" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <i class="fas fa-image"></i> <span>رفع صورة للمنهج (اختياري)</span>
+                <input type="file" id="ai-gen-img" hidden accept="image/*">
+            </label>
+            <div id="ai-gen-preview" class="hidden" style="margin-bottom: 15px;"><img src="" style="height: 60px; border-radius: 8px;"></div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="number" id="ai-gen-count" class="smart-input" value="5" placeholder="عدد الأسئلة">
+                <button onclick="generateAiQuestions()" class="modern-btn" style="background: #d946ef; color: white;">
+                    <i class="fas fa-magic"></i> توليد
+                </button>
+            </div>
+            <button onclick="toggleAiGenerator()" style="background: transparent; border: none; color: #888; width: 100%;">إلغاء</button>
         </div>
     </div>
 
     <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, get, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAjE-2q6PONBkCin9ZN22gDp9Q8pAH9ZW8",
@@ -500,18 +682,26 @@
         let currentQuestions = [];
         let currentImgBase64 = null;
         let aiGenImgBase64 = null;
-        let qType = 'mcq';
-        let aiChatImg = null;
 
-        // ======== UI Logic ========
-        window.selectRole = (role, card) => {
+        // ======== Helper Functions ========
+        const getBase64 = (file) => new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+        });
+
+        // ======== User & Auth ========
+        window.selectRole = (role) => {
             selectedRole = role;
-            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            document.getElementById('transition-area').classList.remove('hidden');
-        };
-
-        window.goToAuth = () => {
+            const icon = role === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
+            const color = role === 'student' ? 'var(--accent-primary)' : 'var(--accent-gold)';
+            
+            const display = document.getElementById('auth-avatar-display');
+            display.innerHTML = `<i class="fas ${icon}"></i>`;
+            display.style.color = color;
+            display.style.borderColor = color;
+            display.className = `avatar-frame avatar-${role}`;
+            
             document.getElementById('landing-layer').classList.add('hidden');
             document.getElementById('auth-layer').classList.remove('hidden');
         };
@@ -521,71 +711,111 @@
             document.getElementById('landing-layer').classList.remove('hidden');
         };
 
-        // ======== Smart Auth Logic ========
         window.handleSmartAuth = async () => {
             const name = document.getElementById('auth-name').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
             const status = document.getElementById('auth-status');
 
             if (!name || !pass) {
-                status.innerText = "يرجى كتابة الاسم والرمز";
-                return;
+                status.innerText = "يرجى ملء جميع الحقول"; return;
             }
 
-            status.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري الاتصال...';
-
-            const userPath = `users/${selectedRole}s/${name}`;
-            const userRef = ref(db, userPath);
+            status.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جارِ الاتصال...';
+            const userRef = ref(db, `users/${selectedRole}s/${name}`);
             
             try {
-                const snapshot = await get(userRef);
-                
-                if (snapshot.exists()) {
-                    // Login attempt
-                    const userData = snapshot.val();
-                    if (userData.password === pass) {
-                        loginSuccess(name);
+                const snap = await get(userRef);
+                if (snap.exists()) {
+                    if (snap.val().password === pass) {
+                        const savedIcon = snap.val().icon;
+                        loginSuccess(name, savedIcon);
                     } else {
-                        status.innerText = "الاسم موجود ولكن الرمز خطأ. إذا كنت مستخدماً جديداً، اختر اسماً مختلفاً.";
+                        status.innerText = "كلمة المرور غير صحيحة";
                     }
                 } else {
-                    // Register new
-                    await set(userRef, { password: pass, joined: Date.now() });
-                    status.innerText = "تم إنشاء حساب جديد!";
-                    setTimeout(() => loginSuccess(name), 800);
+                    const defaultIcon = selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
+                    await set(userRef, { password: pass, joined: Date.now(), icon: defaultIcon });
+                    loginSuccess(name, defaultIcon);
                 }
-            } catch (error) {
-                status.innerText = "خطأ في الاتصال، حاول مجدداً";
+            } catch (e) { 
+                console.error(e);
+                status.innerText = "حدث خطأ في الاتصال"; 
             }
         };
 
-        function loginSuccess(name) {
+        function loginSuccess(name, icon) {
             currentUser = name;
             localStorage.setItem('sa_user', name);
             localStorage.setItem('sa_role', selectedRole);
+            localStorage.setItem('sa_icon', icon || (selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie'));
             
             document.getElementById('auth-layer').classList.add('hidden');
-            
+            updateMenuInfo();
+
             if (selectedRole === 'teacher') {
                 document.getElementById('teacher-app').classList.remove('hidden');
-                loadTeacherData();
+                initTeacherApp();
             } else {
                 document.getElementById('student-app').classList.remove('hidden');
-                loadStudentData();
+                loadStudentExams();
             }
         }
 
-        // ======== Tab Switching ========
-        window.switchTab = (tabId, btn) => {
-            const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
-            document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-        };
-
+        // ======== Menu Logic ========
         window.toggleMenu = () => {
             document.getElementById('menu-modal').classList.toggle('hidden');
+            document.getElementById('menu-edit-section').classList.add('hidden');
+            document.getElementById('menu-avatar-section').classList.add('hidden');
+        };
+
+        function updateMenuInfo() {
+            document.getElementById('menu-username').innerText = currentUser;
+            document.getElementById('menu-role').innerText = selectedRole === 'teacher' ? 'معلم' : 'طالب';
+            const iconClass = localStorage.getItem('sa_icon');
+            const color = selectedRole === 'teacher' ? 'var(--accent-gold)' : 'var(--accent-primary)';
+            document.getElementById('menu-avatar').innerHTML = `<i class="fas ${iconClass}"></i>`;
+            document.getElementById('menu-avatar').style.color = color;
+            document.getElementById('menu-avatar').style.borderColor = color;
+            document.getElementById('edit-name-input').value = currentUser;
+        }
+
+        window.toggleEditProfile = () => {
+            const sec = document.getElementById('menu-edit-section');
+            sec.classList.toggle('hidden');
+            document.getElementById('menu-avatar-section').classList.add('hidden');
+        };
+
+        window.saveProfileName = async () => {
+            const newName = document.getElementById('edit-name-input').value.trim();
+            if(!newName || newName === currentUser) return;
+            
+            if(confirm("تغيير الاسم سيؤدي لإنشاء حساب جديد. متابعة؟")) {
+                const oldRef = ref(db, `users/${selectedRole}s/${currentUser}`);
+                const snapshot = await get(oldRef);
+                const data = snapshot.val();
+                
+                await set(ref(db, `users/${selectedRole}s/${newName}`), data);
+                await remove(oldRef);
+                
+                currentUser = newName;
+                localStorage.setItem('sa_user', newName);
+                updateMenuInfo();
+                alert("تم تغيير الاسم");
+                toggleEditProfile();
+            }
+        };
+
+        window.toggleAvatarSelect = () => {
+            const sec = document.getElementById('menu-avatar-section');
+            sec.classList.toggle('hidden');
+            document.getElementById('menu-edit-section').classList.add('hidden');
+        };
+
+        window.saveAvatar = async (iconClass) => {
+            localStorage.setItem('sa_icon', iconClass);
+            await update(ref(db, `users/${selectedRole}s/${currentUser}`), { icon: iconClass });
+            updateMenuInfo();
+            toggleAvatarSelect();
         };
 
         window.logout = () => {
@@ -593,236 +823,364 @@
             location.reload();
         };
 
-        // ======== Helper: Image Base64 ========
-        const getBase64 = (file) => new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-        });
+        window.shareApp = () => {
+            if (navigator.share) {
+                navigator.share({ title: 'SA EDU', text: 'انضم إلينا', url: window.location.href });
+            } else {
+                alert("تم نسخ الرابط!");
+            }
+        };
 
         // ======== Teacher Functions ========
-        function loadTeacherData() {
+        function initTeacherApp() {
+            loadTeacherTests();
+            renderOptionFields(); // Init with defaults
+        }
+
+        window.switchTab = (tabId, btn) => {
+            const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
+            document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            if(btn) {
+                document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        };
+
+        function loadTeacherTests() {
+            const list = document.getElementById('t-tests-list');
+            const resultSelect = document.getElementById('t-result-select');
+            
             onValue(ref(db, 'tests'), (snap) => {
-                const list = document.getElementById('t-tests-list');
                 list.innerHTML = '';
+                resultSelect.innerHTML = '<option>اختر الاختبار</option>';
                 const data = snap.val() || {};
+                
                 Object.entries(data).forEach(([key, val]) => {
                     if (val.teacher === currentUser) {
+                        const opt = document.createElement('option');
+                        opt.value = key; opt.innerText = val.title;
+                        resultSelect.appendChild(opt);
+
+                        const hiddenStyle = val.isHidden ? 'opacity:0.6; border:1px dashed #666;' : '';
                         list.innerHTML += `
-                            <div class="card-item">
-                                <div style="display:flex; justify-content:space-between;">
-                                    <h3>${val.title}</h3>
-                                    <span style="font-size:0.8rem; background:#333; padding:5px 10px; border-radius:10px;">${val.grade}</span>
+                            <div class="mini-card" style="${hiddenStyle}">
+                                <div class="card-header">
+                                    <div>
+                                        <h3 class="card-title">${val.title}</h3>
+                                        <div class="card-meta">
+                                            <span>${getGradeLabel(val.grade)}</span> • <span>${val.duration} دقيقة</span>
+                                        </div>
+                                    </div>
+                                    <div class="teacher-badge">نشط</div>
                                 </div>
-                                <p style="color:#aaa;">${val.questions ? val.questions.length : 0} أسئلة • ${val.duration} دقيقة</p>
-                                <button onclick="deleteTest('${key}')" style="color:red; background:transparent; border:none; margin-top:10px;">حذف</button>
+                                <div class="card-actions">
+                                    <button class="action-btn btn-outline" onclick="toggleTestVisibility('${key}', ${!val.isHidden})">
+                                        <i class="fas fa-eye${val.isHidden ? '' : '-slash'}"></i> ${val.isHidden ? 'إظهار' : 'إخفاء'}
+                                    </button>
+                                    <button class="action-btn btn-danger" onclick="deleteTest('${key}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
                         `;
                     }
                 });
             });
+            resultSelect.onchange = (e) => loadTestResults(e.target.value);
         }
 
-        // Question Editing Logic (Inline)
-        document.getElementById('q-image-input').onchange = async (e) => {
-            if(e.target.files[0]) {
-                currentImgBase64 = await getBase64(e.target.files[0]);
-                const prev = document.getElementById('q-img-preview');
-                prev.classList.remove('hidden');
-                prev.querySelector('img').src = currentImgBase64;
+        // New Dynamic Option Logic
+        let optionCount = 2; // Default
+        
+        window.renderOptionFields = () => {
+            const container = document.getElementById('mcq-options-container');
+            if(container.children.length === 0) {
+                // Initial 2 options
+                container.innerHTML = '';
+                addOptionField(true); // Is correct (default)
+                addOptionField();
             }
         };
 
-        window.setQType = (type) => {
-            qType = type;
-            document.querySelectorAll('.type-toggle-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`type-${type}`).classList.add('active');
-            document.getElementById('mcq-options-area').classList.toggle('hidden', type === 'essay');
+        window.addOptionField = (isDefaultCorrect = false) => {
+            const container = document.getElementById('mcq-options-container');
+            const currentCount = container.children.length;
+            if(currentCount >= 6) return alert("الحد الأقصى 6 خيارات");
+
+            const div = document.createElement('div');
+            div.className = 'option-row';
+            div.innerHTML = `
+                <input type="radio" name="correct_ans_select" class="option-radio" ${isDefaultCorrect ? 'checked' : ''}>
+                <input type="text" class="smart-input option-input ${isDefaultCorrect ? 'correct' : ''}" placeholder="خيار ${currentCount + 1}">
+                <button onclick="removeOption(this)" class="icon-btn-small" style="color:var(--danger); background:rgba(239,68,68,0.1);"><i class="fas fa-times"></i></button>
+            `;
+            
+            // Add listeners to highlight correct input visually
+            const radio = div.querySelector('input[type="radio"]');
+            radio.addEventListener('change', () => {
+                document.querySelectorAll('.option-input').forEach(i => i.classList.remove('correct'));
+                div.querySelector('.option-input').classList.add('correct');
+            });
+
+            container.appendChild(div);
+        };
+
+        window.removeOption = (btn) => {
+            const container = document.getElementById('mcq-options-container');
+            if(container.children.length <= 2) return alert("يجب وجود خيارين على الأقل");
+            btn.parentElement.remove();
+        };
+
+        // Question Creation
+        document.getElementById('q-image-input').onchange = async (e) => {
+            if(e.target.files[0]) {
+                currentImgBase64 = await getBase64(e.target.files[0]);
+                document.getElementById('q-img-preview').classList.remove('hidden');
+                document.getElementById('q-img-preview').querySelector('img').src = currentImgBase64;
+            }
         };
 
         window.addQuestionToList = () => {
             const text = document.getElementById('q-text').value;
             const points = document.getElementById('q-points').value;
             
-            if (!text && !currentImgBase64) return alert("أضف نصاً أو صورة");
+            // Get Options
+            const rows = document.querySelectorAll('.option-row');
+            let options = [];
+            let correctVal = null;
+            let hasEmpty = false;
 
-            const q = { type: qType, text, points, image: currentImgBase64 };
-            if (qType === 'mcq') {
-                const opts = Array.from(document.querySelectorAll('.q-opt')).map(i => i.value);
-                if (opts.some(o => !o)) return alert("املأ جميع الخيارات");
-                q.options = opts;
-                q.correct = opts[0];
-            }
+            rows.forEach(row => {
+                const val = row.querySelector('.option-input').value.trim();
+                const isChecked = row.querySelector('input[type="radio"]').checked;
+                if(!val) hasEmpty = true;
+                options.push(val);
+                if(isChecked) correctVal = val;
+            });
+
+            if(!text && !currentImgBase64) return alert("يجب إضافة نص للسؤال أو صورة");
+            if(hasEmpty) return alert("يرجى ملء جميع الخيارات");
+            if(!correctVal) return alert("يرجى تحديد الإجابة الصحيحة");
+
+            currentQuestions.push({
+                text, points, image: currentImgBase64,
+                options, correct: correctVal 
+            });
             
-            currentQuestions.push(q);
-            renderAddedQuestions();
+            const div = document.createElement('div');
+            div.className = 'mini-card';
+            div.innerHTML = `<div style="display:flex; justify-content:space-between;"><span>س${currentQuestions.length}: ${text || 'سؤال صورة'}</span> <i class="fas fa-check" style="color:var(--success)"></i></div>`;
+            document.getElementById('added-questions-list').appendChild(div);
             
-            // Clear fields
+            // Reset
             document.getElementById('q-text').value = '';
+            document.getElementById('mcq-options-container').innerHTML = '';
+            optionCount = 2;
+            renderOptionFields();
             currentImgBase64 = null;
             document.getElementById('q-img-preview').classList.add('hidden');
-            document.querySelectorAll('.q-opt').forEach(i => i.value = '');
-        };
-
-        function renderAddedQuestions() {
-            const container = document.getElementById('added-questions-list');
-            container.innerHTML = '';
-            currentQuestions.forEach((q, i) => {
-                container.innerHTML += `
-                    <div class="card-item" style="padding:10px; display:flex; justify-content:space-between; background:rgba(255,255,255,0.05);">
-                        <span>س ${i+1}: ${q.text.substring(0, 20)}...</span>
-                        <i class="fas fa-trash" style="color:var(--danger); cursor:pointer;" onclick="deleteQ(${i})"></i>
-                    </div>
-                `;
-            });
-        }
-
-        window.deleteQ = (i) => {
-            currentQuestions.splice(i, 1);
-            renderAddedQuestions();
         };
 
         window.saveTest = async () => {
             const title = document.getElementById('new-test-name').value;
-            const grade = document.getElementById('new-test-grade').value;
+            let grade = document.getElementById('new-test-grade').value;
+            if(grade === 'custom') grade = document.getElementById('custom-grade-input').value;
             const duration = document.getElementById('new-test-duration').value;
 
-            if (!title || !grade || !duration || currentQuestions.length === 0) return alert("املأ البيانات وأضف أسئلة");
+            if(!title || !grade || !duration || currentQuestions.length === 0) return alert("البيانات ناقصة");
 
             await push(ref(db, 'tests'), {
-                teacher: currentUser,
-                title, grade, duration,
-                questions: currentQuestions,
-                timestamp: Date.now()
+                teacher: currentUser, title, grade, duration,
+                questions: currentQuestions, timestamp: Date.now(), isHidden: false
             });
 
-            alert("تم حفظ الاختبار");
+            alert("تم نشر الاختبار بنجاح!");
             currentQuestions = [];
-            document.getElementById('new-test-name').value = '';
-            renderAddedQuestions();
+            document.getElementById('added-questions-list').innerHTML = '';
             switchTab('t-library');
         };
 
-        window.deleteTest = async (id) => {
-            if(confirm("حذف الاختبار؟")) await remove(ref(db, `tests/${id}`));
+        // Helpers
+        window.checkCustomGrade = (el) => {
+            document.getElementById('custom-grade-input').classList.toggle('hidden', el.value !== 'custom');
         };
+        
+        window.toggleTestVisibility = (k, s) => update(ref(db, `tests/${k}`), { isHidden: s });
+        window.deleteTest = (k) => { if(confirm("حذف؟")) remove(ref(db, `tests/${k}`)); };
+        function getGradeLabel(c) { return ({'1p':'1 ابتدائي','3s':'3 ثانوي'})[c] || c; }
 
-        // ======== AI Generation Logic ========
-        window.toggleAiGenerator = () => {
-            document.getElementById('ai-gen-modal').classList.toggle('hidden');
-        };
-
-        document.getElementById('ai-gen-img').onchange = async (e) => {
-            if(e.target.files[0]) {
-                aiGenImgBase64 = await getBase64(e.target.files[0]);
-                const prev = document.getElementById('ai-gen-preview');
-                prev.classList.remove('hidden');
-                prev.querySelector('img').src = aiGenImgBase64;
-            }
-        };
-
-        window.generateAiQuestions = async () => {
-            const text = document.getElementById('ai-gen-text').value;
-            const count = document.getElementById('ai-gen-count').value;
-            const points = document.getElementById('ai-gen-points').value;
-            
-            if(!text && !aiGenImgBase64) return alert("أدخل نصاً أو صورة");
-            
-            const btn = document.querySelector('#ai-gen-modal button');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التوليد...';
-
-            const parts = [];
-            if(aiGenImgBase64) {
-                 parts.push({ inline_data: { mime_type: "image/jpeg", data: aiGenImgBase64.split(',')[1] } });
-            }
-            parts.push({ text: `Generate a JSON array of ${count} exam questions about: "${text}". 
-            Format: [{"question": "string", "options": ["correct", "wrong1", "wrong2", "wrong3"], "correct": "correct", "type": "mcq"}]. 
-            Make sure the first option is the correct one in the data array.` });
-
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts }] })
-                });
-                const data = await res.json();
-                const raw = data.candidates[0].content.parts[0].text;
-                const jsonStr = raw.match(/\[.*\]/s)[0];
-                const questions = JSON.parse(jsonStr);
-                
-                questions.forEach(q => {
-                    q.points = points;
-                    currentQuestions.push(q);
-                });
-                
-                renderAddedQuestions();
-                toggleAiGenerator();
-                alert(`تم إضافة ${questions.length} أسئلة بنجاح!`);
-
-            } catch(e) {
-                alert("فشل التوليد، حاول مرة أخرى");
-            }
-            
-            btn.innerHTML = originalText;
-        };
-
-        // ======== Student Functions ========
-        function loadStudentData() {
-            onValue(ref(db, 'tests'), (snap) => {
-                const list = document.getElementById('s-exams-list');
-                list.innerHTML = '';
-                const data = snap.val() || {};
-                Object.entries(data).forEach(([key, val]) => {
-                    list.innerHTML += `
-                        <div class="card-item">
-                            <h3>${val.title}</h3>
-                            <p style="color:#aaa;">المعلم: ${val.teacher} • ${val.grade}</p>
-                            <button onclick="startTest('${key}')" class="modern-enter-btn" style="width:100%; margin-top:10px; padding:10px; font-size:0.9rem;">ابدأ الاختبار</button>
-                        </div>
-                    `;
+        // Results
+        function loadTestResults(testId) {
+            const div = document.getElementById('t-results-container');
+            div.innerHTML = '...';
+            get(ref(db, `results/${testId}`)).then(snap => {
+                div.innerHTML = '';
+                if(!snap.exists()) return div.innerHTML = '<p style="text-align:center; color:#666;">لا توجد نتائج</p>';
+                snap.forEach(c => {
+                    const v = c.val();
+                    const color = v.percentage >= 50 ? 'var(--success)' : 'var(--danger)';
+                    div.innerHTML += `
+                        <div class="mini-card" style="flex-direction:row; justify-content:space-between; align-items:center;">
+                            <span>${c.key}</span>
+                            <span style="font-weight:bold; color:${color}; font-size:1.2rem;">${v.percentage}%</span>
+                        </div>`;
                 });
             });
         }
-        
-        // Search Student
-        document.getElementById('s-search').addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('#s-exams-list .card-item').forEach(el => {
-                el.style.display = el.innerText.toLowerCase().includes(term) ? 'block' : 'none';
-            });
-        });
 
-        // AI Chat
+        // ======== Student Logic ========
+        function loadStudentExams() {
+            const list = document.getElementById('s-exams-list');
+            onValue(ref(db, 'tests'), async (snap) => {
+                list.innerHTML = '';
+                for (const [key, val] of Object.entries(snap.val() || {})) {
+                    if (val.isHidden) continue;
+                    const resSnap = await get(ref(db, `results/${key}/${currentUser}`));
+                    const hasTaken = resSnap.exists();
+                    
+                    let btnHtml = hasTaken 
+                        ? `<button onclick="startTest('${key}')" class="action-btn btn-outline">إعادة</button>
+                           <button onclick="reviewTest('${key}')" class="action-btn btn-primary">مراجعة</button>`
+                        : `<button onclick="startTest('${key}')" class="action-btn btn-primary w-full">ابدأ الآن</button>`;
+
+                    list.innerHTML += `
+                        <div class="mini-card">
+                            <div class="card-header">
+                                <div><h3 class="card-title">${val.title}</h3><div class="card-meta"><span>${val.teacher}</span></div></div>
+                                ${hasTaken ? `<span style="color:var(--success)">${resSnap.val().percentage}%</span>` : ''}
+                            </div>
+                            <div class="card-actions">${btnHtml}</div>
+                        </div>`;
+                }
+            });
+        }
+
+        // Taking Exam
+        let activeTest = null;
+        let timerInt = null;
+        let answers = {};
+
+        window.startTest = async (id) => {
+            activeTest = (await get(ref(db, `tests/${id}`))).val();
+            activeTest.id = id;
+            answers = {};
+            document.getElementById('s-taking-test').classList.remove('hidden');
+            document.getElementById('active-test-title').innerText = activeTest.title;
+            
+            const div = document.getElementById('test-questions-render');
+            div.innerHTML = '';
+            
+            activeTest.questions.forEach((q, i) => {
+                const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+                div.innerHTML += `
+                    <div style="margin-bottom:25px;">
+                        <p style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${i+1}. ${q.text}</p>
+                        ${q.image ? `<img src="${q.image}" style="max-width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
+                        ${shuffled.map(o => `
+                            <label class="mini-card" style="flex-direction:row; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px; padding:12px;">
+                                <input type="radio" name="q${i}" value="${o}" onchange="saveAns(${i}, '${o}')">
+                                <span>${o}</span>
+                            </label>`).join('')}
+                    </div>`;
+            });
+
+            let time = activeTest.duration * 60;
+            clearInterval(timerInt);
+            timerInt = setInterval(() => {
+                time--;
+                const m = Math.floor(time/60), s = time%60;
+                document.getElementById('test-timer').innerText = `${m}:${s<10?'0'+s:s}`;
+                if(time<=0) submitExam();
+            }, 1000);
+        };
+
+        window.saveAns = (i, v) => answers[i] = v;
+        window.closeExam = () => { if(confirm("خروج؟")) { clearInterval(timerInt); document.getElementById('s-taking-test').classList.add('hidden'); }};
+        
+        window.submitExam = async () => {
+            clearInterval(timerInt);
+            let score = 0, total = 0, details = [];
+            activeTest.questions.forEach((q, i) => {
+                const pts = parseInt(q.points);
+                total += pts;
+                const isCorrect = answers[i] === q.correct;
+                if(isCorrect) score += pts;
+                details.push({ q: q.text, user: answers[i]||'-', correct: q.correct, isCorrect });
+            });
+            
+            const pct = Math.round((score/total)*100);
+            await set(ref(db, `results/${activeTest.id}/${currentUser}`), { score, total, percentage: pct, timestamp: Date.now(), details });
+            alert(`النتيجة: ${pct}%`);
+            document.getElementById('s-taking-test').classList.add('hidden');
+            loadStudentExams();
+        };
+
+        window.reviewTest = async (id) => {
+            const res = (await get(ref(db, `results/${id}/${currentUser}`))).val();
+            const div = document.getElementById('review-content');
+            div.innerHTML = `<h1 style="text-align:center; color:var(--accent-primary);">${res.percentage}%</h1>`;
+            res.details.forEach((d, i) => {
+                div.innerHTML += `
+                    <div class="mini-card" style="border-right:4px solid ${d.isCorrect?'green':'red'}">
+                        <p><strong>${i+1}. ${d.q}</strong></p>
+                        <p style="color:#aaa;">إجابتك: ${d.user} ${d.isCorrect?'✅':'❌'}</p>
+                        ${!d.isCorrect ? `<p style="color:green">الصحيح: ${d.correct}</p>` : ''}
+                    </div>`;
+            });
+            document.getElementById('s-review-test').classList.remove('hidden');
+        };
+
+        // ======== AI Logic (Chat + Generation) ========
+        window.toggleAiGenerator = () => document.getElementById('ai-gen-modal').classList.toggle('hidden');
+        
+        // AI Chat Image Handling
+        window.previewChatImg = async (prefix) => {
+            const input = document.getElementById(`${prefix}-ai-file`);
+            if(input.files[0]) {
+                const b64 = await getBase64(input.files[0]);
+                const preview = document.getElementById(`${prefix}-chat-preview`);
+                preview.style.display = 'block';
+                document.getElementById(`${prefix}-chat-img-tag`).src = b64;
+            }
+        };
+        
+        window.clearChatImg = (prefix) => {
+            document.getElementById(`${prefix}-ai-file`).value = '';
+            document.getElementById(`${prefix}-chat-preview`).style.display = 'none';
+        };
+
         window.sendAiMsg = async (prefix) => {
             const input = document.getElementById(`${prefix}-ai-input`);
-            const msgs = document.getElementById(`${prefix}-ai-msgs`);
             const fileInput = document.getElementById(`${prefix}-ai-file`);
+            const msgs = document.getElementById(`${prefix}-ai-msgs`);
             
             const txt = input.value.trim();
-            if (!txt && !fileInput.files[0]) return;
-
-            // User Msg
-            msgs.innerHTML += `<div class="chat-msg user">${txt} ${fileInput.files[0] ? '<br>[صورة مرفقة]' : ''}</div>`;
+            if(!txt && !fileInput.files[0]) return;
+            
+            let userHtml = `<div class="chat-msg user">${txt}`;
+            let imgData = null;
+            
+            if(fileInput.files[0]) {
+                const b64 = await getBase64(fileInput.files[0]);
+                userHtml += `<img src="${b64}">`;
+                imgData = b64.split(',')[1];
+                clearChatImg(prefix);
+            }
+            userHtml += `</div>`;
+            msgs.innerHTML += userHtml;
             input.value = '';
             msgs.scrollTop = msgs.scrollHeight;
 
-            // AI Logic (Simulation or API)
-            const loadingId = Date.now();
-            msgs.innerHTML += `<div class="chat-msg ai" id="${loadingId}">...</div>`;
+            const loadId = 'loading-' + Date.now();
+            msgs.innerHTML += `<div class="chat-msg ai" id="${loadId}"><i class="fas fa-circle-notch fa-spin"></i></div>`;
             msgs.scrollTop = msgs.scrollHeight;
 
-            let imgPart = null;
-            if (fileInput.files[0]) {
-                const b64 = await getBase64(fileInput.files[0]);
-                imgPart = { inline_data: { mime_type: "image/jpeg", data: b64.split(',')[1] } };
-                fileInput.value = ''; // clear
-            }
-
-            const parts = [{ text: `أنت SA AI، مساعد تعليمي ذكي للمستخدم: ${currentUser}. أجب بالعربية.` }];
-            if (txt) parts.push({ text: txt });
-            if (imgPart) parts.push(imgPart);
+            const parts = [];
+            if(txt) parts.push({ text: txt });
+            if(imgData) parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
+            
+            if(parts.length === 0) return; 
 
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
@@ -833,32 +1191,22 @@
                 });
                 const data = await res.json();
                 const reply = data.candidates[0].content.parts[0].text;
-                document.getElementById(loadingId).innerText = reply;
+                document.getElementById(loadId).innerText = reply;
             } catch (e) {
-                document.getElementById(loadingId).innerText = "عذراً، حدث خطأ في الاتصال.";
+                document.getElementById(loadId).innerText = "عذراً، حدث خطأ.";
             }
             msgs.scrollTop = msgs.scrollHeight;
         };
 
-        // Init Check
+        // Check Init
         const savedUser = localStorage.getItem('sa_user');
         const savedRole = localStorage.getItem('sa_role');
-        
+        const savedIcon = localStorage.getItem('sa_icon');
         if (savedUser && savedRole) {
-            document.getElementById('landing-layer').classList.add('hidden');
-            currentUser = savedUser;
-            selectedRole = savedRole;
-            if (selectedRole === 'teacher') {
-                document.getElementById('teacher-app').classList.remove('hidden');
-                loadTeacherData();
-            } else {
-                document.getElementById('student-app').classList.remove('hidden');
-                loadStudentData();
-            }
+            currentUser = savedUser; selectedRole = savedRole;
+            loginSuccess(currentUser, savedIcon);
         }
 
     </script>
 </body>
 </html>
-
-
