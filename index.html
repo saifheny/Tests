@@ -75,8 +75,15 @@
             width: 100%;
         }
         
+        /* تعديل حجم الأزرار للشاشات الكبيرة لتكون متوسطة */
         @media (min-width: 768px) {
-            .modern-btn { width: auto; min-width: 200px; margin: 0 auto; display: inline-flex; }
+            .modern-btn { 
+                width: auto; 
+                min-width: 180px; /* حجم متوسط */
+                max-width: 250px; 
+                margin: 0 auto; 
+                display: inline-flex; 
+            }
             .app-section { text-align: center; }
             .app-section .smart-input, .app-section .google-bar { max-width: 600px; margin-left: auto; margin-right: auto; }
             .card-wrapper, .mini-card, .create-exam-cta, .reese-card { max-width: 700px; margin-left: auto; margin-right: auto; text-align: right; }
@@ -101,6 +108,9 @@
             cursor: pointer; transition: all 0.3s;
             display: flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%; font-size: 1rem;
+        }
+        @media (min-width: 768px) {
+            .glossy-black-btn { width: auto; min-width: 180px; max-width: 300px; margin: 0 auto; }
         }
         .glossy-black-btn:hover {
             box-shadow: 0 6px 20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.2);
@@ -281,24 +291,19 @@
         }
         @keyframes blink { 50% { opacity: 0; } }
 
-        /* Landing Page Avatar - NEW BLACK GLOSSY BREATHING */
-        .landing-avatar {
-            font-size: 6rem; 
+        /* Landing Page Avatar - NEW IMAGE STYLE */
+        .landing-avatar-img {
+            width: 140px; height: auto;
             margin-bottom: 20px;
             display: block;
-            
-            /* Obsidian / Black Glossy Style */
-            color: #000;
-            text-shadow: 0 0 2px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.1);
-            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
-            
+            filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
             animation: breathe 3s ease-in-out infinite;
         }
         
         @keyframes breathe { 
-            0% { transform: scale(0.95); opacity: 0; } 
+            0% { transform: scale(0.95); opacity: 0.9; } 
             50% { transform: scale(1.05); opacity: 1; } 
-            100% { transform: scale(0.95); opacity: 0; } 
+            100% { transform: scale(0.95); opacity: 0.9; } 
         }
 
         .landing-text {
@@ -326,6 +331,17 @@
             outline: none; transition: 0.3s; font-family: var(--font-main);
         }
         .smart-input:focus { border-color: var(--accent-primary); background: #0a0a0a; }
+
+        /* Names Row */
+        .names-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .names-row .smart-input {
+            flex: 1;
+        }
 
         .google-bar {
             width: 100%; background: #1c1c1c;
@@ -813,9 +829,9 @@
                 <span id="landing-type-text" class="landing-text"></span><span class="typewriter-cursor"></span>
             </div>
             
-            <!-- Floating Animated Avatar (Obsidian/Black/Glossy) -->
+            <!-- Floating Animated Avatar (REPLACED WITH IMAGE) -->
             <div style="margin-top: 30px;">
-                <i class="fas fa-cube landing-avatar"></i>
+                <img src="https://i.postimg.cc/BQQb5YDn/MOWU-DESIGN.png" class="landing-avatar-img" alt="Logo">
             </div>
 
             <button onclick="goToAuth()" class="modern-btn" style="margin-top: 50px; font-size: 1.1rem; background: #ffffff; color: #000000; border: none; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); font-weight: 800; font-family: 'Outfit', sans-serif;">
@@ -841,10 +857,18 @@
                 <i class="fas fa-user-astronaut"></i>
             </div>
             
-            <input type="text" id="auth-name" class="smart-input" placeholder="الاسم الثنائي" style="text-align: center;">
-            <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري" style="text-align: center;">
+            <!-- NEW NAME STRUCTURE -->
+            <div class="names-row">
+                <input type="text" id="auth-name-1" class="smart-input" placeholder="الاسم الأول" style="text-align: center;">
+                <input type="text" id="auth-name-2" class="smart-input" placeholder="الاسم الثاني" style="text-align: center;">
+            </div>
+            <input type="text" id="auth-name-3" class="smart-input" placeholder="الاسم الثالث" style="text-align: center;">
             
-            <button onclick="handleSmartAuth()" class="modern-btn" style="margin-top: 20px;">
+            <!-- MODIFIED PASSWORD FIELD (Maxlength 6) -->
+            <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري (6 خانات أرقام وحروف)" maxlength="6" style="text-align: center;">
+            
+            <!-- INCREASED MARGIN FOR BUTTON -->
+            <button onclick="handleSmartAuth()" class="modern-btn" style="margin-top: 50px;">
                 تسجيل الدخول <i class="fas fa-sign-in-alt"></i>
             </button>
             <div id="auth-status" style="margin-top: 20px; color: var(--warning); font-size: 0.9rem;"></div>
@@ -1038,11 +1062,30 @@
 
         <div class="portal-container">
             <section id="s-exams" class="app-section">
-                <h2 style="margin-bottom: 20px;">الاختبارات المتاحة</h2>
+                <!-- Search moved up -->
                 <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="google-bar" id="s-search" placeholder="ابحث عن اختبار...">
                 </div>
+
+                <!-- New Student Development Card -->
+                <div class="create-exam-cta" style="margin-bottom: 20px; cursor: default; background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(16, 185, 129, 0.05)); border-color: rgba(255,255,255,0.1);">
+                    <i class="fas fa-brain cta-bg-icon"></i>
+                    <div class="cta-content">
+                        <!-- Generic Icon for Admin/System -->
+                        <div class="cta-icon-wrapper" style="background: var(--accent-gold); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);"><i class="fas fa-lightbulb"></i></div>
+                        <div style="text-align: right; flex: 1;">
+                            <div style="display:flex; align-items:center; gap:3px;">
+                                <h3 id="student-type-text" class="typewriter-text"></h3><span class="typewriter-cursor"></span>
+                            </div>
+                            <!-- Small container simulating teacher name/source -->
+                            <div style="margin-top: 5px; display: inline-block; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 8px; font-size: 0.75rem; color: #aaa;">
+                                <i class="fas fa-university"></i> منصة SA EDU
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="s-exams-list"></div>
             </section>
 
@@ -1308,7 +1351,11 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const aiApiKey = "AIzaSyC5aKq0yTiEqDIVawe0HmvUgMBKOnS3IQ0";
+        
+        // --- NEW API KEY AND LATEST MODEL CONFIG ---
+        const aiApiKey = "AIzaSyD9h5-H4KIxWtVpjXvyrK4c6S9HOhZCBc0";
+        // Using experimental Gemini 2.0 Flash as requested for "latest" performance
+        const geminiModel = "gemini-2.0-flash-exp"; 
 
         // Global State
         let selectedRole = 'student'; 
@@ -1466,24 +1513,37 @@
         };
 
         window.handleSmartAuth = async () => {
-            const name = document.getElementById('auth-name').value.trim();
+            // Updated to combine names
+            const name1 = document.getElementById('auth-name-1').value.trim();
+            const name2 = document.getElementById('auth-name-2').value.trim();
+            const name3 = document.getElementById('auth-name-3').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
             const status = document.getElementById('auth-status');
-            if (!name || !pass) return status.innerText = "يرجى ملء جميع الحقول";
+
+            if (!name1 || !name2 || !name3 || !pass) return status.innerText = "يرجى ملء جميع الحقول";
+            
+            // Validate Password Format (6 chars, letters & numbers only)
+            const passRegex = /^[a-zA-Z0-9]+$/;
+            if (pass.length !== 6 || !passRegex.test(pass)) {
+                return status.innerText = "كلمة المرور يجب أن تكون 6 خانات (حروف إنجليزية وأرقام فقط)";
+            }
+
+            // Combine names for DB key
+            const fullName = `${name1} ${name2} ${name3}`;
 
             status.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جارِ الاتصال...';
-            const userRef = ref(db, `users/${selectedRole}s/${name}`);
+            const userRef = ref(db, `users/${selectedRole}s/${fullName}`);
             try {
                 const snap = await get(userRef);
                 if (snap.exists()) {
                     if (snap.val().password === pass) {
                         const savedIcon = snap.val().icon;
-                        loginSuccess(name, savedIcon);
+                        loginSuccess(fullName, savedIcon);
                     } else status.innerText = "كلمة المرور غير صحيحة";
                 } else {
                     const defaultIcon = selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
                     await set(userRef, { password: pass, joined: Date.now(), icon: defaultIcon });
-                    loginSuccess(name, defaultIcon);
+                    loginSuccess(fullName, defaultIcon);
                 }
             } catch (e) { console.error(e); status.innerText = "حدث خطأ في الاتصال"; }
         };
@@ -1592,7 +1652,11 @@
             document.getElementById(tabId).classList.remove('hidden');
             if(btn) { document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
             if(tabId === 's-grades') loadStudentGrades();
-            if(tabId === 's-exams') loadStudentExams();
+            if(tabId === 's-exams') {
+                loadStudentExams();
+                // Start typewriter for student card
+                startTypewriter("student-type-text", "الاختبارات المتاحة لتطويرك");
+            }
             if(tabId === 't-library') startTypewriter("cta-type-text", "اضغط هنا لكتابة الامتحان");
             if(tabId === 't-ai' && !currentChatId) startNewChat('t');
             if(tabId === 's-ai' && !currentChatId) startNewChat('s');
@@ -1801,7 +1865,8 @@
             saAlert("جاري توليد الاقتراح...", "info");
             const prompt = `Write a short, engaging, and motivating post for a social feed in an educational app. The user is a ${selectedRole}. Write it in Arabic. Keep it under 200 characters.`;
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
+                // Updated API URL for Gemini 2.0 Flash Exp
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${aiApiKey}`;
                 const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
                 const data = await res.json();
                 document.getElementById('reese-text-input').value = data.candidates[0].content.parts[0].text;
@@ -2329,7 +2394,8 @@
             const parts = []; if(txt) parts.push({ text: txt });
             if(imgData) parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
+                // Updated API URL for Gemini 2.0 Flash Exp
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${aiApiKey}`;
                 const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts }] }) });
                 const data = await res.json();
                 const reply = data.candidates[0].content.parts[0].text;
