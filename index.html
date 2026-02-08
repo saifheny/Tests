@@ -40,10 +40,14 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
+            
+            /* Facebook Reactions Colors */
+            --fb-blue: #1877F2;
+            --fb-red: #F02849;
         }
 
         /* Reset & Base */
-        *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
             font-family: var(--font-main);
             background-color: var(--bg-deep);
@@ -59,7 +63,7 @@
         .flex-center { display: flex; align-items: center; justify-content: center; }
         .w-full { width: 100%; }
         
-        /* Buttons Style - Updated for Desktop */
+        /* Buttons Style */
         .modern-btn {
             background: #ffffff; color: #000000;
             font-family: var(--font-main); font-weight: 700;
@@ -68,37 +72,15 @@
             box-shadow: 0 5px 20px rgba(255,255,255,0.15);
             cursor: pointer; transition: 0.3s;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%; /* Default mobile */
+            width: 100%;
         }
         
-        /* Desktop Button Fix */
         @media (min-width: 768px) {
-            .modern-btn {
-                width: auto;
-                min-width: 200px;
-                margin-left: auto;
-                margin-right: auto;
-                display: inline-flex;
-            }
-            .app-section {
-                text-align: center; /* Center content on desktop */
-            }
-            .app-section .smart-input, 
-            .app-section .google-bar {
-                max-width: 600px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-            .card-wrapper, .mini-card {
-                max-width: 700px;
-                margin-left: auto;
-                margin-right: auto;
-                text-align: right; /* Keep text aligned right for Arabic */
-            }
-            /* Fix nav on desktop */
-            .nav-container {
-                max-width: 800px;
-            }
+            .modern-btn { width: auto; min-width: 200px; margin: 0 auto; display: inline-flex; }
+            .app-section { text-align: center; }
+            .app-section .smart-input, .app-section .google-bar { max-width: 600px; margin-left: auto; margin-right: auto; }
+            .card-wrapper, .mini-card, .create-exam-cta, .reese-card { max-width: 700px; margin-left: auto; margin-right: auto; text-align: right; }
+            .nav-container { max-width: 800px; }
         }
 
         .modern-btn:active { transform: scale(0.97); }
@@ -107,6 +89,54 @@
             border: 1px solid var(--glass-border);
             box-shadow: none;
         }
+
+        /* GLOSSY BLACK BUTTON STYLE */
+        .glossy-black-btn {
+            background: linear-gradient(145deg, #2a2a2a, #000000);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            font-family: var(--font-main); font-weight: 700;
+            padding: 14px 30px; border-radius: 50px;
+            cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; font-size: 1rem;
+        }
+        .glossy-black-btn:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.3);
+        }
+        .glossy-black-btn.danger i { color: var(--danger); }
+
+        /* NEW SHINY BACK BUTTON (For Overlays) */
+        .shiny-back-btn {
+            position: absolute; top: 20px; right: 20px; z-index: 5002;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 45px; height: 45px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 0 20px rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .shiny-back-btn::after {
+            content: ''; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+            transform: rotate(45deg) translate(-100%, -100%);
+            animation: shine 3s infinite;
+        }
+        @keyframes shine { 
+            0% { transform: rotate(45deg) translate(-100%, -100%); }
+            20% { transform: rotate(45deg) translate(100%, 100%); }
+            100% { transform: rotate(45deg) translate(100%, 100%); }
+        }
+        .shiny-back-btn:active { transform: scale(0.9); }
+
         .icon-btn-small {
             width: 30px; height: 30px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -115,7 +145,7 @@
 
         /* Icons Action Bar */
         .icon-actions {
-            display: flex; gap: 10px; justify-content: space-around;
+            display: flex; gap: 8px; justify-content: space-around;
             padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);
             margin-top: 5px;
         }
@@ -133,9 +163,9 @@
         .action-icon.share:hover { color: var(--success); background: rgba(16, 185, 129, 0.1); }
         .action-icon.gold:hover { color: var(--accent-gold); background: rgba(255, 215, 0, 0.1); }
         .action-icon.view:hover { color: #d946ef; background: rgba(217, 70, 239, 0.1); }
+        .action-icon.results-icon:hover { color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
 
-
-        /* Back Button */
+        /* Back Button Header (Inside App) */
         .back-btn-header {
             display: flex; align-items: center; gap: 10px; margin-bottom: 20px; cursor: pointer;
             color: var(--text-secondary); transition: 0.3s;
@@ -144,7 +174,7 @@
         }
         .back-btn-header:hover { color: #fff; background: rgba(255,255,255,0.1); }
 
-        /* ======== 1. Navigation (Fixed Top) ======== */
+        /* ======== 1. Navigation (Fixed Top with Scroll Hide) ======== */
         .top-nav {
             position: fixed; top: 0; left: 0; right: 0;
             height: var(--nav-height);
@@ -153,7 +183,9 @@
             border-bottom: 1px solid var(--glass-border);
             z-index: 1000;
             display: flex; align-items: center; justify-content: center;
+            transition: top 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); 
         }
+        .nav-hidden { top: -80px; }
 
         .nav-container {
             display: flex; justify-content: space-between; align-items: center;
@@ -181,10 +213,11 @@
             min-height: 100vh;
         }
 
-        /* ======== 3. Cards ======== */
+        /* ======== 3. Cards & CTA ======== */
         .mini-card {
             background: linear-gradient(145deg, #1c1c1c, #151515);
-            border: 1px solid var(--glass-border);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 2px solid rgba(255,255,255,0.03);
             border-radius: 18px;
             padding: 15px;
             margin-bottom: 0;
@@ -192,9 +225,86 @@
             transition: all 0.2s;
             display: flex; flex-direction: column; gap: 10px;
             text-align: right;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        .card-wrapper {
-            margin-bottom: 25px; /* Increased for ad spacing */
+        .mini-card:hover {
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+        .card-wrapper { margin-bottom: 25px; }
+        
+        .create-exam-cta {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            min-height: 90px;
+        }
+        .create-exam-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.25);
+            border-color: var(--accent-primary);
+        }
+        .create-exam-cta:active { transform: scale(0.98); }
+
+        .cta-content { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; width: 100%; }
+        .cta-icon-wrapper {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--accent-primary); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; box-shadow: 0 0 15px var(--accent-glow);
+            flex-shrink: 0;
+        }
+        .cta-bg-icon {
+            position: absolute; left: -10px; bottom: -15px;
+            font-size: 5rem; color: #fff; opacity: 0.05;
+            transform: rotate(15deg); pointer-events: none;
+        }
+
+        /* Typewriter Inside CTA */
+        .typewriter-text {
+            font-family: 'Outfit', var(--font-main);
+            font-weight: 700; font-size: 1.1rem; color: #fff;
+            display: inline-block;
+        }
+        .typewriter-cursor {
+            display: inline-block; width: 2px; height: 1.1rem;
+            background-color: var(--accent-primary);
+            margin-right: 2px; animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* Landing Page Avatar - NEW BLACK GLOSSY BREATHING */
+        .landing-avatar {
+            font-size: 6rem; 
+            margin-bottom: 20px;
+            display: block;
+            
+            /* Obsidian / Black Glossy Style */
+            color: #000;
+            text-shadow: 0 0 2px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.1);
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.5));
+            
+            animation: breathe 3s ease-in-out infinite;
+        }
+        
+        @keyframes breathe { 
+            0% { transform: scale(0.95); opacity: 0; } 
+            50% { transform: scale(1.05); opacity: 1; } 
+            100% { transform: scale(0.95); opacity: 0; } 
+        }
+
+        .landing-text {
+            color: #ccc; letter-spacing: 1px; font-size: 1.1rem; margin-top: 10px; 
+            max-width: 90%; line-height: 1.6; min-height: 50px;
+            font-weight: 600; text-shadow: 0 0 10px rgba(255,255,255,0.1);
         }
         
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -241,17 +351,154 @@
         .avatar-student { border-color: var(--accent-primary); color: var(--accent-primary); }
         .avatar-teacher { border-color: var(--accent-gold); color: var(--accent-gold); }
 
-        /* ======== 6. Chat AI UI (Fixed Position) ======== */
+        /* ======== REESE SECTION STYLES (UPDATED) ======== */
+        /* Jazzy Input Trigger */
+        .reese-input-trigger {
+            background: linear-gradient(135deg, #1f1f1f, #141414);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 12px;
+            display: flex; align-items: center; gap: 15px;
+            cursor: pointer; margin-bottom: 25px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .reese-input-trigger:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .reese-input-trigger::before {
+            content: ''; position: absolute; top:0; left:0; width:4px; height:100%;
+            background: linear-gradient(to bottom, var(--accent-primary), var(--accent-gold));
+        }
+        .reese-avatar-mini {
+            width: 45px; height: 45px; border-radius: 50%;
+            background: #252525; display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        .reese-placeholder {
+            flex: 1; color: #666; font-size: 1rem; font-weight: 500;
+        }
+        .reese-icon-decor {
+            color: var(--accent-primary); font-size: 1.2rem; opacity: 0.8;
+            padding-left: 10px;
+        }
+
+        /* Post Card */
+        .reese-card {
+            background: #111;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px; padding: 15px; margin-bottom: 15px;
+            transition: 0.2s; position: relative;
+        }
+        .reese-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .reese-user { display: flex; gap: 10px; align-items: center; }
+        .reese-content { 
+            font-size: 0.95rem; line-height: 1.5; color: #eee; 
+            margin-bottom: 15px; white-space: pre-wrap; word-wrap: break-word; 
+        }
+        
+        /* Grid for Post Images (X Style) */
+        .reese-images-grid {
+            display: grid; gap: 5px; border-radius: 12px; overflow: hidden; margin-top: 10px;
+            margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .reese-images-grid.one-img { grid-template-columns: 1fr; }
+        .reese-images-grid.two-imgs { grid-template-columns: 1fr 1fr; }
+        .reese-post-img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            max-height: 400px; background: #222; 
+        }
+
+        .reese-actions {
+            border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;
+            display: flex; justify-content: space-around;
+        }
+        .reese-btn {
+            background: transparent; border: none; color: #888;
+            font-size: 0.9rem; display: flex; align-items: center; gap: 6px;
+            cursor: pointer; transition: 0.2s; padding: 5px 10px; border-radius: 20px;
+        }
+        .reese-btn:hover { background: rgba(255,255,255,0.05); color: #ccc; }
+        .reese-btn.liked { color: var(--fb-red); }
+        .reese-btn.liked i { animation: pop 0.3s; }
+        @keyframes pop { 0%{transform:scale(1);} 50%{transform:scale(1.3);} 100%{transform:scale(1);} }
+
+        /* Compose Overlay */
+        .compose-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 6000;
+            display: flex; flex-direction: column;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .compose-overlay.open { transform: translateY(0); }
+        .compose-header {
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .compose-body { padding: 20px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        
+        .compose-textarea {
+            width: 100%; background: transparent; border: none; color: #fff;
+            font-size: 1.2rem; font-family: var(--font-main); resize: none;
+            outline: none; margin-top: 10px; min-height: 100px;
+            overflow: hidden; /* For auto-grow */
+        }
+
+        .ai-suggestion-btn {
+            background: linear-gradient(45deg, #d946ef, #8b5cf6); color: white;
+            border: none; padding: 8px 15px; border-radius: 20px;
+            font-size: 0.85rem; display: flex; align-items: center; gap: 5px;
+            width: fit-content; margin-bottom: 15px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3);
+        }
+
+        /* Image Previews in Compose */
+        .compose-media-preview {
+            display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px;
+        }
+        .preview-item { position: relative; width: 100px; height: 100px; border-radius: 12px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; }
+        .preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .remove-preview {
+            position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6);
+            color: #fff; border-radius: 50%; width: 22px; height: 22px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px;
+        }
+        
+        /* NEW BEAUTIFUL UPLOAD ICON */
+        .add-media-btn {
+            /* Colorful Gradient Background */
+            background: linear-gradient(135deg, #ff00cc, #333399);
+            color: #fff;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; cursor: pointer; margin-right: 15px;
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .add-media-btn:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 25px rgba(255, 0, 204, 0.8);
+        }
+
+        /* ======== 6. Chat AI UI ======== */
         .ai-layout {
             position: fixed; top: var(--nav-height); left: 0; right: 0; bottom: 0;
             display: flex; flex-direction: column;
             background: var(--bg-deep); z-index: 100;
         }
 
-        /* Top Action Bar for AI */
+        /* Top Action Bar for AI - FORCED BLACK */
         .ai-top-bar {
             padding: 10px 15px;
-            background: rgba(20,20,20,0.95);
+            background: #000000 !important; /* Force Black */
             border-bottom: 1px solid var(--glass-border);
             display: flex; justify-content: space-between; align-items: center;
             z-index: 101;
@@ -274,7 +521,6 @@
             display: flex; flex-direction: column; gap: 12px;
         }
         
-        /* New Welcome Screen Styles */
         .ai-welcome-screen {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100%; opacity: 0; animation: fadeIn 0.8s forwards;
@@ -299,8 +545,9 @@
         .ai-chip {
             background: #1a1a1a; border: 1px solid #333; color: #ccc;
             padding: 10px 15px; border-radius: 12px; font-size: 0.85rem;
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;
         }
+        .ai-chip i { color: var(--accent-primary); }
         .ai-chip:hover { background: #252525; border-color: #555; color: #fff; transform: translateY(-2px); }
 
 
@@ -316,22 +563,21 @@
         }
         .chat-msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
 
-        /* Floating Input Bar */
+        /* Floating Input Bar - Darker Background */
         .ai-input-bar {
             position: fixed; 
             bottom: 25px; left: 15px; right: 15px;
-            background: rgba(30, 30, 30, 0.95);
+            background: #000000;
             border: 1px solid rgba(255,255,255,0.15);
             border-radius: 25px;
             padding: 10px;
             display: flex; align-items: center; gap: 10px;
             z-index: 2000;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             max-width: 800px; margin: 0 auto;
         }
         .ai-input-field {
-            flex: 1; background: #111; border: 1px solid #444; border-radius: 20px;
+            flex: 1; background: #111; border: 1px solid #333; border-radius: 20px;
             color: #fff; font-family: var(--font-main); font-size: 1rem;
             outline: none; padding: 10px 15px;
         }
@@ -382,20 +628,25 @@
         .history-title { font-size: 0.9rem; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
         .history-date { font-size: 0.7rem; color: #666; margin-top: 4px; display: block; }
 
-        /* ======== 7. Menu & Profile ======== */
-        #menu-modal, #ai-gen-modal, #phone-modal, #teacher-detail-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000;
-            display: flex; flex-direction: column; justify-content: flex-end;
+        /* ======== 7. FULL SCREEN OVERLAYS (Menu & AI Gen) ======== */
+        .full-screen-overlay {
+            position: fixed; inset: 0; 
+            background: #000000; 
+            z-index: 5000;
+            display: flex; flex-direction: column;
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+            padding-bottom: 40px;
         }
-        .menu-content {
-            background: #181818; border-top: 1px solid #333;
-            border-radius: 25px 25px 0 0; padding: 25px;
-            padding-bottom: 50px;
-            animation: slideUp 0.3s ease-out;
-            max-height: 85vh; overflow-y: auto;
+        .full-screen-overlay.open { transform: translateY(0); }
+        
+        .overlay-content {
+            padding: 40px 20px; flex: 1; display: flex; flex-direction: column; gap: 20px;
+            padding-top: 60px; /* Space for back button */
         }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
+        /* Menu Specific */
         .menu-item {
             background: rgba(255,255,255,0.03); padding: 16px;
             border-radius: 16px; display: flex; align-items: center; gap: 15px;
@@ -414,6 +665,21 @@
             font-size: 1.4rem; cursor: pointer; border: 2px solid transparent;
         }
         .avatar-option.selected { border-color: var(--success); background: #000; }
+
+        /* Modal specific adjustments */
+        #phone-modal, #teacher-detail-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000;
+            display: flex; flex-direction: column; justify-content: flex-end;
+        }
+        .bottom-sheet-content {
+            background: #181818; border-top: 1px solid #333;
+            border-radius: 25px 25px 0 0; padding: 25px;
+            padding-bottom: 50px;
+            animation: slideUp 0.3s ease-out;
+            max-height: 85vh; overflow-y: auto;
+        }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
 
         /* ======== 8. Landing (New Tech Style) ======== */
         #landing-layer {
@@ -472,6 +738,27 @@
             border: 1px dashed rgba(255,255,255,0.05);
         }
 
+        /* ======== SKELETON LOADING ======== */
+        .skeleton-loader {
+            background: #151515; border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 15px; padding: 15px; margin-bottom: 15px;
+            position: relative; overflow: hidden;
+        }
+        .skeleton-loader::after {
+            content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.05) 20%, rgba(255,255,255,0) 60%);
+            transform: translateX(100%);
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 100% { transform: translateX(-100%); } }
+        
+        .skeleton-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .skeleton-circle { width: 40px; height: 40px; background: #222; border-radius: 50%; }
+        .skeleton-text { flex: 1; }
+        .skeleton-line { height: 10px; background: #222; border-radius: 5px; margin-bottom: 8px; }
+        .skeleton-line.short { width: 50%; }
+        .skeleton-rect { height: 100px; background: #222; border-radius: 10px; width: 100%; }
+
         /* ======== CUSTOM ALERT & MODAL STYLES ======== */
         #sa-custom-alert {
             position: fixed; inset: 0; z-index: 9999;
@@ -500,6 +787,18 @@
         .sa-btn-primary { background: var(--accent-primary); color: #fff; }
         .sa-btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
 
+        /* Empty State Styles */
+        .empty-state-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 40px 20px; text-align: center; opacity: 0; animation: fadeIn 0.5s forwards;
+        }
+        .empty-avatar {
+            font-size: 4rem; color: #333; margin-bottom: 20px;
+            background: #111; width: 100px; height: 100px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px dashed #444; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
     </style>
 </head>
 <body>
@@ -508,9 +807,16 @@
     <div id="landing-layer">
         <div class="landing-wrap">
             <h1 style="font-size: 3.5rem; background: linear-gradient(to right, #fff, #3b82f6); -webkit-background-clip: text; color: transparent; margin: 0; text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);">SA EDU</h1>
-            <p style="color: #ccc; letter-spacing: 2px; font-size: 1rem; margin-top: 10px; max-width: 80%; line-height: 1.6;">
-                منصة تعليمية ذكية تنقلك إلى آفاق المستقبل
-            </p>
+            
+            <!-- Typewriter Text on Landing -->
+            <div style="min-height: 40px; margin-top: 10px; display:flex; justify-content:center; align-items:center; gap:5px;">
+                <span id="landing-type-text" class="landing-text"></span><span class="typewriter-cursor"></span>
+            </div>
+            
+            <!-- Floating Animated Avatar (Obsidian/Black/Glossy) -->
+            <div style="margin-top: 30px;">
+                <i class="fas fa-cube landing-avatar"></i>
+            </div>
 
             <button onclick="goToAuth()" class="modern-btn" style="margin-top: 50px; font-size: 1.1rem; background: #ffffff; color: #000000; border: none; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); font-weight: 800; font-family: 'Outfit', sans-serif;">
                 ENTER THE REALM <i class="fas fa-dungeon" style="margin-left: 8px;"></i>
@@ -561,8 +867,8 @@
         <nav class="top-nav">
             <div class="nav-container">
                 <button class="nav-btn active" onclick="switchTab('t-library', this)"><i class="fas fa-layer-group"></i><span>المكتبة</span></button>
-                <button class="nav-btn" onclick="switchTab('t-results', this)"><i class="fas fa-poll"></i><span>النتائج</span></button>
-                <button class="nav-btn" onclick="switchTab('t-create', this)"><i class="fas fa-plus-circle" style="font-size: 1.8rem;"></i><span>إنشاء</span></button>
+                <!-- REESE REPLACEMENT -->
+                <button class="nav-btn" onclick="switchTab('t-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
                 <button class="nav-btn magic-btn" onclick="switchTab('t-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
@@ -571,12 +877,47 @@
         <div class="portal-container">
             <!-- Library -->
             <section id="t-library" class="app-section">
-                <h2 style="margin-bottom: 20px;">مكتبة الاختبارات</h2>
+                
+                <!-- NEW CREATE EXAM CTA -->
+                <div class="create-exam-cta" onclick="switchTab('t-create')">
+                    <i class="fas fa-file-signature cta-bg-icon"></i>
+                    <div class="cta-content">
+                        <div class="cta-icon-wrapper"><i class="fas fa-plus"></i></div>
+                        <div style="text-align: right; flex: 1;">
+                            <div style="display:flex; align-items:center; gap:3px;">
+                                <h3 id="cta-type-text" class="typewriter-text"></h3><span class="typewriter-cursor"></span>
+                            </div>
+                            <p style="margin: 4px 0 0; color: #ccc; font-size: 0.85rem;">انقر للبدء في إنشاء اختبار جديد للطلاب</p>
+                        </div>
+                    </div>
+                    <div style="color: #666; position:relative; z-index:2;"><i class="fas fa-chevron-left"></i></div>
+                </div>
+                
                 <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="google-bar" id="t-search" placeholder="ابحث في اختباراتك...">
                 </div>
                 <div id="t-tests-list"></div>
+            </section>
+
+            <!-- Reese Section (Feed) -->
+            <section id="t-reese" class="app-section hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
+                    <!-- Toggle My Posts Icon -->
+                    <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
+                        <i class="fas fa-eraser" id="t-eraser-icon" style="color:#aaa;"></i>
+                    </button>
+                </div>
+
+                <!-- Updated Input Trigger -->
+                <div class="reese-input-trigger" onclick="openReeseCompose()">
+                    <div class="reese-avatar-mini" id="reese-trigger-avatar-t"></div>
+                    <div class="reese-placeholder">ماذا يدور في ذهنك اليوم؟</div>
+                    <i class="fas fa-pen-nib reese-icon-decor"></i>
+                </div>
+
+                <div id="reese-feed-container-t"></div>
             </section>
 
             <!-- Results -->
@@ -627,7 +968,6 @@
                     
                     <textarea id="q-text" class="smart-input" rows="2" placeholder="اكتب نص السؤال (يمكن تركه فارغاً إذا أرفقت صورة)"></textarea>
                     
-                    <!-- Dynamic Options Container -->
                     <div id="mcq-options-container"></div>
 
                     <button onclick="addOptionField()" class="modern-btn secondary" style="width: auto; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 15px;">
@@ -656,7 +996,7 @@
                 </button>
             </section>
 
-            <!-- AI Section (Fixed) -->
+            <!-- AI Section -->
             <section id="t-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
@@ -669,22 +1009,13 @@
                             <button class="ai-action-btn" onclick="shareCurrentChat()" title="مشاركة المحادثة"><i class="fas fa-share-nodes"></i></button>
                         </div>
                     </div>
-                    <div class="ai-messages" id="t-ai-msgs">
-                        <!-- Content injected by JS -->
-                    </div>
+                    <div class="ai-messages" id="t-ai-msgs"></div>
                 </div>
-                <!-- Floating Input Bar -->
                 <div class="ai-input-bar">
                     <label for="t-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
                     <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
-                    
                     <input type="text" id="t-ai-input" class="ai-input-field" placeholder="اكتب رسالة...">
-                    
-                    <button onclick="sendAiMsg('t')" class="send-btn">
-                        <i class="fas fa-arrow-up"></i>
-                    </button>
-                    
-                    <!-- Preview Container -->
+                    <button onclick="sendAiMsg('t')" class="send-btn"><i class="fas fa-arrow-up"></i></button>
                     <div id="t-chat-preview" class="chat-img-preview">
                         <i class="fas fa-times" onclick="clearChatImg('t')"></i>
                         <img src="" id="t-chat-img-tag">
@@ -699,7 +1030,7 @@
         <nav class="top-nav">
             <div class="nav-container">
                 <button class="nav-btn active" onclick="switchTab('s-exams', this)"><i class="fas fa-book-open"></i><span>اختبارات</span></button>
-                <button class="nav-btn" onclick="switchTab('s-grades', this)"><i class="fas fa-medal"></i><span>درجاتي</span></button>
+                <button class="nav-btn" onclick="switchTab('s-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
                 <button class="nav-btn magic-btn" onclick="switchTab('s-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
@@ -713,6 +1044,25 @@
                     <input type="text" class="google-bar" id="s-search" placeholder="ابحث عن اختبار...">
                 </div>
                 <div id="s-exams-list"></div>
+            </section>
+
+            <!-- Reese Section (Feed) for Student -->
+            <section id="s-reese" class="app-section hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
+                    <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
+                        <i class="fas fa-eraser" id="s-eraser-icon" style="color:#aaa;"></i>
+                    </button>
+                </div>
+
+                <!-- Updated Input Trigger -->
+                <div class="reese-input-trigger" onclick="openReeseCompose()">
+                    <div class="reese-avatar-mini" id="reese-trigger-avatar-s"></div>
+                    <div class="reese-placeholder">شارك أفكارك مع الجميع...</div>
+                    <i class="fas fa-pen-nib reese-icon-decor"></i>
+                </div>
+
+                <div id="reese-feed-container-s"></div>
             </section>
 
             <section id="s-grades" class="app-section hidden">
@@ -732,22 +1082,13 @@
                             <button class="ai-action-btn" onclick="shareCurrentChat()" title="مشاركة المحادثة"><i class="fas fa-share-nodes"></i></button>
                         </div>
                     </div>
-                    <div class="ai-messages" id="s-ai-msgs">
-                        <!-- Content injected by JS -->
-                    </div>
+                    <div class="ai-messages" id="s-ai-msgs"></div>
                 </div>
-                <!-- Floating Input Bar -->
                 <div class="ai-input-bar">
                     <label for="s-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
                     <input type="file" id="s-ai-file" hidden accept="image/*" onchange="previewChatImg('s')">
-                    
                     <input type="text" id="s-ai-input" class="ai-input-field" placeholder="اسألني عن أي شيء...">
-                    
-                    <button onclick="sendAiMsg('s')" class="send-btn">
-                        <i class="fas fa-arrow-up"></i>
-                    </button>
-
-                    <!-- Preview Container -->
+                    <button onclick="sendAiMsg('s')" class="send-btn"><i class="fas fa-arrow-up"></i></button>
                     <div id="s-chat-preview" class="chat-img-preview">
                         <i class="fas fa-times" onclick="clearChatImg('s')"></i>
                         <img src="" id="s-chat-img-tag">
@@ -762,16 +1103,13 @@
                         <button class="back-btn-header" onclick="closeExam()"><i class="fas fa-sign-out-alt"></i> خروج</button>
                         <div id="test-timer" style="font-size: 1.5rem; font-weight: bold; color: var(--accent-primary);">00:00</div>
                     </div>
-                    
                     <h2 id="active-test-title" style="text-align: center; color: var(--accent-gold); margin-bottom: 30px;">...</h2>
-                    
                     <div id="test-questions-render" style="margin-bottom: 60px;"></div>
-                    
                     <button onclick="submitExam()" class="modern-btn" style="background: var(--success); color: white; margin-bottom: 50px;">تسليم الإجابة</button>
                 </div>
             </section>
             
-            <!-- Review Interface (For Student & Teacher) -->
+            <!-- Review Interface -->
             <section id="s-review-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div class="back-btn-header" onclick="document.getElementById('s-review-test').classList.add('hidden')"><i class="fas fa-arrow-right"></i> إغلاق المراجعة</div>
@@ -782,17 +1120,62 @@
         </div>
     </div>
 
-    <!-- ============ MENU MODAL ============ -->
-    <div id="menu-modal" class="hidden" onclick="if(event.target === this) toggleMenu()">
-        <div class="menu-content">
-            <div style="text-align: center; margin-bottom: 25px;">
-                <div class="avatar-frame" id="menu-avatar" style="width: 80px; height: 80px; font-size: 2.5rem; border-width: 2px;"></div>
-                <h3 id="menu-username" style="margin: 10px 0 5px;">User</h3>
-                <span id="menu-role" style="font-size: 0.8rem; background: #333; padding: 4px 12px; border-radius: 20px; color: #aaa;">Role</span>
+    <!-- ============ REESE COMPOSE MODAL (UPDATED) ============ -->
+    <div id="reese-compose-modal" class="compose-overlay">
+        <div class="compose-header">
+            <span style="font-weight: bold; font-size: 1.1rem;">إنشاء ريس جديد</span>
+            <!-- CLOSE BUTTON CHANGED TO RETURN ICON -->
+            <div style="cursor: pointer; padding: 10px;" onclick="closeReeseCompose()"><i class="fas fa-arrow-right fa-lg"></i></div>
+        </div>
+        <div class="compose-body">
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <div class="avatar-frame" id="compose-avatar" style="width: 50px; height: 50px; font-size: 1.5rem; margin: 0; border-width: 1px;"></div>
+                <div>
+                    <div id="compose-name" style="font-weight: bold; margin-top: 5px;">User</div>
+                    <div style="font-size: 0.8rem; color: #888; background: #222; width: fit-content; padding: 2px 8px; border-radius: 10px; margin-top: 2px;">عام</div>
+                </div>
             </div>
             
-            <!-- Edit Profile Section -->
-            <div id="menu-edit-section" class="hidden" style="background: #222; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
+            <!-- Auto growing textarea -->
+            <textarea id="reese-text-input" class="compose-textarea" placeholder="بماذا تفكر؟" oninput="this.style.height='auto';this.style.height=(this.scrollHeight)+'px';"></textarea>
+            
+            <!-- Media Preview -->
+            <div id="reese-media-preview" class="compose-media-preview hidden"></div>
+
+            <button class="ai-suggestion-btn" onclick="generateAiReese()">
+                <i class="fas fa-wand-magic-sparkles"></i> اقتراح AI
+            </button>
+
+            <!-- Bottom Actions -->
+            <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+                
+                <!-- NEW BEAUTIFUL IMAGE UPLOAD BUTTON -->
+                <label class="add-media-btn" title="إضافة صور">
+                    <i class="fas fa-camera-retro"></i>
+                    <input type="file" id="reese-img-input" multiple accept="image/*" hidden onchange="handleReeseImageSelect(this)">
+                </label>
+
+                <button onclick="publishReese()" class="glossy-black-btn" style="width: auto; min-width: 100px;">
+                    نشر <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MENU FULL SCREEN ============ -->
+    <div id="menu-modal" class="full-screen-overlay">
+        <button class="shiny-back-btn" onclick="toggleMenu()">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <div class="overlay-content">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <div class="avatar-frame" id="menu-avatar" style="width: 100px; height: 100px; font-size: 3rem; border-width: 3px;"></div>
+                <h3 id="menu-username" style="margin: 15px 0 5px; font-size: 1.3rem;">User</h3>
+                <span id="menu-role" style="font-size: 0.85rem; background: #333; padding: 4px 15px; border-radius: 20px; color: #aaa;">Role</span>
+            </div>
+            
+            <div id="menu-edit-section" class="hidden" style="background: #222; padding: 15px; border-radius: 15px;">
                 <label style="color: #888; font-size: 0.8rem;">تعديل الاسم:</label>
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
                     <input type="text" id="edit-name-input" class="smart-input" style="margin: 0; padding: 10px;">
@@ -800,7 +1183,6 @@
                 </div>
             </div>
 
-            <!-- Avatar Section -->
             <div id="menu-avatar-section" class="hidden">
                 <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">اختر شكلاً جديداً:</p>
                 <div class="avatar-grid">
@@ -815,58 +1197,66 @@
                 </div>
             </div>
 
-            <!-- Menu Items -->
             <div class="menu-item" onclick="toggleEditProfile()">
-                <i class="fas fa-user-edit" style="color: var(--accent-primary);"></i>
-                <span>تعديل الملف الشخصي</span>
+                <i class="fas fa-user-edit" style="color: var(--accent-primary); font-size: 1.2rem;"></i>
+                <span style="font-size: 1rem;">تعديل الملف الشخصي</span>
             </div>
             
             <div class="menu-item" onclick="toggleAvatarSelect()">
-                <i class="fas fa-theater-masks" style="color: #d946ef;"></i>
-                <span>تغيير الأفاتار</span>
+                <i class="fas fa-theater-masks" style="color: #d946ef; font-size: 1.2rem;"></i>
+                <span style="font-size: 1rem;">تغيير الأفاتار</span>
             </div>
 
             <div class="menu-item" onclick="shareApp()">
-                <i class="fas fa-share-alt" style="color: var(--success);"></i>
-                <span>مشاركة المنصة</span>
+                <i class="fas fa-share-alt" style="color: var(--success); font-size: 1.2rem;"></i>
+                <span style="font-size: 1rem;">مشاركة المنصة</span>
             </div>
             
-            <div class="menu-item" style="border: 1px solid rgba(239, 68, 68, 0.3); background: rgba(239, 68, 68, 0.05);" onclick="logout()">
-                <i class="fas fa-sign-out-alt" style="color: var(--danger);"></i>
-                <span style="color: var(--danger);">تسجيل الخروج</span>
+            <div style="margin-top: auto;">
+                 <button class="glossy-black-btn danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </button>
             </div>
         </div>
     </div>
 
     <!-- AI Generator Modal -->
-    <div id="ai-gen-modal" class="hidden">
-        <div class="menu-content" style="background: #111; height: auto;">
-            <div style="text-align: center;">
-                <i class="fas fa-brain" style="font-size: 3rem; color: #d946ef; margin-bottom: 15px;"></i>
-                <h2>المولد الذكي للأسئلة</h2>
+    <div id="ai-gen-modal" class="full-screen-overlay">
+        <button class="shiny-back-btn" onclick="toggleAiGenerator()">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+
+        <div class="overlay-content">
+            <div style="text-align: center; margin-bottom: 20px; padding: 30px 0;">
+                <i class="fas fa-brain" style="font-size: 4rem; color: #d946ef; margin-bottom: 20px; text-shadow: 0 0 30px rgba(217, 70, 239, 0.4);"></i>
+                <h2 style="margin: 0;">SA EDU AI</h2>
+                <p style="color: #888;">اكتب الموضوع وسأقوم بإنشاء اختبار كامل لك</p>
             </div>
             
-            <textarea id="ai-gen-text" class="smart-input" rows="3" placeholder="اكتب الموضوع هنا..."></textarea>
+            <textarea id="ai-gen-text" class="smart-input" rows="4" placeholder="اكتب الموضوع هنا (مثال: الحرب العالمية الثانية، قوانين نيوتن...)" style="background: #111; border-color: #333;"></textarea>
             
-            <label class="smart-input" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                <i class="fas fa-image"></i> <span>رفع صورة للمنهج (اختياري)</span>
+            <label class="smart-input" style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #111; border-color: #333;">
+                <i class="fas fa-image" style="color: var(--accent-primary);"></i> <span>رفع صورة للمنهج (اختياري)</span>
                 <input type="file" id="ai-gen-img" hidden accept="image/*">
             </label>
-            <div id="ai-gen-preview" class="hidden" style="margin-bottom: 15px;"><img src="" style="height: 60px; border-radius: 8px;"></div>
+            <div id="ai-gen-preview" class="hidden" style="margin-bottom: 15px; text-align: center;"><img src="" style="height: 100px; border-radius: 12px; border: 1px solid #333;"></div>
             
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <input type="number" id="ai-gen-count" class="smart-input" value="5" placeholder="عدد الأسئلة">
-                <button onclick="generateAiQuestions()" class="modern-btn" style="background: #d946ef; color: white;">
-                    <i class="fas fa-magic"></i> توليد
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <span style="color: #aaa; white-space: nowrap;">عدد الأسئلة:</span>
+                <input type="number" id="ai-gen-count" class="smart-input" value="5" style="text-align: center; margin: 0;">
+            </div>
+
+            <div style="margin-top: auto;">
+                <button onclick="generateAiQuestions()" class="glossy-black-btn">
+                    <i class="fas fa-magic"></i> توليد الاختبار الآن
                 </button>
             </div>
-            <button onclick="toggleAiGenerator()" style="background: transparent; border: none; color: #888; width: 100%;">إلغاء</button>
         </div>
     </div>
 
-    <!-- Phone Number Modal (New) -->
+    <!-- Modals -->
     <div id="phone-modal" class="hidden">
-        <div class="menu-content" style="background: #111; height: auto; text-align:center;">
+        <div class="bottom-sheet-content" style="background: #111; height: auto; text-align:center;">
             <i class="fas fa-mobile-alt" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 15px;"></i>
             <h3>مطلوب رقم للتواصل</h3>
             <p style="color:#aaa; font-size:0.9rem; margin-bottom:20px;">يرجى إدخال رقم هاتف ولي الأمر أو رقمك الشخصي لحفظ النتائج.</p>
@@ -875,9 +1265,8 @@
         </div>
     </div>
 
-    <!-- Teacher Detail Modal (New) -->
     <div id="teacher-detail-modal" class="hidden">
-        <div class="menu-content" style="background: #111; max-height: 90vh;">
+        <div class="bottom-sheet-content" style="background: #111; max-height: 90vh;">
              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                  <h3 style="margin:0;">تفاصيل الطالب</h3>
                  <button onclick="document.getElementById('teacher-detail-modal').classList.add('hidden')" style="background:none; border:none; color:#fff;"><i class="fas fa-times fa-lg"></i></button>
@@ -893,7 +1282,6 @@
         </div>
     </div>
 
-    <!-- GLOBAL CUSTOM ALERT/CONFIRM MODAL -->
     <div id="sa-custom-alert" class="">
         <div class="sa-alert-box">
             <div id="sa-alert-icon" class="sa-alert-icon"></div>
@@ -923,7 +1311,7 @@
         const aiApiKey = "AIzaSyC5aKq0yTiEqDIVawe0HmvUgMBKOnS3IQ0";
 
         // Global State
-        let selectedRole = 'student'; // Default
+        let selectedRole = 'student'; 
         let currentUser = null;
         let currentQuestions = [];
         let currentImgBase64 = null;
@@ -939,6 +1327,62 @@
         let isEditingMode = false;
         let editingTestId = null;
 
+        // Reese State
+        let isMyPostsView = false;
+        let reeseImages = []; 
+
+        // ======== SCROLL BEHAVIOR FOR NAV ========
+        let lastScrollTop = 0;
+        window.addEventListener("scroll", function() {
+            let st = window.pageYOffset || document.documentElement.scrollTop;
+            if (st > lastScrollTop && st > 10){ // Reduced threshold for sensitivity
+                document.querySelector('.top-nav').classList.add('nav-hidden');
+            } else {
+                document.querySelector('.top-nav').classList.remove('nav-hidden');
+            }
+            lastScrollTop = st <= 0 ? 0 : st;
+        }, false);
+
+        // ======== HELPER FOR SKELETON LOADING ========
+        function getSkeletonHTML() {
+            return `
+            <div class="skeleton-loader">
+                <div class="skeleton-header">
+                    <div class="skeleton-circle"></div>
+                    <div class="skeleton-text">
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line" style="width:30%"></div>
+                    </div>
+                </div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line"></div>
+                <div class="skeleton-rect"></div>
+            </div>`;
+        }
+        function getMultipleSkeletons(count = 3) {
+            let html = ''; for(let i=0; i<count; i++) html += getSkeletonHTML(); return html;
+        }
+
+        // ======== HELPER FOR EMPTY STATES ========
+        function getEmptyStateHTML(type) {
+            if(type === 'posts') {
+                return `
+                <div class="empty-state-container">
+                    <div class="empty-avatar"><i class="fas fa-box-open" style="color:#666;"></i></div>
+                    <h3 style="color:#888;">لا توجد منشورات حالياً</h3>
+                    <p style="color:#555; font-size:0.9rem;">كن أول من يشارك أفكاره!</p>
+                </div>`;
+            } else if (type === 'exams') {
+                return `
+                <div class="empty-state-container">
+                    <div class="empty-avatar"><i class="fas fa-folder-open" style="color:#666;"></i></div>
+                    <h3 style="color:#888;">لا توجد اختبارات</h3>
+                    <p style="color:#555; font-size:0.9rem;">استمتع بوقتك، لا يوجد ضغط الآن.</p>
+                </div>`;
+            }
+            return '';
+        }
+
         // ======== CUSTOM ALERT SYSTEM ========
         window.saAlert = (msg, type = 'info', title = null) => {
             const modal = document.getElementById('sa-custom-alert');
@@ -947,32 +1391,15 @@
             const msgDiv = document.getElementById('sa-alert-msg');
             const actionsDiv = document.getElementById('sa-alert-actions');
 
-            // Reset
             actionsDiv.innerHTML = `<button class="sa-btn sa-btn-primary" onclick="closeSaAlert()">حسناً</button>`;
             
-            // Icon & Color Logic
-            let iconHtml = '';
-            let color = '#fff';
-            
-            if(type === 'success') {
-                iconHtml = '<i class="fas fa-check-circle"></i>';
-                color = 'var(--success)';
-                if(!title) title = 'نجاح';
-            } else if (type === 'error') {
-                iconHtml = '<i class="fas fa-times-circle"></i>';
-                color = 'var(--danger)';
-                if(!title) title = 'خطأ';
-            } else {
-                iconHtml = '<i class="fas fa-info-circle"></i>';
-                color = 'var(--accent-primary)';
-                if(!title) title = 'تنبيه';
-            }
+            let iconHtml = ''; let color = '#fff';
+            if(type === 'success') { iconHtml = '<i class="fas fa-check-circle"></i>'; color = 'var(--success)'; if(!title) title = 'نجاح'; } 
+            else if (type === 'error') { iconHtml = '<i class="fas fa-times-circle"></i>'; color = 'var(--danger)'; if(!title) title = 'خطأ'; } 
+            else { iconHtml = '<i class="fas fa-info-circle"></i>'; color = 'var(--accent-primary)'; if(!title) title = 'تنبيه'; }
 
-            iconDiv.innerHTML = iconHtml;
-            iconDiv.style.color = color;
-            titleDiv.innerText = title;
-            msgDiv.innerText = msg;
-
+            iconDiv.innerHTML = iconHtml; iconDiv.style.color = color;
+            titleDiv.innerText = title; msgDiv.innerText = msg;
             modal.classList.add('active');
         };
 
@@ -981,39 +1408,29 @@
             document.getElementById('sa-alert-icon').innerHTML = '<i class="fas fa-question-circle" style="color:var(--warning)"></i>';
             document.getElementById('sa-alert-title').innerText = 'تأكيد';
             document.getElementById('sa-alert-msg').innerText = msg;
-            
             const actionsDiv = document.getElementById('sa-alert-actions');
             actionsDiv.innerHTML = '';
             
             const btnYes = document.createElement('button');
-            btnYes.className = 'sa-btn sa-btn-primary';
-            btnYes.innerText = 'نعم، متابعة';
-            btnYes.style.background = 'var(--warning)';
+            btnYes.className = 'sa-btn sa-btn-primary'; btnYes.innerText = 'نعم، متابعة'; btnYes.style.background = 'var(--warning)';
             btnYes.onclick = () => { closeSaAlert(); onConfirm(); };
             
             const btnNo = document.createElement('button');
-            btnNo.className = 'sa-btn sa-btn-secondary';
-            btnNo.innerText = 'إلغاء';
+            btnNo.className = 'sa-btn sa-btn-secondary'; btnNo.innerText = 'إلغاء';
             btnNo.onclick = closeSaAlert;
             
-            actionsDiv.appendChild(btnNo);
-            actionsDiv.appendChild(btnYes);
-            
+            actionsDiv.appendChild(btnNo); actionsDiv.appendChild(btnYes);
             modal.classList.add('active');
         };
 
-        window.closeSaAlert = () => {
-            document.getElementById('sa-custom-alert').classList.remove('active');
-        };
+        window.closeSaAlert = () => { document.getElementById('sa-custom-alert').classList.remove('active'); };
 
         // ======== Ad Generation ========
         function createAdBanner() {
-            const container = document.createElement('div');
-            container.className = 'ad-banner';
+            const container = document.createElement('div'); container.className = 'ad-banner';
             const iframe = document.createElement('iframe');
             iframe.style.width = '468px'; iframe.style.height = '60px'; iframe.style.border = 'none';
             iframe.style.overflow = 'hidden'; iframe.style.maxWidth = '100%'; 
-            
             const adContent = `<html><body style="margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;"><script>atOptions={'key':'e0f63746bfceb42ce1134aaff1b6709d','format':'iframe','height':60,'width':468,'params':{}};<\/script><script src="https://www.highperformanceformat.com/e0f63746bfceb42ce1134aaff1b6709d/invoke.js"><\/script></body></html>`;
             container.appendChild(iframe);
             setTimeout(() => { const doc = iframe.contentWindow.document; doc.open(); doc.write(adContent); doc.close(); }, 100);
@@ -1021,9 +1438,7 @@
         }
 
         const getBase64 = (file) => new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
+            const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result);
         });
 
         // ======== User & Auth ========
@@ -1082,31 +1497,23 @@
             document.getElementById('auth-layer').classList.add('hidden');
             updateMenuInfo();
             
-            // Check for shared chat first
             const params = new URLSearchParams(window.location.search);
             const shareId = params.get('shareId');
             
             if (selectedRole === 'teacher') {
                 document.getElementById('teacher-app').classList.remove('hidden');
                 initTeacherApp();
-                if(shareId) {
-                    switchTab('t-ai');
-                    loadSharedChat(shareId, 't');
-                }
+                if(shareId) { switchTab('t-ai'); loadSharedChat(shareId, 't'); }
             } else {
                 document.getElementById('student-app').classList.remove('hidden');
-                loadStudentExams();
-                loadStudentGrades();
-                if(shareId) {
-                    switchTab('s-ai');
-                    loadSharedChat(shareId, 's');
-                }
+                loadStudentExams(); loadStudentGrades(); initStudentReese(); 
+                if(shareId) { switchTab('s-ai'); loadSharedChat(shareId, 's'); }
             }
         }
 
         // ======== Menu Logic ========
         window.toggleMenu = () => {
-            document.getElementById('menu-modal').classList.toggle('hidden');
+            document.getElementById('menu-modal').classList.toggle('open');
             document.getElementById('menu-edit-section').classList.add('hidden');
             document.getElementById('menu-avatar-section').classList.add('hidden');
         };
@@ -1120,11 +1527,13 @@
             document.getElementById('menu-avatar').style.color = color;
             document.getElementById('menu-avatar').style.borderColor = color;
             document.getElementById('edit-name-input').value = currentUser;
+            
+            const reeseAvs = document.querySelectorAll('.reese-avatar-mini');
+            reeseAvs.forEach(el => { el.innerHTML = `<i class="fas ${iconClass}" style="color:${color}"></i>`; });
         }
 
         window.toggleEditProfile = () => {
-            const sec = document.getElementById('menu-edit-section');
-            sec.classList.toggle('hidden');
+            document.getElementById('menu-edit-section').classList.toggle('hidden');
             document.getElementById('menu-avatar-section').classList.add('hidden');
         };
 
@@ -1137,108 +1546,296 @@
                 const data = snapshot.val();
                 await set(ref(db, `users/${selectedRole}s/${newName}`), data);
                 await remove(oldRef);
-                currentUser = newName;
-                localStorage.setItem('sa_user', newName);
-                updateMenuInfo();
-                saAlert("تم تغيير الاسم بنجاح", "success");
-                toggleEditProfile();
+                currentUser = newName; localStorage.setItem('sa_user', newName);
+                updateMenuInfo(); saAlert("تم تغيير الاسم بنجاح", "success"); toggleEditProfile();
             });
         };
 
         window.toggleAvatarSelect = () => {
-            const sec = document.getElementById('menu-avatar-section');
-            sec.classList.toggle('hidden');
+            document.getElementById('menu-avatar-section').classList.toggle('hidden');
             document.getElementById('menu-edit-section').classList.add('hidden');
         };
 
         window.saveAvatar = async (iconClass) => {
             localStorage.setItem('sa_icon', iconClass);
             await update(ref(db, `users/${selectedRole}s/${currentUser}`), { icon: iconClass });
-            updateMenuInfo();
-            toggleAvatarSelect();
+            updateMenuInfo(); toggleAvatarSelect();
         };
 
         window.logout = () => { localStorage.clear(); location.reload(); };
 
         window.shareApp = () => {
-            const url = window.location.href;
-            const text = "انضم لمنصة SA EDU التعليمية المتطورة!";
+            const url = window.location.href; const text = "انضم لمنصة SA EDU التعليمية المتطورة!";
             if (navigator.share) navigator.share({ title: 'SA EDU', text: text, url: url }).catch(err => console.log(err));
             else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المنصة!", "success")); }
         };
 
         // ======== Teacher Functions ========
         function initTeacherApp() {
-            loadTeacherTests();
-            renderOptionFields(); 
-            startNewChat('t'); // Always start fresh
+            loadTeacherTests(); renderOptionFields(); startNewChat('t'); loadReesePosts('t');
+            startTypewriter("cta-type-text", "اضغط هنا لكتابة الامتحان");
         }
+        function initStudentReese() { loadReesePosts('s'); }
+
+        function startTypewriter(elementId, text) {
+            const el = document.getElementById(elementId);
+            if(!el) return;
+            el.innerHTML = ""; let i = 0;
+            function type() { if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(type, 80); } }
+            type();
+        }
+        if(document.getElementById('landing-type-text')) { startTypewriter("landing-type-text", "منصة تعليمية ذكية تنقلك إلى آفاق المستقبل"); }
 
         window.switchTab = (tabId, btn) => {
             const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
             document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
-            if(btn) {
-                document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
+            if(btn) { document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
             if(tabId === 's-grades') loadStudentGrades();
             if(tabId === 's-exams') loadStudentExams();
-            
-            // AI Tab Handling
+            if(tabId === 't-library') startTypewriter("cta-type-text", "اضغط هنا لكتابة الامتحان");
             if(tabId === 't-ai' && !currentChatId) startNewChat('t');
             if(tabId === 's-ai' && !currentChatId) startNewChat('s');
         };
 
-        // ============ AI CHAT SYSTEM (Local Storage & Sharing) ============
-
-        // 1. Generate new chat ID
-        function generateChatId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2);
-        }
-
-        // 2. Start New Chat (Resets UI, sets ID)
-        window.startNewChat = (prefix) => {
-            currentChatId = generateChatId();
-            currentChatMessages = [];
-            isIncognito = false;
-            
-            // Reset UI
-            const msgs = document.getElementById(`${prefix}-ai-msgs`);
-            msgs.innerHTML = ''; 
-            
-            // Toggle Buttons Reset
-            document.getElementById(`${prefix}-incognito-btn`).classList.remove('active');
-            
-            // Render Welcome
-            renderAiWelcome(prefix);
-            
-            // Close History if open
-            toggleHistory(false);
+        // ============ REESE LOGIC (UPDATED) ============
+        window.openReeseCompose = () => {
+            document.getElementById('reese-compose-modal').classList.add('open');
+            const icon = localStorage.getItem('sa_icon');
+            const color = selectedRole === 'teacher' ? 'var(--accent-gold)' : 'var(--accent-primary)';
+            const frame = document.getElementById('compose-avatar');
+            frame.innerHTML = `<i class="fas ${icon}"></i>`;
+            frame.style.color = color; frame.style.borderColor = color;
+            document.getElementById('compose-name').innerText = currentUser;
+            reeseImages = []; renderReeseMediaPreview();
+        };
+        
+        window.closeReeseCompose = () => {
+            document.getElementById('reese-compose-modal').classList.remove('open');
+            document.getElementById('reese-text-input').value = '';
+            document.getElementById('reese-text-input').style.height = 'auto';
+            reeseImages = []; renderReeseMediaPreview();
         };
 
-        // 3. Render AI Welcome
+        window.handleReeseImageSelect = async (input) => {
+            if (input.files) {
+                if (input.files.length + reeseImages.length > 2) {
+                    saAlert("يمكنك اختيار صورتين فقط كحد أقصى", "error");
+                    return;
+                }
+                for (let i = 0; i < input.files.length; i++) {
+                    const base64 = await getBase64(input.files[i]);
+                    reeseImages.push(base64);
+                }
+                renderReeseMediaPreview();
+                input.value = ''; // Reset
+            }
+        };
+
+        function renderReeseMediaPreview() {
+            const div = document.getElementById('reese-media-preview');
+            div.innerHTML = '';
+            if (reeseImages.length > 0) div.classList.remove('hidden'); else div.classList.add('hidden');
+            
+            reeseImages.forEach((img, idx) => {
+                const item = document.createElement('div');
+                item.className = 'preview-item';
+                item.innerHTML = `
+                    <img src="${img}">
+                    <div class="remove-preview" onclick="removeReeseImage(${idx})"><i class="fas fa-times"></i></div>
+                `;
+                div.appendChild(item);
+            });
+        }
+
+        window.removeReeseImage = (idx) => { reeseImages.splice(idx, 1); renderReeseMediaPreview(); };
+
+        window.publishReese = async () => {
+            const text = document.getElementById('reese-text-input').value.trim();
+            if(!text && reeseImages.length === 0) return saAlert("اكتب شيئاً أو أضف صورة", "error");
+            
+            const postData = {
+                author: currentUser,
+                role: selectedRole,
+                icon: localStorage.getItem('sa_icon'),
+                content: text,
+                images: reeseImages, // Store images array
+                timestamp: Date.now(),
+                likes: 0
+            };
+            
+            await push(ref(db, 'posts'), postData);
+            closeReeseCompose();
+            saAlert("تم النشر بنجاح!", "success");
+        };
+
+        window.loadReesePosts = (prefix) => {
+            const container = document.getElementById(`reese-feed-container-${prefix}`);
+            // Show Skeleton while loading
+            container.innerHTML = getMultipleSkeletons(3);
+
+            onValue(ref(db, 'posts'), (snap) => {
+                container.innerHTML = '';
+                const data = snap.val();
+                if(!data) return container.innerHTML = getEmptyStateHTML('posts');
+                
+                // Get locally hidden posts
+                const hiddenPosts = JSON.parse(localStorage.getItem(`hidden_posts_${currentUser}`) || '[]');
+                const posts = Object.entries(data).map(([k,v]) => ({id:k, ...v})).sort((a,b) => b.timestamp - a.timestamp);
+                
+                let visibleCount = 0;
+
+                posts.forEach(post => {
+                    // Check local hidden list
+                    if(hiddenPosts.includes(post.id)) return;
+                    // Check My Posts Toggle
+                    if(isMyPostsView && post.author !== currentUser) return;
+
+                    visibleCount++;
+
+                    const date = new Date(post.timestamp).toLocaleDateString();
+                    const roleColor = post.role === 'teacher' ? 'var(--accent-gold)' : 'var(--accent-primary)';
+                    const isAuthor = post.author === currentUser;
+                    const likedPosts = JSON.parse(localStorage.getItem(`liked_posts_${currentUser}`) || '[]');
+                    const isLiked = likedPosts.includes(post.id);
+
+                    // Image Grid Logic
+                    let imagesHtml = '';
+                    if(post.images && post.images.length > 0) {
+                        const gridClass = post.images.length === 1 ? 'one-img' : 'two-imgs';
+                        imagesHtml = `<div class="reese-images-grid ${gridClass}">
+                            ${post.images.map(img => `<img src="${img}" class="reese-post-img" onclick="openImageViewer(this.src)">`).join('')}
+                        </div>`;
+                    }
+
+                    const div = document.createElement('div');
+                    div.className = 'reese-card';
+                    div.innerHTML = `
+                        <div class="reese-header">
+                            <div class="reese-user">
+                                <div class="avatar-frame" style="width:40px; height:40px; font-size:1.2rem; border-width:1px; margin:0; border-color:${roleColor}; color:${roleColor};">
+                                    <i class="fas ${post.icon}"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight:bold; font-size:0.95rem;">${post.author}</div>
+                                    <div style="font-size:0.7rem; color:#666;">${date}</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                ${isAuthor ? `<button onclick="deleteReese('${post.id}')" title="حذف نهائي" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1rem;"><i class="fas fa-trash-alt"></i></button>` : ''}
+                                <button onclick="hideReese('${post.id}')" title="إخفاء من هنا" style="background:none; border:none; color:#666; cursor:pointer; font-size:1rem;"><i class="fas fa-eye-slash"></i></button>
+                            </div>
+                        </div>
+                        <div class="reese-content">${post.content}</div>
+                        ${imagesHtml}
+                        <div class="reese-actions">
+                            <button class="reese-btn ${isLiked ? 'liked' : ''}" onclick="likeReese('${post.id}', ${post.likes || 0})">
+                                <i class="fas ${isLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i> <span>${post.likes || 0}</span>
+                            </button>
+                            <button class="reese-btn" onclick="shareReese('${post.content}')">
+                                <i class="fas fa-share"></i> مشاركة
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+
+                    // ====== INSERT AD BANNER BETWEEN EVERY POST ======
+                    container.appendChild(createAdBanner());
+                });
+
+                if(visibleCount === 0) container.innerHTML = getEmptyStateHTML('posts');
+            });
+        };
+
+        window.toggleMyPostsView = () => {
+            isMyPostsView = !isMyPostsView;
+            const prefix = selectedRole === 'teacher' ? 't' : 's';
+            // Visual feedback for icon
+            const icon = document.getElementById(`${prefix}-eraser-icon`);
+            if(isMyPostsView) { icon.style.color = 'var(--danger)'; } else { icon.style.color = '#aaa'; }
+            
+            loadReesePosts(prefix);
+            saAlert(isMyPostsView ? "عرض منشوراتك فقط (وضع الإدارة)" : "عرض كل المنشورات", "info");
+        };
+
+        window.likeReese = async (id, currentLikes) => {
+            const likedPosts = JSON.parse(localStorage.getItem(`liked_posts_${currentUser}`) || '[]');
+            const index = likedPosts.indexOf(id);
+            let newLikes = currentLikes;
+            if(index === -1) { likedPosts.push(id); newLikes++; } else { likedPosts.splice(index, 1); newLikes--; }
+            localStorage.setItem(`liked_posts_${currentUser}`, JSON.stringify(likedPosts));
+            await update(ref(db, `posts/${id}`), { likes: newLikes });
+        };
+
+        window.hideReese = (id) => {
+            saConfirm("إخفاء هذا المنشور من صفحتك؟", () => {
+                const hiddenPosts = JSON.parse(localStorage.getItem(`hidden_posts_${currentUser}`) || '[]');
+                hiddenPosts.push(id);
+                localStorage.setItem(`hidden_posts_${currentUser}`, JSON.stringify(hiddenPosts));
+                loadReesePosts(selectedRole === 'teacher' ? 't' : 's');
+            });
+        };
+
+        window.deleteReese = (id) => {
+            saConfirm("حذف هذا المنشور نهائياً؟ لا يمكن التراجع.", async () => {
+                await remove(ref(db, `posts/${id}`));
+                saAlert("تم الحذف", "success");
+            });
+        };
+        
+        // Simple Image Viewer helper
+        window.openImageViewer = (src) => {
+            const modal = document.createElement('div');
+            modal.style = "position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; display:flex; justify-content:center; align-items:center; cursor:pointer;";
+            modal.innerHTML = `<img src="${src}" style="max-width:95%; max-height:95%; border-radius:10px;">`;
+            modal.onclick = () => modal.remove();
+            document.body.appendChild(modal);
+        };
+
+        window.shareReese = (content) => {
+            if(navigator.share) { navigator.share({ title: 'Reese SA', text: content }).catch(e=>console.log(e)); } 
+            else { navigator.clipboard.writeText(content).then(() => saAlert("تم نسخ النص", "success")); }
+        };
+
+        window.generateAiReese = async () => {
+            saAlert("جاري توليد الاقتراح...", "info");
+            const prompt = `Write a short, engaging, and motivating post for a social feed in an educational app. The user is a ${selectedRole}. Write it in Arabic. Keep it under 200 characters.`;
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
+                const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
+                const data = await res.json();
+                document.getElementById('reese-text-input').value = data.candidates[0].content.parts[0].text;
+            } catch(e) { saAlert("فشل التوليد", "error"); }
+        };
+
+        // ============ AI CHAT SYSTEM ============
+        function generateChatId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+        window.startNewChat = (prefix) => {
+            currentChatId = generateChatId(); currentChatMessages = []; isIncognito = false;
+            document.getElementById(`${prefix}-ai-msgs`).innerHTML = ''; 
+            document.getElementById(`${prefix}-incognito-btn`).classList.remove('active');
+            renderAiWelcome(prefix); toggleHistory(false);
+        };
+
         window.renderAiWelcome = (prefix) => {
             const msgs = document.getElementById(`${prefix}-ai-msgs`);
+            const firstName = currentUser.split(' ')[0];
             msgs.innerHTML = `
                 <div class="ai-welcome-screen">
                     <div class="ai-logo-large"><i class="fas fa-wand-magic-sparkles"></i></div>
-                    <h3 class="ai-welcome-title">مرحباً ${currentUser} 👋</h3>
+                    <h3 class="ai-welcome-title">مرحباً ${firstName} 👋</h3>
                     <p class="ai-welcome-text">أنا مساعدك الذكي SA AI. كيف يمكنني مساعدتك اليوم؟</p>
                     <div class="ai-chips">
-                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'ساعدني في تحضير درس عن الجاذبية')">📝 تحضير درس</div>
-                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اكتب 5 أسئلة اختيار من متعدد عن التاريخ')">❓ إنشاء أسئلة</div>
-                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اشرح لي هذا المفهوم المعقد ببساطة')">💡 شرح مفهوم</div>
+                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'ساعدني في تحضير درس عن الجاذبية')"><i class="fas fa-book-open"></i> تحضير درس</div>
+                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اكتب 5 أسئلة اختيار من متعدد عن التاريخ')"><i class="fas fa-list-check"></i> إنشاء أسئلة</div>
+                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اشرح لي هذا المفهوم المعقد ببساطة')"><i class="fas fa-lightbulb"></i> شرح مفهوم</div>
                     </div>
-                </div>
-            `;
+                </div>`;
         };
 
-        window.fillAiInput = (prefix, text) => {
-            document.getElementById(`${prefix}-ai-input`).value = text;
-        };
+        window.fillAiInput = (prefix, text) => { document.getElementById(`${prefix}-ai-input`).value = text; };
 
-        // 4. Toggle Incognito
         window.toggleIncognito = (prefix) => {
             isIncognito = !isIncognito;
             document.getElementById(`${prefix}-incognito-btn`).classList.toggle('active', isIncognito);
@@ -1246,65 +1843,35 @@
             else saAlert("تم إيقاف الوضع المخفي", "info");
         };
 
-        // 5. Save Chat to Local Storage
         function saveChatToLocal() {
             if(isIncognito || currentChatMessages.length === 0) return;
-            
             const storageKey = `sa_chat_history_${currentUser}`;
             let history = JSON.parse(localStorage.getItem(storageKey) || '[]');
-            
-            // Find existing
             const existingIndex = history.findIndex(c => c.id === currentChatId);
-            
-            // Title is first user message or "New Chat"
             const firstUserMsg = currentChatMessages.find(m => m.role === 'user');
             const title = firstUserMsg ? (firstUserMsg.content.substring(0, 30) + '...') : 'محادثة جديدة';
-
-            const chatObj = {
-                id: currentChatId,
-                title: title,
-                timestamp: Date.now(),
-                messages: currentChatMessages
-            };
-
-            if(existingIndex > -1) {
-                history[existingIndex] = chatObj;
-            } else {
-                history.unshift(chatObj); // Add to top
-            }
-
+            const chatObj = { id: currentChatId, title: title, timestamp: Date.now(), messages: currentChatMessages };
+            if(existingIndex > -1) { history[existingIndex] = chatObj; } else { history.unshift(chatObj); }
             localStorage.setItem(storageKey, JSON.stringify(history));
         }
 
-        // 6. Sidebar History Logic
         window.toggleHistory = (show) => {
             const sidebar = document.getElementById('ai-history-sidebar');
-            if(show) {
-                sidebar.classList.add('open');
-                renderHistoryList();
-            } else {
-                sidebar.classList.remove('open');
-            }
+            if(show) { sidebar.classList.add('open'); renderHistoryList(); } else { sidebar.classList.remove('open'); }
         };
 
         function renderHistoryList() {
             const list = document.getElementById('ai-history-list');
-            const storageKey = `sa_chat_history_${currentUser}`;
-            const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
-            
+            const history = JSON.parse(localStorage.getItem(`sa_chat_history_${currentUser}`) || '[]');
             list.innerHTML = '';
-            if(history.length === 0) {
-                list.innerHTML = '<p style="color:#666; text-align:center; margin-top:20px;">لا يوجد سجل محادثات</p>';
-                return;
-            }
-
+            if(history.length === 0) { list.innerHTML = '<p style="color:#666; text-align:center; margin-top:20px;">لا يوجد سجل محادثات</p>'; return; }
             history.forEach(chat => {
                 const item = document.createElement('div');
                 item.className = 'history-item';
                 item.innerHTML = `
                     <div onclick="loadLocalChat('${chat.id}')">
                         <div class="history-title">${chat.title}</div>
-                        <span class="history-date">${new Date(chat.timestamp).toLocaleDateString()} ${new Date(chat.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span class="history-date">${new Date(chat.timestamp).toLocaleDateString()}</span>
                     </div>
                     <i class="fas fa-trash" style="color:#666; font-size:0.8rem; padding:5px;" onclick="deleteLocalChat('${chat.id}')"></i>
                 `;
@@ -1313,26 +1880,13 @@
         }
 
         window.loadLocalChat = (id) => {
-            const storageKey = `sa_chat_history_${currentUser}`;
-            const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            const history = JSON.parse(localStorage.getItem(`sa_chat_history_${currentUser}`) || '[]');
             const chat = history.find(c => c.id === id);
-            
             if(chat) {
-                currentChatId = chat.id;
-                currentChatMessages = chat.messages;
-                isIncognito = false;
-                
-                // Determine prefix based on role
+                currentChatId = chat.id; currentChatMessages = chat.messages; isIncognito = false;
                 const prefix = selectedRole === 'teacher' ? 't' : 's';
-                
-                // Re-render
-                const msgs = document.getElementById(`${prefix}-ai-msgs`);
-                msgs.innerHTML = '';
-                
-                currentChatMessages.forEach(msg => {
-                    renderMessageUI(prefix, msg.role, msg.content, msg.image);
-                });
-                
+                document.getElementById(`${prefix}-ai-msgs`).innerHTML = '';
+                currentChatMessages.forEach(msg => { renderMessageUI(prefix, msg.role, msg.content, msg.image); });
                 toggleHistory(false);
             }
         };
@@ -1349,170 +1903,102 @@
             });
         };
 
-        // 7. Share Current Chat (Firebase)
         window.shareCurrentChat = async () => {
             if(currentChatMessages.length === 0) return saAlert("لا يمكن مشاركة محادثة فارغة", "info");
-            
             saAlert("جاري إنشاء رابط للمشاركة...", "info");
-            
-            // Push to Firebase 'shared_chats'
             const shareRef = push(ref(db, 'shared_chats'));
-            await set(shareRef, {
-                author: currentUser,
-                timestamp: Date.now(),
-                messages: currentChatMessages
-            });
-
-            // Generate Link
-            const baseUrl = window.location.href.split('?')[0];
-            const shareLink = `${baseUrl}?shareId=${shareRef.key}`;
-            
-            navigator.clipboard.writeText(shareLink).then(() => {
-                saAlert("تم نسخ رابط المحادثة! أرسله لمن تريد.", "success");
-            });
+            await set(shareRef, { author: currentUser, timestamp: Date.now(), messages: currentChatMessages });
+            const shareLink = `${window.location.href.split('?')[0]}?shareId=${shareRef.key}`;
+            navigator.clipboard.writeText(shareLink).then(() => { saAlert("تم نسخ رابط المحادثة! أرسله لمن تريد.", "success"); });
         };
 
-        // 8. Load Shared Chat from URL
         window.loadSharedChat = async (shareId, prefix) => {
             const msgs = document.getElementById(`${prefix}-ai-msgs`);
             msgs.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري استرجاع المحادثة المشاركة...</div>';
-            
             const snap = await get(ref(db, `shared_chats/${shareId}`));
             if(snap.exists()) {
                 const data = snap.val();
-                currentChatMessages = data.messages || [];
-                // Start as a NEW chat ID for the recipient (Forking)
-                currentChatId = generateChatId();
-                isIncognito = false; // By default save shared chats if user continues
-                
-                // Force save immediately so it appears in their history
-                saveChatToLocal();
-
-                msgs.innerHTML = '';
+                currentChatMessages = data.messages || []; currentChatId = generateChatId(); isIncognito = false; saveChatToLocal();
                 msgs.innerHTML = `<div style="text-align:center; background:#222; padding:5px; margin-bottom:10px; font-size:0.8rem; border-radius:10px; color:#aaa;">تم استرجاع محادثة مشاركة من ${data.author || 'مجهول'}</div>`;
-                
-                currentChatMessages.forEach(msg => {
-                    renderMessageUI(prefix, msg.role, msg.content, msg.image);
-                });
-                
-                // Clear query param so refresh doesn't reload
+                currentChatMessages.forEach(msg => { renderMessageUI(prefix, msg.role, msg.content, msg.image); });
                 window.history.replaceState({}, document.title, window.location.pathname);
-            } else {
-                saAlert("رابط المشاركة غير صالح أو منتهي", "error");
-                startNewChat(prefix);
-            }
+            } else { saAlert("رابط المشاركة غير صالح أو منتهي", "error"); startNewChat(prefix); }
         };
 
-        // Render helper
         function renderMessageUI(prefix, role, text, imgB64) {
             const msgs = document.getElementById(`${prefix}-ai-msgs`);
-            const div = document.createElement('div');
-            div.className = `chat-msg ${role}`;
-            div.innerText = text;
-            
-            if(imgB64) {
-                const img = document.createElement('img');
-                img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`;
-                div.appendChild(img);
-            }
-            msgs.appendChild(div);
-            msgs.scrollTop = msgs.scrollHeight;
+            const div = document.createElement('div'); div.className = `chat-msg ${role}`; div.innerText = text;
+            if(imgB64) { const img = document.createElement('img'); img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`; div.appendChild(img); }
+            msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
         }
 
-        // ============ End of Chat System Logic ============
-
+        // ============ TEACHER TESTS ============
         function loadTeacherTests() {
             const list = document.getElementById('t-tests-list');
             const resultSelect = document.getElementById('t-result-select');
             
+            // SKELETON LOADING
+            list.innerHTML = getMultipleSkeletons(3);
+
             onValue(ref(db, 'tests'), (snap) => {
-                list.innerHTML = '';
-                resultSelect.innerHTML = '<option>اختر الاختبار للعرض</option>';
+                list.innerHTML = ''; resultSelect.innerHTML = '<option>اختر الاختبار للعرض</option>';
                 const data = snap.val() || {};
-                
+                let count = 0;
                 Object.entries(data).forEach(([key, val]) => {
                     if (val.teacher === currentUser) {
-                        const opt = document.createElement('option');
-                        opt.value = key; opt.innerText = val.title;
-                        resultSelect.appendChild(opt);
-
+                        count++;
+                        const opt = document.createElement('option'); opt.value = key; opt.innerText = val.title; resultSelect.appendChild(opt);
                         const hiddenStyle = val.isHidden ? 'opacity:0.6; border:1px dashed #666;' : '';
-                        const cardWrapper = document.createElement('div');
-                        cardWrapper.className = 'card-wrapper';
+                        const cardWrapper = document.createElement('div'); cardWrapper.className = 'card-wrapper';
                         cardWrapper.innerHTML = `
                             <div class="mini-card" style="${hiddenStyle}">
                                 <div class="card-header">
-                                    <div>
-                                        <h3 class="card-title">${val.title}</h3>
-                                        <div class="card-meta">
-                                            <span>${getGradeLabel(val.grade)}</span> • <span>${val.duration} دقيقة</span>
-                                        </div>
-                                    </div>
+                                    <div><h3 class="card-title">${val.title}</h3><div class="card-meta"><span>${getGradeLabel(val.grade)}</span> • <span>${val.duration} دقيقة</span></div></div>
                                     <div class="teacher-badge">نشط</div>
                                 </div>
                                 <div class="icon-actions">
-                                    <button class="action-icon edit" onclick="editTest('${key}')">
-                                        <i class="fas fa-pen"></i>
-                                    </button>
-                                    <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')">
-                                        <i class="fas fa-share-alt"></i>
-                                    </button>
-                                    <button class="action-icon gold" onclick="toggleTestVisibility('${key}', ${!val.isHidden})">
-                                        <i class="fas fa-eye${val.isHidden ? '' : '-slash'}"></i>
-                                    </button>
-                                    <button class="action-icon delete" onclick="deleteTest('${key}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <button class="action-icon edit" onclick="editTest('${key}')" title="تعديل"><i class="fas fa-pen"></i></button>
+                                    <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
+                                    <button class="action-icon gold" onclick="toggleTestVisibility('${key}', ${!val.isHidden})" title="إخفاء/إظهار"><i class="fas fa-eye${val.isHidden ? '' : '-slash'}"></i></button>
+                                    <button class="action-icon results-icon" onclick="openResultsTab('${key}')" title="النتائج"><i class="fas fa-chart-bar"></i></button>
+                                    <button class="action-icon delete" onclick="deleteTest('${key}')" title="حذف"><i class="fas fa-trash"></i></button>
                                 </div>
-                            </div>
-                        `;
-                        list.appendChild(cardWrapper);
-                        // ADD AD Banner for Teacher too
-                        list.appendChild(createAdBanner());
+                            </div>`;
+                        list.appendChild(cardWrapper); list.appendChild(createAdBanner());
                     }
                 });
+                if(count === 0) list.innerHTML = getEmptyStateHTML('exams');
             });
             resultSelect.onchange = (e) => loadTestResults(e.target.value);
         }
+        
+        window.openResultsTab = (testId) => { switchTab('t-results'); document.getElementById('t-result-select').value = testId; loadTestResults(testId); };
 
-        // New Dynamic Option Logic
         let optionCount = 2; 
         window.renderOptionFields = (preloadOptions = null, correctVal = null) => {
-            const container = document.getElementById('mcq-options-container');
-            container.innerHTML = '';
-            if(preloadOptions) {
-                preloadOptions.forEach(opt => { addOptionField(opt === correctVal, opt); });
-            } else {
-                addOptionField(true); addOptionField();
-            }
+            const container = document.getElementById('mcq-options-container'); container.innerHTML = '';
+            if(preloadOptions) { preloadOptions.forEach(opt => { addOptionField(opt === correctVal, opt); }); } 
+            else { addOptionField(true); addOptionField(); }
         };
 
         window.addOptionField = (isCorrect = false, value = '') => {
             const container = document.getElementById('mcq-options-container');
             if(container.children.length >= 6) return saAlert("الحد الأقصى 6 خيارات", "info");
-
-            const div = document.createElement('div');
-            div.className = 'option-row';
+            const div = document.createElement('div'); div.className = 'option-row';
             div.innerHTML = `
                 <input type="radio" name="correct_ans_select" class="option-radio" ${isCorrect ? 'checked' : ''}>
                 <input type="text" class="smart-input option-input ${isCorrect ? 'correct' : ''}" value="${value}" placeholder="خيار">
                 <button onclick="removeOption(this)" class="icon-btn-small" style="color:var(--danger); background:rgba(239,68,68,0.1);"><i class="fas fa-times"></i></button>
             `;
-            const radio = div.querySelector('input[type="radio"]');
-            radio.addEventListener('change', () => {
+            div.querySelector('input[type="radio"]').addEventListener('change', () => {
                 document.querySelectorAll('.option-input').forEach(i => i.classList.remove('correct'));
                 div.querySelector('.option-input').classList.add('correct');
             });
             container.appendChild(div);
         };
 
-        window.removeOption = (btn) => {
-            const container = document.getElementById('mcq-options-container');
-            if(container.children.length <= 2) return saAlert("يجب وجود خيارين على الأقل", "info");
-            btn.parentElement.remove();
-        };
+        window.removeOption = (btn) => { if(document.getElementById('mcq-options-container').children.length <= 2) return saAlert("يجب وجود خيارين على الأقل", "info"); btn.parentElement.remove(); };
 
-        // Question Creation
         document.getElementById('q-image-input').onchange = async (e) => {
             if(e.target.files[0]) {
                 currentImgBase64 = await getBase64(e.target.files[0]);
@@ -1523,71 +2009,48 @@
         };
 
         window.addQuestionToList = () => {
-            const text = document.getElementById('q-text').value;
-            const points = document.getElementById('q-points').value;
+            const text = document.getElementById('q-text').value; const points = document.getElementById('q-points').value;
             const rows = document.querySelectorAll('.option-row');
             let options = []; let correctVal = null; let hasEmpty = false;
-
             rows.forEach(row => {
                 const val = row.querySelector('.option-input').value.trim();
                 const isChecked = row.querySelector('input[type="radio"]').checked;
-                if(!val) hasEmpty = true;
-                options.push(val);
-                if(isChecked) correctVal = val;
+                if(!val) hasEmpty = true; options.push(val); if(isChecked) correctVal = val;
             });
-
             if(!text && !currentImgBase64) return saAlert("يجب إضافة نص للسؤال أو صورة", "error");
             if(hasEmpty) return saAlert("يرجى ملء جميع الخيارات", "error");
             if(!correctVal) return saAlert("يرجى تحديد الإجابة الصحيحة", "error");
-
             const questionObj = { text, points, image: currentImgBase64, options, correct: correctVal };
-            currentQuestions.push(questionObj);
-            renderAddedQuestions();
-            clearQuestionForm();
+            currentQuestions.push(questionObj); renderAddedQuestions(); clearQuestionForm();
         };
 
         function clearQuestionForm() {
-            document.getElementById('q-text').value = '';
-            document.getElementById('q-points').value = '1';
-            currentImgBase64 = null;
-            document.getElementById('q-image-input').value = '';
-            document.getElementById('q-img-preview').classList.add('hidden');
-            document.getElementById('q-img-label').innerText = "إرفاق صورة";
+            document.getElementById('q-text').value = ''; document.getElementById('q-points').value = '1';
+            currentImgBase64 = null; document.getElementById('q-image-input').value = '';
+            document.getElementById('q-img-preview').classList.add('hidden'); document.getElementById('q-img-label').innerText = "إرفاق صورة";
             renderOptionFields();
         }
 
         function renderAddedQuestions() {
-            const list = document.getElementById('added-questions-list');
-            list.innerHTML = '';
+            const list = document.getElementById('added-questions-list'); list.innerHTML = '';
             currentQuestions.forEach((q, idx) => {
-                const div = document.createElement('div');
-                div.className = 'mini-card';
+                const div = document.createElement('div'); div.className = 'mini-card';
                 div.style = "flex-direction:row; justify-content:space-between; align-items:center;";
                 div.innerHTML = `
-                    <div style="flex:1;">
-                        <span style="font-weight:bold;">س${idx + 1}:</span> ${q.text || 'سؤال صورة'} 
-                        ${q.image ? '<i class="fas fa-image" style="color:var(--accent-primary); margin-right:5px;"></i>' : ''}
-                    </div>
+                    <div style="flex:1;"><span style="font-weight:bold;">س${idx + 1}:</span> ${q.text || 'سؤال صورة'} ${q.image ? '<i class="fas fa-image" style="color:var(--accent-primary); margin-right:5px;"></i>' : ''}</div>
                     <div style="display:flex; gap:10px;">
                         <button onclick="editQuestion(${idx})" class="icon-btn-small" style="color:var(--accent-primary); background:rgba(59,130,246,0.1);"><i class="fas fa-pen"></i></button>
                         <button onclick="deleteQuestion(${idx})" class="icon-btn-small" style="color:var(--danger); background:rgba(239,68,68,0.1);"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
+                    </div>`;
                 list.appendChild(div);
             });
         }
 
-        window.deleteQuestion = (idx) => {
-            saConfirm("حذف السؤال؟", () => {
-                currentQuestions.splice(idx, 1);
-                renderAddedQuestions();
-            });
-        };
+        window.deleteQuestion = (idx) => { saConfirm("حذف السؤال؟", () => { currentQuestions.splice(idx, 1); renderAddedQuestions(); }); };
 
         window.editQuestion = (idx) => {
             const q = currentQuestions[idx];
-            document.getElementById('q-text').value = q.text;
-            document.getElementById('q-points').value = q.points;
+            document.getElementById('q-text').value = q.text; document.getElementById('q-points').value = q.points;
             if(q.image) {
                 currentImgBase64 = q.image;
                 document.getElementById('q-img-preview').classList.remove('hidden');
@@ -1595,165 +2058,83 @@
                 document.getElementById('q-img-label').innerText = "صورة موجودة";
             }
             renderOptionFields(q.options, q.correct);
-            currentQuestions.splice(idx, 1);
-            renderAddedQuestions();
+            currentQuestions.splice(idx, 1); renderAddedQuestions();
             document.getElementById('q-editor-box').scrollIntoView({behavior: 'smooth'});
         };
 
-        // ========= Save & Edit Logic ==========
         window.resetCreateForm = () => {
-            document.getElementById('new-test-name').value = '';
-            document.getElementById('new-test-grade').value = '';
-            document.getElementById('new-test-duration').value = '';
+            document.getElementById('new-test-name').value = ''; document.getElementById('new-test-grade').value = ''; document.getElementById('new-test-duration').value = '';
             document.getElementById('custom-grade-input').classList.add('hidden');
             document.getElementById('create-page-title').innerText = "اختبار جديد";
             document.getElementById('btn-save-test').innerHTML = '<i class="fas fa-save"></i> نشر الاختبار النهائي';
-            currentQuestions = [];
-            renderAddedQuestions();
-            clearQuestionForm();
-            isEditingMode = false;
-            editingTestId = null;
+            currentQuestions = []; renderAddedQuestions(); clearQuestionForm(); isEditingMode = false; editingTestId = null;
         };
 
         window.editTest = async (testId) => {
             const snap = await get(ref(db, `tests/${testId}`));
             if(!snap.exists()) return saAlert("الاختبار غير موجود", "error");
-            
-            const data = snap.val();
-            isEditingMode = true;
-            editingTestId = testId;
-
-            // Switch to Create Tab
+            const data = snap.val(); isEditingMode = true; editingTestId = testId;
             switchTab('t-create');
             document.getElementById('create-page-title').innerText = "تعديل الاختبار: " + data.title;
             document.getElementById('btn-save-test').innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
-            
-            // Populate Fields
-            document.getElementById('new-test-name').value = data.title;
-            document.getElementById('new-test-duration').value = data.duration;
-            
-            // Handle Grade
-            const gradeSelect = document.getElementById('new-test-grade');
-            const options = Array.from(gradeSelect.options).map(o => o.value);
-            if(options.includes(data.grade)) {
-                gradeSelect.value = data.grade;
-                document.getElementById('custom-grade-input').classList.add('hidden');
-            } else {
-                gradeSelect.value = 'custom';
-                document.getElementById('custom-grade-input').classList.remove('hidden');
-                document.getElementById('custom-grade-input').value = data.grade;
-            }
-
-            // Populate Questions
-            currentQuestions = data.questions || [];
-            if(!Array.isArray(currentQuestions)) currentQuestions = Object.values(currentQuestions);
+            document.getElementById('new-test-name').value = data.title; document.getElementById('new-test-duration').value = data.duration;
+            const gradeSelect = document.getElementById('new-test-grade'); const options = Array.from(gradeSelect.options).map(o => o.value);
+            if(options.includes(data.grade)) { gradeSelect.value = data.grade; document.getElementById('custom-grade-input').classList.add('hidden'); } 
+            else { gradeSelect.value = 'custom'; document.getElementById('custom-grade-input').classList.remove('hidden'); document.getElementById('custom-grade-input').value = data.grade; }
+            currentQuestions = data.questions || []; if(!Array.isArray(currentQuestions)) currentQuestions = Object.values(currentQuestions);
             renderAddedQuestions();
         };
 
         window.saveTest = async () => {
             const title = document.getElementById('new-test-name').value;
-            let grade = document.getElementById('new-test-grade').value;
-            if(grade === 'custom') grade = document.getElementById('custom-grade-input').value;
+            let grade = document.getElementById('new-test-grade').value; if(grade === 'custom') grade = document.getElementById('custom-grade-input').value;
             const duration = document.getElementById('new-test-duration').value;
-
             if(!title || !grade || !duration || currentQuestions.length === 0) return saAlert("البيانات ناقصة (تأكد من إضافة سؤال واحد على الأقل)", "error");
-
-            const payload = {
-                teacher: currentUser, title, grade, duration,
-                questions: currentQuestions, timestamp: Date.now(), isHidden: false
-            };
-
-            if (isEditingMode && editingTestId) {
-                // Update Existing
-                await update(ref(db, `tests/${editingTestId}`), payload);
-                saAlert("تم تعديل الاختبار بنجاح!", "success");
-            } else {
-                // Create New
-                await push(ref(db, 'tests'), payload);
-                saAlert("تم نشر الاختبار بنجاح!", "success");
-            }
-            
-            resetCreateForm();
-            switchTab('t-library');
+            const payload = { teacher: currentUser, title, grade, duration, questions: currentQuestions, timestamp: Date.now(), isHidden: false };
+            if (isEditingMode && editingTestId) { await update(ref(db, `tests/${editingTestId}`), payload); saAlert("تم تعديل الاختبار بنجاح!", "success"); } 
+            else { await push(ref(db, 'tests'), payload); saAlert("تم نشر الاختبار بنجاح!", "success"); }
+            resetCreateForm(); switchTab('t-library');
         };
 
-        // Helpers
-        window.checkCustomGrade = (el) => {
-            document.getElementById('custom-grade-input').classList.toggle('hidden', el.value !== 'custom');
-        };
+        window.checkCustomGrade = (el) => { document.getElementById('custom-grade-input').classList.toggle('hidden', el.value !== 'custom'); };
+        window.toggleTestVisibility = (k, s) => { update(ref(db, `tests/${k}`), { isHidden: s }); saAlert(s ? "تم إخفاء الاختبار عن الطلاب" : "الاختبار الآن مرئي للطلاب", "info"); };
+        window.deleteTest = (k) => { saConfirm("هل أنت متأكد من حذف هذا الاختبار؟", () => { remove(ref(db, `tests/${k}`)); remove(ref(db, `results/${k}`)); saAlert("تم الحذف بنجاح", "success"); }); };
         
-        window.toggleTestVisibility = (k, s) => {
-            update(ref(db, `tests/${k}`), { isHidden: s });
-            // Alert user visually
-            const msg = s ? "تم إخفاء الاختبار عن الطلاب" : "الاختبار الآن مرئي للطلاب";
-            saAlert(msg, "info");
-        };
-
-        window.deleteTest = (k) => { 
-            saConfirm("هل أنت متأكد من حذف هذا الاختبار؟ سيتم حذف جميع النتائج المرتبطة به.", () => {
-                remove(ref(db, `tests/${k}`));
-                remove(ref(db, `results/${k}`)); 
-                saAlert("تم الحذف بنجاح", "success");
-            });
-        };
-
         window.shareTest = (title, id) => {
-            const url = window.location.href; // In a real app we would append ?testId=${id}
-            const text = `ندعوكم لأداء اختبار "${title}" مع الأستاذ ${currentUser} على منصة SA EDU.`;
-            
-            // Create a temporary text area to copy customized text
-            const copyText = `${text}\n${url}`;
-
-            if(navigator.share) {
-                navigator.share({ title: 'SA EDU Exam', text: text, url: url }).catch(err=>console.log(err));
-            } else {
-                navigator.clipboard.writeText(copyText).then(() => saAlert("تم نسخ تفاصيل ورابط الاختبار!", "success"));
-            }
+            const url = window.location.href; const text = `ندعوكم لأداء اختبار "${title}" مع الأستاذ ${currentUser} على منصة SA EDU.`; const copyText = `${text}\n${url}`;
+            if(navigator.share) { navigator.share({ title: 'SA EDU Exam', text: text, url: url }).catch(err=>console.log(err)); } 
+            else { navigator.clipboard.writeText(copyText).then(() => saAlert("تم نسخ تفاصيل ورابط الاختبار!", "success")); }
         };
         function getGradeLabel(c) { return ({'1p':'1 ابتدائي','3s':'3 ثانوي'})[c] || c; }
 
         // ======== Teacher Results ========
         window.loadTestResults = (testId) => {
             if(!testId || testId.includes('اختر')) return;
-            const div = document.getElementById('t-results-container');
-            div.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i></div>';
-            
+            const div = document.getElementById('t-results-container'); div.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i></div>';
             get(ref(db, `results/${testId}`)).then(async snap => {
                 div.innerHTML = '';
                 if(!snap.exists()) return div.innerHTML = '<p style="text-align:center; color:#666;">لا توجد نتائج لهذا الاختبار بعد</p>';
-                
                 snap.forEach(c => {
-                    const studentName = c.key;
-                    const v = c.val();
-                    const color = v.percentage >= 50 ? 'var(--success)' : 'var(--danger)';
-                    const el = document.createElement('div');
-                    el.className = 'mini-card';
+                    const studentName = c.key; const v = c.val(); const color = v.percentage >= 50 ? 'var(--success)' : 'var(--danger)';
+                    const el = document.createElement('div'); el.className = 'mini-card';
                     el.style = "flex-direction:row; justify-content:space-between; align-items:center; margin-bottom:10px;";
                     el.innerHTML = `
-                        <div>
-                            <span style="font-weight:bold; display:block;">${studentName}</span>
-                            <span style="font-size:0.8rem; color:#888;">${new Date(v.timestamp).toLocaleDateString()}</span>
-                        </div>
+                        <div><span style="font-weight:bold; display:block;">${studentName}</span><span style="font-size:0.8rem; color:#888;">${new Date(v.timestamp).toLocaleDateString()}</span></div>
                         <div style="display:flex; align-items:center; gap:10px;">
                             <span style="font-weight:bold; color:${color}; font-size:1.1rem;">${v.percentage}%</span>
                             <button class="action-icon view" onclick="viewStudentDetails('${testId}', '${studentName}')"><i class="fas fa-eye"></i></button>
-                        </div>
-                    `;
+                        </div>`;
                     div.appendChild(el);
                 });
             });
         };
 
         window.viewStudentDetails = async (testId, studentName) => {
-            let phone = "غير مسجل";
-            const userSnap = await get(ref(db, `users/students/${studentName}`));
+            let phone = "غير مسجل"; const userSnap = await get(ref(db, `users/students/${studentName}`));
             if(userSnap.exists() && userSnap.val().phone) phone = userSnap.val().phone;
-            const resSnap = await get(ref(db, `results/${testId}/${studentName}`));
-            const res = resSnap.val();
-            document.getElementById('td-name').innerText = studentName;
-            document.getElementById('td-phone').innerText = phone;
-            const list = document.getElementById('td-answers-list');
-            list.innerHTML = '';
+            const resSnap = await get(ref(db, `results/${testId}/${studentName}`)); const res = resSnap.val();
+            document.getElementById('td-name').innerText = studentName; document.getElementById('td-phone').innerText = phone;
+            const list = document.getElementById('td-answers-list'); list.innerHTML = '';
             if (res.details && Array.isArray(res.details)) {
                 res.details.forEach((d, i) => {
                     const statusColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
@@ -1763,8 +2144,7 @@
                             ${d.image ? `<img src="${d.image}" style="max-width:100%; height:auto; border-radius:8px; margin-bottom:10px;">` : ''}
                             <div style="font-size:0.9rem; color:#aaa;">إجابة الطالب: <span style="color:#fff;">${d.user}</span></div>
                             ${!d.isCorrect ? `<div style="font-size:0.9rem; color:var(--success);">الصحيحة: ${d.correct}</div>` : ''}
-                        </div>
-                    `;
+                        </div>`;
                 });
             } else { list.innerHTML = '<p>لا توجد تفاصيل.</p>'; }
             document.getElementById('teacher-detail-modal').classList.remove('hidden');
@@ -1773,54 +2153,29 @@
         // ======== Student Logic ========
         function loadStudentExams() {
             const list = document.getElementById('s-exams-list');
-            list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;"><i class="fas fa-spinner fa-spin"></i> جاري البحث عن اختبارات...</div>';
             
+            // SKELETON LOADING
+            list.innerHTML = getMultipleSkeletons(3);
+
             onValue(ref(db, 'tests'), async (snap) => {
-                list.innerHTML = '';
-                const tests = snap.val();
-                
-                if (!tests) {
-                    list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">لا توجد اختبارات متاحة حالياً.</div>';
-                    return;
-                }
-                
+                list.innerHTML = ''; const tests = snap.val();
+                if (!tests) return list.innerHTML = getEmptyStateHTML('exams');
                 let foundExam = false;
-
-                // Process in parallel for speed
                 const promises = Object.entries(tests).map(async ([key, val]) => {
-                    // Check if strictly hidden (true). If undefined or false, show it.
                     if (val.isHidden === true) return null;
-
                     const resSnap = await get(ref(db, `results/${key}/${currentUser}`));
-                    const hasTaken = resSnap.exists();
-                    return { key, val, hasTaken, score: hasTaken ? resSnap.val().percentage : null };
+                    return { key, val, hasTaken: resSnap.exists(), score: resSnap.exists() ? resSnap.val().percentage : null };
                 });
-
                 const results = await Promise.all(promises);
-
                 results.forEach(item => {
-                    if(!item) return; // Hidden exam
-                    foundExam = true;
-                    const { key, val, hasTaken, score } = item;
-
-                    const cardWrapper = document.createElement('div');
-                    cardWrapper.className = 'card-wrapper';
-                    
-                    let buttonsHtml = '';
-                    if (hasTaken) {
-                         buttonsHtml = `
-                            <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
-                            <button class="action-icon edit" onclick="checkPhoneAndStart('${key}')" title="إعادة الاختبار"><i class="fas fa-redo"></i></button>
-                            <button class="action-icon gold" onclick="reviewTest('${key}')" title="مراجعة"><i class="fas fa-file-alt"></i></button>
-                         `;
-                    } else {
-                        buttonsHtml = `
-                             <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
-                             <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white; justify-content:center;" onclick="checkPhoneAndStart('${key}')">
-                                <i class="fas fa-rocket"></i> ابدأ الآن
-                             </button>
-                        `;
-                    }
+                    if(!item) return; foundExam = true; const { key, val, hasTaken, score } = item;
+                    const cardWrapper = document.createElement('div'); cardWrapper.className = 'card-wrapper';
+                    let buttonsHtml = hasTaken ? 
+                        `<button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
+                         <button class="action-icon edit" onclick="checkPhoneAndStart('${key}')" title="إعادة الاختبار"><i class="fas fa-redo"></i></button>
+                         <button class="action-icon gold" onclick="reviewTest('${key}')" title="مراجعة"><i class="fas fa-file-alt"></i></button>` :
+                        `<button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
+                         <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white; justify-content:center;" onclick="checkPhoneAndStart('${key}')"><i class="fas fa-rocket"></i> ابدأ الآن</button>`;
 
                     cardWrapper.innerHTML = `
                         <div class="mini-card">
@@ -1828,54 +2183,33 @@
                                 <div><h3 class="card-title">${val.title}</h3><div class="card-meta"><span>${val.teacher}</span> • ${val.duration} دقيقة</div></div>
                                 ${hasTaken ? `<span style="color:var(--success); font-weight:bold;">${score}%</span>` : ''}
                             </div>
-                            <div class="icon-actions">
-                                ${buttonsHtml}
-                            </div>
+                            <div class="icon-actions">${buttonsHtml}</div>
                         </div>`;
-                    list.appendChild(cardWrapper);
-                    
-                    // ADD AD Banner between tests
-                    list.appendChild(createAdBanner());
+                    list.appendChild(cardWrapper); list.appendChild(createAdBanner());
                 });
-
-                if(!foundExam) list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">لا توجد اختبارات متاحة لك حالياً.</div>';
+                if(!foundExam) list.innerHTML = getEmptyStateHTML('exams');
             });
         }
 
-        // Student Grades Tab
         window.loadStudentGrades = () => {
              const list = document.getElementById('s-grades-list');
-             list.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> جارِ التحميل...</div>';
+             // SKELETON
+             list.innerHTML = getMultipleSkeletons(2);
              
              get(ref(db, 'tests')).then(async (testSnap) => {
-                 list.innerHTML = '';
-                 const tests = testSnap.val() || {};
-                 let foundAny = false;
-
+                 list.innerHTML = ''; const tests = testSnap.val() || {}; let foundAny = false;
                  for(const [testId, testData] of Object.entries(tests)) {
                      const resSnap = await get(ref(db, `results/${testId}/${currentUser}`));
                      if(resSnap.exists()) {
-                         foundAny = true;
-                         const res = resSnap.val();
+                         foundAny = true; const res = resSnap.val();
                          const color = res.percentage >= 90 ? 'var(--accent-gold)' : (res.percentage >= 50 ? 'var(--success)' : 'var(--danger)');
-                         
-                         const div = document.createElement('div');
-                         div.className = 'mini-card';
+                         const div = document.createElement('div'); div.className = 'mini-card';
                          div.innerHTML = `
                             <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <div>
-                                    <h3 style="font-size:1rem; margin:0;">${testData.title}</h3>
-                                    <span style="font-size:0.8rem; color:#888;">${new Date(res.timestamp).toLocaleDateString()}</span>
-                                </div>
-                                <div style="text-align:left;">
-                                    <div style="font-weight:bold; font-size:1.4rem; color:${color};">${res.percentage}%</div>
-                                    <div style="font-size:0.8rem; color:#aaa;">${res.score} / ${res.total}</div>
-                                </div>
+                                <div><h3 style="font-size:1rem; margin:0;">${testData.title}</h3><span style="font-size:0.8rem; color:#888;">${new Date(res.timestamp).toLocaleDateString()}</span></div>
+                                <div style="text-align:left;"><div style="font-weight:bold; font-size:1.4rem; color:${color};">${res.percentage}%</div><div style="font-size:0.8rem; color:#aaa;">${res.score} / ${res.total}</div></div>
                             </div>
-                            <button onclick="reviewTest('${testId}')" class="modern-btn secondary" style="margin-top:10px; font-size:0.8rem; padding:8px; justify-content: center;">
-                                <i class="fas fa-list-alt"></i> مراجعة التفاصيل
-                            </button>
-                         `;
+                            <button onclick="reviewTest('${testId}')" class="modern-btn secondary" style="margin-top:10px; font-size:0.8rem; padding:8px; justify-content: center;"><i class="fas fa-list-alt"></i> مراجعة التفاصيل</button>`;
                          list.appendChild(div);
                      }
                  }
@@ -1883,77 +2217,43 @@
              });
         };
 
-        // Taking Exam Logic with Phone Check
         let tempTestId = null;
         window.checkPhoneAndStart = async (id) => {
-            tempTestId = id;
-            const userSnap = await get(ref(db, `users/students/${currentUser}`));
-            if(userSnap.exists() && userSnap.val().phone) {
-                startTest(id);
-            } else {
-                document.getElementById('phone-modal').classList.remove('hidden');
-            }
+            tempTestId = id; const userSnap = await get(ref(db, `users/students/${currentUser}`));
+            if(userSnap.exists() && userSnap.val().phone) startTest(id); else document.getElementById('phone-modal').classList.remove('hidden');
         };
 
         window.savePhoneAndStart = async () => {
             const phone = document.getElementById('student-phone-input').value.trim();
             if(!phone || phone.length < 10) return saAlert("يرجى إدخال رقم صحيح", "error");
             await update(ref(db, `users/students/${currentUser}`), { phone: phone });
-            document.getElementById('phone-modal').classList.add('hidden');
-            startTest(tempTestId);
+            document.getElementById('phone-modal').classList.add('hidden'); startTest(tempTestId);
         };
 
-        let activeTest = null;
-        let timerInt = null;
-        let answers = {};
+        let activeTest = null; let timerInt = null; let answers = {};
 
         window.startTest = async (id) => {
             const snap = await get(ref(db, `tests/${id}`));
-            if (!snap.exists()) {
-                saAlert("عذراً، هذا الاختبار لم يعد موجوداً.", "error");
-                return;
-            }
-            activeTest = snap.val();
-            activeTest.id = id;
-            
-            if (!activeTest.questions) {
-                activeTest.questions = [];
-            } else if (!Array.isArray(activeTest.questions)) {
-                activeTest.questions = Object.values(activeTest.questions);
-            }
-
+            if (!snap.exists()) return saAlert("عذراً، هذا الاختبار لم يعد موجوداً.", "error");
+            activeTest = snap.val(); activeTest.id = id;
+            if (!activeTest.questions) activeTest.questions = []; else if (!Array.isArray(activeTest.questions)) activeTest.questions = Object.values(activeTest.questions);
             answers = {};
-            document.getElementById('s-taking-test').classList.remove('hidden');
-            document.getElementById('active-test-title').innerText = activeTest.title;
-            
-            const div = document.getElementById('test-questions-render');
-            div.innerHTML = '';
-            
-            if (activeTest.questions.length === 0) {
-                div.innerHTML = '<p style="text-align:center;">لا توجد أسئلة في هذا الاختبار.</p>';
-            } else {
+            document.getElementById('s-taking-test').classList.remove('hidden'); document.getElementById('active-test-title').innerText = activeTest.title;
+            const div = document.getElementById('test-questions-render'); div.innerHTML = '';
+            if (activeTest.questions.length === 0) { div.innerHTML = '<p style="text-align:center;">لا توجد أسئلة في هذا الاختبار.</p>'; } else {
                 activeTest.questions.forEach((q, i) => {
-                    if (!q.options) q.options = [];
-                    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+                    if (!q.options) q.options = []; const shuffled = [...q.options].sort(() => Math.random() - 0.5);
                     div.innerHTML += `
                         <div style="margin-bottom:25px;">
                             <p style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${i+1}. ${q.text}</p>
                             ${q.image ? `<img src="${q.image}" style="max-width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
-                            ${shuffled.map(o => `
-                                <label class="mini-card" style="flex-direction:row; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px; padding:12px;">
-                                    <input type="radio" name="q${i}" value="${o}" onchange="saveAns(${i}, '${o}')">
-                                    <span>${o}</span>
-                                </label>`).join('')}
+                            ${shuffled.map(o => `<label class="mini-card" style="flex-direction:row; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px; padding:12px;"><input type="radio" name="q${i}" value="${o}" onchange="saveAns(${i}, '${o}')"><span>${o}</span></label>`).join('')}
                         </div>`;
                 });
             }
-
-            let time = activeTest.duration * 60;
-            clearInterval(timerInt);
+            let time = activeTest.duration * 60; clearInterval(timerInt);
             timerInt = setInterval(() => {
-                time--;
-                const m = Math.floor(time/60), s = time%60;
-                document.getElementById('test-timer').innerText = `${m}:${s<10?'0'+s:s}`;
+                time--; const m = Math.floor(time/60), s = time%60; document.getElementById('test-timer').innerText = `${m}:${s<10?'0'+s:s}`;
                 if(time<=0) submitExam();
             }, 1000);
         };
@@ -1962,75 +2262,46 @@
         window.closeExam = () => { saConfirm("خروج من الامتحان؟ ستفقد تقدمك.", () => { clearInterval(timerInt); document.getElementById('s-taking-test').classList.add('hidden'); }); };
         
         window.submitExam = async () => {
-            clearInterval(timerInt);
-            let score = 0, total = 0, details = [];
+            clearInterval(timerInt); let score = 0, total = 0, details = [];
             const questions = activeTest.questions || [];
-            
             questions.forEach((q, i) => {
-                const pts = parseInt(q.points) || 1;
-                total += pts;
-                const isCorrect = answers[i] === q.correct;
-                if(isCorrect) score += pts;
-                details.push({ 
-                    q: q.text, 
-                    image: q.image || null, // Saving Image here
-                    user: answers[i]||'-', 
-                    correct: q.correct, 
-                    isCorrect 
-                });
+                const pts = parseInt(q.points) || 1; total += pts; const isCorrect = answers[i] === q.correct;
+                if(isCorrect) score += pts; details.push({ q: q.text, image: q.image || null, user: answers[i]||'-', correct: q.correct, isCorrect });
             });
-            
             const pct = total === 0 ? 0 : Math.round((score/total)*100);
             await set(ref(db, `results/${activeTest.id}/${currentUser}`), { score, total, percentage: pct, timestamp: Date.now(), details });
             saAlert(`تم التسليم! النتيجة: ${pct}%`, "success");
-            document.getElementById('s-taking-test').classList.add('hidden');
-            loadStudentExams();
-            loadStudentGrades(); 
+            document.getElementById('s-taking-test').classList.add('hidden'); loadStudentExams(); loadStudentGrades(); 
         };
 
         window.reviewTest = async (id) => {
             const resSnap = await get(ref(db, `results/${id}/${currentUser}`));
             if(!resSnap.exists()) return saAlert("لم تقم بهذا الاختبار", "info");
             const res = resSnap.val();
-            
-            const div = document.getElementById('review-content');
-            div.innerHTML = `<h1 style="text-align:center; color:var(--accent-primary); margin-bottom:20px;">${res.percentage}%</h1>`;
-            
+            const div = document.getElementById('review-content'); div.innerHTML = `<h1 style="text-align:center; color:var(--accent-primary); margin-bottom:20px;">${res.percentage}%</h1>`;
             if (res.details && Array.isArray(res.details)) {
                 res.details.forEach((d, i) => {
                     const borderColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
                     const icon = d.isCorrect ? '<i class="fas fa-check-circle" style="color:var(--success)"></i>' : '<i class="fas fa-times-circle" style="color:var(--danger)"></i>';
                     div.innerHTML += `
                         <div class="mini-card" style="border-right:4px solid ${borderColor}">
-                            <div style="display:flex; justify-content:space-between;">
-                                <strong>س${i+1}: ${d.q}</strong>
-                                ${icon}
-                            </div>
+                            <div style="display:flex; justify-content:space-between;"><strong>س${i+1}: ${d.q}</strong>${icon}</div>
                             ${d.image ? `<img src="${d.image}" style="max-width:100%; height:auto; border-radius:8px; margin-top:10px;">` : ''}
-                            <div style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">
-                                <p style="margin:0; font-size:0.9rem; color:#aaa;">إجابتك:</p>
-                                <p style="margin:5px 0 0 0; font-weight:bold; color:${d.isCorrect ? 'var(--success)' : 'var(--danger)'}">${d.user}</p>
-                            </div>
-                            ${!d.isCorrect ? `
-                            <div style="margin-top:5px; background:rgba(16, 185, 129, 0.1); padding:10px; border-radius:8px;">
-                                <p style="margin:0; font-size:0.9rem; color:var(--success);">الإجابة الصحيحة:</p>
-                                <p style="margin:5px 0 0 0; font-weight:bold;">${d.correct}</p>
-                            </div>` : ''}
+                            <div style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;"><p style="margin:0; font-size:0.9rem; color:#aaa;">إجابتك:</p><p style="margin:5px 0 0 0; font-weight:bold; color:${d.isCorrect ? 'var(--success)' : 'var(--danger)'}">${d.user}</p></div>
+                            ${!d.isCorrect ? `<div style="margin-top:5px; background:rgba(16, 185, 129, 0.1); padding:10px; border-radius:8px;"><p style="margin:0; font-size:0.9rem; color:var(--success);">الإجابة الصحيحة:</p><p style="margin:5px 0 0 0; font-weight:bold;">${d.correct}</p></div>` : ''}
                         </div>`;
                 });
             } else { div.innerHTML += '<p>لا توجد تفاصيل متاحة للمراجعة.</p>'; }
             document.getElementById('s-review-test').classList.remove('hidden');
         };
 
-        // ======== AI Logic (Chat + Generation) ========
-        window.toggleAiGenerator = () => document.getElementById('ai-gen-modal').classList.toggle('hidden');
+        window.toggleAiGenerator = () => { document.getElementById('ai-gen-modal').classList.toggle('open'); };
         
         window.previewChatImg = async (prefix) => {
             const input = document.getElementById(`${prefix}-ai-file`);
             if(input.files[0]) {
                 const b64 = await getBase64(input.files[0]);
-                const preview = document.getElementById(`${prefix}-chat-preview`);
-                preview.style.display = 'block';
+                document.getElementById(`${prefix}-chat-preview`).style.display = 'block';
                 document.getElementById(`${prefix}-chat-img-tag`).src = b64;
             }
         };
@@ -2040,87 +2311,40 @@
             document.getElementById(`${prefix}-chat-preview`).style.display = 'none';
         };
 
-        // UPDATED: Use appendChild to prevent iframe reload/disappearance
         window.sendAiMsg = async (prefix) => {
-            const input = document.getElementById(`${prefix}-ai-input`);
-            const fileInput = document.getElementById(`${prefix}-ai-file`);
-            const msgs = document.getElementById(`${prefix}-ai-msgs`);
-            const txt = input.value.trim();
+            const input = document.getElementById(`${prefix}-ai-input`); const fileInput = document.getElementById(`${prefix}-ai-file`);
+            const msgs = document.getElementById(`${prefix}-ai-msgs`); const txt = input.value.trim();
             if(!txt && !fileInput.files[0]) return;
-            
-            // REMOVE WELCOME SCREEN IF EXISTS
-            const welcomeScreen = msgs.querySelector('.ai-welcome-screen');
-            if(welcomeScreen) welcomeScreen.remove();
-
-            // 1. Save User Message
-            let imgData = null;
-            let displayImg = null;
+            const welcomeScreen = msgs.querySelector('.ai-welcome-screen'); if(welcomeScreen) welcomeScreen.remove();
+            let imgData = null; let displayImg = null;
             if(fileInput.files[0]) {
-                const b64 = await getBase64(fileInput.files[0]);
-                displayImg = b64;
-                imgData = b64.split(',')[1];
-                clearChatImg(prefix);
+                const b64 = await getBase64(fileInput.files[0]); displayImg = b64; imgData = b64.split(',')[1]; clearChatImg(prefix);
             }
-
             const userMsgObj = { role: 'user', content: txt, image: displayImg };
-            currentChatMessages.push(userMsgObj);
-            renderMessageUI(prefix, 'user', txt, displayImg);
-            input.value = '';
-            
-            // SAVE LOCAL
-            saveChatToLocal();
-
-            // 2. Create & Append Loading Message
-            const loadId = 'loading-' + Date.now();
-            const loaderDiv = document.createElement('div');
-            loaderDiv.className = 'chat-msg ai';
-            loaderDiv.id = loadId;
-            loaderDiv.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-            msgs.appendChild(loaderDiv);
-            msgs.scrollTop = msgs.scrollHeight;
-
-            // 3. API Logic
-            const parts = [];
-            if(txt) parts.push({ text: txt });
+            currentChatMessages.push(userMsgObj); renderMessageUI(prefix, 'user', txt, displayImg);
+            input.value = ''; saveChatToLocal();
+            const loadId = 'loading-' + Date.now(); const loaderDiv = document.createElement('div');
+            loaderDiv.className = 'chat-msg ai'; loaderDiv.id = loadId; loaderDiv.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            msgs.appendChild(loaderDiv); msgs.scrollTop = msgs.scrollHeight;
+            const parts = []; if(txt) parts.push({ text: txt });
             if(imgData) parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
-            
-            if(parts.length === 0) return; 
-
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${aiApiKey}`;
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts }] })
-                });
+                const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts }] }) });
                 const data = await res.json();
                 const reply = data.candidates[0].content.parts[0].text;
-                
-                document.getElementById(loadId).remove(); // Remove loader
+                document.getElementById(loadId).remove(); 
                 const aiMsgObj = { role: 'ai', content: reply, image: null };
-                currentChatMessages.push(aiMsgObj);
-                renderMessageUI(prefix, 'ai', reply, null);
-                
-                // SAVE LOCAL
-                saveChatToLocal();
-
-            } catch (e) { 
-                document.getElementById(loadId).innerText = "عذراً، حدث خطأ."; 
-            }
+                currentChatMessages.push(aiMsgObj); renderMessageUI(prefix, 'ai', reply, null); saveChatToLocal();
+            } catch (e) { document.getElementById(loadId).innerText = "عذراً، حدث خطأ."; }
         };
 
-        // Check Init
-        const savedUser = localStorage.getItem('sa_user');
-        const savedRole = localStorage.getItem('sa_role');
-        const savedIcon = localStorage.getItem('sa_icon');
-        
+        const savedUser = localStorage.getItem('sa_user'); const savedRole = localStorage.getItem('sa_role'); const savedIcon = localStorage.getItem('sa_icon');
         if (savedUser && savedRole) {
             currentUser = savedUser; selectedRole = savedRole;
             document.getElementById('landing-layer').classList.add('hidden');
             loginSuccess(currentUser, savedIcon);
-        } else {
-            document.getElementById('landing-layer').classList.remove('hidden');
-        }
+        } else { document.getElementById('landing-layer').classList.remove('hidden'); }
 
     </script>
 </body>
