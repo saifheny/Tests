@@ -59,17 +59,48 @@
         .flex-center { display: flex; align-items: center; justify-content: center; }
         .w-full { width: 100%; }
         
-        /* Buttons Style */
+        /* Buttons Style - Updated for Desktop */
         .modern-btn {
             background: #ffffff; color: #000000;
             font-family: var(--font-main); font-weight: 700;
-            padding: 12px 25px; border-radius: 50px;
+            padding: 12px 30px; border-radius: 50px;
             border: none; font-size: 0.95rem;
             box-shadow: 0 5px 20px rgba(255,255,255,0.15);
             cursor: pointer; transition: 0.3s;
             display: flex; align-items: center; justify-content: center; gap: 10px;
-            width: 100%;
+            width: 100%; /* Default mobile */
         }
+        
+        /* Desktop Button Fix */
+        @media (min-width: 768px) {
+            .modern-btn {
+                width: auto;
+                min-width: 200px;
+                margin-left: auto;
+                margin-right: auto;
+                display: inline-flex;
+            }
+            .app-section {
+                text-align: center; /* Center content on desktop */
+            }
+            .app-section .smart-input, 
+            .app-section .google-bar {
+                max-width: 600px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .card-wrapper, .mini-card {
+                max-width: 700px;
+                margin-left: auto;
+                margin-right: auto;
+                text-align: right; /* Keep text aligned right for Arabic */
+            }
+            /* Fix nav on desktop */
+            .nav-container {
+                max-width: 800px;
+            }
+        }
+
         .modern-btn:active { transform: scale(0.97); }
         .modern-btn.secondary {
             background: rgba(255,255,255,0.1); color: #fff;
@@ -126,7 +157,7 @@
 
         .nav-container {
             display: flex; justify-content: space-between; align-items: center;
-            width: 100%; max-width: 600px; padding: 0 15px;
+            width: 100%; padding: 0 15px;
         }
 
         .nav-btn {
@@ -146,7 +177,7 @@
             padding-top: calc(var(--nav-height) + 15px);
             padding-bottom: 100px;
             padding-left: 15px; padding-right: 15px;
-            max-width: 800px; margin: 0 auto;
+            max-width: 1000px; margin: 0 auto;
             min-height: 100vh;
         }
 
@@ -160,9 +191,10 @@
             position: relative;
             transition: all 0.2s;
             display: flex; flex-direction: column; gap: 10px;
+            text-align: right;
         }
         .card-wrapper {
-            margin-bottom: 15px;
+            margin-bottom: 25px; /* Increased for ad spacing */
         }
         
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -215,12 +247,63 @@
             display: flex; flex-direction: column;
             background: var(--bg-deep); z-index: 100;
         }
+
+        /* Top Action Bar for AI */
+        .ai-top-bar {
+            padding: 10px 15px;
+            background: rgba(20,20,20,0.95);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 101;
+        }
+        .ai-action-btn {
+            background: rgba(255,255,255,0.05); color: #ccc;
+            border: 1px solid transparent; border-radius: 50%;
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s;
+        }
+        .ai-action-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .ai-action-btn.new-chat { color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
+        .ai-action-btn.history { color: var(--accent-gold); }
+        .ai-action-btn.incognito.active { color: #fff; background: var(--danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+
+
         .ai-messages {
             flex: 1; overflow-y: auto;
             padding: 15px; padding-bottom: 100px;
             display: flex; flex-direction: column; gap: 12px;
         }
         
+        /* New Welcome Screen Styles */
+        .ai-welcome-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; opacity: 0; animation: fadeIn 0.8s forwards;
+            padding: 20px; text-align: center;
+        }
+        @keyframes fadeIn { to { opacity: 1; } }
+        
+        .ai-logo-large {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: #111; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: #d946ef; margin-bottom: 20px;
+            box-shadow: 0 0 50px rgba(217, 70, 239, 0.2);
+        }
+        .ai-welcome-title {
+            font-size: 1.5rem; font-weight: 800; margin-bottom: 10px;
+            background: linear-gradient(to right, #fff, #a0a0a0); -webkit-background-clip: text; color: transparent;
+        }
+        .ai-welcome-text { color: #666; font-size: 0.95rem; max-width: 300px; margin-bottom: 40px; }
+        
+        .ai-chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; max-width: 500px; }
+        .ai-chip {
+            background: #1a1a1a; border: 1px solid #333; color: #ccc;
+            padding: 10px 15px; border-radius: 12px; font-size: 0.85rem;
+            cursor: pointer; transition: 0.2s;
+        }
+        .ai-chip:hover { background: #252525; border-color: #555; color: #fff; transform: translateY(-2px); }
+
+
         .chat-msg {
             max-width: 85%; padding: 10px 16px; border-radius: 18px;
             font-size: 0.95rem; line-height: 1.5; position: relative; word-wrap: break-word;
@@ -278,6 +361,27 @@
             display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer;
         }
 
+        /* AI History Sidebar */
+        .ai-history-sidebar {
+            position: fixed; top: 0; right: -300px; width: 300px; bottom: 0;
+            background: #111; border-left: 1px solid #333; z-index: 5000;
+            transition: 0.3s; display: flex; flex-direction: column;
+            padding-top: var(--nav-height);
+        }
+        .ai-history-sidebar.open { right: 0; }
+        .history-header {
+            padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;
+        }
+        .history-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .history-item {
+            padding: 12px; margin-bottom: 8px; border-radius: 10px;
+            background: rgba(255,255,255,0.03); cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .history-item:hover { background: rgba(255,255,255,0.08); }
+        .history-title { font-size: 0.9rem; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+        .history-date { font-size: 0.7rem; color: #666; margin-top: 4px; display: block; }
+
         /* ======== 7. Menu & Profile ======== */
         #menu-modal, #ai-gen-modal, #phone-modal, #teacher-detail-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000;
@@ -329,7 +433,7 @@
         /* Role Selection in Auth */
         .role-toggle-container {
             display: flex; background: #222; padding: 5px; border-radius: 50px;
-            margin-bottom: 20px; width: 100%;
+            margin-bottom: 20px; width: 100%; max-width: 400px;
         }
         .role-toggle-btn {
             flex: 1; border: none; background: transparent; color: #888;
@@ -360,11 +464,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 15px 0 25px 0; /* Updated Margin */
-            overflow-x: auto; /* Allow scrolling if content is too wide */
+            margin: 20px 0; /* Updated Margin */
+            overflow-x: auto;
             border-radius: 8px;
             background: rgba(255,255,255,0.02);
-            padding: 5px;
+            padding: 10px;
+            border: 1px dashed rgba(255,255,255,0.05);
         }
 
         /* ======== CUSTOM ALERT & MODAL STYLES ======== */
@@ -407,7 +512,7 @@
                 منصة تعليمية ذكية تنقلك إلى آفاق المستقبل
             </p>
 
-            <button onclick="goToAuth()" class="modern-btn" style="margin-top: 50px; width: auto; padding: 15px 40px; font-size: 1.1rem; background: #ffffff; color: #000000; border: none; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); font-weight: 800; font-family: 'Outfit', sans-serif;">
+            <button onclick="goToAuth()" class="modern-btn" style="margin-top: 50px; font-size: 1.1rem; background: #ffffff; color: #000000; border: none; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); font-weight: 800; font-family: 'Outfit', sans-serif;">
                 ENTER THE REALM <i class="fas fa-dungeon" style="margin-left: 8px;"></i>
             </button>
         </div>
@@ -437,6 +542,17 @@
                 تسجيل الدخول <i class="fas fa-sign-in-alt"></i>
             </button>
             <div id="auth-status" style="margin-top: 20px; color: var(--warning); font-size: 0.9rem;"></div>
+        </div>
+    </div>
+
+    <!-- ============ HISTORY SIDEBAR ============ -->
+    <div id="ai-history-sidebar" class="ai-history-sidebar">
+        <div class="history-header">
+            <span style="font-weight:bold; color:#fff;">سجل المحادثات</span>
+            <i class="fas fa-times" onclick="toggleHistory(false)" style="cursor:pointer; color:#888;"></i>
+        </div>
+        <div class="history-list" id="ai-history-list">
+            <!-- Items will be injected here -->
         </div>
     </div>
 
@@ -543,8 +659,18 @@
             <!-- AI Section (Fixed) -->
             <section id="t-ai" class="app-section hidden">
                 <div class="ai-layout">
+                    <div class="ai-top-bar">
+                        <div style="display:flex; gap:10px;">
+                            <button class="ai-action-btn new-chat" onclick="startNewChat('t')" title="محادثة جديدة"><i class="fas fa-plus"></i></button>
+                            <button class="ai-action-btn history" onclick="toggleHistory(true)" title="السجل"><i class="fas fa-history"></i></button>
+                            <button class="ai-action-btn incognito" id="t-incognito-btn" onclick="toggleIncognito('t')" title="محادثة مخفية"><i class="fas fa-user-secret"></i></button>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button class="ai-action-btn" onclick="shareCurrentChat()" title="مشاركة المحادثة"><i class="fas fa-share-nodes"></i></button>
+                        </div>
+                    </div>
                     <div class="ai-messages" id="t-ai-msgs">
-                        <div class="chat-msg ai">مرحباً أستاذي! أنا SA AI، كيف أساعدك في تحضير الدروس؟</div>
+                        <!-- Content injected by JS -->
                     </div>
                 </div>
                 <!-- Floating Input Bar -->
@@ -596,8 +722,18 @@
 
             <section id="s-ai" class="app-section hidden">
                 <div class="ai-layout">
+                    <div class="ai-top-bar">
+                        <div style="display:flex; gap:10px;">
+                            <button class="ai-action-btn new-chat" onclick="startNewChat('s')" title="محادثة جديدة"><i class="fas fa-plus"></i></button>
+                            <button class="ai-action-btn history" onclick="toggleHistory(true)" title="السجل"><i class="fas fa-history"></i></button>
+                            <button class="ai-action-btn incognito" id="s-incognito-btn" onclick="toggleIncognito('s')" title="محادثة مخفية"><i class="fas fa-user-secret"></i></button>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button class="ai-action-btn" onclick="shareCurrentChat()" title="مشاركة المحادثة"><i class="fas fa-share-nodes"></i></button>
+                        </div>
+                    </div>
                     <div class="ai-messages" id="s-ai-msgs">
-                        <div class="chat-msg ai">أهلاً بك يا بطل! أرفق صورة لسؤالك وسأشرحه لك.</div>
+                        <!-- Content injected by JS -->
                     </div>
                 </div>
                 <!-- Floating Input Bar -->
@@ -794,6 +930,11 @@
         let aiGenImgBase64 = null;
         let chatMessageCounter = 0; 
         
+        // Chat System State
+        let currentChatId = null;
+        let currentChatMessages = [];
+        let isIncognito = false;
+
         // Editing Mode State
         let isEditingMode = false;
         let editingTestId = null;
@@ -870,8 +1011,6 @@
             const container = document.createElement('div');
             container.className = 'ad-banner';
             const iframe = document.createElement('iframe');
-            // Allow responsive width if needed, but ads are fixed usually.
-            // We set style to max-width: 100% to avoid overflow on small screens
             iframe.style.width = '468px'; iframe.style.height = '60px'; iframe.style.border = 'none';
             iframe.style.overflow = 'hidden'; iframe.style.maxWidth = '100%'; 
             
@@ -942,13 +1081,26 @@
             document.getElementById('landing-layer').classList.add('hidden');
             document.getElementById('auth-layer').classList.add('hidden');
             updateMenuInfo();
+            
+            // Check for shared chat first
+            const params = new URLSearchParams(window.location.search);
+            const shareId = params.get('shareId');
+            
             if (selectedRole === 'teacher') {
                 document.getElementById('teacher-app').classList.remove('hidden');
                 initTeacherApp();
+                if(shareId) {
+                    switchTab('t-ai');
+                    loadSharedChat(shareId, 't');
+                }
             } else {
                 document.getElementById('student-app').classList.remove('hidden');
                 loadStudentExams();
                 loadStudentGrades();
+                if(shareId) {
+                    switchTab('s-ai');
+                    loadSharedChat(shareId, 's');
+                }
             }
         }
 
@@ -1019,6 +1171,7 @@
         function initTeacherApp() {
             loadTeacherTests();
             renderOptionFields(); 
+            startNewChat('t'); // Always start fresh
         }
 
         window.switchTab = (tabId, btn) => {
@@ -1030,8 +1183,243 @@
                 btn.classList.add('active');
             }
             if(tabId === 's-grades') loadStudentGrades();
-            if(tabId === 's-exams') loadStudentExams(); // Force reload exams
+            if(tabId === 's-exams') loadStudentExams();
+            
+            // AI Tab Handling
+            if(tabId === 't-ai' && !currentChatId) startNewChat('t');
+            if(tabId === 's-ai' && !currentChatId) startNewChat('s');
         };
+
+        // ============ AI CHAT SYSTEM (Local Storage & Sharing) ============
+
+        // 1. Generate new chat ID
+        function generateChatId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // 2. Start New Chat (Resets UI, sets ID)
+        window.startNewChat = (prefix) => {
+            currentChatId = generateChatId();
+            currentChatMessages = [];
+            isIncognito = false;
+            
+            // Reset UI
+            const msgs = document.getElementById(`${prefix}-ai-msgs`);
+            msgs.innerHTML = ''; 
+            
+            // Toggle Buttons Reset
+            document.getElementById(`${prefix}-incognito-btn`).classList.remove('active');
+            
+            // Render Welcome
+            renderAiWelcome(prefix);
+            
+            // Close History if open
+            toggleHistory(false);
+        };
+
+        // 3. Render AI Welcome
+        window.renderAiWelcome = (prefix) => {
+            const msgs = document.getElementById(`${prefix}-ai-msgs`);
+            msgs.innerHTML = `
+                <div class="ai-welcome-screen">
+                    <div class="ai-logo-large"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <h3 class="ai-welcome-title">مرحباً ${currentUser} 👋</h3>
+                    <p class="ai-welcome-text">أنا مساعدك الذكي SA AI. كيف يمكنني مساعدتك اليوم؟</p>
+                    <div class="ai-chips">
+                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'ساعدني في تحضير درس عن الجاذبية')">📝 تحضير درس</div>
+                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اكتب 5 أسئلة اختيار من متعدد عن التاريخ')">❓ إنشاء أسئلة</div>
+                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اشرح لي هذا المفهوم المعقد ببساطة')">💡 شرح مفهوم</div>
+                    </div>
+                </div>
+            `;
+        };
+
+        window.fillAiInput = (prefix, text) => {
+            document.getElementById(`${prefix}-ai-input`).value = text;
+        };
+
+        // 4. Toggle Incognito
+        window.toggleIncognito = (prefix) => {
+            isIncognito = !isIncognito;
+            document.getElementById(`${prefix}-incognito-btn`).classList.toggle('active', isIncognito);
+            if(isIncognito) saAlert("الوضع المخفي: لن يتم حفظ هذه المحادثة في السجل", "info");
+            else saAlert("تم إيقاف الوضع المخفي", "info");
+        };
+
+        // 5. Save Chat to Local Storage
+        function saveChatToLocal() {
+            if(isIncognito || currentChatMessages.length === 0) return;
+            
+            const storageKey = `sa_chat_history_${currentUser}`;
+            let history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            
+            // Find existing
+            const existingIndex = history.findIndex(c => c.id === currentChatId);
+            
+            // Title is first user message or "New Chat"
+            const firstUserMsg = currentChatMessages.find(m => m.role === 'user');
+            const title = firstUserMsg ? (firstUserMsg.content.substring(0, 30) + '...') : 'محادثة جديدة';
+
+            const chatObj = {
+                id: currentChatId,
+                title: title,
+                timestamp: Date.now(),
+                messages: currentChatMessages
+            };
+
+            if(existingIndex > -1) {
+                history[existingIndex] = chatObj;
+            } else {
+                history.unshift(chatObj); // Add to top
+            }
+
+            localStorage.setItem(storageKey, JSON.stringify(history));
+        }
+
+        // 6. Sidebar History Logic
+        window.toggleHistory = (show) => {
+            const sidebar = document.getElementById('ai-history-sidebar');
+            if(show) {
+                sidebar.classList.add('open');
+                renderHistoryList();
+            } else {
+                sidebar.classList.remove('open');
+            }
+        };
+
+        function renderHistoryList() {
+            const list = document.getElementById('ai-history-list');
+            const storageKey = `sa_chat_history_${currentUser}`;
+            const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            
+            list.innerHTML = '';
+            if(history.length === 0) {
+                list.innerHTML = '<p style="color:#666; text-align:center; margin-top:20px;">لا يوجد سجل محادثات</p>';
+                return;
+            }
+
+            history.forEach(chat => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+                item.innerHTML = `
+                    <div onclick="loadLocalChat('${chat.id}')">
+                        <div class="history-title">${chat.title}</div>
+                        <span class="history-date">${new Date(chat.timestamp).toLocaleDateString()} ${new Date(chat.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <i class="fas fa-trash" style="color:#666; font-size:0.8rem; padding:5px;" onclick="deleteLocalChat('${chat.id}')"></i>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        window.loadLocalChat = (id) => {
+            const storageKey = `sa_chat_history_${currentUser}`;
+            const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+            const chat = history.find(c => c.id === id);
+            
+            if(chat) {
+                currentChatId = chat.id;
+                currentChatMessages = chat.messages;
+                isIncognito = false;
+                
+                // Determine prefix based on role
+                const prefix = selectedRole === 'teacher' ? 't' : 's';
+                
+                // Re-render
+                const msgs = document.getElementById(`${prefix}-ai-msgs`);
+                msgs.innerHTML = '';
+                
+                currentChatMessages.forEach(msg => {
+                    renderMessageUI(prefix, msg.role, msg.content, msg.image);
+                });
+                
+                toggleHistory(false);
+            }
+        };
+
+        window.deleteLocalChat = (id) => {
+            event.stopPropagation();
+            saConfirm("حذف هذه المحادثة من السجل؟", () => {
+                const storageKey = `sa_chat_history_${currentUser}`;
+                let history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                history = history.filter(c => c.id !== id);
+                localStorage.setItem(storageKey, JSON.stringify(history));
+                renderHistoryList();
+                if(currentChatId === id) startNewChat(selectedRole === 'teacher' ? 't' : 's');
+            });
+        };
+
+        // 7. Share Current Chat (Firebase)
+        window.shareCurrentChat = async () => {
+            if(currentChatMessages.length === 0) return saAlert("لا يمكن مشاركة محادثة فارغة", "info");
+            
+            saAlert("جاري إنشاء رابط للمشاركة...", "info");
+            
+            // Push to Firebase 'shared_chats'
+            const shareRef = push(ref(db, 'shared_chats'));
+            await set(shareRef, {
+                author: currentUser,
+                timestamp: Date.now(),
+                messages: currentChatMessages
+            });
+
+            // Generate Link
+            const baseUrl = window.location.href.split('?')[0];
+            const shareLink = `${baseUrl}?shareId=${shareRef.key}`;
+            
+            navigator.clipboard.writeText(shareLink).then(() => {
+                saAlert("تم نسخ رابط المحادثة! أرسله لمن تريد.", "success");
+            });
+        };
+
+        // 8. Load Shared Chat from URL
+        window.loadSharedChat = async (shareId, prefix) => {
+            const msgs = document.getElementById(`${prefix}-ai-msgs`);
+            msgs.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i> جاري استرجاع المحادثة المشاركة...</div>';
+            
+            const snap = await get(ref(db, `shared_chats/${shareId}`));
+            if(snap.exists()) {
+                const data = snap.val();
+                currentChatMessages = data.messages || [];
+                // Start as a NEW chat ID for the recipient (Forking)
+                currentChatId = generateChatId();
+                isIncognito = false; // By default save shared chats if user continues
+                
+                // Force save immediately so it appears in their history
+                saveChatToLocal();
+
+                msgs.innerHTML = '';
+                msgs.innerHTML = `<div style="text-align:center; background:#222; padding:5px; margin-bottom:10px; font-size:0.8rem; border-radius:10px; color:#aaa;">تم استرجاع محادثة مشاركة من ${data.author || 'مجهول'}</div>`;
+                
+                currentChatMessages.forEach(msg => {
+                    renderMessageUI(prefix, msg.role, msg.content, msg.image);
+                });
+                
+                // Clear query param so refresh doesn't reload
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                saAlert("رابط المشاركة غير صالح أو منتهي", "error");
+                startNewChat(prefix);
+            }
+        };
+
+        // Render helper
+        function renderMessageUI(prefix, role, text, imgB64) {
+            const msgs = document.getElementById(`${prefix}-ai-msgs`);
+            const div = document.createElement('div');
+            div.className = `chat-msg ${role}`;
+            div.innerText = text;
+            
+            if(imgB64) {
+                const img = document.createElement('img');
+                img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`;
+                div.appendChild(img);
+            }
+            msgs.appendChild(div);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        // ============ End of Chat System Logic ============
 
         function loadTeacherTests() {
             const list = document.getElementById('t-tests-list');
@@ -1079,6 +1467,8 @@
                             </div>
                         `;
                         list.appendChild(cardWrapper);
+                        // ADD AD Banner for Teacher too
+                        list.appendChild(createAdBanner());
                     }
                 });
             });
@@ -1370,6 +1760,7 @@
                     list.innerHTML += `
                         <div style="background:#222; padding:10px; border-radius:10px; margin-bottom:10px; border-right:3px solid ${statusColor}">
                             <p style="margin:0 0 5px; font-weight:bold;">س${i+1}: ${d.q}</p>
+                            ${d.image ? `<img src="${d.image}" style="max-width:100%; height:auto; border-radius:8px; margin-bottom:10px;">` : ''}
                             <div style="font-size:0.9rem; color:#aaa;">إجابة الطالب: <span style="color:#fff;">${d.user}</span></div>
                             ${!d.isCorrect ? `<div style="font-size:0.9rem; color:var(--success);">الصحيحة: ${d.correct}</div>` : ''}
                         </div>
@@ -1417,7 +1808,6 @@
                     
                     let buttonsHtml = '';
                     if (hasTaken) {
-                         // RE-ADDED RETAKE BUTTON & REMOVED REVIEW TEXT
                          buttonsHtml = `
                             <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
                             <button class="action-icon edit" onclick="checkPhoneAndStart('${key}')" title="إعادة الاختبار"><i class="fas fa-redo"></i></button>
@@ -1426,7 +1816,7 @@
                     } else {
                         buttonsHtml = `
                              <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
-                             <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white;" onclick="checkPhoneAndStart('${key}')">
+                             <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white; justify-content:center;" onclick="checkPhoneAndStart('${key}')">
                                 <i class="fas fa-rocket"></i> ابدأ الآن
                              </button>
                         `;
@@ -1443,6 +1833,9 @@
                             </div>
                         </div>`;
                     list.appendChild(cardWrapper);
+                    
+                    // ADD AD Banner between tests
+                    list.appendChild(createAdBanner());
                 });
 
                 if(!foundExam) list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">لا توجد اختبارات متاحة لك حالياً.</div>';
@@ -1458,7 +1851,6 @@
                  list.innerHTML = '';
                  const tests = testSnap.val() || {};
                  let foundAny = false;
-                 let counter = 0;
 
                  for(const [testId, testData] of Object.entries(tests)) {
                      const resSnap = await get(ref(db, `results/${testId}/${currentUser}`));
@@ -1480,13 +1872,11 @@
                                     <div style="font-size:0.8rem; color:#aaa;">${res.score} / ${res.total}</div>
                                 </div>
                             </div>
-                            <button onclick="reviewTest('${testId}')" class="modern-btn secondary" style="margin-top:10px; font-size:0.8rem; padding:8px;">
+                            <button onclick="reviewTest('${testId}')" class="modern-btn secondary" style="margin-top:10px; font-size:0.8rem; padding:8px; justify-content: center;">
                                 <i class="fas fa-list-alt"></i> مراجعة التفاصيل
                             </button>
                          `;
                          list.appendChild(div);
-                         counter++;
-                         if(counter % 1 === 0) list.appendChild(createAdBanner());
                      }
                  }
                  if(!foundAny) list.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">لم تقم بأي اختبارات بعد.</p>';
@@ -1581,7 +1971,13 @@
                 total += pts;
                 const isCorrect = answers[i] === q.correct;
                 if(isCorrect) score += pts;
-                details.push({ q: q.text, user: answers[i]||'-', correct: q.correct, isCorrect });
+                details.push({ 
+                    q: q.text, 
+                    image: q.image || null, // Saving Image here
+                    user: answers[i]||'-', 
+                    correct: q.correct, 
+                    isCorrect 
+                });
             });
             
             const pct = total === 0 ? 0 : Math.round((score/total)*100);
@@ -1610,6 +2006,7 @@
                                 <strong>س${i+1}: ${d.q}</strong>
                                 ${icon}
                             </div>
+                            ${d.image ? `<img src="${d.image}" style="max-width:100%; height:auto; border-radius:8px; margin-top:10px;">` : ''}
                             <div style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">
                                 <p style="margin:0; font-size:0.9rem; color:#aaa;">إجابتك:</p>
                                 <p style="margin:5px 0 0 0; font-weight:bold; color:${d.isCorrect ? 'var(--success)' : 'var(--danger)'}">${d.user}</p>
@@ -1651,23 +2048,27 @@
             const txt = input.value.trim();
             if(!txt && !fileInput.files[0]) return;
             
-            // 1. Create & Append User Message
-            const userMsgDiv = document.createElement('div');
-            userMsgDiv.className = 'chat-msg user';
-            userMsgDiv.innerText = txt;
-            
+            // REMOVE WELCOME SCREEN IF EXISTS
+            const welcomeScreen = msgs.querySelector('.ai-welcome-screen');
+            if(welcomeScreen) welcomeScreen.remove();
+
+            // 1. Save User Message
             let imgData = null;
+            let displayImg = null;
             if(fileInput.files[0]) {
                 const b64 = await getBase64(fileInput.files[0]);
-                const img = document.createElement('img');
-                img.src = b64;
-                userMsgDiv.appendChild(img);
+                displayImg = b64;
                 imgData = b64.split(',')[1];
                 clearChatImg(prefix);
             }
-            msgs.appendChild(userMsgDiv);
+
+            const userMsgObj = { role: 'user', content: txt, image: displayImg };
+            currentChatMessages.push(userMsgObj);
+            renderMessageUI(prefix, 'user', txt, displayImg);
             input.value = '';
-            msgs.scrollTop = msgs.scrollHeight;
+            
+            // SAVE LOCAL
+            saveChatToLocal();
 
             // 2. Create & Append Loading Message
             const loadId = 'loading-' + Date.now();
@@ -1678,13 +2079,7 @@
             msgs.appendChild(loaderDiv);
             msgs.scrollTop = msgs.scrollHeight;
 
-            // 3. Handle Ad Insertion
-            chatMessageCounter++;
-            if(chatMessageCounter % 2 === 0) {
-                 msgs.appendChild(createAdBanner());
-            }
-
-            // 4. API Logic
+            // 3. API Logic
             const parts = [];
             if(txt) parts.push({ text: txt });
             if(imgData) parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
@@ -1700,9 +2095,18 @@
                 });
                 const data = await res.json();
                 const reply = data.candidates[0].content.parts[0].text;
-                document.getElementById(loadId).innerText = reply;
-            } catch (e) { document.getElementById(loadId).innerText = "عذراً، حدث خطأ."; }
-            msgs.scrollTop = msgs.scrollHeight;
+                
+                document.getElementById(loadId).remove(); // Remove loader
+                const aiMsgObj = { role: 'ai', content: reply, image: null };
+                currentChatMessages.push(aiMsgObj);
+                renderMessageUI(prefix, 'ai', reply, null);
+                
+                // SAVE LOCAL
+                saveChatToLocal();
+
+            } catch (e) { 
+                document.getElementById(loadId).innerText = "عذراً، حدث خطأ."; 
+            }
         };
 
         // Check Init
