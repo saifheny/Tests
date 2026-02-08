@@ -59,7 +59,7 @@
         .flex-center { display: flex; align-items: center; justify-content: center; }
         .w-full { width: 100%; }
         
-        /* Buttons Style Restoration */
+        /* Buttons Style */
         .modern-btn {
             background: #ffffff; color: #000000;
             font-family: var(--font-main); font-weight: 700;
@@ -144,7 +144,7 @@
         /* ======== 2. Content Areas ======== */
         .portal-container {
             padding-top: calc(var(--nav-height) + 15px);
-            padding-bottom: 100px; /* Adjusted padding */
+            padding-bottom: 100px;
             padding-left: 15px; padding-right: 15px;
             max-width: 800px; margin: 0 auto;
             min-height: 100vh;
@@ -156,7 +156,7 @@
             border: 1px solid var(--glass-border);
             border-radius: 18px;
             padding: 15px;
-            margin-bottom: 0; /* Remove margin bottom for ad spacing control */
+            margin-bottom: 0;
             position: relative;
             transition: all 0.2s;
             display: flex; flex-direction: column; gap: 10px;
@@ -217,7 +217,7 @@
         }
         .ai-messages {
             flex: 1; overflow-y: auto;
-            padding: 15px; padding-bottom: 100px; /* Space for floating bar */
+            padding: 15px; padding-bottom: 100px;
             display: flex; flex-direction: column; gap: 12px;
         }
         
@@ -286,9 +286,9 @@
         .menu-content {
             background: #181818; border-top: 1px solid #333;
             border-radius: 25px 25px 0 0; padding: 25px;
-            padding-bottom: 50px; /* Extra padding for bottom */
+            padding-bottom: 50px;
             animation: slideUp 0.3s ease-out;
-            max-height: 85vh; overflow-y: auto; /* Scrollable if too long */
+            max-height: 85vh; overflow-y: auto;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
@@ -299,7 +299,6 @@
             transition: 0.3s;
         }
         .menu-item:active { background: rgba(255,255,255,0.08); }
-        .menu-item.active-edit { border-color: var(--accent-primary); background: #111; }
         
         .avatar-grid {
             display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
@@ -312,16 +311,34 @@
         }
         .avatar-option.selected { border-color: var(--success); background: #000; }
 
-        /* ======== 8. Landing ======== */
+        /* ======== 8. Landing (New Tech Style) ======== */
+        #landing-layer {
+            position: fixed; inset: 0; z-index: 5000;
+            background: url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop') no-repeat center center/cover;
+        }
+        #landing-layer::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0.6) 100%);
+        }
         .landing-wrap {
+            position: relative; z-index: 1;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100vh; text-align: center; padding: 30px;
         }
-        .role-card {
-            background: #111; border: 1px solid #333; border-radius: 25px;
-            padding: 30px; width: 140px; cursor: pointer; transition: 0.3s;
+
+        /* Role Selection in Auth */
+        .role-toggle-container {
+            display: flex; background: #222; padding: 5px; border-radius: 50px;
+            margin-bottom: 20px; width: 100%;
         }
-        .role-card:active { transform: scale(0.95); border-color: var(--accent-primary); }
+        .role-toggle-btn {
+            flex: 1; border: none; background: transparent; color: #888;
+            padding: 10px; border-radius: 50px; cursor: pointer; font-weight: bold;
+            transition: 0.3s;
+        }
+        .role-toggle-btn.active {
+            background: #fff; color: #000; box-shadow: 0 2px 10px rgba(255,255,255,0.2);
+        }
 
         /* Dynamic Options */
         .option-row {
@@ -343,51 +360,81 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 15px 0;
-            overflow: hidden;
+            margin: 15px 0 25px 0; /* Updated Margin */
+            overflow-x: auto; /* Allow scrolling if content is too wide */
             border-radius: 8px;
             background: rgba(255,255,255,0.02);
             padding: 5px;
         }
 
+        /* ======== CUSTOM ALERT & MODAL STYLES ======== */
+        #sa-custom-alert {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        #sa-custom-alert.active { opacity: 1; pointer-events: auto; }
+        
+        .sa-alert-box {
+            background: #1a1a1a; border: 1px solid var(--glass-border);
+            border-radius: 25px; padding: 25px; width: 90%; max-width: 400px;
+            text-align: center; transform: scale(0.9); transition: 0.3s;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        #sa-custom-alert.active .sa-alert-box { transform: scale(1); }
+        
+        .sa-alert-icon { font-size: 3rem; margin-bottom: 15px; }
+        .sa-alert-title { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 10px; }
+        .sa-alert-msg { color: #aaa; margin-bottom: 25px; line-height: 1.5; font-size: 0.95rem; }
+        
+        .sa-alert-actions { display: flex; gap: 10px; justify-content: center; }
+        .sa-btn {
+            padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; border: none; flex: 1;
+        }
+        .sa-btn-primary { background: var(--accent-primary); color: #fff; }
+        .sa-btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
+
     </style>
 </head>
 <body>
 
-    <!-- ============ LAYER 1: Landing Page ============ -->
+    <!-- ============ LAYER 1: Landing Page (Tech) ============ -->
     <div id="landing-layer">
         <div class="landing-wrap">
-            <h1 style="font-size: 3.5rem; background: linear-gradient(to bottom right, #fff, #999); -webkit-background-clip: text; color: transparent; margin: 0;">SA EDU</h1>
-            <p style="color: var(--text-secondary); letter-spacing: 4px; font-size: 0.9rem; margin-top: 10px;">FUTURE GENERATION</p>
+            <h1 style="font-size: 3.5rem; background: linear-gradient(to right, #fff, #3b82f6); -webkit-background-clip: text; color: transparent; margin: 0; text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);">SA EDU</h1>
+            <p style="color: #ccc; letter-spacing: 2px; font-size: 1rem; margin-top: 10px; max-width: 80%; line-height: 1.6;">
+                منصة تعليمية ذكية تنقلك إلى آفاق المستقبل
+            </p>
 
-            <div style="display: flex; gap: 20px; margin-top: 60px;">
-                <div class="role-card" onclick="selectRole('student')">
-                    <div class="avatar-frame avatar-student" style="width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px; border-width: 0;"><i class="fas fa-user-astronaut"></i></div>
-                    <h3>طالب</h3>
-                </div>
-                <div class="role-card" onclick="selectRole('teacher')">
-                    <div class="avatar-frame avatar-teacher" style="width: 70px; height: 70px; font-size: 2rem; margin-bottom: 15px; border-width: 0;"><i class="fas fa-user-tie"></i></div>
-                    <h3>معلم</h3>
-                </div>
-            </div>
+            <button onclick="goToAuth()" class="modern-btn" style="margin-top: 50px; width: auto; padding: 15px 40px; font-size: 1.1rem; background: #ffffff; color: #000000; border: none; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); font-weight: 800; font-family: 'Outfit', sans-serif;">
+                ENTER THE REALM <i class="fas fa-dungeon" style="margin-left: 8px;"></i>
+            </button>
         </div>
     </div>
 
-    <!-- ============ LAYER 2: Auth ============ -->
+    <!-- ============ LAYER 2: Auth (With Role Select) ============ -->
     <div id="auth-layer" class="hidden">
         <div class="flex-center" style="height: 100%; flex-direction: column; padding: 30px;">
             <div onclick="backToLanding()" style="position: absolute; top: 40px; right: 30px; cursor: pointer; padding: 10px;"><i class="fas fa-arrow-right fa-xl"></i></div>
             
-            <div id="auth-avatar-display" class="avatar-frame"></div>
+            <h2 style="margin: 0 0 30px;">بوابة الدخول</h2>
+
+            <!-- Role Selector -->
+            <div class="role-toggle-container">
+                <button class="role-toggle-btn active" id="btn-role-student" onclick="setAuthRole('student')">طالب</button>
+                <button class="role-toggle-btn" id="btn-role-teacher" onclick="setAuthRole('teacher')">معلم</button>
+            </div>
             
-            <h2 style="margin: 20px 0 5px;">تسجيل الدخول</h2>
-            <p style="color: #666; margin-bottom: 40px;">مرحباً بك مجدداً</p>
+            <div id="auth-avatar-display" class="avatar-frame avatar-student" style="margin-bottom: 30px;">
+                <i class="fas fa-user-astronaut"></i>
+            </div>
             
             <input type="text" id="auth-name" class="smart-input" placeholder="الاسم الثنائي" style="text-align: center;">
             <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري" style="text-align: center;">
             
             <button onclick="handleSmartAuth()" class="modern-btn" style="margin-top: 20px;">
-                ابدأ الرحلة <i class="fas fa-rocket"></i>
+                تسجيل الدخول <i class="fas fa-sign-in-alt"></i>
             </button>
             <div id="auth-status" style="margin-top: 20px; color: var(--warning); font-size: 0.9rem;"></div>
         </div>
@@ -424,12 +471,12 @@
                 <div id="t-results-container"></div>
             </section>
 
-            <!-- Create Test -->
+            <!-- Create/Edit Test -->
             <section id="t-create" class="app-section hidden">
-                <div class="back-btn-header" onclick="switchTab('t-library')"><i class="fas fa-arrow-right"></i> إلغاء</div>
+                <div class="back-btn-header" onclick="resetCreateForm(); switchTab('t-library');"><i class="fas fa-arrow-right"></i> إلغاء</div>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 style="margin: 0;">اختبار جديد</h2>
+                    <h2 style="margin: 0;" id="create-page-title">اختبار جديد</h2>
                     <button onclick="toggleAiGenerator()" style="background: rgba(217, 70, 239, 0.1); border: 1px solid #d946ef; color: #d946ef; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; font-weight: bold;">
                         <i class="fas fa-wand-magic-sparkles"></i> توليد بالـ AI
                     </button>
@@ -458,16 +505,14 @@
                 </div>
                 <input type="text" id="custom-grade-input" class="smart-input hidden" placeholder="اكتب اسم الصف هنا..." style="border-color: var(--accent-gold);">
 
-                <!-- Question Editor (Dynamic Options) -->
-                <div style="background: #151515; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-top: 20px;">
+                <!-- Question Editor -->
+                <div id="q-editor-box" style="background: #151515; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-top: 20px;">
                     <h3 style="font-size: 1rem; color: #888; margin-top: 0; margin-bottom: 15px;">إضافة سؤال</h3>
                     
                     <textarea id="q-text" class="smart-input" rows="2" placeholder="اكتب نص السؤال (يمكن تركه فارغاً إذا أرفقت صورة)"></textarea>
                     
                     <!-- Dynamic Options Container -->
-                    <div id="mcq-options-container">
-                        <!-- Default 2 options will be generated by JS -->
-                    </div>
+                    <div id="mcq-options-container"></div>
 
                     <button onclick="addOptionField()" class="modern-btn secondary" style="width: auto; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 15px;">
                         <i class="fas fa-plus"></i> إضافة خيار آخر
@@ -476,20 +521,21 @@
                     <div style="display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid #333; padding-top: 15px;">
                         <input type="number" id="q-points" value="1" class="smart-input" style="width: 80px; text-align: center; margin:0;" placeholder="درجة">
                         <label class="smart-input" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px dashed #444; margin:0;">
-                            <i class="fas fa-image"></i> إرفاق صورة للسؤال
+                            <i class="fas fa-image"></i> <span id="q-img-label">إرفاق صورة</span>
                             <input type="file" id="q-image-input" hidden accept="image/*">
                         </label>
                     </div>
                     <div id="q-img-preview" class="hidden" style="margin-top: 10px; text-align: center;"><img src="" style="height: 80px; border-radius: 10px;"></div>
 
-                    <button onclick="addQuestionToList()" class="modern-btn" style="margin-top: 15px; background: #333; color: #fff;">
-                        <i class="fas fa-check"></i> حفظ السؤال
+                    <button id="btn-add-q" onclick="addQuestionToList()" class="modern-btn" style="margin-top: 15px; background: #333; color: #fff;">
+                        <i class="fas fa-check"></i> إضافة السؤال
                     </button>
                 </div>
 
-                <div id="added-questions-list" style="margin: 20px 0;"></div>
+                <h3 style="margin-top: 30px; margin-bottom: 10px;">الأسئلة المضافة:</h3>
+                <div id="added-questions-list" style="margin-bottom: 30px;"></div>
 
-                <button class="modern-btn" onclick="saveTest()" style="background: var(--success); color: white; margin-bottom: 50px;">
+                <button id="btn-save-test" class="modern-btn" onclick="saveTest()" style="background: var(--success); color: white; margin-bottom: 50px;">
                     <i class="fas fa-save"></i> نشر الاختبار النهائي
                 </button>
             </section>
@@ -711,6 +757,16 @@
         </div>
     </div>
 
+    <!-- GLOBAL CUSTOM ALERT/CONFIRM MODAL -->
+    <div id="sa-custom-alert" class="">
+        <div class="sa-alert-box">
+            <div id="sa-alert-icon" class="sa-alert-icon"></div>
+            <div id="sa-alert-title" class="sa-alert-title"></div>
+            <div id="sa-alert-msg" class="sa-alert-msg"></div>
+            <div id="sa-alert-actions" class="sa-alert-actions"></div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -731,54 +787,100 @@
         const aiApiKey = "AIzaSyC5aKq0yTiEqDIVawe0HmvUgMBKOnS3IQ0";
 
         // Global State
-        let selectedRole = null;
+        let selectedRole = 'student'; // Default
         let currentUser = null;
         let currentQuestions = [];
         let currentImgBase64 = null;
         let aiGenImgBase64 = null;
-        let chatMessageCounter = 0; // For Ads in Chat
+        let chatMessageCounter = 0; 
+        
+        // Editing Mode State
+        let isEditingMode = false;
+        let editingTestId = null;
+
+        // ======== CUSTOM ALERT SYSTEM ========
+        window.saAlert = (msg, type = 'info', title = null) => {
+            const modal = document.getElementById('sa-custom-alert');
+            const iconDiv = document.getElementById('sa-alert-icon');
+            const titleDiv = document.getElementById('sa-alert-title');
+            const msgDiv = document.getElementById('sa-alert-msg');
+            const actionsDiv = document.getElementById('sa-alert-actions');
+
+            // Reset
+            actionsDiv.innerHTML = `<button class="sa-btn sa-btn-primary" onclick="closeSaAlert()">حسناً</button>`;
+            
+            // Icon & Color Logic
+            let iconHtml = '';
+            let color = '#fff';
+            
+            if(type === 'success') {
+                iconHtml = '<i class="fas fa-check-circle"></i>';
+                color = 'var(--success)';
+                if(!title) title = 'نجاح';
+            } else if (type === 'error') {
+                iconHtml = '<i class="fas fa-times-circle"></i>';
+                color = 'var(--danger)';
+                if(!title) title = 'خطأ';
+            } else {
+                iconHtml = '<i class="fas fa-info-circle"></i>';
+                color = 'var(--accent-primary)';
+                if(!title) title = 'تنبيه';
+            }
+
+            iconDiv.innerHTML = iconHtml;
+            iconDiv.style.color = color;
+            titleDiv.innerText = title;
+            msgDiv.innerText = msg;
+
+            modal.classList.add('active');
+        };
+
+        window.saConfirm = (msg, onConfirm) => {
+            const modal = document.getElementById('sa-custom-alert');
+            document.getElementById('sa-alert-icon').innerHTML = '<i class="fas fa-question-circle" style="color:var(--warning)"></i>';
+            document.getElementById('sa-alert-title').innerText = 'تأكيد';
+            document.getElementById('sa-alert-msg').innerText = msg;
+            
+            const actionsDiv = document.getElementById('sa-alert-actions');
+            actionsDiv.innerHTML = '';
+            
+            const btnYes = document.createElement('button');
+            btnYes.className = 'sa-btn sa-btn-primary';
+            btnYes.innerText = 'نعم، متابعة';
+            btnYes.style.background = 'var(--warning)';
+            btnYes.onclick = () => { closeSaAlert(); onConfirm(); };
+            
+            const btnNo = document.createElement('button');
+            btnNo.className = 'sa-btn sa-btn-secondary';
+            btnNo.innerText = 'إلغاء';
+            btnNo.onclick = closeSaAlert;
+            
+            actionsDiv.appendChild(btnNo);
+            actionsDiv.appendChild(btnYes);
+            
+            modal.classList.add('active');
+        };
+
+        window.closeSaAlert = () => {
+            document.getElementById('sa-custom-alert').classList.remove('active');
+        };
 
         // ======== Ad Generation ========
         function createAdBanner() {
             const container = document.createElement('div');
             container.className = 'ad-banner';
-            
             const iframe = document.createElement('iframe');
-            iframe.style.width = '468px';
-            iframe.style.height = '60px';
-            iframe.style.border = 'none';
-            iframe.style.overflow = 'hidden';
-            iframe.style.maxWidth = '100%'; 
+            // Allow responsive width if needed, but ads are fixed usually.
+            // We set style to max-width: 100% to avoid overflow on small screens
+            iframe.style.width = '468px'; iframe.style.height = '60px'; iframe.style.border = 'none';
+            iframe.style.overflow = 'hidden'; iframe.style.maxWidth = '100%'; 
             
-            const adContent = `
-                <html>
-                <body style="margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;">
-                    <script>
-                      atOptions = {
-                        'key' : 'e0f63746bfceb42ce1134aaff1b6709d',
-                        'format' : 'iframe',
-                        'height' : 60,
-                        'width' : 468,
-                        'params' : {}
-                      };
-                    <\/script>
-                    <script src="https://www.highperformanceformat.com/e0f63746bfceb42ce1134aaff1b6709d/invoke.js"><\/script>
-                </body>
-                </html>
-            `;
-            
+            const adContent = `<html><body style="margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;"><script>atOptions={'key':'e0f63746bfceb42ce1134aaff1b6709d','format':'iframe','height':60,'width':468,'params':{}};<\/script><script src="https://www.highperformanceformat.com/e0f63746bfceb42ce1134aaff1b6709d/invoke.js"><\/script></body></html>`;
             container.appendChild(iframe);
-            setTimeout(() => {
-                const doc = iframe.contentWindow.document;
-                doc.open();
-                doc.write(adContent);
-                doc.close();
-            }, 100);
-
+            setTimeout(() => { const doc = iframe.contentWindow.document; doc.open(); doc.write(adContent); doc.close(); }, 100);
             return container;
         }
 
-        // ======== Helper Functions ========
         const getBase64 = (file) => new Promise((resolve) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
@@ -786,19 +888,22 @@
         });
 
         // ======== User & Auth ========
-        window.selectRole = (role) => {
+        window.goToAuth = () => {
+             document.getElementById('landing-layer').classList.add('hidden');
+             document.getElementById('auth-layer').classList.remove('hidden');
+             setAuthRole('student');
+        };
+
+        window.setAuthRole = (role) => {
             selectedRole = role;
             const icon = role === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
             const color = role === 'student' ? 'var(--accent-primary)' : 'var(--accent-gold)';
-            
+            document.getElementById('btn-role-student').classList.toggle('active', role === 'student');
+            document.getElementById('btn-role-teacher').classList.toggle('active', role === 'teacher');
             const display = document.getElementById('auth-avatar-display');
             display.innerHTML = `<i class="fas ${icon}"></i>`;
-            display.style.color = color;
-            display.style.borderColor = color;
+            display.style.color = color; display.style.borderColor = color;
             display.className = `avatar-frame avatar-${role}`;
-            
-            document.getElementById('landing-layer').classList.add('hidden');
-            document.getElementById('auth-layer').classList.remove('hidden');
         };
 
         window.backToLanding = () => {
@@ -810,32 +915,23 @@
             const name = document.getElementById('auth-name').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
             const status = document.getElementById('auth-status');
-
-            if (!name || !pass) {
-                status.innerText = "يرجى ملء جميع الحقول"; return;
-            }
+            if (!name || !pass) return status.innerText = "يرجى ملء جميع الحقول";
 
             status.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جارِ الاتصال...';
             const userRef = ref(db, `users/${selectedRole}s/${name}`);
-            
             try {
                 const snap = await get(userRef);
                 if (snap.exists()) {
                     if (snap.val().password === pass) {
                         const savedIcon = snap.val().icon;
                         loginSuccess(name, savedIcon);
-                    } else {
-                        status.innerText = "كلمة المرور غير صحيحة";
-                    }
+                    } else status.innerText = "كلمة المرور غير صحيحة";
                 } else {
                     const defaultIcon = selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
                     await set(userRef, { password: pass, joined: Date.now(), icon: defaultIcon });
                     loginSuccess(name, defaultIcon);
                 }
-            } catch (e) { 
-                console.error(e);
-                status.innerText = "حدث خطأ في الاتصال"; 
-            }
+            } catch (e) { console.error(e); status.innerText = "حدث خطأ في الاتصال"; }
         };
 
         function loginSuccess(name, icon) {
@@ -843,19 +939,16 @@
             localStorage.setItem('sa_user', name);
             localStorage.setItem('sa_role', selectedRole);
             localStorage.setItem('sa_icon', icon || (selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie'));
-            
-            // Fix UI Bug: Ensure only one layer is visible
             document.getElementById('landing-layer').classList.add('hidden');
             document.getElementById('auth-layer').classList.add('hidden');
             updateMenuInfo();
-
             if (selectedRole === 'teacher') {
                 document.getElementById('teacher-app').classList.remove('hidden');
                 initTeacherApp();
             } else {
                 document.getElementById('student-app').classList.remove('hidden');
                 loadStudentExams();
-                loadStudentGrades(); // New function for Honor Board
+                loadStudentGrades();
             }
         }
 
@@ -886,21 +979,18 @@
         window.saveProfileName = async () => {
             const newName = document.getElementById('edit-name-input').value.trim();
             if(!newName || newName === currentUser) return;
-            
-            if(confirm("تغيير الاسم سيؤدي لإنشاء حساب جديد. متابعة؟")) {
+            saConfirm("تغيير الاسم سيؤدي لإنشاء حساب جديد. هل أنت متأكد؟", async () => {
                 const oldRef = ref(db, `users/${selectedRole}s/${currentUser}`);
                 const snapshot = await get(oldRef);
                 const data = snapshot.val();
-                
                 await set(ref(db, `users/${selectedRole}s/${newName}`), data);
                 await remove(oldRef);
-                
                 currentUser = newName;
                 localStorage.setItem('sa_user', newName);
                 updateMenuInfo();
-                alert("تم تغيير الاسم");
+                saAlert("تم تغيير الاسم بنجاح", "success");
                 toggleEditProfile();
-            }
+            });
         };
 
         window.toggleAvatarSelect = () => {
@@ -916,25 +1006,19 @@
             toggleAvatarSelect();
         };
 
-        window.logout = () => {
-            localStorage.clear();
-            location.reload();
-        };
+        window.logout = () => { localStorage.clear(); location.reload(); };
 
         window.shareApp = () => {
             const url = window.location.href;
             const text = "انضم لمنصة SA EDU التعليمية المتطورة!";
-            if (navigator.share) {
-                navigator.share({ title: 'SA EDU', text: text, url: url }).catch(err => console.log(err));
-            } else {
-                navigator.clipboard.writeText(url).then(() => alert("تم نسخ رابط المنصة!"));
-            }
+            if (navigator.share) navigator.share({ title: 'SA EDU', text: text, url: url }).catch(err => console.log(err));
+            else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المنصة!", "success")); }
         };
 
         // ======== Teacher Functions ========
         function initTeacherApp() {
             loadTeacherTests();
-            renderOptionFields(); // Init with defaults
+            renderOptionFields(); 
         }
 
         window.switchTab = (tabId, btn) => {
@@ -945,7 +1029,8 @@
                 document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             }
-            if(tabId === 's-grades') loadStudentGrades(); // Reload grades when tab is clicked
+            if(tabId === 's-grades') loadStudentGrades();
+            if(tabId === 's-exams') loadStudentExams(); // Force reload exams
         };
 
         function loadTeacherTests() {
@@ -957,7 +1042,6 @@
                 resultSelect.innerHTML = '<option>اختر الاختبار للعرض</option>';
                 const data = snap.val() || {};
                 
-                let counter = 0;
                 Object.entries(data).forEach(([key, val]) => {
                     if (val.teacher === currentUser) {
                         const opt = document.createElement('option');
@@ -979,27 +1063,22 @@
                                     <div class="teacher-badge">نشط</div>
                                 </div>
                                 <div class="icon-actions">
-                                    <button class="action-icon edit" onclick="alert('خاصية التعديل قيد التطوير')">
+                                    <button class="action-icon edit" onclick="editTest('${key}')">
                                         <i class="fas fa-pen"></i>
                                     </button>
-                                    <button class="action-icon share" onclick="shareTest('${val.title}')">
+                                    <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')">
                                         <i class="fas fa-share-alt"></i>
                                     </button>
                                     <button class="action-icon gold" onclick="toggleTestVisibility('${key}', ${!val.isHidden})">
                                         <i class="fas fa-eye${val.isHidden ? '' : '-slash'}"></i>
                                     </button>
                                     <button class="action-icon delete" onclick="deleteTest('${key}')">
-                                        <i class="fas fa-eraser"></i>
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             </div>
                         `;
-                        
                         list.appendChild(cardWrapper);
-                        
-                        // Add ad every 2 items
-                        counter++;
-                        if (counter % 2 === 0) list.appendChild(createAdBanner());
                     }
                 });
             });
@@ -1007,44 +1086,39 @@
         }
 
         // New Dynamic Option Logic
-        let optionCount = 2; // Default
-        
-        window.renderOptionFields = () => {
+        let optionCount = 2; 
+        window.renderOptionFields = (preloadOptions = null, correctVal = null) => {
             const container = document.getElementById('mcq-options-container');
-            if(container.children.length === 0) {
-                // Initial 2 options
-                container.innerHTML = '';
-                addOptionField(true); // Is correct (default)
-                addOptionField();
+            container.innerHTML = '';
+            if(preloadOptions) {
+                preloadOptions.forEach(opt => { addOptionField(opt === correctVal, opt); });
+            } else {
+                addOptionField(true); addOptionField();
             }
         };
 
-        window.addOptionField = (isDefaultCorrect = false) => {
+        window.addOptionField = (isCorrect = false, value = '') => {
             const container = document.getElementById('mcq-options-container');
-            const currentCount = container.children.length;
-            if(currentCount >= 6) return alert("الحد الأقصى 6 خيارات");
+            if(container.children.length >= 6) return saAlert("الحد الأقصى 6 خيارات", "info");
 
             const div = document.createElement('div');
             div.className = 'option-row';
             div.innerHTML = `
-                <input type="radio" name="correct_ans_select" class="option-radio" ${isDefaultCorrect ? 'checked' : ''}>
-                <input type="text" class="smart-input option-input ${isDefaultCorrect ? 'correct' : ''}" placeholder="خيار ${currentCount + 1}">
+                <input type="radio" name="correct_ans_select" class="option-radio" ${isCorrect ? 'checked' : ''}>
+                <input type="text" class="smart-input option-input ${isCorrect ? 'correct' : ''}" value="${value}" placeholder="خيار">
                 <button onclick="removeOption(this)" class="icon-btn-small" style="color:var(--danger); background:rgba(239,68,68,0.1);"><i class="fas fa-times"></i></button>
             `;
-            
-            // Add listeners to highlight correct input visually
             const radio = div.querySelector('input[type="radio"]');
             radio.addEventListener('change', () => {
                 document.querySelectorAll('.option-input').forEach(i => i.classList.remove('correct'));
                 div.querySelector('.option-input').classList.add('correct');
             });
-
             container.appendChild(div);
         };
 
         window.removeOption = (btn) => {
             const container = document.getElementById('mcq-options-container');
-            if(container.children.length <= 2) return alert("يجب وجود خيارين على الأقل");
+            if(container.children.length <= 2) return saAlert("يجب وجود خيارين على الأقل", "info");
             btn.parentElement.remove();
         };
 
@@ -1054,18 +1128,15 @@
                 currentImgBase64 = await getBase64(e.target.files[0]);
                 document.getElementById('q-img-preview').classList.remove('hidden');
                 document.getElementById('q-img-preview').querySelector('img').src = currentImgBase64;
+                document.getElementById('q-img-label').innerText = "تم إرفاق صورة";
             }
         };
 
         window.addQuestionToList = () => {
             const text = document.getElementById('q-text').value;
             const points = document.getElementById('q-points').value;
-            
-            // Get Options
             const rows = document.querySelectorAll('.option-row');
-            let options = [];
-            let correctVal = null;
-            let hasEmpty = false;
+            let options = []; let correctVal = null; let hasEmpty = false;
 
             rows.forEach(row => {
                 const val = row.querySelector('.option-input').value.trim();
@@ -1075,27 +1146,118 @@
                 if(isChecked) correctVal = val;
             });
 
-            if(!text && !currentImgBase64) return alert("يجب إضافة نص للسؤال أو صورة");
-            if(hasEmpty) return alert("يرجى ملء جميع الخيارات");
-            if(!correctVal) return alert("يرجى تحديد الإجابة الصحيحة");
+            if(!text && !currentImgBase64) return saAlert("يجب إضافة نص للسؤال أو صورة", "error");
+            if(hasEmpty) return saAlert("يرجى ملء جميع الخيارات", "error");
+            if(!correctVal) return saAlert("يرجى تحديد الإجابة الصحيحة", "error");
 
-            currentQuestions.push({
-                text, points, image: currentImgBase64,
-                options, correct: correctVal 
-            });
-            
-            const div = document.createElement('div');
-            div.className = 'mini-card';
-            div.innerHTML = `<div style="display:flex; justify-content:space-between;"><span>س${currentQuestions.length}: ${text || 'سؤال صورة'}</span> <i class="fas fa-check" style="color:var(--success)"></i></div>`;
-            document.getElementById('added-questions-list').appendChild(div);
-            
-            // Reset
+            const questionObj = { text, points, image: currentImgBase64, options, correct: correctVal };
+            currentQuestions.push(questionObj);
+            renderAddedQuestions();
+            clearQuestionForm();
+        };
+
+        function clearQuestionForm() {
             document.getElementById('q-text').value = '';
-            document.getElementById('mcq-options-container').innerHTML = '';
-            optionCount = 2;
-            renderOptionFields();
+            document.getElementById('q-points').value = '1';
             currentImgBase64 = null;
+            document.getElementById('q-image-input').value = '';
             document.getElementById('q-img-preview').classList.add('hidden');
+            document.getElementById('q-img-label').innerText = "إرفاق صورة";
+            renderOptionFields();
+        }
+
+        function renderAddedQuestions() {
+            const list = document.getElementById('added-questions-list');
+            list.innerHTML = '';
+            currentQuestions.forEach((q, idx) => {
+                const div = document.createElement('div');
+                div.className = 'mini-card';
+                div.style = "flex-direction:row; justify-content:space-between; align-items:center;";
+                div.innerHTML = `
+                    <div style="flex:1;">
+                        <span style="font-weight:bold;">س${idx + 1}:</span> ${q.text || 'سؤال صورة'} 
+                        ${q.image ? '<i class="fas fa-image" style="color:var(--accent-primary); margin-right:5px;"></i>' : ''}
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button onclick="editQuestion(${idx})" class="icon-btn-small" style="color:var(--accent-primary); background:rgba(59,130,246,0.1);"><i class="fas fa-pen"></i></button>
+                        <button onclick="deleteQuestion(${idx})" class="icon-btn-small" style="color:var(--danger); background:rgba(239,68,68,0.1);"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        window.deleteQuestion = (idx) => {
+            saConfirm("حذف السؤال؟", () => {
+                currentQuestions.splice(idx, 1);
+                renderAddedQuestions();
+            });
+        };
+
+        window.editQuestion = (idx) => {
+            const q = currentQuestions[idx];
+            document.getElementById('q-text').value = q.text;
+            document.getElementById('q-points').value = q.points;
+            if(q.image) {
+                currentImgBase64 = q.image;
+                document.getElementById('q-img-preview').classList.remove('hidden');
+                document.getElementById('q-img-preview').querySelector('img').src = currentImgBase64;
+                document.getElementById('q-img-label').innerText = "صورة موجودة";
+            }
+            renderOptionFields(q.options, q.correct);
+            currentQuestions.splice(idx, 1);
+            renderAddedQuestions();
+            document.getElementById('q-editor-box').scrollIntoView({behavior: 'smooth'});
+        };
+
+        // ========= Save & Edit Logic ==========
+        window.resetCreateForm = () => {
+            document.getElementById('new-test-name').value = '';
+            document.getElementById('new-test-grade').value = '';
+            document.getElementById('new-test-duration').value = '';
+            document.getElementById('custom-grade-input').classList.add('hidden');
+            document.getElementById('create-page-title').innerText = "اختبار جديد";
+            document.getElementById('btn-save-test').innerHTML = '<i class="fas fa-save"></i> نشر الاختبار النهائي';
+            currentQuestions = [];
+            renderAddedQuestions();
+            clearQuestionForm();
+            isEditingMode = false;
+            editingTestId = null;
+        };
+
+        window.editTest = async (testId) => {
+            const snap = await get(ref(db, `tests/${testId}`));
+            if(!snap.exists()) return saAlert("الاختبار غير موجود", "error");
+            
+            const data = snap.val();
+            isEditingMode = true;
+            editingTestId = testId;
+
+            // Switch to Create Tab
+            switchTab('t-create');
+            document.getElementById('create-page-title').innerText = "تعديل الاختبار: " + data.title;
+            document.getElementById('btn-save-test').innerHTML = '<i class="fas fa-save"></i> حفظ التعديلات';
+            
+            // Populate Fields
+            document.getElementById('new-test-name').value = data.title;
+            document.getElementById('new-test-duration').value = data.duration;
+            
+            // Handle Grade
+            const gradeSelect = document.getElementById('new-test-grade');
+            const options = Array.from(gradeSelect.options).map(o => o.value);
+            if(options.includes(data.grade)) {
+                gradeSelect.value = data.grade;
+                document.getElementById('custom-grade-input').classList.add('hidden');
+            } else {
+                gradeSelect.value = 'custom';
+                document.getElementById('custom-grade-input').classList.remove('hidden');
+                document.getElementById('custom-grade-input').value = data.grade;
+            }
+
+            // Populate Questions
+            currentQuestions = data.questions || [];
+            if(!Array.isArray(currentQuestions)) currentQuestions = Object.values(currentQuestions);
+            renderAddedQuestions();
         };
 
         window.saveTest = async () => {
@@ -1104,17 +1266,24 @@
             if(grade === 'custom') grade = document.getElementById('custom-grade-input').value;
             const duration = document.getElementById('new-test-duration').value;
 
-            if(!title || !grade || !duration || currentQuestions.length === 0) return alert("البيانات ناقصة");
+            if(!title || !grade || !duration || currentQuestions.length === 0) return saAlert("البيانات ناقصة (تأكد من إضافة سؤال واحد على الأقل)", "error");
 
-            await push(ref(db, 'tests'), {
+            const payload = {
                 teacher: currentUser, title, grade, duration,
                 questions: currentQuestions, timestamp: Date.now(), isHidden: false
-            });
+            };
 
-            alert("تم نشر الاختبار بنجاح!");
-            currentQuestions = [];
-            document.getElementById('added-questions-list').innerHTML = '';
-            document.getElementById('new-test-name').value = '';
+            if (isEditingMode && editingTestId) {
+                // Update Existing
+                await update(ref(db, `tests/${editingTestId}`), payload);
+                saAlert("تم تعديل الاختبار بنجاح!", "success");
+            } else {
+                // Create New
+                await push(ref(db, 'tests'), payload);
+                saAlert("تم نشر الاختبار بنجاح!", "success");
+            }
+            
+            resetCreateForm();
             switchTab('t-library');
         };
 
@@ -1123,28 +1292,37 @@
             document.getElementById('custom-grade-input').classList.toggle('hidden', el.value !== 'custom');
         };
         
-        window.toggleTestVisibility = (k, s) => update(ref(db, `tests/${k}`), { isHidden: s });
-        window.deleteTest = (k) => { 
-            if(confirm("هل أنت متأكد من حذف هذا الاختبار؟")) {
-                remove(ref(db, `tests/${k}`));
-                remove(ref(db, `results/${k}`)); // Remove associated results
-            }
+        window.toggleTestVisibility = (k, s) => {
+            update(ref(db, `tests/${k}`), { isHidden: s });
+            // Alert user visually
+            const msg = s ? "تم إخفاء الاختبار عن الطلاب" : "الاختبار الآن مرئي للطلاب";
+            saAlert(msg, "info");
         };
-        window.shareTest = (title) => {
-            const shareData = {
-                title: 'SA EDU',
-                text: `اختبار جديد: ${title}. ادخل المنصة الآن!`,
-                url: window.location.href
-            };
-            if(navigator.share) navigator.share(shareData).catch(err=>console.log(err));
-            else {
-                navigator.clipboard.writeText(shareData.url);
-                alert("تم نسخ رابط المنصة!");
+
+        window.deleteTest = (k) => { 
+            saConfirm("هل أنت متأكد من حذف هذا الاختبار؟ سيتم حذف جميع النتائج المرتبطة به.", () => {
+                remove(ref(db, `tests/${k}`));
+                remove(ref(db, `results/${k}`)); 
+                saAlert("تم الحذف بنجاح", "success");
+            });
+        };
+
+        window.shareTest = (title, id) => {
+            const url = window.location.href; // In a real app we would append ?testId=${id}
+            const text = `ندعوكم لأداء اختبار "${title}" مع الأستاذ ${currentUser} على منصة SA EDU.`;
+            
+            // Create a temporary text area to copy customized text
+            const copyText = `${text}\n${url}`;
+
+            if(navigator.share) {
+                navigator.share({ title: 'SA EDU Exam', text: text, url: url }).catch(err=>console.log(err));
+            } else {
+                navigator.clipboard.writeText(copyText).then(() => saAlert("تم نسخ تفاصيل ورابط الاختبار!", "success"));
             }
         };
         function getGradeLabel(c) { return ({'1p':'1 ابتدائي','3s':'3 ثانوي'})[c] || c; }
 
-        // ======== Teacher Results (Updated) ========
+        // ======== Teacher Results ========
         window.loadTestResults = (testId) => {
             if(!testId || testId.includes('اختر')) return;
             const div = document.getElementById('t-results-container');
@@ -1154,12 +1332,10 @@
                 div.innerHTML = '';
                 if(!snap.exists()) return div.innerHTML = '<p style="text-align:center; color:#666;">لا توجد نتائج لهذا الاختبار بعد</p>';
                 
-                let counter = 0;
                 snap.forEach(c => {
                     const studentName = c.key;
                     const v = c.val();
                     const color = v.percentage >= 50 ? 'var(--success)' : 'var(--danger)';
-                    
                     const el = document.createElement('div');
                     el.className = 'mini-card';
                     el.style = "flex-direction:row; justify-content:space-between; align-items:center; margin-bottom:10px;";
@@ -1174,29 +1350,20 @@
                         </div>
                     `;
                     div.appendChild(el);
-
-                    counter++;
-                    if(counter % 3 === 0) div.appendChild(createAdBanner());
                 });
             });
         };
 
         window.viewStudentDetails = async (testId, studentName) => {
-            // Get Student Phone
             let phone = "غير مسجل";
             const userSnap = await get(ref(db, `users/students/${studentName}`));
             if(userSnap.exists() && userSnap.val().phone) phone = userSnap.val().phone;
-
-            // Get Results
             const resSnap = await get(ref(db, `results/${testId}/${studentName}`));
             const res = resSnap.val();
-
             document.getElementById('td-name').innerText = studentName;
             document.getElementById('td-phone').innerText = phone;
-            
             const list = document.getElementById('td-answers-list');
             list.innerHTML = '';
-
             if (res.details && Array.isArray(res.details)) {
                 res.details.forEach((d, i) => {
                     const statusColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
@@ -1208,40 +1375,57 @@
                         </div>
                     `;
                 });
-            } else {
-                list.innerHTML = '<p>لا توجد تفاصيل.</p>';
-            }
-
+            } else { list.innerHTML = '<p>لا توجد تفاصيل.</p>'; }
             document.getElementById('teacher-detail-modal').classList.remove('hidden');
         };
 
         // ======== Student Logic ========
         function loadStudentExams() {
             const list = document.getElementById('s-exams-list');
+            list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;"><i class="fas fa-spinner fa-spin"></i> جاري البحث عن اختبارات...</div>';
+            
             onValue(ref(db, 'tests'), async (snap) => {
                 list.innerHTML = '';
-                const tests = snap.val() || {};
-                let counter = 0;
+                const tests = snap.val();
+                
+                if (!tests) {
+                    list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">لا توجد اختبارات متاحة حالياً.</div>';
+                    return;
+                }
+                
+                let foundExam = false;
 
-                for (const [key, val] of Object.entries(tests)) {
-                    if (val.isHidden) continue;
+                // Process in parallel for speed
+                const promises = Object.entries(tests).map(async ([key, val]) => {
+                    // Check if strictly hidden (true). If undefined or false, show it.
+                    if (val.isHidden === true) return null;
+
                     const resSnap = await get(ref(db, `results/${key}/${currentUser}`));
                     const hasTaken = resSnap.exists();
-                    
+                    return { key, val, hasTaken, score: hasTaken ? resSnap.val().percentage : null };
+                });
+
+                const results = await Promise.all(promises);
+
+                results.forEach(item => {
+                    if(!item) return; // Hidden exam
+                    foundExam = true;
+                    const { key, val, hasTaken, score } = item;
+
                     const cardWrapper = document.createElement('div');
                     cardWrapper.className = 'card-wrapper';
                     
-                    // Buttons logic: Start/Redo, Review, Share
                     let buttonsHtml = '';
                     if (hasTaken) {
+                         // RE-ADDED RETAKE BUTTON & REMOVED REVIEW TEXT
                          buttonsHtml = `
-                            <button class="action-icon share" onclick="shareTest('${val.title}')"><i class="fas fa-share-alt"></i></button>
-                            <button class="action-icon edit" onclick="checkPhoneAndStart('${key}')"><i class="fas fa-redo"></i></button>
-                            <button class="action-icon gold" onclick="reviewTest('${key}')"><i class="fas fa-file-alt"></i></button>
+                            <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
+                            <button class="action-icon edit" onclick="checkPhoneAndStart('${key}')" title="إعادة الاختبار"><i class="fas fa-redo"></i></button>
+                            <button class="action-icon gold" onclick="reviewTest('${key}')" title="مراجعة"><i class="fas fa-file-alt"></i></button>
                          `;
                     } else {
                         buttonsHtml = `
-                             <button class="action-icon share" onclick="shareTest('${val.title}')"><i class="fas fa-share-alt"></i></button>
+                             <button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
                              <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white;" onclick="checkPhoneAndStart('${key}')">
                                 <i class="fas fa-rocket"></i> ابدأ الآن
                              </button>
@@ -1251,27 +1435,25 @@
                     cardWrapper.innerHTML = `
                         <div class="mini-card">
                             <div class="card-header">
-                                <div><h3 class="card-title">${val.title}</h3><div class="card-meta"><span>${val.teacher}</span></div></div>
-                                ${hasTaken ? `<span style="color:var(--success)">${resSnap.val().percentage}%</span>` : ''}
+                                <div><h3 class="card-title">${val.title}</h3><div class="card-meta"><span>${val.teacher}</span> • ${val.duration} دقيقة</div></div>
+                                ${hasTaken ? `<span style="color:var(--success); font-weight:bold;">${score}%</span>` : ''}
                             </div>
                             <div class="icon-actions">
                                 ${buttonsHtml}
                             </div>
                         </div>`;
-                    
                     list.appendChild(cardWrapper);
-                    counter++;
-                    if(counter % 2 === 0) list.appendChild(createAdBanner());
-                }
+                });
+
+                if(!foundExam) list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">لا توجد اختبارات متاحة لك حالياً.</div>';
             });
         }
 
-        // Student Grades Tab (Honor Board) Logic
+        // Student Grades Tab
         window.loadStudentGrades = () => {
              const list = document.getElementById('s-grades-list');
              list.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> جارِ التحميل...</div>';
              
-             // Inefficient but functional for now: Get all tests, check results for current user
              get(ref(db, 'tests')).then(async (testSnap) => {
                  list.innerHTML = '';
                  const tests = testSnap.val() || {};
@@ -1303,9 +1485,8 @@
                             </button>
                          `;
                          list.appendChild(div);
-
                          counter++;
-                         if(counter % 3 === 0) list.appendChild(createAdBanner());
+                         if(counter % 1 === 0) list.appendChild(createAdBanner());
                      }
                  }
                  if(!foundAny) list.innerHTML = '<p style="text-align:center; padding:20px; color:#666;">لم تقم بأي اختبارات بعد.</p>';
@@ -1314,23 +1495,19 @@
 
         // Taking Exam Logic with Phone Check
         let tempTestId = null;
-
         window.checkPhoneAndStart = async (id) => {
             tempTestId = id;
             const userSnap = await get(ref(db, `users/students/${currentUser}`));
             if(userSnap.exists() && userSnap.val().phone) {
-                // Phone exists, start directly
                 startTest(id);
             } else {
-                // Ask for phone
                 document.getElementById('phone-modal').classList.remove('hidden');
             }
         };
 
         window.savePhoneAndStart = async () => {
             const phone = document.getElementById('student-phone-input').value.trim();
-            if(!phone || phone.length < 10) return alert("يرجى إدخال رقم صحيح");
-            
+            if(!phone || phone.length < 10) return saAlert("يرجى إدخال رقم صحيح", "error");
             await update(ref(db, `users/students/${currentUser}`), { phone: phone });
             document.getElementById('phone-modal').classList.add('hidden');
             startTest(tempTestId);
@@ -1343,13 +1520,12 @@
         window.startTest = async (id) => {
             const snap = await get(ref(db, `tests/${id}`));
             if (!snap.exists()) {
-                alert("عذراً، هذا الاختبار لم يعد موجوداً.");
+                saAlert("عذراً، هذا الاختبار لم يعد موجوداً.", "error");
                 return;
             }
             activeTest = snap.val();
             activeTest.id = id;
             
-            // Fix for undefined 'forEach' error
             if (!activeTest.questions) {
                 activeTest.questions = [];
             } else if (!Array.isArray(activeTest.questions)) {
@@ -1393,12 +1569,11 @@
         };
 
         window.saveAns = (i, v) => answers[i] = v;
-        window.closeExam = () => { if(confirm("خروج من الامتحان؟ ستفقد تقدمك.")) { clearInterval(timerInt); document.getElementById('s-taking-test').classList.add('hidden'); }};
+        window.closeExam = () => { saConfirm("خروج من الامتحان؟ ستفقد تقدمك.", () => { clearInterval(timerInt); document.getElementById('s-taking-test').classList.add('hidden'); }); };
         
         window.submitExam = async () => {
             clearInterval(timerInt);
             let score = 0, total = 0, details = [];
-            
             const questions = activeTest.questions || [];
             
             questions.forEach((q, i) => {
@@ -1411,15 +1586,15 @@
             
             const pct = total === 0 ? 0 : Math.round((score/total)*100);
             await set(ref(db, `results/${activeTest.id}/${currentUser}`), { score, total, percentage: pct, timestamp: Date.now(), details });
-            alert(`النتيجة: ${pct}%`);
+            saAlert(`تم التسليم! النتيجة: ${pct}%`, "success");
             document.getElementById('s-taking-test').classList.add('hidden');
             loadStudentExams();
-            loadStudentGrades(); // Refresh grades tab
+            loadStudentGrades(); 
         };
 
         window.reviewTest = async (id) => {
             const resSnap = await get(ref(db, `results/${id}/${currentUser}`));
-            if(!resSnap.exists()) return alert("لم تقم بهذا الاختبار");
+            if(!resSnap.exists()) return saAlert("لم تقم بهذا الاختبار", "info");
             const res = resSnap.val();
             
             const div = document.getElementById('review-content');
@@ -1429,7 +1604,6 @@
                 res.details.forEach((d, i) => {
                     const borderColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
                     const icon = d.isCorrect ? '<i class="fas fa-check-circle" style="color:var(--success)"></i>' : '<i class="fas fa-times-circle" style="color:var(--danger)"></i>';
-                    
                     div.innerHTML += `
                         <div class="mini-card" style="border-right:4px solid ${borderColor}">
                             <div style="display:flex; justify-content:space-between;">
@@ -1447,16 +1621,13 @@
                             </div>` : ''}
                         </div>`;
                 });
-            } else {
-                div.innerHTML += '<p>لا توجد تفاصيل متاحة للمراجعة.</p>';
-            }
+            } else { div.innerHTML += '<p>لا توجد تفاصيل متاحة للمراجعة.</p>'; }
             document.getElementById('s-review-test').classList.remove('hidden');
         };
 
         // ======== AI Logic (Chat + Generation) ========
         window.toggleAiGenerator = () => document.getElementById('ai-gen-modal').classList.toggle('hidden');
         
-        // AI Chat Image Handling
         window.previewChatImg = async (prefix) => {
             const input = document.getElementById(`${prefix}-ai-file`);
             if(input.files[0]) {
@@ -1472,38 +1643,48 @@
             document.getElementById(`${prefix}-chat-preview`).style.display = 'none';
         };
 
+        // UPDATED: Use appendChild to prevent iframe reload/disappearance
         window.sendAiMsg = async (prefix) => {
             const input = document.getElementById(`${prefix}-ai-input`);
             const fileInput = document.getElementById(`${prefix}-ai-file`);
             const msgs = document.getElementById(`${prefix}-ai-msgs`);
-            
             const txt = input.value.trim();
             if(!txt && !fileInput.files[0]) return;
             
-            let userHtml = `<div class="chat-msg user">${txt}`;
-            let imgData = null;
+            // 1. Create & Append User Message
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'chat-msg user';
+            userMsgDiv.innerText = txt;
             
+            let imgData = null;
             if(fileInput.files[0]) {
                 const b64 = await getBase64(fileInput.files[0]);
-                userHtml += `<img src="${b64}">`;
+                const img = document.createElement('img');
+                img.src = b64;
+                userMsgDiv.appendChild(img);
                 imgData = b64.split(',')[1];
                 clearChatImg(prefix);
             }
-            userHtml += `</div>`;
-            msgs.innerHTML += userHtml;
+            msgs.appendChild(userMsgDiv);
             input.value = '';
             msgs.scrollTop = msgs.scrollHeight;
 
+            // 2. Create & Append Loading Message
             const loadId = 'loading-' + Date.now();
-            msgs.innerHTML += `<div class="chat-msg ai" id="${loadId}"><i class="fas fa-circle-notch fa-spin"></i></div>`;
+            const loaderDiv = document.createElement('div');
+            loaderDiv.className = 'chat-msg ai';
+            loaderDiv.id = loadId;
+            loaderDiv.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            msgs.appendChild(loaderDiv);
             msgs.scrollTop = msgs.scrollHeight;
 
-            // Logic to add Ad every 2 messages
+            // 3. Handle Ad Insertion
             chatMessageCounter++;
             if(chatMessageCounter % 2 === 0) {
                  msgs.appendChild(createAdBanner());
             }
 
+            // 4. API Logic
             const parts = [];
             if(txt) parts.push({ text: txt });
             if(imgData) parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
@@ -1520,9 +1701,7 @@
                 const data = await res.json();
                 const reply = data.candidates[0].content.parts[0].text;
                 document.getElementById(loadId).innerText = reply;
-            } catch (e) {
-                document.getElementById(loadId).innerText = "عذراً، حدث خطأ.";
-            }
+            } catch (e) { document.getElementById(loadId).innerText = "عذراً، حدث خطأ."; }
             msgs.scrollTop = msgs.scrollHeight;
         };
 
@@ -1530,18 +1709,15 @@
         const savedUser = localStorage.getItem('sa_user');
         const savedRole = localStorage.getItem('sa_role');
         const savedIcon = localStorage.getItem('sa_icon');
+        
         if (savedUser && savedRole) {
             currentUser = savedUser; selectedRole = savedRole;
+            document.getElementById('landing-layer').classList.add('hidden');
             loginSuccess(currentUser, savedIcon);
         } else {
-            // Fix: Ensure Landing is shown, others hidden on fresh load
             document.getElementById('landing-layer').classList.remove('hidden');
-            document.getElementById('auth-layer').classList.add('hidden');
-            document.getElementById('teacher-app').classList.add('hidden');
-            document.getElementById('student-app').classList.add('hidden');
         }
 
     </script>
 </body>
 </html>
-
