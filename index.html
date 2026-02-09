@@ -9,6 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
     <style>
         :root {
             --bg-deep: #000000;
@@ -27,8 +28,6 @@
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            --fb-blue: #1877F2;
-            --fb-red: #F02849;
         }
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
@@ -333,7 +332,6 @@
             width: fit-content; margin-bottom: 15px; cursor: pointer;
             box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3);
         }
-        /* New Styles for Suggestion Chips */
         .ai-suggestions-container {
             display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;
         }
@@ -598,9 +596,48 @@
             display: flex; align-items: center; justify-content: center;
             border: 2px dashed #444; box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
+        .type-toggle-container {
+            display: flex; gap: 10px; margin-bottom: 15px; background: rgba(255,255,255,0.05);
+            padding: 5px; border-radius: 12px; width: fit-content;
+        }
+        .type-radio-label {
+            padding: 8px 15px; border-radius: 8px; cursor: pointer; color: #888; transition: 0.3s; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .type-radio-label:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .type-radio-label.active { background: var(--accent-primary); color: #fff; }
+        .type-radio-input { display: none; }
+
+        /* Construction Overlay Styles */
+        #construction-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.5s;
+        }
+        #construction-overlay.active { opacity: 1; pointer-events: auto; }
+        .construction-loader {
+            width: 80px; height: 80px; position: relative; margin-bottom: 30px;
+        }
+        .construction-loader::before, .construction-loader::after {
+            content: ''; position: absolute; inset: 0; border-radius: 50%;
+            border: 3px solid transparent; border-top-color: var(--accent-primary);
+            animation: spin 1.5s linear infinite;
+        }
+        .construction-loader::after {
+            inset: 10px; border-top-color: var(--accent-gold); animation-duration: 2.5s;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .construction-text { font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: bold; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+        .construction-sub { color: #888; font-size: 0.9rem; margin-top: 10px; }
     </style>
 </head>
 <body>
+    <div id="construction-overlay">
+        <div class="construction-loader"></div>
+        <div class="construction-text">SA AI Building...</div>
+        <div class="construction-sub">جاري بناء وتجهيز البيانات</div>
+    </div>
+
     <div id="landing-layer">
         <div class="landing-wrap">
             <h1 style="font-size: 3.5rem; background: linear-gradient(to right, #fff, #3b82f6); -webkit-background-clip: text; color: transparent; margin: 0; text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);">SA EDU</h1>
@@ -729,11 +766,28 @@
                 <input type="text" id="custom-grade-input" class="smart-input hidden" placeholder="اكتب اسم الصف هنا..." style="border-color: var(--accent-gold);">
                 <div id="q-editor-box" style="background: #151515; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-top: 20px;">
                     <h3 style="font-size: 1rem; color: #888; margin-top: 0; margin-bottom: 15px;">إضافة سؤال</h3>
+                    
+                    <!-- New Question Type Selector -->
+                    <div class="type-toggle-container">
+                        <label class="type-radio-label active" onclick="setQType('mcq', this)">
+                            <i class="fas fa-list-ul"></i> اختياري
+                            <input type="radio" name="q-type" value="mcq" class="type-radio-input" checked>
+                        </label>
+                        <label class="type-radio-label" onclick="setQType('essay', this)">
+                            <i class="fas fa-align-right"></i> مقالي
+                            <input type="radio" name="q-type" value="essay" class="type-radio-input">
+                        </label>
+                    </div>
+
                     <textarea id="q-text" class="smart-input" rows="2" placeholder="اكتب نص السؤال"></textarea>
-                    <div id="mcq-options-container"></div>
-                    <button onclick="addOptionField()" class="modern-btn secondary" style="width: auto; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 15px;">
-                        <i class="fas fa-plus"></i> إضافة خيار آخر
-                    </button>
+                    
+                    <div id="mcq-section-wrapper">
+                        <div id="mcq-options-container"></div>
+                        <button onclick="addOptionField()" class="modern-btn secondary" style="width: auto; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 15px;">
+                            <i class="fas fa-plus"></i> إضافة خيار آخر
+                        </button>
+                    </div>
+
                     <div style="display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid #333; padding-top: 15px;">
                         <input type="number" id="q-points" value="1" class="smart-input" style="width: 80px; text-align: center; margin:0;" placeholder="درجة">
                         <label class="smart-input" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px dashed #444; margin:0;">
@@ -769,7 +823,7 @@
                 <div class="ai-input-bar">
                     <label for="t-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
                     <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
-                    <input type="text" id="t-ai-input" class="ai-input-field" placeholder="اكتب رسالة...">
+                    <input type="text" id="t-ai-input" class="ai-input-field" placeholder="اكتب رسالة (مثال: أنشئ اختبار عن...)">
                     <button onclick="sendAiMsg('t')" class="send-btn"><i class="fas fa-arrow-up"></i></button>
                     <div id="t-chat-preview" class="chat-img-preview">
                         <i class="fas fa-times" onclick="clearChatImg('t')"></i>
@@ -909,7 +963,6 @@
         </div>
     </div>
 
-    <!-- ... rest of modals (menu, etc) ... -->
     <div id="menu-modal" class="full-screen-overlay">
         <button class="shiny-back-btn" onclick="toggleMenu()">
             <i class="fas fa-arrow-right"></i>
@@ -920,6 +973,7 @@
                 <h3 id="menu-username" style="margin: 15px 0 5px; font-size: 1.3rem;">User</h3>
                 <span id="menu-role" style="font-size: 0.85rem; background: #333; padding: 4px 15px; border-radius: 20px; color: #aaa;">Role</span>
             </div>
+
             <div id="menu-edit-section" class="hidden" style="background: #222; padding: 15px; border-radius: 15px;">
                 <label style="color: #888; font-size: 0.8rem;">تعديل الاسم:</label>
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
@@ -968,18 +1022,26 @@
             <div style="text-align: center; margin-bottom: 20px; padding: 30px 0;">
                 <i class="fas fa-brain" style="font-size: 4rem; color: #d946ef; margin-bottom: 20px; text-shadow: 0 0 30px rgba(217, 70, 239, 0.4);"></i>
                 <h2 style="margin: 0;">SA EDU AI</h2>
-                <p style="color: #888;">اكتب الموضوع وسأقوم بإنشاء اختبار كامل لك</p>
+                <p style="color: #888;">حدد التفاصيل وسأقوم ببناء الاختبار لك</p>
             </div>
             <textarea id="ai-gen-text" class="smart-input" rows="4" placeholder="اكتب الموضوع هنا (مثال: الحرب العالمية الثانية، قوانين نيوتن...)" style="background: #111; border-color: #333;"></textarea>
             <label class="smart-input" style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #111; border-color: #333;">
-                <i class="fas fa-image" style="color: var(--accent-primary);"></i> <span>رفع صورة للمنهج (اختياري)</span>
+                <i class="fas fa-image" style="color: var(--accent-primary);"></i> <span>رفع صورة للمنهج لتحليلها</span>
                 <input type="file" id="ai-gen-img" hidden accept="image/*" onchange="previewAiGenImg(this)">
             </label>
             <div id="ai-gen-preview" class="hidden" style="margin-bottom: 15px; text-align: center;"><img src="" style="height: 100px; border-radius: 12px; border: 1px solid #333;"></div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <span style="color: #aaa; white-space: nowrap;">عدد الأسئلة:</span>
-                <input type="number" id="ai-gen-count" class="smart-input" value="5" style="text-align: center; margin: 0;">
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد الاختياري (MCQ)</label>
+                    <input type="number" id="ai-mcq-count" class="smart-input" value="5" style="text-align: center; margin: 0;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد المقالي</label>
+                    <input type="number" id="ai-essay-count" class="smart-input" value="0" style="text-align: center; margin: 0;">
+                </div>
             </div>
+
             <div style="margin-top: auto;">
                 <button onclick="generateAiQuestions()" class="glossy-black-btn">
                     <i class="fas fa-magic"></i> توليد الاختبار الآن
@@ -1039,16 +1101,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // --- GEMINI AI CONFIGURATION ---
-        const aiApiKey = "AIzaSyD9h5-H4KIxWtVpjXvyrK4c6S9HOhZCBc0";
-        const geminiModel = "gemini-2.5-flash-preview-09-2025"; 
-
         let selectedRole = 'student'; 
         let currentUser = null;
         let currentQuestions = [];
         let currentImgBase64 = null;
         let aiGenImgBase64 = null;
-        let chatMessageCounter = 0; 
         let currentChatId = null;
         let currentChatMessages = [];
         let isIncognito = false;
@@ -1067,6 +1124,18 @@
             }
             lastScrollTop = st <= 0 ? 0 : st;
         }, false);
+
+        // Utility: Show/Hide Construction Overlay
+        function toggleConstructionOverlay(show, title="SA AI Building...", sub="جاري المعالجة") {
+            const ol = document.getElementById('construction-overlay');
+            if (show) {
+                ol.querySelector('.construction-text').innerText = title;
+                ol.querySelector('.construction-sub').innerText = sub;
+                ol.classList.add('active');
+            } else {
+                ol.classList.remove('active');
+            }
+        }
 
         function getSkeletonHTML() {
             return `
@@ -1136,9 +1205,14 @@
             const iframe = document.createElement('iframe');
             iframe.style.width = '468px'; iframe.style.height = '60px'; iframe.style.border = 'none';
             iframe.style.overflow = 'hidden'; iframe.style.maxWidth = '100%'; 
-            const adContent = `<html><body style="margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;"><script>atOptions={'key':'e0f63746bfceb42ce1134aaff1b6709d','format':'iframe','height':60,'width':468,'params':{}};<\/script><script src="https://www.highperformanceformat.com/e0f63746bfceb42ce1134aaff1b6709d/invoke.js"><\/script></body></html>`;
+            // Load Ad Asynchronously for speed
+            const adContent = `<html><body style="margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;"><script async>atOptions={'key':'e0f63746bfceb42ce1134aaff1b6709d','format':'iframe','height':60,'width':468,'params':{}};<\/script><script async src="https://www.highperformanceformat.com/e0f63746bfceb42ce1134aaff1b6709d/invoke.js"><\/script></body></html>`;
             container.appendChild(iframe);
-            setTimeout(() => { const doc = iframe.contentWindow.document; doc.open(); doc.write(adContent); doc.close(); }, 100);
+            // Non-blocking write
+            setTimeout(() => { 
+                const doc = iframe.contentWindow.document; 
+                doc.open(); doc.write(adContent); doc.close(); 
+            }, 50);
             return container;
         }
 
@@ -1146,46 +1220,31 @@
             const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result);
         });
 
-        // --- GEMINI API INTEGRATION ---
-        async function callGeminiAPI(prompt, imageBase64 = null) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${aiApiKey}`;
-            
-            // Build parts array
-            const parts = [{ text: prompt }];
-            if (imageBase64) {
-                const base64Data = imageBase64.split(',')[1] || imageBase64;
-                parts.push({ 
-                    inline_data: { 
-                        mime_type: "image/jpeg", 
-                        data: base64Data 
-                    } 
-                });
-            }
-
+        // --- OCR Logic ---
+        async function recognizeImageText(imageBase64) {
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        contents: [{ parts: parts }]
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`API Error: ${response.status} - ${errorText}`);
-                }
-
-                const data = await response.json();
-                
-                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-                     return data.candidates[0].content.parts[0].text;
-                } else {
-                    throw new Error("Invalid response format from Gemini");
-                }
-               
+                const worker = Tesseract.createWorker({ logger: m => {} });
+                await worker.load();
+                await worker.loadLanguage('ara+eng');
+                await worker.initialize('ara+eng');
+                const { data: { text } } = await worker.recognize(imageBase64);
+                await worker.terminate();
+                return text;
             } catch (error) {
-                console.error("Gemini API Error:", error);
+                console.error("OCR Error:", error);
+                throw new Error("فشل في قراءة النص من الصورة.");
+            }
+        }
+
+        // --- AI API ---
+        async function callPollinationsAI(prompt) {
+            const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('API Error');
+                return await response.text();
+            } catch (error) {
+                console.error("AI Error:", error);
                 throw error;
             }
         }
@@ -1338,12 +1397,20 @@
             document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
             document.getElementById(tabId).classList.remove('hidden');
             if(btn) { document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+            
             if(tabId === 's-grades') loadStudentGrades();
             if(tabId === 's-exams') {
                 loadStudentExams();
                 startTypewriter("student-type-text", "الاختبارات المتاحة لتطويرك");
             }
-            if(tabId === 't-library') startTypewriter("cta-type-text", "اضغط هنا لكتابة الامتحان");
+            if(tabId === 't-library') {
+                loadTeacherTests();
+                startTypewriter("cta-type-text", "اضغط هنا لكتابة الامتحان");
+            }
+            if(tabId === 't-reese' || tabId === 's-reese') {
+                const prefix = selectedRole === 'teacher' ? 't' : 's';
+                loadReesePosts(prefix);
+            }
             if(tabId === 't-ai' && !currentChatId) startNewChat('t');
             if(tabId === 's-ai' && !currentChatId) startNewChat('s');
         };
@@ -1503,20 +1570,18 @@
             else { navigator.clipboard.writeText(content).then(() => saAlert("تم نسخ النص", "success")); }
         };
 
-        // --- AI REESE GENERATOR INTEGRATION (UPDATED WITH 3 SUGGESTIONS) ---
+        // --- AI REESE GENERATOR INTEGRATION ---
         window.generateAiReese = async () => {
-            saAlert("جاري توليد الاقتراحات...", "info");
+            toggleConstructionOverlay(true, "SA AI THINKING", "توليد أفكار إبداعية...");
             const prompt = `Generate 3 distinct, engaging, and short social media post ideas for a ${selectedRole} on an educational app. Return them as a JSON array of strings (e.g., ["Idea 1", "Idea 2", "Idea 3"]). Language: Arabic. Keep them under 150 characters.`;
             
             try {
-                let text = await callGeminiAPI(prompt);
-                // Clean response to get JSON
+                let text = await callPollinationsAI(prompt);
                 text = text.replace(/```json/g, '').replace(/```/g, '').trim();
                 let suggestions = [];
                 try {
                     suggestions = JSON.parse(text);
                 } catch(e) {
-                    // Fallback if not pure JSON
                     suggestions = [text];
                 }
 
@@ -1532,13 +1597,13 @@
                     chip.innerHTML = `${sug} <i class="fas fa-plus-circle"></i>`;
                     chip.onclick = () => {
                         document.getElementById('reese-text-input').value = sug;
-                        // Optional: hide others or keep them
                     };
                     container.appendChild(chip);
                 });
-
+                toggleConstructionOverlay(false);
             } catch(e) { 
                 console.error(e);
+                toggleConstructionOverlay(false);
                 saAlert("فشل التوليد، تأكد من الاتصال.", "error"); 
             }
         };
@@ -1559,10 +1624,10 @@
                 <div class="ai-welcome-screen">
                     <div class="ai-logo-large"><i class="fas fa-wand-magic-sparkles"></i></div>
                     <h3 class="ai-welcome-title">مرحباً ${firstName} 👋</h3>
-                    <p class="ai-welcome-text">أنا مساعدك الذكي SA AI. كيف يمكنني مساعدتك اليوم؟</p>
+                    <p class="ai-welcome-text">أنا مساعدك الذكي SA AI. <br>يمكنني قراءة الصور، إنشاء الاختبارات، ونشر الأفكار!</p>
                     <div class="ai-chips">
-                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'ساعدني في تحضير درس عن الجاذبية')"><i class="fas fa-book-open"></i> تحضير درس</div>
-                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اكتب 5 أسئلة اختيار من متعدد عن التاريخ')"><i class="fas fa-list-check"></i> إنشاء أسئلة</div>
+                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'أنشئ اختبار عن الكيمياء العضوية')"><i class="fas fa-flask"></i> إنشاء اختبار</div>
+                        <div class="ai-chip" onclick="fillAiInput('${prefix}', 'انشر بوست عن أهمية التعليم')"><i class="fas fa-feather"></i> كتابة منشور</div>
                         <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اشرح لي هذا المفهوم المعقد ببساطة')"><i class="fas fa-lightbulb"></i> شرح مفهوم</div>
                     </div>
                 </div>`;
@@ -1598,7 +1663,7 @@
         window.toggleHistory = (show) => {
             const sidebar = document.getElementById('ai-history-sidebar');
             if(show) { 
-                renderHistoryList(); // Render immediately when opening
+                renderHistoryList(); 
                 sidebar.classList.add('open'); 
             } else { 
                 sidebar.classList.remove('open'); 
@@ -1664,31 +1729,17 @@
             } else { saAlert("رابط المشاركة غير صالح أو منتهي", "error"); startNewChat(prefix); }
         };
 
-        // Function to parse basic Markdown for display (bold, list, code)
         function formatAiResponseText(text) {
             if(!text) return '';
-            // Escape HTML (simple version)
             let safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            
-            // Bold (**text**)
             safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
-            // Code Block (```code```)
             safeText = safeText.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
-            
-            // Inline Code (`code`)
             safeText = safeText.replace(/`(.*?)`/g, '<code>$1</code>');
-            
-            // Lists (- item) -> Handle simple bullet points
             safeText = safeText.replace(/^\s*-\s+(.*)$/gm, '<li>$1</li>');
-            // Wrap loose li in ul (simple approximation)
             if(safeText.includes('<li>')) {
                 safeText = safeText.replace(/((<li>.*<\/li>\s*)+)/g, '<ul>$1</ul>');
             }
-
-            // Newlines to <br> (excluding inside pre)
             safeText = safeText.replace(/\n/g, '<br>');
-            
             return safeText;
         }
 
@@ -1697,7 +1748,6 @@
             const div = document.createElement('div'); 
             div.className = `chat-msg ${role}`; 
             
-            // Use formatter for AI responses to handle markdown cleanly
             if (role === 'ai') {
                 div.innerHTML = formatAiResponseText(text);
             } else {
@@ -1746,6 +1796,23 @@
         
         window.openResultsTab = (testId) => { switchTab('t-results'); document.getElementById('t-result-select').value = testId; loadTestResults(testId); };
 
+        // --- Question Type Logic ---
+        let currentQType = 'mcq';
+
+        window.setQType = (type, label) => {
+            currentQType = type;
+            document.querySelectorAll('.type-radio-label').forEach(l => l.classList.remove('active'));
+            label.classList.add('active');
+            const mcqSection = document.getElementById('mcq-section-wrapper');
+            if (type === 'essay') {
+                mcqSection.classList.add('hidden');
+            } else {
+                mcqSection.classList.remove('hidden');
+                // Ensure options are rendered if empty
+                if(document.getElementById('mcq-options-container').children.length === 0) renderOptionFields();
+            }
+        };
+
         let optionCount = 2; 
         window.renderOptionFields = (preloadOptions = null, correctVal = null) => {
             const container = document.getElementById('mcq-options-container'); container.innerHTML = '';
@@ -1782,17 +1849,35 @@
 
         window.addQuestionToList = () => {
             const text = document.getElementById('q-text').value; const points = document.getElementById('q-points').value;
-            const rows = document.querySelectorAll('.option-row');
-            let options = []; let correctVal = null; let hasEmpty = false;
-            rows.forEach(row => {
-                const val = row.querySelector('.option-input').value.trim();
-                const isChecked = row.querySelector('input[type="radio"]').checked;
-                if(!val) hasEmpty = true; options.push(val); if(isChecked) correctVal = val;
-            });
+            let options = []; let correctVal = null;
+            
+            if (currentQType === 'mcq') {
+                const rows = document.querySelectorAll('.option-row');
+                let hasEmpty = false;
+                rows.forEach(row => {
+                    const val = row.querySelector('.option-input').value.trim();
+                    const isChecked = row.querySelector('input[type="radio"]').checked;
+                    if(!val) hasEmpty = true; options.push(val); if(isChecked) correctVal = val;
+                });
+                if(hasEmpty) return saAlert("يرجى ملء جميع الخيارات", "error");
+                if(!correctVal) return saAlert("يرجى تحديد الإجابة الصحيحة", "error");
+            } else {
+                // Essay type - no options needed
+                options = null;
+                // Ideally, ask teacher for model answer, but for now we set a flag
+                correctVal = 'essay_evaluation'; 
+            }
+
             if(!text && !currentImgBase64) return saAlert("يجب إضافة نص للسؤال أو صورة", "error");
-            if(hasEmpty) return saAlert("يرجى ملء جميع الخيارات", "error");
-            if(!correctVal) return saAlert("يرجى تحديد الإجابة الصحيحة", "error");
-            const questionObj = { text, points, image: currentImgBase64, options, correct: correctVal };
+            
+            const questionObj = { 
+                type: currentQType, 
+                text, 
+                points, 
+                image: currentImgBase64, 
+                options: options, 
+                correct: correctVal 
+            };
             currentQuestions.push(questionObj); renderAddedQuestions(); clearQuestionForm();
         };
 
@@ -1806,10 +1891,11 @@
         function renderAddedQuestions() {
             const list = document.getElementById('added-questions-list'); list.innerHTML = '';
             currentQuestions.forEach((q, idx) => {
+                const typeLabel = q.type === 'essay' ? '<span style="color:var(--accent-primary); font-size:0.8rem;">(مقالي)</span>' : '';
                 const div = document.createElement('div'); div.className = 'mini-card';
                 div.style = "flex-direction:row; justify-content:space-between; align-items:center;";
                 div.innerHTML = `
-                    <div style="flex:1;"><span style="font-weight:bold;">س${idx + 1}:</span> ${q.text || 'سؤال صورة'} ${q.image ? '<i class="fas fa-image" style="color:var(--accent-primary); margin-right:5px;"></i>' : ''}</div>
+                    <div style="flex:1;"><span style="font-weight:bold;">س${idx + 1}:</span> ${q.text || 'سؤال صورة'} ${typeLabel} ${q.image ? '<i class="fas fa-image" style="color:var(--accent-primary); margin-right:5px;"></i>' : ''}</div>
                     <div style="display:flex; gap:10px;">
                         <button onclick="editQuestion(${idx})" class="icon-btn-small" style="color:var(--accent-primary); background:rgba(59,130,246,0.1);"><i class="fas fa-pen"></i></button>
                         <button onclick="deleteQuestion(${idx})" class="icon-btn-small" style="color:var(--danger); background:rgba(239,68,68,0.1);"><i class="fas fa-trash"></i></button>
@@ -1823,13 +1909,25 @@
         window.editQuestion = (idx) => {
             const q = currentQuestions[idx];
             document.getElementById('q-text').value = q.text; document.getElementById('q-points').value = q.points;
+            
+            // Set type
+            const typeLabels = document.querySelectorAll('.type-radio-label');
+            if (q.type === 'essay') {
+                setQType('essay', typeLabels[1]);
+                typeLabels[1].querySelector('input').checked = true;
+            } else {
+                setQType('mcq', typeLabels[0]);
+                typeLabels[0].querySelector('input').checked = true;
+                renderOptionFields(q.options, q.correct);
+            }
+
             if(q.image) {
                 currentImgBase64 = q.image;
                 document.getElementById('q-img-preview').classList.remove('hidden');
                 document.getElementById('q-img-preview').querySelector('img').src = currentImgBase64;
                 document.getElementById('q-img-label').innerText = "صورة موجودة";
             }
-            renderOptionFields(q.options, q.correct);
+            
             currentQuestions.splice(idx, 1); renderAddedQuestions();
             document.getElementById('q-editor-box').scrollIntoView({behavior: 'smooth'});
         };
@@ -1908,13 +2006,20 @@
             const list = document.getElementById('td-answers-list'); list.innerHTML = '';
             if (res.details && Array.isArray(res.details)) {
                 res.details.forEach((d, i) => {
-                    const statusColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
+                    const isEssay = d.type === 'essay';
+                    let statusColor;
+                    if (isEssay) statusColor = 'var(--accent-primary)'; 
+                    else statusColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
+                    
+                    const essayBadge = isEssay ? '<span style="font-size:0.7rem; background:rgba(255,255,255,0.1); padding:2px 5px; border-radius:4px;">مقالي</span>' : '';
+
                     list.innerHTML += `
                         <div style="background:#222; padding:10px; border-radius:10px; margin-bottom:10px; border-right:3px solid ${statusColor}">
-                            <p style="margin:0 0 5px; font-weight:bold;">س${i+1}: ${d.q}</p>
+                            <p style="margin:0 0 5px; font-weight:bold;">س${i+1}: ${d.q} ${essayBadge}</p>
                             ${d.image ? `<img src="${d.image}" style="max-width:100%; height:auto; border-radius:8px; margin-bottom:10px;">` : ''}
-                            <div style="font-size:0.9rem; color:#aaa;">إجابة الطالب: <span style="color:#fff;">${d.user}</span></div>
-                            ${!d.isCorrect ? `<div style="font-size:0.9rem; color:var(--success);">الصحيحة: ${d.correct}</div>` : ''}
+                            <div style="font-size:0.9rem; color:#aaa;">إجابة الطالب: <span style="color:#fff; white-space: pre-wrap;">${d.user}</span></div>
+                            ${!d.isCorrect && !isEssay ? `<div style="font-size:0.9rem; color:var(--success);">الصحيحة: ${d.correct}</div>` : ''}
+                            ${isEssay ? `<div style="font-size:0.9rem; color:var(--accent-primary); margin-top:5px;">الإجابة النموذجية (AI): ${d.correct || 'غير متوفرة'}</div>` : ''}
                         </div>`;
                 });
             } else { list.innerHTML = '<p>لا توجد تفاصيل.</p>'; }
@@ -2006,12 +2111,21 @@
             const div = document.getElementById('test-questions-render'); div.innerHTML = '';
             if (activeTest.questions.length === 0) { div.innerHTML = '<p style="text-align:center;">لا توجد أسئلة في هذا الاختبار.</p>'; } else {
                 activeTest.questions.forEach((q, i) => {
-                    if (!q.options) q.options = []; const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+                    const isEssay = q.type === 'essay';
+                    let inputHtml = '';
+                    
+                    if (isEssay) {
+                        inputHtml = `<textarea class="smart-input" style="min-height:80px; margin-top:10px;" placeholder="اكتب إجابتك هنا..." onchange="saveAns(${i}, this.value)"></textarea>`;
+                    } else {
+                        if (!q.options) q.options = []; const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+                        inputHtml = shuffled.map(o => `<label class="mini-card" style="flex-direction:row; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px; padding:12px;"><input type="radio" name="q${i}" value="${o}" onchange="saveAns(${i}, '${o}')"><span>${o}</span></label>`).join('');
+                    }
+
                     div.innerHTML += `
                         <div style="margin-bottom:25px;">
                             <p style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${i+1}. ${q.text}</p>
                             ${q.image ? `<img src="${q.image}" style="max-width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
-                            ${shuffled.map(o => `<label class="mini-card" style="flex-direction:row; align-items:center; gap:10px; cursor:pointer; margin-bottom:8px; padding:12px;"><input type="radio" name="q${i}" value="${o}" onchange="saveAns(${i}, '${o}')"><span>${o}</span></label>`).join('')}
+                            ${inputHtml}
                         </div>`;
                 });
             }
@@ -2029,12 +2143,34 @@
             clearInterval(timerInt); let score = 0, total = 0, details = [];
             const questions = activeTest.questions || [];
             questions.forEach((q, i) => {
-                const pts = parseInt(q.points) || 1; total += pts; const isCorrect = answers[i] === q.correct;
-                if(isCorrect) score += pts; details.push({ q: q.text, image: q.image || null, user: answers[i]||'-', correct: q.correct, isCorrect });
+                const pts = parseInt(q.points) || 1; 
+                total += pts; 
+                
+                let isCorrect = false;
+                if (q.type === 'essay') {
+                    // Logic: Essay is subjective. We mark it as correct if not empty for score display purposes
+                    // but the teacher can review the details later.
+                    if (answers[i] && answers[i].trim().length > 2) {
+                        isCorrect = true; 
+                        score += pts;
+                    }
+                } else {
+                    isCorrect = answers[i] === q.correct;
+                    if(isCorrect) score += pts; 
+                }
+                
+                details.push({ 
+                    q: q.text, 
+                    image: q.image || null, 
+                    user: answers[i]||'-', 
+                    correct: q.correct, 
+                    isCorrect,
+                    type: q.type || 'mcq'
+                });
             });
             const pct = total === 0 ? 0 : Math.round((score/total)*100);
             await set(ref(db, `results/${activeTest.id}/${currentUser}`), { score, total, percentage: pct, timestamp: Date.now(), details });
-            saAlert(`تم التسليم! النتيجة: ${pct}%`, "success");
+            saAlert(`تم التسليم! النتيجة التقريبية: ${pct}%`, "success");
             document.getElementById('s-taking-test').classList.add('hidden'); loadStudentExams(); loadStudentGrades(); 
         };
 
@@ -2045,14 +2181,16 @@
             const div = document.getElementById('review-content'); div.innerHTML = `<h1 style="text-align:center; color:var(--accent-primary); margin-bottom:20px;">${res.percentage}%</h1>`;
             if (res.details && Array.isArray(res.details)) {
                 res.details.forEach((d, i) => {
-                    const borderColor = d.isCorrect ? 'var(--success)' : 'var(--danger)';
-                    const icon = d.isCorrect ? '<i class="fas fa-check-circle" style="color:var(--success)"></i>' : '<i class="fas fa-times-circle" style="color:var(--danger)"></i>';
+                    const isEssay = d.type === 'essay';
+                    const borderColor = d.isCorrect ? 'var(--success)' : (isEssay ? 'var(--accent-primary)' : 'var(--danger)');
+                    const icon = d.isCorrect ? '<i class="fas fa-check-circle" style="color:var(--success)"></i>' : (isEssay ? '<i class="fas fa-pen" style="color:var(--accent-primary)"></i>' : '<i class="fas fa-times-circle" style="color:var(--danger)"></i>');
+                    
                     div.innerHTML += `
                         <div class="mini-card" style="border-right:4px solid ${borderColor}">
                             <div style="display:flex; justify-content:space-between;"><strong>س${i+1}: ${d.q}</strong>${icon}</div>
                             ${d.image ? `<img src="${d.image}" style="max-width:100%; height:auto; border-radius:8px; margin-top:10px;">` : ''}
-                            <div style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;"><p style="margin:0; font-size:0.9rem; color:#aaa;">إجابتك:</p><p style="margin:5px 0 0 0; font-weight:bold; color:${d.isCorrect ? 'var(--success)' : 'var(--danger)'}">${d.user}</p></div>
-                            ${!d.isCorrect ? `<div style="margin-top:5px; background:rgba(16, 185, 129, 0.1); padding:10px; border-radius:8px;"><p style="margin:0; font-size:0.9rem; color:var(--success);">الإجابة الصحيحة:</p><p style="margin:5px 0 0 0; font-weight:bold;">${d.correct}</p></div>` : ''}
+                            <div style="margin-top:10px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;"><p style="margin:0; font-size:0.9rem; color:#aaa;">إجابتك:</p><p style="margin:5px 0 0 0; font-weight:bold; color:${d.isCorrect ? 'var(--success)' : '#fff'}">${d.user}</p></div>
+                            ${!isEssay && !d.isCorrect ? `<div style="margin-top:5px; background:rgba(16, 185, 129, 0.1); padding:10px; border-radius:8px;"><p style="margin:0; font-size:0.9rem; color:var(--success);">الإجابة الصحيحة:</p><p style="margin:5px 0 0 0; font-weight:bold;">${d.correct}</p></div>` : ''}
                         </div>`;
                 });
             } else { div.innerHTML += '<p>لا توجد تفاصيل متاحة للمراجعة.</p>'; }
@@ -2084,31 +2222,65 @@
             document.getElementById(`${prefix}-chat-preview`).style.display = 'none';
         };
 
-        // --- GEMINI CHAT INTEGRATION ---
+        // --- UPDATED CHAT HANDLER WITH OCR + COMMAND SUPPORT ---
         window.sendAiMsg = async (prefix) => {
             const input = document.getElementById(`${prefix}-ai-input`); 
             const fileInput = document.getElementById(`${prefix}-ai-file`);
             const msgs = document.getElementById(`${prefix}-ai-msgs`); 
-            const txt = input.value.trim();
+            let txt = input.value.trim();
             
             if(!txt && !fileInput.files[0]) return;
             
+            // --- SMART AI COMMANDS CHECK ---
+            if (!fileInput.files[0]) {
+                // Check if user wants to create an exam via chat
+                if (txt.includes("أنشئ اختبار") || txt.includes("create exam") || txt.includes("امتحان")) {
+                    toggleAiGenerator();
+                    // Pre-fill
+                    const topic = txt.replace("أنشئ اختبار", "").replace("عن", "").replace("create exam", "").replace("about", "").trim();
+                    if(topic) document.getElementById('ai-gen-text').value = topic;
+                    return; // Stop chat logic, switch to UI
+                }
+                // Check if user wants to post via chat
+                if (txt.includes("انشر") || txt.includes("بوست") || txt.includes("post")) {
+                    openReeseCompose();
+                    const content = txt.replace("انشر", "").replace("بوست", "").replace("post", "").replace("عن", "").trim();
+                    if(content) document.getElementById('reese-text-input').value = content;
+                    return;
+                }
+            }
+
             const welcomeScreen = msgs.querySelector('.ai-welcome-screen'); 
             if(welcomeScreen) welcomeScreen.remove();
             
             let imgB64 = null;
+            let ocrText = "";
+
             if(fileInput.files[0]) {
-                imgB64 = await getBase64(fileInput.files[0]);
-                clearChatImg(prefix);
+                const ocrLoadId = 'ocr-loading-' + Date.now();
+                const ocrLoader = document.createElement('div');
+                ocrLoader.className = 'chat-msg ai';
+                ocrLoader.id = ocrLoadId;
+                ocrLoader.innerHTML = '<i class="fas fa-eye fa-spin"></i> جاري تحليل الصورة...';
+                msgs.appendChild(ocrLoader);
+                
+                try {
+                    imgB64 = await getBase64(fileInput.files[0]);
+                    ocrText = await recognizeImageText(imgB64);
+                    document.getElementById(ocrLoadId).remove();
+                    clearChatImg(prefix);
+                } catch (e) {
+                    document.getElementById(ocrLoadId).innerHTML = "فشل تحليل الصورة.";
+                    console.error(e);
+                    return;
+                }
             }
             
-            // Render user message immediately
             currentChatMessages.push({ role: 'user', content: txt, image: imgB64 });
             renderMessageUI(prefix, 'user', txt, imgB64);
             input.value = ''; 
             saveChatToLocal();
             
-            // Loading Indicator
             const loadId = 'loading-' + Date.now();
             const loaderDiv = document.createElement('div');
             loaderDiv.className = 'chat-msg ai'; 
@@ -2118,65 +2290,87 @@
             msgs.scrollTop = msgs.scrollHeight;
             
             try {
-                // Enhance the prompt for smarter, structured responses
-                let systemInstruction = `You are SA EDU AI, a highly intelligent educational assistant.
-                - Provide clear, modern, and structured responses.
-                - Use **bold** for key concepts (I will format them cleanly).
-                - Use bullet points (- item) for lists.
-                - Use code blocks for code.
-                - Be helpful, encouraging, and accurate.
-                - Language: Arabic.
-                User Query: `;
+                let finalPrompt = "Reply in Arabic. ";
+                if (ocrText) {
+                    finalPrompt += `Context from image: "${ocrText}". `;
+                }
+                finalPrompt += txt;
                 
-                const finalPrompt = systemInstruction + txt;
-
-                // Call Gemini
-                const reply = await callGeminiAPI(finalPrompt, imgB64);
+                const reply = await callPollinationsAI(finalPrompt);
                 
                 document.getElementById(loadId).remove();
                 currentChatMessages.push({ role: 'ai', content: reply, image: null });
                 renderMessageUI(prefix, 'ai', reply, null); 
                 saveChatToLocal();
             } catch (e) { 
-                document.getElementById(loadId).innerText = "عذراً، حدث خطأ في الاتصال بالذكاء الاصطناعي."; 
+                document.getElementById(loadId).innerText = "حدث خطأ في الاتصال بالذكاء الاصطناعي."; 
                 console.error(e);
             }
         };
 
-        // --- GEMINI EXAM GENERATION INTEGRATION ---
+        // --- UPDATED EXAM GENERATOR (CONSTRUCTION UI & SPLIT COUNT) ---
         window.generateAiQuestions = async () => {
             const topic = document.getElementById('ai-gen-text').value;
-            const count = document.getElementById('ai-gen-count').value;
+            const mcqCount = document.getElementById('ai-mcq-count').value || 0;
+            const essayCount = document.getElementById('ai-essay-count').value || 0;
+            const total = parseInt(mcqCount) + parseInt(essayCount);
             
             if (!topic && !aiGenImgBase64) return saAlert("أدخل الموضوع أو ارفع صورة", "error");
+            if (total === 0) return saAlert("يجب تحديد عدد الأسئلة", "error");
+
+            // Show Construction Overlay
+            toggleConstructionOverlay(true);
+            toggleAiGenerator(); // Hide input modal
             
-            saAlert("جاري توليد الاختبار... قد يستغرق دقيقة", "info");
+            let contextData = topic;
+            if (aiGenImgBase64) {
+                try {
+                    const textFromImage = await recognizeImageText(aiGenImgBase64);
+                    contextData += "\nContent from image: " + textFromImage;
+                } catch(e) {
+                    toggleConstructionOverlay(false);
+                    return saAlert("فشل في قراءة الصورة", "error");
+                }
+            }
             
-            // Strict Prompt for JSON
-            const prompt = `Create a strict JSON array of ${count} multiple choice questions about: "${topic}". 
+            const prompt = `Create a strict JSON array of ${total} questions based on: "${contextData}". 
             Language: Arabic. 
-            Format must be exactly: [{"text": "Question?", "options": ["A","B","C","D"], "correct": "CorrectOption", "points": 1}]. 
-            Return ONLY raw JSON, no markdown formatting, no code blocks.`;
+            Requirements: Exactly ${mcqCount} MCQ questions and ${essayCount} Essay questions.
+            Structure: [{"type":"mcq", "text":"Question?", "options":["A","B"], "correct":"A", "points":1}, {"type":"essay", "text":"Question?", "correct":"Model Answer for Teacher", "points":1}].
+            Return ONLY raw JSON.`;
             
             try {
-                let jsonStr = await callGeminiAPI(prompt, aiGenImgBase64);
-                
-                // Cleanup potentially messy AI response
+                let jsonStr = await callPollinationsAI(prompt);
                 jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
                 
+                const firstBracket = jsonStr.indexOf('[');
+                const lastBracket = jsonStr.lastIndexOf(']');
+                if(firstBracket !== -1 && lastBracket !== -1) {
+                    jsonStr = jsonStr.substring(firstBracket, lastBracket + 1);
+                }
+
                 const questions = JSON.parse(jsonStr);
                 
                 if (Array.isArray(questions)) {
+                    questions.forEach(q => {
+                        // Ensure consistency
+                        if(!q.type) q.type = (q.options && q.options.length > 1) ? 'mcq' : 'essay';
+                    });
+
                     currentQuestions = [...currentQuestions, ...questions];
                     renderAddedQuestions();
-                    toggleAiGenerator();
-                    saAlert(`تم توليد ${questions.length} سؤال بنجاح!`, "success");
+                    
+                    // Hide Construction Overlay
+                    toggleConstructionOverlay(false);
+                    saAlert(`تم بناء ${questions.length} سؤال بنجاح!`, "success");
+                    switchTab('t-create'); // Force view to creation tab
                 } else {
                     throw new Error("Invalid format");
                 }
             } catch (e) { 
                 console.error(e);
-                saAlert("فشل التوليد. حاول صياغة الموضوع بدقة أكبر أو قلل عدد الأسئلة.", "error"); 
+                toggleConstructionOverlay(false);
+                saAlert("فشل البناء. حاول مرة أخرى.", "error"); 
             }
         };
 
