@@ -4,49 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>SA Educational Institution</title>
-    
-    <!-- PWA Setup -->
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
         :root {
-            /* Premium Dark Theme */
             --bg-deep: #000000;
-            --bg-surface: #101010;
-            --bg-card: #1c1c1c;
-            
-            --glass-bg: rgba(20, 20, 20, 0.95);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            
+            --bg-surface: #0a0a0a;
+            --bg-card: #141414;
+            --glass-bg: rgba(10, 10, 10, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --text-main: #ffffff;
             --text-secondary: #a0a0a0;
-            
             --accent-primary: #3b82f6; 
             --accent-gold: #ffd700; 
             --accent-glow: rgba(59, 130, 246, 0.4);
-            
-            --nav-height: 60px;
+            --nav-height: 65px;
             --radius-xl: 24px;
-            
             --font-main: 'Cairo', sans-serif;
-            
-            /* Status Colors */
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
-            
-            /* Facebook Reactions Colors */
             --fb-blue: #1877F2;
             --fb-red: #F02849;
         }
-
-        /* Reset & Base */
         *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
             font-family: var(--font-main);
@@ -55,15 +38,11 @@
             margin: 0; padding: 0;
             min-height: 100vh;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.05), transparent 60%);
+            background-image: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08), transparent 70%);
         }
-
-        /* Utilities */
         .hidden { display: none !important; }
         .flex-center { display: flex; align-items: center; justify-content: center; }
         .w-full { width: 100%; }
-        
-        /* Buttons Style */
         .modern-btn {
             background: #ffffff; color: #000000;
             font-family: var(--font-main); font-weight: 700;
@@ -74,34 +53,22 @@
             display: flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%;
         }
-        
-        /* تعديل حجم الأزرار للشاشات الكبيرة لتكون متوسطة */
         @media (min-width: 768px) {
-            .modern-btn { 
-                width: auto; 
-                min-width: 180px; /* حجم متوسط */
-                max-width: 250px; 
-                margin: 0 auto; 
-                display: inline-flex; 
-            }
+            .modern-btn { width: auto; min-width: 180px; max-width: 250px; margin: 0 auto; display: inline-flex; }
             .app-section { text-align: center; }
             .app-section .smart-input, .app-section .google-bar { max-width: 600px; margin-left: auto; margin-right: auto; }
             .card-wrapper, .mini-card, .create-exam-cta, .reese-card { max-width: 700px; margin-left: auto; margin-right: auto; text-align: right; }
             .nav-container { max-width: 800px; }
         }
-
         .modern-btn:active { transform: scale(0.97); }
         .modern-btn.secondary {
-            background: rgba(255,255,255,0.1); color: #fff;
-            border: 1px solid var(--glass-border);
-            box-shadow: none;
+            background: rgba(255,255,255,0.08); color: #fff;
+            border: 1px solid var(--glass-border); box-shadow: none;
         }
-
-        /* GLOSSY BLACK BUTTON STYLE */
         .glossy-black-btn {
-            background: linear-gradient(145deg, #2a2a2a, #000000);
+            background: linear-gradient(145deg, #1f1f1f, #000000);
             color: #fff;
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.12);
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
             font-family: var(--font-main); font-weight: 700;
             padding: 14px 30px; border-radius: 50px;
@@ -109,29 +76,21 @@
             display: flex; align-items: center; justify-content: center; gap: 10px;
             width: 100%; font-size: 1rem;
         }
-        @media (min-width: 768px) {
-            .glossy-black-btn { width: auto; min-width: 180px; max-width: 300px; margin: 0 auto; }
-        }
+        @media (min-width: 768px) { .glossy-black-btn { width: auto; min-width: 180px; max-width: 300px; margin: 0 auto; } }
         .glossy-black-btn:hover {
             box-shadow: 0 6px 20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px); border-color: rgba(255,255,255,0.25);
         }
         .glossy-black-btn.danger i { color: var(--danger); }
-
-        /* NEW SHINY BACK BUTTON (For Overlays) */
         .shiny-back-btn {
             position: absolute; top: 20px; right: 20px; z-index: 5002;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff;
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2); color: #fff;
             width: 45px; height: 45px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.2rem; cursor: pointer;
             box-shadow: 0 0 20px rgba(255,255,255,0.1);
-            transition: all 0.3s ease;
-            overflow: hidden;
+            transition: all 0.3s ease; overflow: hidden;
         }
         .shiny-back-btn::after {
             content: ''; position: absolute; top: -50%; left: -50%;
@@ -146,18 +105,14 @@
             100% { transform: rotate(45deg) translate(100%, 100%); }
         }
         .shiny-back-btn:active { transform: scale(0.9); }
-
         .icon-btn-small {
-            width: 30px; height: 30px; border-radius: 50%;
+            width: 32px; height: 32px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             border: none; cursor: pointer; font-size: 0.9rem;
         }
-
-        /* Icons Action Bar */
         .icon-actions {
             display: flex; gap: 8px; justify-content: space-around;
-            padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);
-            margin-top: 5px;
+            padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 5px;
         }
         .action-icon {
             background: transparent; border: none;
@@ -168,23 +123,19 @@
             width: 40px; height: 40px;
         }
         .action-icon:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .action-icon.edit:hover { color: var(--accent-primary); background: rgba(59, 130, 246, 0.1); }
-        .action-icon.delete:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
-        .action-icon.share:hover { color: var(--success); background: rgba(16, 185, 129, 0.1); }
-        .action-icon.gold:hover { color: var(--accent-gold); background: rgba(255, 215, 0, 0.1); }
-        .action-icon.view:hover { color: #d946ef; background: rgba(217, 70, 239, 0.1); }
-        .action-icon.results-icon:hover { color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
-
-        /* Back Button Header (Inside App) */
+        .action-icon.edit:hover { color: var(--accent-primary); background: rgba(59, 130, 246, 0.15); }
+        .action-icon.delete:hover { color: var(--danger); background: rgba(239, 68, 68, 0.15); }
+        .action-icon.share:hover { color: var(--success); background: rgba(16, 185, 129, 0.15); }
+        .action-icon.gold:hover { color: var(--accent-gold); background: rgba(255, 215, 0, 0.15); }
+        .action-icon.view:hover { color: #d946ef; background: rgba(217, 70, 239, 0.15); }
+        .action-icon.results-icon:hover { color: #06b6d4; background: rgba(6, 182, 212, 0.15); }
         .back-btn-header {
             display: flex; align-items: center; gap: 10px; margin-bottom: 20px; cursor: pointer;
             color: var(--text-secondary); transition: 0.3s;
             font-weight: bold; background: rgba(255,255,255,0.05);
-            padding: 8px 15px; border-radius: 20px; width: fit-content;
+            padding: 8px 16px; border-radius: 20px; width: fit-content;
         }
         .back-btn-header:hover { color: #fff; background: rgba(255,255,255,0.1); }
-
-        /* ======== 1. Navigation (Fixed Top with Scroll Hide) ======== */
         .top-nav {
             position: fixed; top: 0; left: 0; right: 0;
             height: var(--nav-height);
@@ -196,25 +147,17 @@
             transition: top 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); 
         }
         .nav-hidden { top: -80px; }
-
-        .nav-container {
-            display: flex; justify-content: space-between; align-items: center;
-            width: 100%; padding: 0 15px;
-        }
-
+        .nav-container { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 20px; max-width: 800px; }
         .nav-btn {
-            background: transparent; border: none; color: var(--text-secondary);
+            background: transparent; border: none; color: #666;
             flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
             cursor: pointer; transition: 0.3s; position: relative;
         }
-        .nav-btn i { font-size: 1.2rem; transition: 0.3s; }
+        .nav-btn i { font-size: 1.3rem; transition: 0.3s; }
         .nav-btn span { font-size: 0.65rem; font-weight: 600; opacity: 0.7; }
-        
         .nav-btn.active { color: var(--text-main); }
         .nav-btn.active i { color: var(--accent-primary); transform: translateY(-3px); text-shadow: 0 0 15px var(--accent-glow); }
         .magic-btn.active i { color: #d946ef; text-shadow: 0 0 15px rgba(217, 70, 239, 0.6); }
-
-        /* ======== 2. Content Areas ======== */
         .portal-container {
             padding-top: calc(var(--nav-height) + 15px);
             padding-bottom: 100px;
@@ -222,67 +165,42 @@
             max-width: 1000px; margin: 0 auto;
             min-height: 100vh;
         }
-
-        /* ======== 3. Cards & CTA ======== */
         .mini-card {
-            background: linear-gradient(145deg, #1c1c1c, #151515);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-bottom: 2px solid rgba(255,255,255,0.03);
-            border-radius: 18px;
-            padding: 15px;
-            margin-bottom: 0;
-            position: relative;
-            transition: all 0.2s;
+            background: #141414;
+            border: 1px solid rgba(255,255,255,0.05);
+            border-bottom: 2px solid rgba(255,255,255,0.02);
+            border-radius: 18px; padding: 18px; margin-bottom: 0;
+            position: relative; transition: all 0.2s;
             display: flex; flex-direction: column; gap: 10px;
-            text-align: right;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            text-align: right; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        .mini-card:hover {
-            border-color: rgba(255,255,255,0.15);
-            transform: translateY(-2px);
-        }
-        .card-wrapper { margin-bottom: 25px; }
-        
+        .mini-card:hover { border-color: rgba(255,255,255,0.12); transform: translateY(-2px); }
+        .card-wrapper { margin-bottom: 20px; }
         .create-exam-cta {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(16, 185, 129, 0.05));
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 25px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px; padding: 20px; margin-bottom: 25px;
             cursor: pointer;
             display: flex; align-items: center; justify-content: space-between;
             transition: transform 0.2s, box-shadow 0.2s;
             position: relative; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            min-height: 90px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-height: 90px;
         }
-        .create-exam-cta:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.25);
-            border-color: var(--accent-primary);
-        }
+        .create-exam-cta:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.4); }
         .create-exam-cta:active { transform: scale(0.98); }
-
         .cta-content { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; width: 100%; }
         .cta-icon-wrapper {
             width: 50px; height: 50px; border-radius: 50%;
             background: var(--accent-primary); color: #fff;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; box-shadow: 0 0 15px var(--accent-glow);
-            flex-shrink: 0;
+            font-size: 1.5rem; box-shadow: 0 0 15px var(--accent-glow); flex-shrink: 0;
         }
         .cta-bg-icon {
             position: absolute; left: -10px; bottom: -15px;
-            font-size: 5rem; color: #fff; opacity: 0.05;
+            font-size: 5rem; color: #fff; opacity: 0.03;
             transform: rotate(15deg); pointer-events: none;
         }
-
-        /* Typewriter Inside CTA */
-        .typewriter-text {
-            font-family: 'Outfit', var(--font-main);
-            font-weight: 700; font-size: 1.1rem; color: #fff;
-            display: inline-block;
-        }
+        .typewriter-text { font-family: 'Outfit', var(--font-main); font-weight: 700; font-size: 1.1rem; color: #fff; display: inline-block; }
         .typewriter-cursor {
             display: inline-block; width: 2px; height: 1.1rem;
             background-color: var(--accent-primary);
@@ -290,39 +208,25 @@
             vertical-align: middle;
         }
         @keyframes blink { 50% { opacity: 0; } }
-
-        /* Landing Page Avatar - NEW IMAGE STYLE */
         .landing-avatar-img {
-            width: 140px; height: auto;
-            margin-bottom: 20px;
-            display: block;
+            width: 140px; height: auto; margin-bottom: 20px; display: block;
             filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
             animation: breathe 3s ease-in-out infinite;
         }
-        
-        @keyframes breathe { 
-            0% { transform: scale(0.95); opacity: 0.9; } 
-            50% { transform: scale(1.05); opacity: 1; } 
-            100% { transform: scale(0.95); opacity: 0.9; } 
-        }
-
+        @keyframes breathe { 0% { transform: scale(0.95); opacity: 0.9; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.9; } }
         .landing-text {
             color: #ccc; letter-spacing: 1px; font-size: 1.1rem; margin-top: 10px; 
             max-width: 90%; line-height: 1.6; min-height: 50px;
             font-weight: 600; text-shadow: 0 0 10px rgba(255,255,255,0.1);
         }
-        
         .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .card-title { font-weight: 700; font-size: 1rem; color: #fff; margin: 0; line-height: 1.4; }
+        .card-title { font-weight: 700; font-size: 1.05rem; color: #fff; margin: 0; line-height: 1.4; }
         .card-meta { font-size: 0.75rem; color: var(--text-secondary); display: flex; align-items: center; gap: 8px; margin-top: 5px; }
-        
         .teacher-badge {
             background: rgba(255, 215, 0, 0.15); color: var(--accent-gold);
             border: 1px solid rgba(255, 215, 0, 0.3);
             padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold;
         }
-
-        /* ======== 4. Inputs ======== */
         .smart-input {
             width: 100%; background: #151515;
             border: 1px solid var(--glass-border);
@@ -331,61 +235,40 @@
             outline: none; transition: 0.3s; font-family: var(--font-main);
         }
         .smart-input:focus { border-color: var(--accent-primary); background: #0a0a0a; }
-
-        /* Names Row */
-        .names-row {
-            display: flex;
-            gap: 10px;
-            width: 100%;
-            margin-bottom: 5px;
-        }
-        .names-row .smart-input {
-            flex: 1;
-        }
-
+        .names-row { display: flex; gap: 10px; width: 100%; margin-bottom: 5px; }
+        .names-row .smart-input { flex: 1; }
         .google-bar {
             width: 100%; background: #1c1c1c;
             border: 1px solid var(--glass-border);
             border-radius: 50px; padding: 12px 20px 12px 45px;
             color: #fff; font-family: var(--font-main);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         .search-wrap { position: relative; margin-bottom: 20px; }
         .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: #666; font-size: 1rem; }
-
-        /* ======== 5. Avatars ======== */
         .avatar-frame {
             width: 80px; height: 80px; border-radius: 50%;
             background: linear-gradient(135deg, #2a2a2a, #111);
             border: 2px solid var(--glass-border);
             display: flex; align-items: center; justify-content: center;
             font-size: 2.5rem; margin: 0 auto 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             position: relative; overflow: hidden;
         }
         .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
         .avatar-student { border-color: var(--accent-primary); color: var(--accent-primary); }
         .avatar-teacher { border-color: var(--accent-gold); color: var(--accent-gold); }
-
-        /* ======== REESE SECTION STYLES (UPDATED) ======== */
-        /* Jazzy Input Trigger */
         .reese-input-trigger {
-            background: linear-gradient(135deg, #1f1f1f, #141414);
+            background: linear-gradient(135deg, #181818, #101010);
             border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 24px;
-            padding: 12px;
+            border-radius: 24px; padding: 12px;
             display: flex; align-items: center; gap: 15px;
             cursor: pointer; margin-bottom: 25px;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: relative; overflow: hidden;
         }
-        .reese-input-trigger:hover {
-            transform: translateY(-2px);
-            border-color: rgba(255,255,255,0.2);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        }
+        .reese-input-trigger:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.15); }
         .reese-input-trigger::before {
             content: ''; position: absolute; top:0; left:0; width:4px; height:100%;
             background: linear-gradient(to bottom, var(--accent-primary), var(--accent-gold));
@@ -394,19 +277,10 @@
             width: 45px; height: 45px; border-radius: 50%;
             background: #252525; display: flex; align-items: center; justify-content: center;
             border: 1px solid rgba(255,255,255,0.1);
-            font-size: 1.2rem;
-            flex-shrink: 0;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            font-size: 1.2rem; flex-shrink: 0;
         }
-        .reese-placeholder {
-            flex: 1; color: #666; font-size: 1rem; font-weight: 500;
-        }
-        .reese-icon-decor {
-            color: var(--accent-primary); font-size: 1.2rem; opacity: 0.8;
-            padding-left: 10px;
-        }
-
-        /* Post Card */
+        .reese-placeholder { flex: 1; color: #666; font-size: 1rem; font-weight: 500; }
+        .reese-icon-decor { color: var(--accent-primary); font-size: 1.2rem; opacity: 0.8; padding-left: 10px; }
         .reese-card {
             background: #111;
             border: 1px solid rgba(255,255,255,0.05);
@@ -415,23 +289,14 @@
         }
         .reese-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
         .reese-user { display: flex; gap: 10px; align-items: center; }
-        .reese-content { 
-            font-size: 0.95rem; line-height: 1.5; color: #eee; 
-            margin-bottom: 15px; white-space: pre-wrap; word-wrap: break-word; 
-        }
-        
-        /* Grid for Post Images (X Style) */
+        .reese-content { font-size: 0.95rem; line-height: 1.6; color: #eee; margin-bottom: 15px; white-space: pre-wrap; word-wrap: break-word; }
         .reese-images-grid {
             display: grid; gap: 5px; border-radius: 12px; overflow: hidden; margin-top: 10px;
             margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);
         }
         .reese-images-grid.one-img { grid-template-columns: 1fr; }
         .reese-images-grid.two-imgs { grid-template-columns: 1fr 1fr; }
-        .reese-post-img { 
-            width: 100%; height: 100%; object-fit: cover; 
-            max-height: 400px; background: #222; 
-        }
-
+        .reese-post-img { width: 100%; height: 100%; object-fit: cover; max-height: 400px; background: #222; }
         .reese-actions {
             border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;
             display: flex; justify-content: space-around;
@@ -445,8 +310,6 @@
         .reese-btn.liked { color: var(--fb-red); }
         .reese-btn.liked i { animation: pop 0.3s; }
         @keyframes pop { 0%{transform:scale(1);} 50%{transform:scale(1.3);} 100%{transform:scale(1);} }
-
-        /* Compose Overlay */
         .compose-overlay {
             position: fixed; inset: 0; background: #000; z-index: 6000;
             display: flex; flex-direction: column;
@@ -458,14 +321,11 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         .compose-body { padding: 20px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        
         .compose-textarea {
             width: 100%; background: transparent; border: none; color: #fff;
             font-size: 1.2rem; font-family: var(--font-main); resize: none;
-            outline: none; margin-top: 10px; min-height: 100px;
-            overflow: hidden; /* For auto-grow */
+            outline: none; margin-top: 10px; min-height: 100px; overflow: hidden;
         }
-
         .ai-suggestion-btn {
             background: linear-gradient(45deg, #d946ef, #8b5cf6); color: white;
             border: none; padding: 8px 15px; border-radius: 20px;
@@ -473,11 +333,7 @@
             width: fit-content; margin-bottom: 15px; cursor: pointer;
             box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3);
         }
-
-        /* Image Previews in Compose */
-        .compose-media-preview {
-            display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px;
-        }
+        .compose-media-preview { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; }
         .preview-item { position: relative; width: 100px; height: 100px; border-radius: 12px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
         .remove-preview {
@@ -485,39 +341,24 @@
             color: #fff; border-radius: 50%; width: 22px; height: 22px;
             display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px;
         }
-        
-        /* NEW BEAUTIFUL UPLOAD ICON */
         .add-media-btn {
-            /* Colorful Gradient Background */
-            background: linear-gradient(135deg, #ff00cc, #333399);
-            color: #fff;
-            width: 50px; height: 50px;
-            border-radius: 50%;
+            background: linear-gradient(135deg, #ff00cc, #333399); color: #fff;
+            width: 50px; height: 50px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem; cursor: pointer; margin-right: 15px;
             box-shadow: 0 0 15px rgba(255, 0, 204, 0.5);
             transition: transform 0.3s, box-shadow 0.3s;
             border: 2px solid rgba(255,255,255,0.2);
         }
-        .add-media-btn:hover {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 0 25px rgba(255, 0, 204, 0.8);
-        }
-
-        /* ======== 6. Chat AI UI ======== */
+        .add-media-btn:hover { transform: scale(1.1) rotate(5deg); box-shadow: 0 0 25px rgba(255, 0, 204, 0.8); }
         .ai-layout {
             position: fixed; top: var(--nav-height); left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column;
-            background: var(--bg-deep); z-index: 100;
+            display: flex; flex-direction: column; background: var(--bg-deep); z-index: 100;
         }
-
-        /* Top Action Bar for AI - FORCED BLACK */
         .ai-top-bar {
-            padding: 10px 15px;
-            background: #000000 !important; /* Force Black */
+            padding: 10px 15px; background: #000 !important;
             border-bottom: 1px solid var(--glass-border);
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 101;
+            display: flex; justify-content: space-between; align-items: center; z-index: 101;
         }
         .ai-action-btn {
             background: rgba(255,255,255,0.05); color: #ccc;
@@ -529,21 +370,15 @@
         .ai-action-btn.new-chat { color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
         .ai-action-btn.history { color: var(--accent-gold); }
         .ai-action-btn.incognito.active { color: #fff; background: var(--danger); box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
-
-
         .ai-messages {
-            flex: 1; overflow-y: auto;
-            padding: 15px; padding-bottom: 100px;
+            flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px;
             display: flex; flex-direction: column; gap: 12px;
         }
-        
         .ai-welcome-screen {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; opacity: 0; animation: fadeIn 0.8s forwards;
-            padding: 20px; text-align: center;
+            height: 100%; opacity: 0; animation: fadeIn 0.8s forwards; padding: 20px; text-align: center;
         }
         @keyframes fadeIn { to { opacity: 1; } }
-        
         .ai-logo-large {
             width: 80px; height: 80px; border-radius: 50%;
             background: #111; border: 1px solid rgba(255,255,255,0.1);
@@ -556,7 +391,6 @@
             background: linear-gradient(to right, #fff, #a0a0a0); -webkit-background-clip: text; color: transparent;
         }
         .ai-welcome-text { color: #666; font-size: 0.95rem; max-width: 300px; margin-bottom: 40px; }
-        
         .ai-chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; max-width: 500px; }
         .ai-chip {
             background: #1a1a1a; border: 1px solid #333; color: #ccc;
@@ -565,30 +399,24 @@
         }
         .ai-chip i { color: var(--accent-primary); }
         .ai-chip:hover { background: #252525; border-color: #555; color: #fff; transform: translateY(-2px); }
-
-
         .chat-msg {
-            max-width: 85%; padding: 10px 16px; border-radius: 18px;
-            font-size: 0.95rem; line-height: 1.5; position: relative; word-wrap: break-word;
+            max-width: 85%; padding: 12px 18px; border-radius: 18px;
+            font-size: 0.95rem; line-height: 1.6; position: relative; word-wrap: break-word;
         }
         .chat-msg.ai {
-            background: #252525; align-self: flex-start; border-bottom-left-radius: 4px; color: #eee;
+            background: #1a1a1a; align-self: flex-start; border-bottom-left-radius: 4px; color: #e0e0e0;
+            border: 1px solid rgba(255,255,255,0.05);
         }
         .chat-msg.user {
-            background: #f0f0f0; color: #000; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 600;
+            background: var(--accent-primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 500;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
         .chat-msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
-
-        /* Floating Input Bar - Darker Background */
         .ai-input-bar {
-            position: fixed; 
-            bottom: 25px; left: 15px; right: 15px;
-            background: #000000;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 25px;
-            padding: 10px;
-            display: flex; align-items: center; gap: 10px;
-            z-index: 2000;
+            position: fixed; bottom: 25px; left: 15px; right: 15px;
+            background: #000; border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 25px; padding: 10px;
+            display: flex; align-items: center; gap: 10px; z-index: 2000;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             max-width: 800px; margin: 0 auto;
         }
@@ -597,9 +425,7 @@
             color: #fff; font-family: var(--font-main); font-size: 1rem;
             outline: none; padding: 10px 15px;
         }
-        .attach-btn {
-            color: #aaa; font-size: 1.3rem; padding: 0 10px; cursor: pointer; transition: 0.3s;
-        }
+        .attach-btn { color: #aaa; font-size: 1.3rem; padding: 0 10px; cursor: pointer; transition: 0.3s; }
         .attach-btn:hover { color: #fff; }
         .send-btn {
             background: var(--accent-primary); color: #fff; border: none;
@@ -609,7 +435,6 @@
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
         .send-btn:active { transform: scale(0.9); }
-        
         .chat-img-preview {
             position: absolute; bottom: 85px; left: 0;
             background: #222; padding: 5px; border-radius: 10px;
@@ -622,8 +447,6 @@
             background: red; color: white; border-radius: 50%; width: 20px; height: 20px; 
             display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer;
         }
-
-        /* AI History Sidebar */
         .ai-history-sidebar {
             position: fixed; top: 0; right: -300px; width: 300px; bottom: 0;
             background: #111; border-left: 1px solid #333; z-index: 5000;
@@ -631,9 +454,7 @@
             padding-top: var(--nav-height);
         }
         .ai-history-sidebar.open { right: 0; }
-        .history-header {
-            padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;
-        }
+        .history-header { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
         .history-list { flex: 1; overflow-y: auto; padding: 10px; }
         .history-item {
             padding: 12px; margin-bottom: 8px; border-radius: 10px;
@@ -643,61 +464,37 @@
         .history-item:hover { background: rgba(255,255,255,0.08); }
         .history-title { font-size: 0.9rem; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
         .history-date { font-size: 0.7rem; color: #666; margin-top: 4px; display: block; }
-
-        /* ======== 7. FULL SCREEN OVERLAYS (Menu & AI Gen) ======== */
         .full-screen-overlay {
-            position: fixed; inset: 0; 
-            background: #000000; 
-            z-index: 5000;
+            position: fixed; inset: 0; background: #000; z-index: 5000;
             display: flex; flex-direction: column;
-            transform: translateY(100%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow-y: auto;
-            padding-bottom: 40px;
+            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto; padding-bottom: 40px;
         }
         .full-screen-overlay.open { transform: translateY(0); }
-        
-        .overlay-content {
-            padding: 40px 20px; flex: 1; display: flex; flex-direction: column; gap: 20px;
-            padding-top: 60px; /* Space for back button */
-        }
-
-        /* Menu Specific */
+        .overlay-content { padding: 40px 20px; flex: 1; display: flex; flex-direction: column; gap: 20px; padding-top: 60px; }
         .menu-item {
             background: rgba(255,255,255,0.03); padding: 16px;
             border-radius: 16px; display: flex; align-items: center; gap: 15px;
-            margin-bottom: 10px; cursor: pointer; border: 1px solid transparent;
-            transition: 0.3s;
+            margin-bottom: 10px; cursor: pointer; border: 1px solid transparent; transition: 0.3s;
         }
         .menu-item:active { background: rgba(255,255,255,0.08); }
-        
-        .avatar-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-            margin-top: 15px; margin-bottom: 20px;
-        }
+        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; margin-bottom: 20px; }
         .avatar-option {
             background: #222; border-radius: 50%; aspect-ratio: 1;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.4rem; cursor: pointer; border: 2px solid transparent;
         }
         .avatar-option.selected { border-color: var(--success); background: #000; }
-
-        /* Modal specific adjustments */
         #phone-modal, #teacher-detail-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 4000;
             display: flex; flex-direction: column; justify-content: flex-end;
         }
         .bottom-sheet-content {
             background: #181818; border-top: 1px solid #333;
-            border-radius: 25px 25px 0 0; padding: 25px;
-            padding-bottom: 50px;
-            animation: slideUp 0.3s ease-out;
-            max-height: 85vh; overflow-y: auto;
+            border-radius: 25px 25px 0 0; padding: 25px; padding-bottom: 50px;
+            animation: slideUp 0.3s ease-out; max-height: 85vh; overflow-y: auto;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-
-        /* ======== 8. Landing (New Tech Style) ======== */
         #landing-layer {
             position: fixed; inset: 0; z-index: 5000;
             background: url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop') no-repeat center center/cover;
@@ -711,71 +508,40 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             height: 100vh; text-align: center; padding: 30px;
         }
-
-        /* Role Selection in Auth */
         .role-toggle-container {
             display: flex; background: #222; padding: 5px; border-radius: 50px;
             margin-bottom: 20px; width: 100%; max-width: 400px;
         }
         .role-toggle-btn {
             flex: 1; border: none; background: transparent; color: #888;
-            padding: 10px; border-radius: 50px; cursor: pointer; font-weight: bold;
-            transition: 0.3s;
+            padding: 10px; border-radius: 50px; cursor: pointer; font-weight: bold; transition: 0.3s;
         }
-        .role-toggle-btn.active {
-            background: #fff; color: #000; box-shadow: 0 2px 10px rgba(255,255,255,0.2);
-        }
-
-        /* Dynamic Options */
-        .option-row {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-        }
-        .option-radio {
-            width: 20px; height: 20px; accent-color: var(--success); cursor: pointer;
-        }
-        .option-input {
-            flex: 1; margin: 0; border: 1px solid #333;
-        }
-        .option-input.correct {
-            border-color: var(--success); background: rgba(16, 185, 129, 0.1);
-        }
-
-        /* Ad Banner Style */
+        .role-toggle-btn.active { background: #fff; color: #000; box-shadow: 0 2px 10px rgba(255,255,255,0.2); }
+        .option-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .option-radio { width: 20px; height: 20px; accent-color: var(--success); cursor: pointer; }
+        .option-input { flex: 1; margin: 0; border: 1px solid #333; }
+        .option-input.correct { border-color: var(--success); background: rgba(16, 185, 129, 0.1); }
         .ad-banner {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0; /* Updated Margin */
-            overflow-x: auto;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.02);
-            padding: 10px;
-            border: 1px dashed rgba(255,255,255,0.05);
+            width: 100%; display: flex; justify-content: center; align-items: center;
+            margin: 20px 0; overflow-x: auto; border-radius: 8px;
+            background: rgba(255,255,255,0.02); padding: 10px; border: 1px dashed rgba(255,255,255,0.05);
         }
-
-        /* ======== SKELETON LOADING ======== */
         .skeleton-loader {
             background: #151515; border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 15px; padding: 15px; margin-bottom: 15px;
-            position: relative; overflow: hidden;
+            border-radius: 15px; padding: 15px; margin-bottom: 15px; position: relative; overflow: hidden;
         }
         .skeleton-loader::after {
             content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
             background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.05) 20%, rgba(255,255,255,0) 60%);
-            transform: translateX(100%);
-            animation: shimmer 1.5s infinite;
+            transform: translateX(100%); animation: shimmer 1.5s infinite;
         }
         @keyframes shimmer { 100% { transform: translateX(-100%); } }
-        
         .skeleton-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         .skeleton-circle { width: 40px; height: 40px; background: #222; border-radius: 50%; }
         .skeleton-text { flex: 1; }
         .skeleton-line { height: 10px; background: #222; border-radius: 5px; margin-bottom: 8px; }
         .skeleton-line.short { width: 50%; }
         .skeleton-rect { height: 100px; background: #222; border-radius: 10px; width: 100%; }
-
-        /* ======== CUSTOM ALERT & MODAL STYLES ======== */
         #sa-custom-alert {
             position: fixed; inset: 0; z-index: 9999;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
@@ -783,7 +549,6 @@
             opacity: 0; pointer-events: none; transition: 0.3s;
         }
         #sa-custom-alert.active { opacity: 1; pointer-events: auto; }
-        
         .sa-alert-box {
             background: #1a1a1a; border: 1px solid var(--glass-border);
             border-radius: 25px; padding: 25px; width: 90%; max-width: 400px;
@@ -791,19 +556,13 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
         #sa-custom-alert.active .sa-alert-box { transform: scale(1); }
-        
         .sa-alert-icon { font-size: 3rem; margin-bottom: 15px; }
         .sa-alert-title { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 10px; }
         .sa-alert-msg { color: #aaa; margin-bottom: 25px; line-height: 1.5; font-size: 0.95rem; }
-        
         .sa-alert-actions { display: flex; gap: 10px; justify-content: center; }
-        .sa-btn {
-            padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; border: none; flex: 1;
-        }
+        .sa-btn { padding: 10px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; border: none; flex: 1; }
         .sa-btn-primary { background: var(--accent-primary); color: #fff; }
         .sa-btn-secondary { background: rgba(255,255,255,0.1); color: #fff; }
-
-        /* Empty State Styles */
         .empty-state-container {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 40px 20px; text-align: center; opacity: 0; animation: fadeIn 0.5s forwards;
@@ -814,60 +573,41 @@
             display: flex; align-items: center; justify-content: center;
             border: 2px dashed #444; box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
-
     </style>
 </head>
 <body>
-
-    <!-- ============ LAYER 1: Landing Page (Tech) ============ -->
     <div id="landing-layer">
         <div class="landing-wrap">
             <h1 style="font-size: 3.5rem; background: linear-gradient(to right, #fff, #3b82f6); -webkit-background-clip: text; color: transparent; margin: 0; text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);">SA EDU</h1>
-            
-            <!-- Typewriter Text on Landing -->
             <div style="min-height: 40px; margin-top: 10px; display:flex; justify-content:center; align-items:center; gap:5px;">
                 <span id="landing-type-text" class="landing-text"></span><span class="typewriter-cursor"></span>
             </div>
-            
-            <!-- Floating Animated Avatar (REPLACED WITH IMAGE) -->
             <div style="margin-top: 30px;">
                 <img src="https://i.postimg.cc/BQQb5YDn/MOWU-DESIGN.png" class="landing-avatar-img" alt="Logo">
             </div>
-
             <button onclick="goToAuth()" class="modern-btn" style="margin-top: 50px; font-size: 1.1rem; background: #ffffff; color: #000000; border: none; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); font-weight: 800; font-family: 'Outfit', sans-serif;">
                 ENTER THE REALM <i class="fas fa-dungeon" style="margin-left: 8px;"></i>
             </button>
         </div>
     </div>
 
-    <!-- ============ LAYER 2: Auth (With Role Select) ============ -->
     <div id="auth-layer" class="hidden">
         <div class="flex-center" style="height: 100%; flex-direction: column; padding: 30px;">
             <div onclick="backToLanding()" style="position: absolute; top: 40px; right: 30px; cursor: pointer; padding: 10px;"><i class="fas fa-arrow-right fa-xl"></i></div>
-            
             <h2 style="margin: 0 0 30px;">بوابة الدخول</h2>
-
-            <!-- Role Selector -->
             <div class="role-toggle-container">
                 <button class="role-toggle-btn active" id="btn-role-student" onclick="setAuthRole('student')">طالب</button>
                 <button class="role-toggle-btn" id="btn-role-teacher" onclick="setAuthRole('teacher')">معلم</button>
             </div>
-            
             <div id="auth-avatar-display" class="avatar-frame avatar-student" style="margin-bottom: 30px;">
                 <i class="fas fa-user-astronaut"></i>
             </div>
-            
-            <!-- NEW NAME STRUCTURE -->
             <div class="names-row">
                 <input type="text" id="auth-name-1" class="smart-input" placeholder="الاسم الأول" style="text-align: center;">
                 <input type="text" id="auth-name-2" class="smart-input" placeholder="الاسم الثاني" style="text-align: center;">
             </div>
             <input type="text" id="auth-name-3" class="smart-input" placeholder="الاسم الثالث" style="text-align: center;">
-            
-            <!-- MODIFIED PASSWORD FIELD (Maxlength 6) -->
-            <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري (6 خانات أرقام وحروف)" maxlength="6" style="text-align: center;">
-            
-            <!-- INCREASED MARGIN FOR BUTTON -->
+            <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري (6 خانات)" maxlength="6" style="text-align: center;">
             <button onclick="handleSmartAuth()" class="modern-btn" style="margin-top: 50px;">
                 تسجيل الدخول <i class="fas fa-sign-in-alt"></i>
             </button>
@@ -875,34 +615,25 @@
         </div>
     </div>
 
-    <!-- ============ HISTORY SIDEBAR ============ -->
     <div id="ai-history-sidebar" class="ai-history-sidebar">
         <div class="history-header">
             <span style="font-weight:bold; color:#fff;">سجل المحادثات</span>
             <i class="fas fa-times" onclick="toggleHistory(false)" style="cursor:pointer; color:#888;"></i>
         </div>
-        <div class="history-list" id="ai-history-list">
-            <!-- Items will be injected here -->
-        </div>
+        <div class="history-list" id="ai-history-list"></div>
     </div>
 
-    <!-- ============ LAYER 3: TEACHER APP ============ -->
     <div id="teacher-app" class="hidden">
         <nav class="top-nav">
             <div class="nav-container">
                 <button class="nav-btn active" onclick="switchTab('t-library', this)"><i class="fas fa-layer-group"></i><span>المكتبة</span></button>
-                <!-- REESE REPLACEMENT -->
                 <button class="nav-btn" onclick="switchTab('t-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
                 <button class="nav-btn magic-btn" onclick="switchTab('t-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
-
         <div class="portal-container">
-            <!-- Library -->
             <section id="t-library" class="app-section">
-                
-                <!-- NEW CREATE EXAM CTA -->
                 <div class="create-exam-cta" onclick="switchTab('t-create')">
                     <i class="fas fa-file-signature cta-bg-icon"></i>
                     <div class="cta-content">
@@ -916,55 +647,41 @@
                     </div>
                     <div style="color: #666; position:relative; z-index:2;"><i class="fas fa-chevron-left"></i></div>
                 </div>
-                
                 <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="google-bar" id="t-search" placeholder="ابحث في اختباراتك...">
                 </div>
                 <div id="t-tests-list"></div>
             </section>
-
-            <!-- Reese Section (Feed) -->
             <section id="t-reese" class="app-section hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
-                    <!-- Toggle My Posts Icon -->
                     <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
                         <i class="fas fa-eraser" id="t-eraser-icon" style="color:#aaa;"></i>
                     </button>
                 </div>
-
-                <!-- Updated Input Trigger -->
                 <div class="reese-input-trigger" onclick="openReeseCompose()">
                     <div class="reese-avatar-mini" id="reese-trigger-avatar-t"></div>
                     <div class="reese-placeholder">ماذا يدور في ذهنك اليوم؟</div>
                     <i class="fas fa-pen-nib reese-icon-decor"></i>
                 </div>
-
                 <div id="reese-feed-container-t"></div>
             </section>
-
-            <!-- Results -->
             <section id="t-results" class="app-section hidden">
                 <div class="back-btn-header" onclick="switchTab('t-library')"><i class="fas fa-arrow-right"></i> الرئيسية</div>
                 <h2>نتائج الطلاب</h2>
                 <select id="t-result-select" class="smart-input" style="text-align: right;"><option>اختر الاختبار للعرض</option></select>
                 <div id="t-results-container"></div>
             </section>
-
-            <!-- Create/Edit Test -->
             <section id="t-create" class="app-section hidden">
                 <div class="back-btn-header" onclick="resetCreateForm(); switchTab('t-library');"><i class="fas fa-arrow-right"></i> إلغاء</div>
-                
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin: 0;" id="create-page-title">اختبار جديد</h2>
                     <button onclick="toggleAiGenerator()" style="background: rgba(217, 70, 239, 0.1); border: 1px solid #d946ef; color: #d946ef; padding: 6px 15px; border-radius: 20px; font-size: 0.8rem; display: flex; align-items: center; gap: 5px; font-weight: bold;">
                         <i class="fas fa-wand-magic-sparkles"></i> توليد بالـ AI
                     </button>
                 </div>
-                
                 <input type="text" id="new-test-name" class="smart-input" placeholder="عنوان الاختبار (مثال: فيزياء - الوحدة الأولى)" style="font-weight: bold;">
-                
                 <div style="display: flex; gap: 10px;">
                     <select id="new-test-grade" class="smart-input" onchange="checkCustomGrade(this)">
                         <option value="" disabled selected>الصف الدراسي</option>
@@ -985,19 +702,13 @@
                     <input type="number" id="new-test-duration" class="smart-input" placeholder="المدة (د)" style="width: 100px; text-align: center;">
                 </div>
                 <input type="text" id="custom-grade-input" class="smart-input hidden" placeholder="اكتب اسم الصف هنا..." style="border-color: var(--accent-gold);">
-
-                <!-- Question Editor -->
                 <div id="q-editor-box" style="background: #151515; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-top: 20px;">
                     <h3 style="font-size: 1rem; color: #888; margin-top: 0; margin-bottom: 15px;">إضافة سؤال</h3>
-                    
-                    <textarea id="q-text" class="smart-input" rows="2" placeholder="اكتب نص السؤال (يمكن تركه فارغاً إذا أرفقت صورة)"></textarea>
-                    
+                    <textarea id="q-text" class="smart-input" rows="2" placeholder="اكتب نص السؤال"></textarea>
                     <div id="mcq-options-container"></div>
-
                     <button onclick="addOptionField()" class="modern-btn secondary" style="width: auto; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 15px;">
                         <i class="fas fa-plus"></i> إضافة خيار آخر
                     </button>
-
                     <div style="display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid #333; padding-top: 15px;">
                         <input type="number" id="q-points" value="1" class="smart-input" style="width: 80px; text-align: center; margin:0;" placeholder="درجة">
                         <label class="smart-input" style="flex: 1; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px dashed #444; margin:0;">
@@ -1006,21 +717,16 @@
                         </label>
                     </div>
                     <div id="q-img-preview" class="hidden" style="margin-top: 10px; text-align: center;"><img src="" style="height: 80px; border-radius: 10px;"></div>
-
                     <button id="btn-add-q" onclick="addQuestionToList()" class="modern-btn" style="margin-top: 15px; background: #333; color: #fff;">
                         <i class="fas fa-check"></i> إضافة السؤال
                     </button>
                 </div>
-
                 <h3 style="margin-top: 30px; margin-bottom: 10px;">الأسئلة المضافة:</h3>
                 <div id="added-questions-list" style="margin-bottom: 30px;"></div>
-
                 <button id="btn-save-test" class="modern-btn" onclick="saveTest()" style="background: var(--success); color: white; margin-bottom: 50px;">
                     <i class="fas fa-save"></i> نشر الاختبار النهائي
                 </button>
             </section>
-
-            <!-- AI Section -->
             <section id="t-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
@@ -1049,7 +755,6 @@
         </div>
     </div>
 
-    <!-- ============ LAYER 4: STUDENT APP ============ -->
     <div id="student-app" class="hidden">
         <nav class="top-nav">
             <div class="nav-container">
@@ -1059,37 +764,28 @@
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
-
         <div class="portal-container">
             <section id="s-exams" class="app-section">
-                <!-- Search moved up -->
                 <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="google-bar" id="s-search" placeholder="ابحث عن اختبار...">
                 </div>
-
-                <!-- New Student Development Card -->
                 <div class="create-exam-cta" style="margin-bottom: 20px; cursor: default; background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(16, 185, 129, 0.05)); border-color: rgba(255,255,255,0.1);">
                     <i class="fas fa-brain cta-bg-icon"></i>
                     <div class="cta-content">
-                        <!-- Generic Icon for Admin/System -->
                         <div class="cta-icon-wrapper" style="background: var(--accent-gold); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);"><i class="fas fa-lightbulb"></i></div>
                         <div style="text-align: right; flex: 1;">
                             <div style="display:flex; align-items:center; gap:3px;">
                                 <h3 id="student-type-text" class="typewriter-text"></h3><span class="typewriter-cursor"></span>
                             </div>
-                            <!-- Small container simulating teacher name/source -->
                             <div style="margin-top: 5px; display: inline-block; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 8px; font-size: 0.75rem; color: #aaa;">
                                 <i class="fas fa-university"></i> منصة SA EDU
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <div id="s-exams-list"></div>
             </section>
-
-            <!-- Reese Section (Feed) for Student -->
             <section id="s-reese" class="app-section hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
@@ -1097,22 +793,17 @@
                         <i class="fas fa-eraser" id="s-eraser-icon" style="color:#aaa;"></i>
                     </button>
                 </div>
-
-                <!-- Updated Input Trigger -->
                 <div class="reese-input-trigger" onclick="openReeseCompose()">
                     <div class="reese-avatar-mini" id="reese-trigger-avatar-s"></div>
                     <div class="reese-placeholder">شارك أفكارك مع الجميع...</div>
                     <i class="fas fa-pen-nib reese-icon-decor"></i>
                 </div>
-
                 <div id="reese-feed-container-s"></div>
             </section>
-
             <section id="s-grades" class="app-section hidden">
                 <h2 style="margin-bottom: 20px;">لوحة الشرف (درجاتي)</h2>
                 <div id="s-grades-list"></div>
             </section>
-
             <section id="s-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
@@ -1138,8 +829,6 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Test Interface -->
             <section id="s-taking-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -1151,8 +840,6 @@
                     <button onclick="submitExam()" class="modern-btn" style="background: var(--success); color: white; margin-bottom: 50px;">تسليم الإجابة</button>
                 </div>
             </section>
-            
-            <!-- Review Interface -->
             <section id="s-review-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div class="back-btn-header" onclick="document.getElementById('s-review-test').classList.add('hidden')"><i class="fas fa-arrow-right"></i> إغلاق المراجعة</div>
@@ -1163,11 +850,9 @@
         </div>
     </div>
 
-    <!-- ============ REESE COMPOSE MODAL (UPDATED) ============ -->
     <div id="reese-compose-modal" class="compose-overlay">
         <div class="compose-header">
             <span style="font-weight: bold; font-size: 1.1rem;">إنشاء ريس جديد</span>
-            <!-- CLOSE BUTTON CHANGED TO RETURN ICON -->
             <div style="cursor: pointer; padding: 10px;" onclick="closeReeseCompose()"><i class="fas fa-arrow-right fa-lg"></i></div>
         </div>
         <div class="compose-body">
@@ -1178,26 +863,16 @@
                     <div style="font-size: 0.8rem; color: #888; background: #222; width: fit-content; padding: 2px 8px; border-radius: 10px; margin-top: 2px;">عام</div>
                 </div>
             </div>
-            
-            <!-- Auto growing textarea -->
             <textarea id="reese-text-input" class="compose-textarea" placeholder="بماذا تفكر؟" oninput="this.style.height='auto';this.style.height=(this.scrollHeight)+'px';"></textarea>
-            
-            <!-- Media Preview -->
             <div id="reese-media-preview" class="compose-media-preview hidden"></div>
-
             <button class="ai-suggestion-btn" onclick="generateAiReese()">
                 <i class="fas fa-wand-magic-sparkles"></i> اقتراح AI
             </button>
-
-            <!-- Bottom Actions -->
             <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
-                
-                <!-- NEW BEAUTIFUL IMAGE UPLOAD BUTTON -->
                 <label class="add-media-btn" title="إضافة صور">
                     <i class="fas fa-camera-retro"></i>
                     <input type="file" id="reese-img-input" multiple accept="image/*" hidden onchange="handleReeseImageSelect(this)">
                 </label>
-
                 <button onclick="publishReese()" class="glossy-black-btn" style="width: auto; min-width: 100px;">
                     نشر <i class="fas fa-paper-plane"></i>
                 </button>
@@ -1205,19 +880,16 @@
         </div>
     </div>
 
-    <!-- ============ MENU FULL SCREEN ============ -->
     <div id="menu-modal" class="full-screen-overlay">
         <button class="shiny-back-btn" onclick="toggleMenu()">
             <i class="fas fa-arrow-right"></i>
         </button>
-
         <div class="overlay-content">
             <div style="text-align: center; margin-bottom: 15px;">
                 <div class="avatar-frame" id="menu-avatar" style="width: 100px; height: 100px; font-size: 3rem; border-width: 3px;"></div>
                 <h3 id="menu-username" style="margin: 15px 0 5px; font-size: 1.3rem;">User</h3>
                 <span id="menu-role" style="font-size: 0.85rem; background: #333; padding: 4px 15px; border-radius: 20px; color: #aaa;">Role</span>
             </div>
-            
             <div id="menu-edit-section" class="hidden" style="background: #222; padding: 15px; border-radius: 15px;">
                 <label style="color: #888; font-size: 0.8rem;">تعديل الاسم:</label>
                 <div style="display: flex; gap: 10px; margin-top: 5px;">
@@ -1225,7 +897,6 @@
                     <button onclick="saveProfileName()" class="modern-btn" style="width: auto; padding: 0 20px; font-size: 0.9rem;">حفظ</button>
                 </div>
             </div>
-
             <div id="menu-avatar-section" class="hidden">
                 <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 10px;">اختر شكلاً جديداً:</p>
                 <div class="avatar-grid">
@@ -1239,22 +910,18 @@
                     <div class="avatar-option" onclick="saveAvatar('fa-user-secret')"><i class="fas fa-user-secret"></i></div>
                 </div>
             </div>
-
             <div class="menu-item" onclick="toggleEditProfile()">
                 <i class="fas fa-user-edit" style="color: var(--accent-primary); font-size: 1.2rem;"></i>
                 <span style="font-size: 1rem;">تعديل الملف الشخصي</span>
             </div>
-            
             <div class="menu-item" onclick="toggleAvatarSelect()">
                 <i class="fas fa-theater-masks" style="color: #d946ef; font-size: 1.2rem;"></i>
                 <span style="font-size: 1rem;">تغيير الأفاتار</span>
             </div>
-
             <div class="menu-item" onclick="shareApp()">
                 <i class="fas fa-share-alt" style="color: var(--success); font-size: 1.2rem;"></i>
                 <span style="font-size: 1rem;">مشاركة المنصة</span>
             </div>
-            
             <div style="margin-top: auto;">
                  <button class="glossy-black-btn danger" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
@@ -1263,32 +930,26 @@
         </div>
     </div>
 
-    <!-- AI Generator Modal -->
     <div id="ai-gen-modal" class="full-screen-overlay">
         <button class="shiny-back-btn" onclick="toggleAiGenerator()">
             <i class="fas fa-arrow-right"></i>
         </button>
-
         <div class="overlay-content">
             <div style="text-align: center; margin-bottom: 20px; padding: 30px 0;">
                 <i class="fas fa-brain" style="font-size: 4rem; color: #d946ef; margin-bottom: 20px; text-shadow: 0 0 30px rgba(217, 70, 239, 0.4);"></i>
                 <h2 style="margin: 0;">SA EDU AI</h2>
                 <p style="color: #888;">اكتب الموضوع وسأقوم بإنشاء اختبار كامل لك</p>
             </div>
-            
             <textarea id="ai-gen-text" class="smart-input" rows="4" placeholder="اكتب الموضوع هنا (مثال: الحرب العالمية الثانية، قوانين نيوتن...)" style="background: #111; border-color: #333;"></textarea>
-            
             <label class="smart-input" style="display: flex; align-items: center; gap: 10px; cursor: pointer; background: #111; border-color: #333;">
                 <i class="fas fa-image" style="color: var(--accent-primary);"></i> <span>رفع صورة للمنهج (اختياري)</span>
-                <input type="file" id="ai-gen-img" hidden accept="image/*">
+                <input type="file" id="ai-gen-img" hidden accept="image/*" onchange="previewAiGenImg(this)">
             </label>
             <div id="ai-gen-preview" class="hidden" style="margin-bottom: 15px; text-align: center;"><img src="" style="height: 100px; border-radius: 12px; border: 1px solid #333;"></div>
-            
             <div style="display: flex; align-items: center; gap: 15px;">
                 <span style="color: #aaa; white-space: nowrap;">عدد الأسئلة:</span>
                 <input type="number" id="ai-gen-count" class="smart-input" value="5" style="text-align: center; margin: 0;">
             </div>
-
             <div style="margin-top: auto;">
                 <button onclick="generateAiQuestions()" class="glossy-black-btn">
                     <i class="fas fa-magic"></i> توليد الاختبار الآن
@@ -1297,7 +958,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="phone-modal" class="hidden">
         <div class="bottom-sheet-content" style="background: #111; height: auto; text-align:center;">
             <i class="fas fa-mobile-alt" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 15px;"></i>
@@ -1314,12 +974,10 @@
                  <h3 style="margin:0;">تفاصيل الطالب</h3>
                  <button onclick="document.getElementById('teacher-detail-modal').classList.add('hidden')" style="background:none; border:none; color:#fff;"><i class="fas fa-times fa-lg"></i></button>
              </div>
-             
              <div style="text-align:center; background:rgba(255,255,255,0.05); padding:15px; border-radius:15px; margin-bottom:20px;">
                  <div id="td-name" style="font-weight:bold; font-size:1.2rem;"></div>
                  <div id="td-phone" style="color:var(--accent-gold); font-size:1.1rem; margin-top:5px; font-family:monospace;"></div>
              </div>
-
              <h4 style="color:#888;">سجل الإجابات:</h4>
              <div id="td-answers-list" style="max-height: 50vh; overflow-y:auto;"></div>
         </div>
@@ -1334,7 +992,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -1348,41 +1005,33 @@
             messagingSenderId: "742801388214",
             appId: "1:742801388214:web:32a305a8057b0582c5ec17"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         
-        // --- NEW API KEY AND LATEST MODEL CONFIG ---
+        // --- GEMINI AI CONFIGURATION ---
+        // استخدام المفتاح الذي زودتني به في الطلب السابق
         const aiApiKey = "AIzaSyD9h5-H4KIxWtVpjXvyrK4c6S9HOhZCBc0";
-        // Using experimental Gemini 2.0 Flash as requested for "latest" performance
-        const geminiModel = "gemini-2.0-flash-exp"; 
+        // استخدام الإصدار الحديث والمستقر من فلاش
+        const geminiModel = "gemini-2.5-flash-preview-09-2025"; 
 
-        // Global State
         let selectedRole = 'student'; 
         let currentUser = null;
         let currentQuestions = [];
         let currentImgBase64 = null;
         let aiGenImgBase64 = null;
         let chatMessageCounter = 0; 
-        
-        // Chat System State
         let currentChatId = null;
         let currentChatMessages = [];
         let isIncognito = false;
-
-        // Editing Mode State
         let isEditingMode = false;
         let editingTestId = null;
-
-        // Reese State
         let isMyPostsView = false;
         let reeseImages = []; 
 
-        // ======== SCROLL BEHAVIOR FOR NAV ========
         let lastScrollTop = 0;
         window.addEventListener("scroll", function() {
             let st = window.pageYOffset || document.documentElement.scrollTop;
-            if (st > lastScrollTop && st > 10){ // Reduced threshold for sensitivity
+            if (st > lastScrollTop && st > 10){
                 document.querySelector('.top-nav').classList.add('nav-hidden');
             } else {
                 document.querySelector('.top-nav').classList.remove('nav-hidden');
@@ -1390,7 +1039,6 @@
             lastScrollTop = st <= 0 ? 0 : st;
         }, false);
 
-        // ======== HELPER FOR SKELETON LOADING ========
         function getSkeletonHTML() {
             return `
             <div class="skeleton-loader">
@@ -1410,41 +1058,26 @@
             let html = ''; for(let i=0; i<count; i++) html += getSkeletonHTML(); return html;
         }
 
-        // ======== HELPER FOR EMPTY STATES ========
         function getEmptyStateHTML(type) {
             if(type === 'posts') {
-                return `
-                <div class="empty-state-container">
-                    <div class="empty-avatar"><i class="fas fa-box-open" style="color:#666;"></i></div>
-                    <h3 style="color:#888;">لا توجد منشورات حالياً</h3>
-                    <p style="color:#555; font-size:0.9rem;">كن أول من يشارك أفكاره!</p>
-                </div>`;
+                return `<div class="empty-state-container"><div class="empty-avatar"><i class="fas fa-box-open" style="color:#666;"></i></div><h3 style="color:#888;">لا توجد منشورات حالياً</h3><p style="color:#555; font-size:0.9rem;">كن أول من يشارك أفكاره!</p></div>`;
             } else if (type === 'exams') {
-                return `
-                <div class="empty-state-container">
-                    <div class="empty-avatar"><i class="fas fa-folder-open" style="color:#666;"></i></div>
-                    <h3 style="color:#888;">لا توجد اختبارات</h3>
-                    <p style="color:#555; font-size:0.9rem;">استمتع بوقتك، لا يوجد ضغط الآن.</p>
-                </div>`;
+                return `<div class="empty-state-container"><div class="empty-avatar"><i class="fas fa-folder-open" style="color:#666;"></i></div><h3 style="color:#888;">لا توجد اختبارات</h3><p style="color:#555; font-size:0.9rem;">استمتع بوقتك، لا يوجد ضغط الآن.</p></div>`;
             }
             return '';
         }
 
-        // ======== CUSTOM ALERT SYSTEM ========
         window.saAlert = (msg, type = 'info', title = null) => {
             const modal = document.getElementById('sa-custom-alert');
             const iconDiv = document.getElementById('sa-alert-icon');
             const titleDiv = document.getElementById('sa-alert-title');
             const msgDiv = document.getElementById('sa-alert-msg');
             const actionsDiv = document.getElementById('sa-alert-actions');
-
             actionsDiv.innerHTML = `<button class="sa-btn sa-btn-primary" onclick="closeSaAlert()">حسناً</button>`;
-            
             let iconHtml = ''; let color = '#fff';
             if(type === 'success') { iconHtml = '<i class="fas fa-check-circle"></i>'; color = 'var(--success)'; if(!title) title = 'نجاح'; } 
             else if (type === 'error') { iconHtml = '<i class="fas fa-times-circle"></i>'; color = 'var(--danger)'; if(!title) title = 'خطأ'; } 
             else { iconHtml = '<i class="fas fa-info-circle"></i>'; color = 'var(--accent-primary)'; if(!title) title = 'تنبيه'; }
-
             iconDiv.innerHTML = iconHtml; iconDiv.style.color = color;
             titleDiv.innerText = title; msgDiv.innerText = msg;
             modal.classList.add('active');
@@ -1457,22 +1090,18 @@
             document.getElementById('sa-alert-msg').innerText = msg;
             const actionsDiv = document.getElementById('sa-alert-actions');
             actionsDiv.innerHTML = '';
-            
             const btnYes = document.createElement('button');
             btnYes.className = 'sa-btn sa-btn-primary'; btnYes.innerText = 'نعم، متابعة'; btnYes.style.background = 'var(--warning)';
             btnYes.onclick = () => { closeSaAlert(); onConfirm(); };
-            
             const btnNo = document.createElement('button');
             btnNo.className = 'sa-btn sa-btn-secondary'; btnNo.innerText = 'إلغاء';
             btnNo.onclick = closeSaAlert;
-            
             actionsDiv.appendChild(btnNo); actionsDiv.appendChild(btnYes);
             modal.classList.add('active');
         };
 
         window.closeSaAlert = () => { document.getElementById('sa-custom-alert').classList.remove('active'); };
 
-        // ======== Ad Generation ========
         function createAdBanner() {
             const container = document.createElement('div'); container.className = 'ad-banner';
             const iframe = document.createElement('iframe');
@@ -1488,7 +1117,52 @@
             const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result);
         });
 
-        // ======== User & Auth ========
+        // --- GEMINI API INTEGRATION ---
+        async function callGeminiAPI(prompt, imageBase64 = null) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${aiApiKey}`;
+            
+            // Build parts array
+            const parts = [{ text: prompt }];
+            if (imageBase64) {
+                // Remove data:image/png;base64, header if present
+                const base64Data = imageBase64.split(',')[1] || imageBase64;
+                parts.push({ 
+                    inline_data: { 
+                        mime_type: "image/jpeg", 
+                        data: base64Data 
+                    } 
+                });
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        contents: [{ parts: parts }]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                
+                // Safety check for response structure
+                if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+                     return data.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Invalid response format from Gemini");
+                }
+               
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                throw error;
+            }
+        }
+
         window.goToAuth = () => {
              document.getElementById('landing-layer').classList.add('hidden');
              document.getElementById('auth-layer').classList.remove('hidden');
@@ -1513,24 +1187,15 @@
         };
 
         window.handleSmartAuth = async () => {
-            // Updated to combine names
             const name1 = document.getElementById('auth-name-1').value.trim();
             const name2 = document.getElementById('auth-name-2').value.trim();
             const name3 = document.getElementById('auth-name-3').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
             const status = document.getElementById('auth-status');
-
             if (!name1 || !name2 || !name3 || !pass) return status.innerText = "يرجى ملء جميع الحقول";
-            
-            // Validate Password Format (6 chars, letters & numbers only)
             const passRegex = /^[a-zA-Z0-9]+$/;
-            if (pass.length !== 6 || !passRegex.test(pass)) {
-                return status.innerText = "كلمة المرور يجب أن تكون 6 خانات (حروف إنجليزية وأرقام فقط)";
-            }
-
-            // Combine names for DB key
+            if (pass.length !== 6 || !passRegex.test(pass)) return status.innerText = "كلمة المرور يجب أن تكون 6 خانات (حروف إنجليزية وأرقام فقط)";
             const fullName = `${name1} ${name2} ${name3}`;
-
             status.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جارِ الاتصال...';
             const userRef = ref(db, `users/${selectedRole}s/${fullName}`);
             try {
@@ -1556,10 +1221,8 @@
             document.getElementById('landing-layer').classList.add('hidden');
             document.getElementById('auth-layer').classList.add('hidden');
             updateMenuInfo();
-            
             const params = new URLSearchParams(window.location.search);
             const shareId = params.get('shareId');
-            
             if (selectedRole === 'teacher') {
                 document.getElementById('teacher-app').classList.remove('hidden');
                 initTeacherApp();
@@ -1571,7 +1234,6 @@
             }
         }
 
-        // ======== Menu Logic ========
         window.toggleMenu = () => {
             document.getElementById('menu-modal').classList.toggle('open');
             document.getElementById('menu-edit-section').classList.add('hidden');
@@ -1587,7 +1249,6 @@
             document.getElementById('menu-avatar').style.color = color;
             document.getElementById('menu-avatar').style.borderColor = color;
             document.getElementById('edit-name-input').value = currentUser;
-            
             const reeseAvs = document.querySelectorAll('.reese-avatar-mini');
             reeseAvs.forEach(el => { el.innerHTML = `<i class="fas ${iconClass}" style="color:${color}"></i>`; });
         }
@@ -1630,7 +1291,6 @@
             else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المنصة!", "success")); }
         };
 
-        // ======== Teacher Functions ========
         function initTeacherApp() {
             loadTeacherTests(); renderOptionFields(); startNewChat('t'); loadReesePosts('t');
             startTypewriter("cta-type-text", "اضغط هنا لكتابة الامتحان");
@@ -1654,7 +1314,6 @@
             if(tabId === 's-grades') loadStudentGrades();
             if(tabId === 's-exams') {
                 loadStudentExams();
-                // Start typewriter for student card
                 startTypewriter("student-type-text", "الاختبارات المتاحة لتطويرك");
             }
             if(tabId === 't-library') startTypewriter("cta-type-text", "اضغط هنا لكتابة الامتحان");
@@ -1662,7 +1321,6 @@
             if(tabId === 's-ai' && !currentChatId) startNewChat('s');
         };
 
-        // ============ REESE LOGIC (UPDATED) ============
         window.openReeseCompose = () => {
             document.getElementById('reese-compose-modal').classList.add('open');
             const icon = localStorage.getItem('sa_icon');
@@ -1692,7 +1350,7 @@
                     reeseImages.push(base64);
                 }
                 renderReeseMediaPreview();
-                input.value = ''; // Reset
+                input.value = '';
             }
         };
 
@@ -1700,14 +1358,10 @@
             const div = document.getElementById('reese-media-preview');
             div.innerHTML = '';
             if (reeseImages.length > 0) div.classList.remove('hidden'); else div.classList.add('hidden');
-            
             reeseImages.forEach((img, idx) => {
                 const item = document.createElement('div');
                 item.className = 'preview-item';
-                item.innerHTML = `
-                    <img src="${img}">
-                    <div class="remove-preview" onclick="removeReeseImage(${idx})"><i class="fas fa-times"></i></div>
-                `;
+                item.innerHTML = `<img src="${img}"><div class="remove-preview" onclick="removeReeseImage(${idx})"><i class="fas fa-times"></i></div>`;
                 div.appendChild(item);
             });
         }
@@ -1717,61 +1371,35 @@
         window.publishReese = async () => {
             const text = document.getElementById('reese-text-input').value.trim();
             if(!text && reeseImages.length === 0) return saAlert("اكتب شيئاً أو أضف صورة", "error");
-            
-            const postData = {
-                author: currentUser,
-                role: selectedRole,
-                icon: localStorage.getItem('sa_icon'),
-                content: text,
-                images: reeseImages, // Store images array
-                timestamp: Date.now(),
-                likes: 0
-            };
-            
+            const postData = { author: currentUser, role: selectedRole, icon: localStorage.getItem('sa_icon'), content: text, images: reeseImages, timestamp: Date.now(), likes: 0 };
             await push(ref(db, 'posts'), postData);
-            closeReeseCompose();
-            saAlert("تم النشر بنجاح!", "success");
+            closeReeseCompose(); saAlert("تم النشر بنجاح!", "success");
         };
 
         window.loadReesePosts = (prefix) => {
             const container = document.getElementById(`reese-feed-container-${prefix}`);
-            // Show Skeleton while loading
             container.innerHTML = getMultipleSkeletons(3);
-
             onValue(ref(db, 'posts'), (snap) => {
                 container.innerHTML = '';
                 const data = snap.val();
                 if(!data) return container.innerHTML = getEmptyStateHTML('posts');
-                
-                // Get locally hidden posts
                 const hiddenPosts = JSON.parse(localStorage.getItem(`hidden_posts_${currentUser}`) || '[]');
                 const posts = Object.entries(data).map(([k,v]) => ({id:k, ...v})).sort((a,b) => b.timestamp - a.timestamp);
-                
                 let visibleCount = 0;
-
                 posts.forEach(post => {
-                    // Check local hidden list
                     if(hiddenPosts.includes(post.id)) return;
-                    // Check My Posts Toggle
                     if(isMyPostsView && post.author !== currentUser) return;
-
                     visibleCount++;
-
                     const date = new Date(post.timestamp).toLocaleDateString();
                     const roleColor = post.role === 'teacher' ? 'var(--accent-gold)' : 'var(--accent-primary)';
                     const isAuthor = post.author === currentUser;
                     const likedPosts = JSON.parse(localStorage.getItem(`liked_posts_${currentUser}`) || '[]');
                     const isLiked = likedPosts.includes(post.id);
-
-                    // Image Grid Logic
                     let imagesHtml = '';
                     if(post.images && post.images.length > 0) {
                         const gridClass = post.images.length === 1 ? 'one-img' : 'two-imgs';
-                        imagesHtml = `<div class="reese-images-grid ${gridClass}">
-                            ${post.images.map(img => `<img src="${img}" class="reese-post-img" onclick="openImageViewer(this.src)">`).join('')}
-                        </div>`;
+                        imagesHtml = `<div class="reese-images-grid ${gridClass}">${post.images.map(img => `<img src="${img}" class="reese-post-img" onclick="openImageViewer(this.src)">`).join('')}</div>`;
                     }
-
                     const div = document.createElement('div');
                     div.className = 'reese-card';
                     div.innerHTML = `
@@ -1780,33 +1408,20 @@
                                 <div class="avatar-frame" style="width:40px; height:40px; font-size:1.2rem; border-width:1px; margin:0; border-color:${roleColor}; color:${roleColor};">
                                     <i class="fas ${post.icon}"></i>
                                 </div>
-                                <div>
-                                    <div style="font-weight:bold; font-size:0.95rem;">${post.author}</div>
-                                    <div style="font-size:0.7rem; color:#666;">${date}</div>
-                                </div>
+                                <div><div style="font-weight:bold; font-size:0.95rem;">${post.author}</div><div style="font-size:0.7rem; color:#666;">${date}</div></div>
                             </div>
                             <div style="display:flex; gap:10px;">
                                 ${isAuthor ? `<button onclick="deleteReese('${post.id}')" title="حذف نهائي" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1rem;"><i class="fas fa-trash-alt"></i></button>` : ''}
                                 <button onclick="hideReese('${post.id}')" title="إخفاء من هنا" style="background:none; border:none; color:#666; cursor:pointer; font-size:1rem;"><i class="fas fa-eye-slash"></i></button>
                             </div>
                         </div>
-                        <div class="reese-content">${post.content}</div>
-                        ${imagesHtml}
+                        <div class="reese-content">${post.content}</div>${imagesHtml}
                         <div class="reese-actions">
-                            <button class="reese-btn ${isLiked ? 'liked' : ''}" onclick="likeReese('${post.id}', ${post.likes || 0})">
-                                <i class="fas ${isLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i> <span>${post.likes || 0}</span>
-                            </button>
-                            <button class="reese-btn" onclick="shareReese('${post.content}')">
-                                <i class="fas fa-share"></i> مشاركة
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(div);
-
-                    // ====== INSERT AD BANNER BETWEEN EVERY POST ======
-                    container.appendChild(createAdBanner());
+                            <button class="reese-btn ${isLiked ? 'liked' : ''}" onclick="likeReese('${post.id}', ${post.likes || 0})"><i class="fas ${isLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i> <span>${post.likes || 0}</span></button>
+                            <button class="reese-btn" onclick="shareReese('${post.content}')"><i class="fas fa-share"></i> مشاركة</button>
+                        </div>`;
+                    container.appendChild(div); container.appendChild(createAdBanner());
                 });
-
                 if(visibleCount === 0) container.innerHTML = getEmptyStateHTML('posts');
             });
         };
@@ -1814,10 +1429,8 @@
         window.toggleMyPostsView = () => {
             isMyPostsView = !isMyPostsView;
             const prefix = selectedRole === 'teacher' ? 't' : 's';
-            // Visual feedback for icon
             const icon = document.getElementById(`${prefix}-eraser-icon`);
             if(isMyPostsView) { icon.style.color = 'var(--danger)'; } else { icon.style.color = '#aaa'; }
-            
             loadReesePosts(prefix);
             saAlert(isMyPostsView ? "عرض منشوراتك فقط (وضع الإدارة)" : "عرض كل المنشورات", "info");
         };
@@ -1842,12 +1455,10 @@
 
         window.deleteReese = (id) => {
             saConfirm("حذف هذا المنشور نهائياً؟ لا يمكن التراجع.", async () => {
-                await remove(ref(db, `posts/${id}`));
-                saAlert("تم الحذف", "success");
+                await remove(ref(db, `posts/${id}`)); saAlert("تم الحذف", "success");
             });
         };
         
-        // Simple Image Viewer helper
         window.openImageViewer = (src) => {
             const modal = document.createElement('div');
             modal.style = "position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; display:flex; justify-content:center; align-items:center; cursor:pointer;";
@@ -1861,19 +1472,16 @@
             else { navigator.clipboard.writeText(content).then(() => saAlert("تم نسخ النص", "success")); }
         };
 
+        // --- AI REESE GENERATOR INTEGRATION ---
         window.generateAiReese = async () => {
             saAlert("جاري توليد الاقتراح...", "info");
             const prompt = `Write a short, engaging, and motivating post for a social feed in an educational app. The user is a ${selectedRole}. Write it in Arabic. Keep it under 200 characters.`;
             try {
-                // Updated API URL for Gemini 2.0 Flash Exp
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${aiApiKey}`;
-                const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
-                const data = await res.json();
-                document.getElementById('reese-text-input').value = data.candidates[0].content.parts[0].text;
-            } catch(e) { saAlert("فشل التوليد", "error"); }
+                const text = await callGeminiAPI(prompt);
+                document.getElementById('reese-text-input').value = text;
+            } catch(e) { saAlert("فشل التوليد، تأكد من الاتصال.", "error"); }
         };
 
-        // ============ AI CHAT SYSTEM ============
         function generateChatId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
 
         window.startNewChat = (prefix) => {
@@ -1933,13 +1541,7 @@
             history.forEach(chat => {
                 const item = document.createElement('div');
                 item.className = 'history-item';
-                item.innerHTML = `
-                    <div onclick="loadLocalChat('${chat.id}')">
-                        <div class="history-title">${chat.title}</div>
-                        <span class="history-date">${new Date(chat.timestamp).toLocaleDateString()}</span>
-                    </div>
-                    <i class="fas fa-trash" style="color:#666; font-size:0.8rem; padding:5px;" onclick="deleteLocalChat('${chat.id}')"></i>
-                `;
+                item.innerHTML = `<div onclick="loadLocalChat('${chat.id}')"><div class="history-title">${chat.title}</div><span class="history-date">${new Date(chat.timestamp).toLocaleDateString()}</span></div><i class="fas fa-trash" style="color:#666; font-size:0.8rem; padding:5px;" onclick="deleteLocalChat('${chat.id}')"></i>`;
                 list.appendChild(item);
             });
         }
@@ -1997,14 +1599,10 @@
             msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
         }
 
-        // ============ TEACHER TESTS ============
         function loadTeacherTests() {
             const list = document.getElementById('t-tests-list');
             const resultSelect = document.getElementById('t-result-select');
-            
-            // SKELETON LOADING
             list.innerHTML = getMultipleSkeletons(3);
-
             onValue(ref(db, 'tests'), (snap) => {
                 list.innerHTML = ''; resultSelect.innerHTML = '<option>اختر الاختبار للعرض</option>';
                 const data = snap.val() || {};
@@ -2172,7 +1770,6 @@
         };
         function getGradeLabel(c) { return ({'1p':'1 ابتدائي','3s':'3 ثانوي'})[c] || c; }
 
-        // ======== Teacher Results ========
         window.loadTestResults = (testId) => {
             if(!testId || testId.includes('اختر')) return;
             const div = document.getElementById('t-results-container'); div.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i></div>';
@@ -2215,13 +1812,9 @@
             document.getElementById('teacher-detail-modal').classList.remove('hidden');
         };
 
-        // ======== Student Logic ========
         function loadStudentExams() {
             const list = document.getElementById('s-exams-list');
-            
-            // SKELETON LOADING
             list.innerHTML = getMultipleSkeletons(3);
-
             onValue(ref(db, 'tests'), async (snap) => {
                 list.innerHTML = ''; const tests = snap.val();
                 if (!tests) return list.innerHTML = getEmptyStateHTML('exams');
@@ -2241,7 +1834,6 @@
                          <button class="action-icon gold" onclick="reviewTest('${key}')" title="مراجعة"><i class="fas fa-file-alt"></i></button>` :
                         `<button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
                          <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white; justify-content:center;" onclick="checkPhoneAndStart('${key}')"><i class="fas fa-rocket"></i> ابدأ الآن</button>`;
-
                     cardWrapper.innerHTML = `
                         <div class="mini-card">
                             <div class="card-header">
@@ -2258,9 +1850,7 @@
 
         window.loadStudentGrades = () => {
              const list = document.getElementById('s-grades-list');
-             // SKELETON
              list.innerHTML = getMultipleSkeletons(2);
-             
              get(ref(db, 'tests')).then(async (testSnap) => {
                  list.innerHTML = ''; const tests = testSnap.val() || {}; let foundAny = false;
                  for(const [testId, testData] of Object.entries(tests)) {
@@ -2370,39 +1960,103 @@
                 document.getElementById(`${prefix}-chat-img-tag`).src = b64;
             }
         };
+
+        window.previewAiGenImg = async (input) => {
+            if(input.files[0]) {
+                const b64 = await getBase64(input.files[0]);
+                aiGenImgBase64 = b64;
+                document.getElementById('ai-gen-preview').classList.remove('hidden');
+                document.getElementById('ai-gen-preview').querySelector('img').src = b64;
+            }
+        };
         
         window.clearChatImg = (prefix) => {
             document.getElementById(`${prefix}-ai-file`).value = '';
             document.getElementById(`${prefix}-chat-preview`).style.display = 'none';
         };
 
+        // --- GEMINI CHAT INTEGRATION ---
         window.sendAiMsg = async (prefix) => {
-            const input = document.getElementById(`${prefix}-ai-input`); const fileInput = document.getElementById(`${prefix}-ai-file`);
-            const msgs = document.getElementById(`${prefix}-ai-msgs`); const txt = input.value.trim();
+            const input = document.getElementById(`${prefix}-ai-input`); 
+            const fileInput = document.getElementById(`${prefix}-ai-file`);
+            const msgs = document.getElementById(`${prefix}-ai-msgs`); 
+            const txt = input.value.trim();
+            
             if(!txt && !fileInput.files[0]) return;
-            const welcomeScreen = msgs.querySelector('.ai-welcome-screen'); if(welcomeScreen) welcomeScreen.remove();
-            let imgData = null; let displayImg = null;
+            
+            const welcomeScreen = msgs.querySelector('.ai-welcome-screen'); 
+            if(welcomeScreen) welcomeScreen.remove();
+            
+            let imgB64 = null;
             if(fileInput.files[0]) {
-                const b64 = await getBase64(fileInput.files[0]); displayImg = b64; imgData = b64.split(',')[1]; clearChatImg(prefix);
+                imgB64 = await getBase64(fileInput.files[0]);
+                clearChatImg(prefix);
             }
-            const userMsgObj = { role: 'user', content: txt, image: displayImg };
-            currentChatMessages.push(userMsgObj); renderMessageUI(prefix, 'user', txt, displayImg);
-            input.value = ''; saveChatToLocal();
-            const loadId = 'loading-' + Date.now(); const loaderDiv = document.createElement('div');
-            loaderDiv.className = 'chat-msg ai'; loaderDiv.id = loadId; loaderDiv.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-            msgs.appendChild(loaderDiv); msgs.scrollTop = msgs.scrollHeight;
-            const parts = []; if(txt) parts.push({ text: txt });
-            if(imgData) parts.push({ inline_data: { mime_type: "image/jpeg", data: imgData } });
+            
+            // Render user message immediately
+            currentChatMessages.push({ role: 'user', content: txt, image: imgB64 });
+            renderMessageUI(prefix, 'user', txt, imgB64);
+            input.value = ''; 
+            saveChatToLocal();
+            
+            // Loading Indicator
+            const loadId = 'loading-' + Date.now();
+            const loaderDiv = document.createElement('div');
+            loaderDiv.className = 'chat-msg ai'; 
+            loaderDiv.id = loadId; 
+            loaderDiv.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            msgs.appendChild(loaderDiv); 
+            msgs.scrollTop = msgs.scrollHeight;
+            
             try {
-                // Updated API URL for Gemini 2.0 Flash Exp
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${aiApiKey}`;
-                const res = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ parts }] }) });
-                const data = await res.json();
-                const reply = data.candidates[0].content.parts[0].text;
-                document.getElementById(loadId).remove(); 
-                const aiMsgObj = { role: 'ai', content: reply, image: null };
-                currentChatMessages.push(aiMsgObj); renderMessageUI(prefix, 'ai', reply, null); saveChatToLocal();
-            } catch (e) { document.getElementById(loadId).innerText = "عذراً، حدث خطأ."; }
+                // Call Gemini
+                const reply = await callGeminiAPI(txt, imgB64);
+                
+                document.getElementById(loadId).remove();
+                currentChatMessages.push({ role: 'ai', content: reply, image: null });
+                renderMessageUI(prefix, 'ai', reply, null); 
+                saveChatToLocal();
+            } catch (e) { 
+                document.getElementById(loadId).innerText = "عذراً، حدث خطأ في الاتصال بالذكاء الاصطناعي."; 
+                console.error(e);
+            }
+        };
+
+        // --- GEMINI EXAM GENERATION INTEGRATION ---
+        window.generateAiQuestions = async () => {
+            const topic = document.getElementById('ai-gen-text').value;
+            const count = document.getElementById('ai-gen-count').value;
+            
+            if (!topic && !aiGenImgBase64) return saAlert("أدخل الموضوع أو ارفع صورة", "error");
+            
+            saAlert("جاري توليد الاختبار... قد يستغرق دقيقة", "info");
+            
+            // Strict Prompt for JSON
+            const prompt = `Create a strict JSON array of ${count} multiple choice questions about: "${topic}". 
+            Language: Arabic. 
+            Format must be exactly: [{"text": "Question?", "options": ["A","B","C","D"], "correct": "CorrectOption", "points": 1}]. 
+            Return ONLY raw JSON, no markdown formatting, no code blocks.`;
+            
+            try {
+                let jsonStr = await callGeminiAPI(prompt, aiGenImgBase64);
+                
+                // Cleanup potentially messy AI response
+                jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+                
+                const questions = JSON.parse(jsonStr);
+                
+                if (Array.isArray(questions)) {
+                    currentQuestions = [...currentQuestions, ...questions];
+                    renderAddedQuestions();
+                    toggleAiGenerator();
+                    saAlert(`تم توليد ${questions.length} سؤال بنجاح!`, "success");
+                } else {
+                    throw new Error("Invalid format");
+                }
+            } catch (e) { 
+                console.error(e);
+                saAlert("فشل التوليد. حاول صياغة الموضوع بدقة أكبر أو قلل عدد الأسئلة.", "error"); 
+            }
         };
 
         const savedUser = localStorage.getItem('sa_user'); const savedRole = localStorage.getItem('sa_role'); const savedIcon = localStorage.getItem('sa_icon');
@@ -2411,7 +2065,6 @@
             document.getElementById('landing-layer').classList.add('hidden');
             loginSuccess(currentUser, savedIcon);
         } else { document.getElementById('landing-layer').classList.remove('hidden'); }
-
     </script>
 </body>
 </html>
