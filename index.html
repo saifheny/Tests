@@ -333,6 +333,22 @@
             width: fit-content; margin-bottom: 15px; cursor: pointer;
             box-shadow: 0 4px 15px rgba(217, 70, 239, 0.3);
         }
+        /* New Styles for Suggestion Chips */
+        .ai-suggestions-container {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;
+        }
+        .suggestion-chip {
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+            color: #ddd; padding: 8px 12px; border-radius: 12px; font-size: 0.8rem;
+            cursor: pointer; transition: 0.2s; max-width: 100%; white-space: normal;
+            display: inline-block; line-height: 1.4;
+        }
+        .suggestion-chip:hover {
+            background: rgba(255,255,255,0.15); border-color: var(--accent-primary);
+            color: #fff; transform: translateY(-2px);
+        }
+        .suggestion-chip i { color: var(--accent-primary); margin-left: 5px; }
+
         .compose-media-preview { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 20px; }
         .preview-item { position: relative; width: 100px; height: 100px; border-radius: 12px; overflow: hidden; border: 1px solid #333; flex-shrink: 0; }
         .preview-item img { width: 100%; height: 100%; object-fit: cover; }
@@ -412,6 +428,15 @@
             box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
         .chat-msg img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
+        
+        /* Chat formatting styles */
+        .chat-msg strong { font-weight: 700; color: #fff; }
+        .chat-msg ul { margin: 5px 0; padding-right: 20px; }
+        .chat-msg li { margin-bottom: 4px; }
+        .chat-msg code { background: rgba(255,255,255,0.1); padding: 2px 5px; border-radius: 4px; font-family: monospace; font-size: 0.9em; }
+        .chat-msg pre { background: #111; padding: 10px; border-radius: 8px; overflow-x: auto; border: 1px solid #333; }
+        .chat-msg pre code { background: transparent; padding: 0; }
+
         .ai-input-bar {
             position: fixed; bottom: 25px; left: 15px; right: 15px;
             background: #000; border: 1px solid rgba(255,255,255,0.15);
@@ -864,6 +889,10 @@
                 </div>
             </div>
             <textarea id="reese-text-input" class="compose-textarea" placeholder="بماذا تفكر؟" oninput="this.style.height='auto';this.style.height=(this.scrollHeight)+'px';"></textarea>
+            
+            <!-- AI Suggestions Container -->
+            <div id="ai-reese-suggestions" class="ai-suggestions-container hidden"></div>
+
             <div id="reese-media-preview" class="compose-media-preview hidden"></div>
             <button class="ai-suggestion-btn" onclick="generateAiReese()">
                 <i class="fas fa-wand-magic-sparkles"></i> اقتراح AI
@@ -880,6 +909,7 @@
         </div>
     </div>
 
+    <!-- ... rest of modals (menu, etc) ... -->
     <div id="menu-modal" class="full-screen-overlay">
         <button class="shiny-back-btn" onclick="toggleMenu()">
             <i class="fas fa-arrow-right"></i>
@@ -958,6 +988,7 @@
         </div>
     </div>
 
+    <!-- ... Other modals ... -->
     <div id="phone-modal" class="hidden">
         <div class="bottom-sheet-content" style="background: #111; height: auto; text-align:center;">
             <i class="fas fa-mobile-alt" style="font-size: 3rem; color: var(--accent-primary); margin-bottom: 15px;"></i>
@@ -1009,9 +1040,7 @@
         const db = getDatabase(app);
         
         // --- GEMINI AI CONFIGURATION ---
-        // استخدام المفتاح الذي زودتني به في الطلب السابق
         const aiApiKey = "AIzaSyD9h5-H4KIxWtVpjXvyrK4c6S9HOhZCBc0";
-        // استخدام الإصدار الحديث والمستقر من فلاش
         const geminiModel = "gemini-2.5-flash-preview-09-2025"; 
 
         let selectedRole = 'student'; 
@@ -1124,7 +1153,6 @@
             // Build parts array
             const parts = [{ text: prompt }];
             if (imageBase64) {
-                // Remove data:image/png;base64, header if present
                 const base64Data = imageBase64.split(',')[1] || imageBase64;
                 parts.push({ 
                     inline_data: { 
@@ -1150,7 +1178,6 @@
 
                 const data = await response.json();
                 
-                // Safety check for response structure
                 if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
                      return data.candidates[0].content.parts[0].text;
                 } else {
@@ -1330,6 +1357,10 @@
             frame.style.color = color; frame.style.borderColor = color;
             document.getElementById('compose-name').innerText = currentUser;
             reeseImages = []; renderReeseMediaPreview();
+            
+            // Clear suggestions on open
+            document.getElementById('ai-reese-suggestions').innerHTML = '';
+            document.getElementById('ai-reese-suggestions').classList.add('hidden');
         };
         
         window.closeReeseCompose = () => {
@@ -1472,14 +1503,44 @@
             else { navigator.clipboard.writeText(content).then(() => saAlert("تم نسخ النص", "success")); }
         };
 
-        // --- AI REESE GENERATOR INTEGRATION ---
+        // --- AI REESE GENERATOR INTEGRATION (UPDATED WITH 3 SUGGESTIONS) ---
         window.generateAiReese = async () => {
-            saAlert("جاري توليد الاقتراح...", "info");
-            const prompt = `Write a short, engaging, and motivating post for a social feed in an educational app. The user is a ${selectedRole}. Write it in Arabic. Keep it under 200 characters.`;
+            saAlert("جاري توليد الاقتراحات...", "info");
+            const prompt = `Generate 3 distinct, engaging, and short social media post ideas for a ${selectedRole} on an educational app. Return them as a JSON array of strings (e.g., ["Idea 1", "Idea 2", "Idea 3"]). Language: Arabic. Keep them under 150 characters.`;
+            
             try {
-                const text = await callGeminiAPI(prompt);
-                document.getElementById('reese-text-input').value = text;
-            } catch(e) { saAlert("فشل التوليد، تأكد من الاتصال.", "error"); }
+                let text = await callGeminiAPI(prompt);
+                // Clean response to get JSON
+                text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+                let suggestions = [];
+                try {
+                    suggestions = JSON.parse(text);
+                } catch(e) {
+                    // Fallback if not pure JSON
+                    suggestions = [text];
+                }
+
+                if (!Array.isArray(suggestions)) suggestions = [text];
+
+                const container = document.getElementById('ai-reese-suggestions');
+                container.innerHTML = '';
+                container.classList.remove('hidden');
+
+                suggestions.forEach(sug => {
+                    const chip = document.createElement('div');
+                    chip.className = 'suggestion-chip';
+                    chip.innerHTML = `${sug} <i class="fas fa-plus-circle"></i>`;
+                    chip.onclick = () => {
+                        document.getElementById('reese-text-input').value = sug;
+                        // Optional: hide others or keep them
+                    };
+                    container.appendChild(chip);
+                });
+
+            } catch(e) { 
+                console.error(e);
+                saAlert("فشل التوليد، تأكد من الاتصال.", "error"); 
+            }
         };
 
         function generateChatId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
@@ -1524,13 +1585,24 @@
             const firstUserMsg = currentChatMessages.find(m => m.role === 'user');
             const title = firstUserMsg ? (firstUserMsg.content.substring(0, 30) + '...') : 'محادثة جديدة';
             const chatObj = { id: currentChatId, title: title, timestamp: Date.now(), messages: currentChatMessages };
-            if(existingIndex > -1) { history[existingIndex] = chatObj; } else { history.unshift(chatObj); }
+            
+            if(existingIndex > -1) { 
+                history[existingIndex] = chatObj; 
+            } else { 
+                history.unshift(chatObj); 
+            }
+            
             localStorage.setItem(storageKey, JSON.stringify(history));
         }
 
         window.toggleHistory = (show) => {
             const sidebar = document.getElementById('ai-history-sidebar');
-            if(show) { sidebar.classList.add('open'); renderHistoryList(); } else { sidebar.classList.remove('open'); }
+            if(show) { 
+                renderHistoryList(); // Render immediately when opening
+                sidebar.classList.add('open'); 
+            } else { 
+                sidebar.classList.remove('open'); 
+            }
         };
 
         function renderHistoryList() {
@@ -1592,9 +1664,46 @@
             } else { saAlert("رابط المشاركة غير صالح أو منتهي", "error"); startNewChat(prefix); }
         };
 
+        // Function to parse basic Markdown for display (bold, list, code)
+        function formatAiResponseText(text) {
+            if(!text) return '';
+            // Escape HTML (simple version)
+            let safeText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            
+            // Bold (**text**)
+            safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            // Code Block (```code```)
+            safeText = safeText.replace(/```(.*?)```/gs, '<pre><code>$1</code></pre>');
+            
+            // Inline Code (`code`)
+            safeText = safeText.replace(/`(.*?)`/g, '<code>$1</code>');
+            
+            // Lists (- item) -> Handle simple bullet points
+            safeText = safeText.replace(/^\s*-\s+(.*)$/gm, '<li>$1</li>');
+            // Wrap loose li in ul (simple approximation)
+            if(safeText.includes('<li>')) {
+                safeText = safeText.replace(/((<li>.*<\/li>\s*)+)/g, '<ul>$1</ul>');
+            }
+
+            // Newlines to <br> (excluding inside pre)
+            safeText = safeText.replace(/\n/g, '<br>');
+            
+            return safeText;
+        }
+
         function renderMessageUI(prefix, role, text, imgB64) {
             const msgs = document.getElementById(`${prefix}-ai-msgs`);
-            const div = document.createElement('div'); div.className = `chat-msg ${role}`; div.innerText = text;
+            const div = document.createElement('div'); 
+            div.className = `chat-msg ${role}`; 
+            
+            // Use formatter for AI responses to handle markdown cleanly
+            if (role === 'ai') {
+                div.innerHTML = formatAiResponseText(text);
+            } else {
+                div.innerText = text;
+            }
+
             if(imgB64) { const img = document.createElement('img'); img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`; div.appendChild(img); }
             msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
         }
@@ -2009,8 +2118,20 @@
             msgs.scrollTop = msgs.scrollHeight;
             
             try {
+                // Enhance the prompt for smarter, structured responses
+                let systemInstruction = `You are SA EDU AI, a highly intelligent educational assistant.
+                - Provide clear, modern, and structured responses.
+                - Use **bold** for key concepts (I will format them cleanly).
+                - Use bullet points (- item) for lists.
+                - Use code blocks for code.
+                - Be helpful, encouraging, and accurate.
+                - Language: Arabic.
+                User Query: `;
+                
+                const finalPrompt = systemInstruction + txt;
+
                 // Call Gemini
-                const reply = await callGeminiAPI(txt, imgB64);
+                const reply = await callGeminiAPI(finalPrompt, imgB64);
                 
                 document.getElementById(loadId).remove();
                 currentChatMessages.push({ role: 'ai', content: reply, image: null });
