@@ -25,6 +25,8 @@ let isEditingMode = false;
 let editingTestId = null;
 let isMyPostsView = false;
 let reeseImages = []; 
+let myUid = null;
+let activeChatRoomId = null;
 
 let lastScrollTop = 0;
 window.addEventListener("scroll", function() {
@@ -36,6 +38,28 @@ window.addEventListener("scroll", function() {
     }
     lastScrollTop = st <= 0 ? 0 : st;
 }, false);
+
+// Handle clicking outside modals to close them
+window.addEventListener('click', function(e) {
+    const searchModal = document.getElementById('user-search-modal');
+    const profileModal = document.getElementById('profile-info-modal');
+    const teacherDetailModal = document.getElementById('teacher-detail-modal');
+    const phoneModal = document.getElementById('phone-modal');
+
+    // Check if the click target IS the modal container (which is the dark overlay)
+    if (e.target === searchModal) {
+        searchModal.classList.add('hidden');
+    }
+    if (e.target === profileModal) {
+        profileModal.classList.add('hidden');
+    }
+    if (e.target === teacherDetailModal) {
+        teacherDetailModal.classList.add('hidden');
+    }
+    // Phone modal is usually mandatory, so we might not want to close it by clicking outside, 
+    // but if needed:
+    // if (e.target === phoneModal) phoneModal.classList.add('hidden');
+});
 
 function toggleConstructionOverlay(show, title="SA AI Building...", sub="جاري المعالجة") {
     const ol = document.getElementById('construction-overlay');
@@ -72,6 +96,8 @@ function getEmptyStateHTML(type) {
         return `<div class="empty-state-container"><div class="empty-avatar"><i class="fas fa-box-open" style="color:#666;"></i></div><h3 style="color:#888;">لا توجد منشورات حالياً</h3><p style="color:#555; font-size:0.9rem;">كن أول من يشارك أفكاره!</p></div>`;
     } else if (type === 'exams') {
         return `<div class="empty-state-container"><div class="empty-avatar"><i class="fas fa-folder-open" style="color:#666;"></i></div><h3 style="color:#888;">لا توجد اختبارات</h3><p style="color:#555; font-size:0.9rem;">استمتع بوقتك، لا يوجد ضغط الآن.</p></div>`;
+    } else if (type === 'chats') {
+        return `<div class="empty-state-container"><div class="empty-avatar"><i class="fab fa-telegram-plane" style="color:#666;"></i></div><h3 style="color:#888;">لا توجد محادثات</h3><p style="color:#555; font-size:0.9rem;">ابحث عن أصدقاء لبدء الدردشة.</p></div>`;
     }
     return '';
 }
@@ -196,34 +222,92 @@ window.handleSmartAuth = async () => {
         if (snap.exists()) {
             if (snap.val().password === pass) {
                 const savedIcon = snap.val().icon;
-                loginSuccess(fullName, savedIcon);
+                let uid = snap.val().uid;
+                if(!uid) {
+                    uid = generateUID();
+                    await update(userRef, { uid: uid });
+                }
+                loginSuccess(fullName, savedIcon, uid);
             } else status.innerText = "كلمة المرور غير صحيحة";
         } else {
             const defaultIcon = selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
-            await set(userRef, { password: pass, joined: Date.now(), icon: defaultIcon });
-            loginSuccess(fullName, defaultIcon);
+            const uid = generateUID();
+            await set(userRef, { password: pass, joined: Date.now(), icon: defaultIcon, uid: uid });
+            loginSuccess(fullName, defaultIcon, uid);
         }
     } catch (e) { console.error(e); status.innerText = "حدث خطأ في الاتصال"; }
 };
 
-function loginSuccess(name, icon) {
+function generateUID() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+function loginSuccess(name, icon, uid) {
     currentUser = name;
+    myUid = uid;
     localStorage.setItem('sa_user', name);
     localStorage.setItem('sa_role', selectedRole);
     localStorage.setItem('sa_icon', icon || (selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie'));
+    localStorage.setItem('sa_uid', uid);
+    
     document.getElementById('landing-layer').classList.add('hidden');
     document.getElementById('auth-layer').classList.add('hidden');
     updateMenuInfo();
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get('shareId');
+    
+    // Handle Deep Links
+    handleDeepLinks();
+
     if (selectedRole === 'teacher') {
         document.getElementById('teacher-app').classList.remove('hidden');
         initTeacherApp();
-        if(shareId) { switchTab('t-ai'); loadSharedChat(shareId, 't'); }
     } else {
         document.getElementById('student-app').classList.remove('hidden');
         loadStudentExams(); loadStudentGrades(); initStudentReese(); 
-        if(shareId) { switchTab('s-ai'); loadSharedChat(shareId, 's'); }
+    }
+    initDardasha();
+}
+
+function handleDeepLinks() {
+    const params = new URLSearchParams(window.location.search);
+    const shareId = params.get('shareId');
+    const examId = params.get('examId');
+    const postId = params.get('postId');
+    const chatTarget = params.get('chat');
+
+    // AI Chat Share
+    if(shareId) { 
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        switchTab(`${prefix}-ai`); loadSharedChat(shareId, prefix); 
+    }
+    
+    // Exam Share
+    if(examId) {
+        if(selectedRole === 'student') {
+            switchTab('s-exams');
+            checkPhoneAndStart(examId);
+        } else {
+             // Teacher viewing shared exam (maybe for editing or checking)
+             switchTab('t-library');
+             saAlert("هذا رابط امتحان. كمعلم يمكنك تعديله من المكتبة.", "info");
+        }
+    }
+
+    // Post Share
+    if(postId) {
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        switchTab(`${prefix}-reese`);
+        // Highlight post logic could go here, for now just load feed
+        setTimeout(() => {
+             const el = document.getElementById(`post-${postId}`);
+             if(el) { el.scrollIntoView({behavior: "smooth"}); el.style.border = "2px solid var(--accent-primary)"; }
+        }, 1500);
+    }
+
+    // Chat with User
+    if(chatTarget && chatTarget !== myUid) {
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        switchTab(`${prefix}-dardasha`);
+        searchUserById(chatTarget);
     }
 }
 
@@ -244,6 +328,22 @@ function updateMenuInfo() {
     document.getElementById('edit-name-input').value = currentUser;
     const reeseAvs = document.querySelectorAll('.reese-avatar-mini');
     reeseAvs.forEach(el => { el.innerHTML = `<i class="fas ${iconClass}" style="color:${color}"></i>`; });
+    
+    // Update Profile Modal info
+    document.getElementById('pi-name').innerText = currentUser;
+    document.getElementById('pi-avatar').innerHTML = `<i class="fas ${iconClass}"></i>`;
+    document.getElementById('pi-avatar').style.color = color;
+    document.getElementById('pi-avatar').style.borderColor = color;
+    document.getElementById('pi-id-box').innerText = myUid;
+    
+    // Update Chat sidebar Avatar
+    const prefix = selectedRole === 'teacher' ? 't' : 's';
+    const chatAv = document.getElementById(`${prefix}-chat-my-avatar`);
+    if(chatAv) {
+        chatAv.innerHTML = `<i class="fas ${iconClass}"></i>`;
+        chatAv.style.color = color;
+        chatAv.style.borderColor = color;
+    }
 }
 
 window.toggleEditProfile = () => {
@@ -279,7 +379,8 @@ window.saveAvatar = async (iconClass) => {
 window.logout = () => { localStorage.clear(); location.reload(); };
 
 window.shareApp = () => {
-    const url = window.location.href; const text = "انضم لمنصة SA EDU التعليمية المتطورة!";
+    const url = window.location.href.split('?')[0]; 
+    const text = "انضم لمنصة SA EDU التعليمية المتطورة!";
     if (navigator.share) navigator.share({ title: 'SA EDU', text: text, url: url }).catch(err => console.log(err));
     else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المنصة!", "success")); }
 };
@@ -321,6 +422,261 @@ window.switchTab = (tabId, btn) => {
     if(tabId === 't-ai' && !currentChatId) startNewChat('t');
     if(tabId === 's-ai' && !currentChatId) startNewChat('s');
 };
+
+// --- Dardasha Logic ---
+
+function initDardasha() {
+    const prefix = selectedRole === 'teacher' ? 't' : 's';
+    const list = document.getElementById(`${prefix}-chat-list`);
+    list.innerHTML = getMultipleSkeletons(2);
+    
+    // Listen for my chats
+    onValue(ref(db, `user_chats/${myUid}`), (snap) => {
+        list.innerHTML = '';
+        if(!snap.exists()) {
+            list.innerHTML = getEmptyStateHTML('chats');
+            return;
+        }
+        
+        const chats = snap.val();
+        Object.entries(chats).forEach(([chatId, chatInfo]) => {
+            const el = document.createElement('div');
+            el.className = 'chat-item';
+            el.onclick = () => openChatRoom(chatId, chatInfo.otherName, chatInfo.otherIcon, chatInfo.otherUid);
+            el.innerHTML = `
+                <div class="avatar-frame mini-frame" style="border-color: #666; color: #ccc;"><i class="fas ${chatInfo.otherIcon}"></i></div>
+                <div style="flex:1;">
+                    <div style="font-weight:bold; color:#fff; display:flex; justify-content:space-between;">
+                        <span>${chatInfo.otherName}</span>
+                        <span style="font-size:0.7rem; color:#666;">${chatInfo.lastMsgTime ? new Date(chatInfo.lastMsgTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
+                    </div>
+                    <div style="font-size:0.8rem; color:#aaa; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
+                        ${chatInfo.lastMsg ? (chatInfo.lastMsg.includes('data:image') ? '📷 صورة' : chatInfo.lastMsg) : 'ابدأ المحادثة...'}
+                    </div>
+                </div>
+            `;
+            list.appendChild(el);
+        });
+    });
+}
+
+window.openMyProfileModal = () => {
+    document.getElementById('profile-info-modal').classList.remove('hidden');
+};
+
+window.copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => saAlert("تم النسخ: " + text, "success"));
+};
+
+window.copyProfileLink = () => {
+    const url = `${window.location.href.split('?')[0]}?chat=${myUid}`;
+    navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المحادثة المباشر!", "success"));
+};
+
+window.toggleUserSearchModal = () => {
+    document.getElementById('user-search-modal').classList.remove('hidden');
+    document.getElementById('user-search-result').innerHTML = '';
+    document.getElementById('user-search-id-input').value = '';
+};
+
+window.searchUserById = async (forcedId = null) => {
+    const id = forcedId || document.getElementById('user-search-id-input').value.trim();
+    if(!id) return;
+    
+    const resultDiv = document.getElementById('user-search-result');
+    if(!forcedId) resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
+    
+    // Search in both students and teachers
+    let foundUser = null;
+    let foundRole = '';
+    
+    // Try students
+    const sSnap = await get(ref(db, `users/students`));
+    if(sSnap.exists()) {
+        Object.entries(sSnap.val()).forEach(([name, data]) => {
+            if(data.uid == id) { foundUser = {name, ...data}; foundRole = 'student'; }
+        });
+    }
+    
+    if(!foundUser) {
+        const tSnap = await get(ref(db, `users/teachers`));
+        if(tSnap.exists()) {
+            Object.entries(tSnap.val()).forEach(([name, data]) => {
+                if(data.uid == id) { foundUser = {name, ...data}; foundRole = 'teacher'; }
+            });
+        }
+    }
+    
+    if(foundUser) {
+        if(forcedId) {
+             // Directly open chat if deep link
+             document.getElementById('user-search-modal').classList.add('hidden');
+             startChatWithUser(foundUser.name, foundUser.icon, foundUser.uid);
+             return;
+        }
+
+        const roleColor = foundRole === 'teacher' ? 'var(--accent-gold)' : 'var(--accent-primary)';
+        resultDiv.innerHTML = `
+            <div style="background:#222; padding:15px; border-radius:15px; text-align:center; margin-top:15px;">
+                <div class="avatar-frame mini-frame" style="margin:0 auto 10px; color:${roleColor}; border-color:${roleColor};">
+                    <i class="fas ${foundUser.icon}"></i>
+                </div>
+                <h4 style="margin:0 0 10px;">${foundUser.name}</h4>
+                <button class="modern-btn" onclick="startChatWithUser('${foundUser.name}', '${foundUser.icon}', '${foundUser.uid}')">بدء المحادثة</button>
+            </div>
+        `;
+    } else {
+        if(!forcedId) resultDiv.innerHTML = '<p style="color:var(--danger); text-align:center;">المستخدم غير موجود</p>';
+    }
+};
+
+window.startChatWithUser = async (otherName, otherIcon, otherUid) => {
+    document.getElementById('user-search-modal').classList.add('hidden');
+    // Create consistent Chat ID (smaller UID first)
+    const chatId = myUid < otherUid ? `${myUid}_${otherUid}` : `${otherUid}_${myUid}`;
+    
+    // Update User Chats List for both
+    const myUpdate = { otherName, otherIcon, otherUid, lastMsg: '', lastMsgTime: Date.now() };
+    const otherUpdate = { otherName: currentUser, otherIcon: localStorage.getItem('sa_icon'), otherUid: myUid, lastMsg: '', lastMsgTime: Date.now() };
+    
+    await update(ref(db, `user_chats/${myUid}/${chatId}`), myUpdate);
+    await update(ref(db, `user_chats/${otherUid}/${chatId}`), otherUpdate);
+    
+    openChatRoom(chatId, otherName, otherIcon, otherUid);
+};
+
+window.openChatRoom = (chatId, name, icon, uid) => {
+    activeChatRoomId = chatId;
+    const prefix = selectedRole === 'teacher' ? 't' : 's';
+    const win = document.getElementById(`${prefix}-chat-window`);
+    
+    // Hide sidebar on mobile
+    if(window.innerWidth < 768) {
+        document.getElementById(`${prefix}-chat-sidebar`).classList.add('hidden');
+    }
+    win.classList.remove('hidden');
+    
+    win.innerHTML = `
+        <div class="chat-header">
+            <button class="icon-btn-small" onclick="closeChatWindow('${prefix}')"><i class="fas fa-arrow-right"></i></button>
+            <div class="avatar-frame mini-frame" style="width:35px; height:35px; font-size:1rem;"><i class="fas ${icon}"></i></div>
+            <div style="font-weight:bold;">${name}</div>
+            <div style="margin-right:auto; display:flex; gap:10px;">
+                <button class="icon-btn-small" title="اتصال صوتي (قريباً)"><i class="fas fa-phone"></i></button>
+                <button class="icon-btn-small" onclick="copyProfileLinkFor('${uid}')" title="نسخ رابط المستخدم"><i class="fas fa-link"></i></button>
+            </div>
+        </div>
+        <div class="chat-msgs-area" id="chat-msgs-${chatId}"></div>
+        <div class="chat-input-area">
+            <label class="icon-btn-small" style="cursor:pointer;"><i class="fas fa-camera"></i><input type="file" hidden accept="image/*" onchange="sendChatImage(this, '${chatId}', '${uid}')"></label>
+            <input type="text" id="chat-input-${chatId}" placeholder="اكتب رسالة..." onkeypress="handleChatEnter(event, '${chatId}', '${uid}')">
+            <button class="send-btn" style="width:35px; height:35px;" onclick="sendChatMessage('${chatId}', '${uid}')"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    `;
+
+    // Listen for messages
+    const msgContainer = document.getElementById(`chat-msgs-${chatId}`);
+    onValue(ref(db, `chats/${chatId}`), (snap) => {
+        msgContainer.innerHTML = '';
+        if(snap.exists()) {
+            const msgs = snap.val();
+            Object.values(msgs).forEach(msg => {
+                const isMe = msg.sender === myUid;
+                const div = document.createElement('div');
+                div.className = `msg-bubble ${isMe ? 'sent' : 'recv'}`;
+                
+                let content = msg.text;
+                if(msg.type === 'image') {
+                    content = `<img src="${msg.text}" class="whatsapp-img" onclick="openImageViewer(this.src)">`;
+                }
+                
+                div.innerHTML = `
+                    ${content}
+                    <div class="msg-time">${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+                `;
+                msgContainer.appendChild(div);
+            });
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
+    });
+};
+
+window.closeChatWindow = (prefix) => {
+    document.getElementById(`${prefix}-chat-window`).classList.add('hidden');
+    document.getElementById(`${prefix}-chat-sidebar`).classList.remove('hidden');
+    activeChatRoomId = null;
+};
+
+window.handleChatEnter = (e, chatId, otherUid) => {
+    if(e.key === 'Enter') sendChatMessage(chatId, otherUid);
+};
+
+window.sendChatMessage = async (chatId, otherUid) => {
+    const input = document.getElementById(`chat-input-${chatId}`);
+    const text = input.value.trim();
+    if(!text) return;
+    
+    await push(ref(db, `chats/${chatId}`), {
+        sender: myUid,
+        text: text,
+        type: 'text',
+        timestamp: Date.now()
+    });
+    
+    // Update last msg
+    await update(ref(db, `user_chats/${myUid}/${chatId}`), { lastMsg: text, lastMsgTime: Date.now() });
+    await update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: text, lastMsgTime: Date.now() });
+    
+    input.value = '';
+};
+
+window.sendChatImage = async (input, chatId, otherUid) => {
+    if(input.files && input.files[0]) {
+        // Check Limit (5 per day)
+        const today = new Date().toDateString();
+        const usageKey = `img_usage_${myUid}_${today}`;
+        let count = parseInt(localStorage.getItem(usageKey) || '0');
+        
+        if(count >= 5) {
+            saAlert("عفواً، لقد تجاوزت الحد الأقصى لإرسال الصور اليوم (5 صور).", "error");
+            input.value = '';
+            return;
+        }
+        
+        const b64 = await getBase64(input.files[0]);
+        
+        await push(ref(db, `chats/${chatId}`), {
+            sender: myUid,
+            text: b64,
+            type: 'image',
+            timestamp: Date.now()
+        });
+        
+        count++;
+        localStorage.setItem(usageKey, count);
+        
+        await update(ref(db, `user_chats/${myUid}/${chatId}`), { lastMsg: '📷 صورة', lastMsgTime: Date.now() });
+        await update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: '📷 صورة', lastMsgTime: Date.now() });
+        
+        input.value = '';
+    }
+};
+
+window.copyProfileLinkFor = (uid) => {
+     const url = `${window.location.href.split('?')[0]}?chat=${uid}`;
+    navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المستخدم!", "success"));
+};
+
+window.filterChats = (prefix, term) => {
+    const items = document.querySelectorAll(`#${prefix}-chat-list .chat-item`);
+    items.forEach(item => {
+        const name = item.querySelector('div[style*="font-weight:bold"]').innerText.toLowerCase();
+        if(name.includes(term.toLowerCase())) item.classList.remove('hidden');
+        else item.classList.add('hidden');
+    });
+};
+
+// --- End Dardasha Logic ---
 
 window.openReeseCompose = () => {
     document.getElementById('reese-compose-modal').classList.add('open');
@@ -406,6 +762,7 @@ window.loadReesePosts = (prefix) => {
             }
             const div = document.createElement('div');
             div.className = 'reese-card';
+            div.id = `post-${post.id}`;
             div.innerHTML = `
                 <div class="reese-header">
                     <div class="reese-user">
@@ -422,7 +779,7 @@ window.loadReesePosts = (prefix) => {
                 <div class="reese-content">${post.content}</div>${imagesHtml}
                 <div class="reese-actions">
                     <button class="reese-btn ${isLiked ? 'liked' : ''}" onclick="likeReese('${post.id}', ${post.likes || 0})"><i class="fas ${isLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i> <span>${post.likes || 0}</span></button>
-                    <button class="reese-btn" onclick="shareReese('${post.content}')"><i class="fas fa-share"></i> مشاركة</button>
+                    <button class="reese-btn" onclick="shareReese('${post.id}')"><i class="fas fa-share"></i> مشاركة</button>
                 </div>`;
             container.appendChild(div); container.appendChild(createAdBanner());
         });
@@ -471,9 +828,10 @@ window.openImageViewer = (src) => {
     document.body.appendChild(modal);
 };
 
-window.shareReese = (content) => {
-    if(navigator.share) { navigator.share({ title: 'Reese SA', text: content }).catch(e=>console.log(e)); } 
-    else { navigator.clipboard.writeText(content).then(() => saAlert("تم نسخ النص", "success")); }
+window.shareReese = (id) => {
+    const url = `${window.location.href.split('?')[0]}?postId=${id}`;
+    if(navigator.share) { navigator.share({ title: 'Reese SA', text: 'شاهد هذا المنشور', url: url }).catch(e=>console.log(e)); } 
+    else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المنشور", "success")); }
 };
 
 window.generateAiReese = async () => {
@@ -871,9 +1229,9 @@ window.toggleTestVisibility = (k, s) => { update(ref(db, `tests/${k}`), { isHidd
 window.deleteTest = (k) => { saConfirm("هل أنت متأكد من حذف هذا الاختبار؟", () => { remove(ref(db, `tests/${k}`)); remove(ref(db, `results/${k}`)); saAlert("تم الحذف بنجاح", "success"); }); };
 
 window.shareTest = (title, id) => {
-    const url = window.location.href; const text = `ندعوكم لأداء اختبار "${title}" مع الأستاذ ${currentUser} على منصة SA EDU.`; const copyText = `${text}\n${url}`;
-    if(navigator.share) { navigator.share({ title: 'SA EDU Exam', text: text, url: url }).catch(err=>console.log(err)); } 
-    else { navigator.clipboard.writeText(copyText).then(() => saAlert("تم نسخ تفاصيل ورابط الاختبار!", "success")); }
+    const url = `${window.location.href.split('?')[0]}?examId=${id}`;
+    if(navigator.share) { navigator.share({ title: 'SA EDU Exam', text: `ندعوكم لأداء اختبار "${title}"`, url: url }).catch(err=>console.log(err)); } 
+    else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط الاختبار المباشر!", "success")); }
 };
 function getGradeLabel(c) { return ({'1p':'1 ابتدائي','3s':'3 ثانوي'})[c] || c; }
 
@@ -1263,11 +1621,11 @@ window.generateAiQuestions = async () => {
     }
 };
 
-const savedUser = localStorage.getItem('sa_user'); const savedRole = localStorage.getItem('sa_role'); const savedIcon = localStorage.getItem('sa_icon');
+const savedUser = localStorage.getItem('sa_user'); const savedRole = localStorage.getItem('sa_role'); const savedIcon = localStorage.getItem('sa_icon'); const savedUid = localStorage.getItem('sa_uid');
 if (savedUser && savedRole) {
-    currentUser = savedUser; selectedRole = savedRole;
+    currentUser = savedUser; selectedRole = savedRole; myUid = savedUid;
     document.getElementById('landing-layer').classList.add('hidden');
-    loginSuccess(currentUser, savedIcon);
+    loginSuccess(currentUser, savedIcon, savedUid);
 } else { document.getElementById('landing-layer').classList.remove('hidden'); }
 
 let deferredPrompt;
