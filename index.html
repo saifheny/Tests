@@ -59,6 +59,7 @@
         </div>
     </div>
 
+    <!-- AI History Sidebar -->
     <div id="ai-history-sidebar" class="ai-history-sidebar">
         <div class="history-header">
             <span style="font-weight:bold; color:#fff;">سجل المحادثات</span>
@@ -67,16 +68,19 @@
         <div class="history-list" id="ai-history-list"></div>
     </div>
 
+    <!-- Teacher App -->
     <div id="teacher-app" class="hidden">
         <nav class="top-nav">
             <div class="nav-container">
                 <button class="nav-btn active" onclick="switchTab('t-library', this)"><i class="fas fa-layer-group"></i><span>المكتبة</span></button>
                 <button class="nav-btn" onclick="switchTab('t-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
+                <button class="nav-btn" onclick="switchTab('t-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
                 <button class="nav-btn magic-btn" onclick="switchTab('t-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
         <div class="portal-container">
+            <!-- T-Library Section -->
             <section id="t-library" class="app-section">
                 <div class="create-exam-cta" onclick="switchTab('t-create')">
                     <i class="fas fa-file-signature cta-bg-icon"></i>
@@ -97,6 +101,8 @@
                 </div>
                 <div id="t-tests-list"></div>
             </section>
+
+            <!-- T-Reese Section -->
             <section id="t-reese" class="app-section hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
@@ -111,12 +117,39 @@
                 </div>
                 <div id="reese-feed-container-t"></div>
             </section>
+
+            <!-- T-Dardasha Section -->
+            <section id="t-dardasha" class="app-section hidden" style="padding: 0; max-width: 100%;">
+                <div class="chat-layout">
+                    <div class="chat-sidebar" id="t-chat-sidebar">
+                        <div class="chat-sidebar-header">
+                            <div class="my-chat-info" onclick="openMyProfileModal()">
+                                <div class="avatar-frame mini-frame" id="t-chat-my-avatar"></div>
+                                <span>دردشة</span>
+                            </div>
+                            <button class="icon-btn-small" onclick="toggleUserSearchModal()"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="chat-search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="بحث في المحادثات..." onkeyup="filterChats('t', this.value)">
+                        </div>
+                        <div class="chat-list" id="t-chat-list"></div>
+                    </div>
+                    <div class="chat-window hidden" id="t-chat-window">
+                        <!-- Content injected by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- T-Results Section -->
             <section id="t-results" class="app-section hidden">
                 <div class="back-btn-header" onclick="switchTab('t-library')"><i class="fas fa-arrow-right"></i> الرئيسية</div>
                 <h2>نتائج الطلاب</h2>
                 <select id="t-result-select" class="smart-input" style="text-align: right;"><option>اختر الاختبار للعرض</option></select>
                 <div id="t-results-container"></div>
             </section>
+
+            <!-- T-Create Section -->
             <section id="t-create" class="app-section hidden">
                 <div class="back-btn-header" onclick="resetCreateForm(); switchTab('t-library');"><i class="fas fa-arrow-right"></i> إلغاء</div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -187,6 +220,8 @@
                     <i class="fas fa-save"></i> نشر الاختبار النهائي
                 </button>
             </section>
+
+            <!-- T-AI Section -->
             <section id="t-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
@@ -215,16 +250,19 @@
         </div>
     </div>
 
+    <!-- Student App -->
     <div id="student-app" class="hidden">
         <nav class="top-nav">
             <div class="nav-container">
                 <button class="nav-btn active" onclick="switchTab('s-exams', this)"><i class="fas fa-book-open"></i><span>اختبارات</span></button>
                 <button class="nav-btn" onclick="switchTab('s-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
+                <button class="nav-btn" onclick="switchTab('s-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
                 <button class="nav-btn magic-btn" onclick="switchTab('s-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
         <div class="portal-container">
+            <!-- S-Exams Section -->
             <section id="s-exams" class="app-section">
                 <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
@@ -246,6 +284,8 @@
                 </div>
                 <div id="s-exams-list"></div>
             </section>
+
+            <!-- S-Reese Section -->
             <section id="s-reese" class="app-section hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
@@ -260,10 +300,35 @@
                 </div>
                 <div id="reese-feed-container-s"></div>
             </section>
+
+            <!-- S-Dardasha Section -->
+            <section id="s-dardasha" class="app-section hidden" style="padding: 0; max-width: 100%;">
+                <div class="chat-layout">
+                    <div class="chat-sidebar" id="s-chat-sidebar">
+                        <div class="chat-sidebar-header">
+                            <div class="my-chat-info" onclick="openMyProfileModal()">
+                                <div class="avatar-frame mini-frame" id="s-chat-my-avatar"></div>
+                                <span>دردشة</span>
+                            </div>
+                            <button class="icon-btn-small" onclick="toggleUserSearchModal()"><i class="fas fa-plus"></i></button>
+                        </div>
+                        <div class="chat-search-bar">
+                            <i class="fas fa-search"></i>
+                            <input type="text" placeholder="بحث في المحادثات..." onkeyup="filterChats('s', this.value)">
+                        </div>
+                        <div class="chat-list" id="s-chat-list"></div>
+                    </div>
+                    <div class="chat-window hidden" id="s-chat-window"></div>
+                </div>
+            </section>
+
+            <!-- S-Grades Section -->
             <section id="s-grades" class="app-section hidden">
                 <h2 style="margin-bottom: 20px;">لوحة الشرف (درجاتي)</h2>
                 <div id="s-grades-list"></div>
             </section>
+
+            <!-- S-AI Section -->
             <section id="s-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
@@ -289,6 +354,8 @@
                     </div>
                 </div>
             </section>
+
+            <!-- S-Taking Test Overlay -->
             <section id="s-taking-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -300,6 +367,8 @@
                     <button onclick="submitExam()" class="modern-btn" style="background: var(--success); color: white; margin-bottom: 50px;">تسليم الإجابة</button>
                 </div>
             </section>
+            
+            <!-- S-Review Test Overlay -->
             <section id="s-review-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div class="back-btn-header" onclick="document.getElementById('s-review-test').classList.add('hidden')"><i class="fas fa-arrow-right"></i> إغلاق المراجعة</div>
@@ -310,6 +379,7 @@
         </div>
     </div>
 
+    <!-- Modals -->
     <div id="reese-compose-modal" class="compose-overlay">
         <div class="compose-header">
             <span style="font-weight: bold; font-size: 1.1rem;">إنشاء ريس جديد</span>
@@ -391,6 +461,38 @@
                     <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Profile & Link Modal -->
+    <div id="profile-info-modal" class="hidden">
+        <div class="bottom-sheet-content">
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                 <h3 style="margin:0;">الملف الشخصي</h3>
+                 <button onclick="document.getElementById('profile-info-modal').classList.add('hidden')" style="background:none; border:none; color:#fff;"><i class="fas fa-times fa-lg"></i></button>
+             </div>
+             <div style="text-align:center; margin-bottom:20px;">
+                 <div class="avatar-frame" id="pi-avatar" style="width:80px; height:80px; margin:0 auto 10px;"></div>
+                 <h3 id="pi-name"></h3>
+                 <div id="pi-id-box" class="copy-box" onclick="copyToClipboard(this.innerText)"></div>
+                 <button class="modern-btn" onclick="copyProfileLink()" style="margin-top:15px; width:100%;"><i class="fas fa-link"></i> نسخ رابط المحادثة</button>
+             </div>
+        </div>
+    </div>
+
+    <!-- User Search Modal -->
+    <div id="user-search-modal" class="hidden">
+        <div class="bottom-sheet-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin:0; text-align:center;">بحث عن مستخدم</h3>
+                <button onclick="document.getElementById('user-search-modal').classList.add('hidden')" style="background: rgba(255, 255, 255, 0.1); border: none; color: #fff; padding: 5px 12px; border-radius: 12px; font-size: 0.9rem; cursor: pointer;">خروج <i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="chat-search-bar" style="margin-bottom:20px;">
+                <input type="text" id="user-search-id-input" placeholder="أدخل معرف المستخدم (ID)...">
+                <button onclick="searchUserById()" class="modern-btn" style="width:auto; min-width:60px;"><i class="fas fa-search"></i></button>
+            </div>
+            <div id="user-search-result"></div>
         </div>
     </div>
 
