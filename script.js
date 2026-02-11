@@ -39,14 +39,12 @@ window.addEventListener("scroll", function() {
     lastScrollTop = st <= 0 ? 0 : st;
 }, false);
 
-// Handle clicking outside modals to close them
 window.addEventListener('click', function(e) {
     const searchModal = document.getElementById('user-search-modal');
     const profileModal = document.getElementById('profile-info-modal');
     const teacherDetailModal = document.getElementById('teacher-detail-modal');
     const phoneModal = document.getElementById('phone-modal');
 
-    // Check if the click target IS the modal container (which is the dark overlay)
     if (e.target === searchModal) {
         searchModal.classList.add('hidden');
     }
@@ -56,10 +54,32 @@ window.addEventListener('click', function(e) {
     if (e.target === teacherDetailModal) {
         teacherDetailModal.classList.add('hidden');
     }
-    // Phone modal is usually mandatory, so we might not want to close it by clicking outside, 
-    // but if needed:
-    // if (e.target === phoneModal) phoneModal.classList.add('hidden');
 });
+
+function playSound(type) {
+    const soundMap = {
+        'click': 'snd-click',
+        'sent': 'snd-sent',
+        'recv': 'snd-recv',
+        'success': 'snd-success',
+        'like': 'snd-like'
+    };
+    const id = soundMap[type];
+    if(id) {
+        const audio = document.getElementById(id);
+        if(audio) {
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log("Sound play error:", e));
+        }
+    }
+}
+
+function makeLinksClickable(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        return `<a href="${url}" target="_blank" class="clickable-link">${url}</a>`;
+    });
+}
 
 function toggleConstructionOverlay(show, title="SA AI Building...", sub="جاري المعالجة") {
     const ol = document.getElementById('construction-overlay');
@@ -119,6 +139,7 @@ window.saAlert = (msg, type = 'info', title = null) => {
 };
 
 window.saConfirm = (msg, onConfirm) => {
+    playSound('click');
     const modal = document.getElementById('sa-custom-alert');
     document.getElementById('sa-alert-icon').innerHTML = '<i class="fas fa-question-circle" style="color:var(--warning)"></i>';
     document.getElementById('sa-alert-title').innerText = 'تأكيد';
@@ -135,7 +156,7 @@ window.saConfirm = (msg, onConfirm) => {
     modal.classList.add('active');
 };
 
-window.closeSaAlert = () => { document.getElementById('sa-custom-alert').classList.remove('active'); };
+window.closeSaAlert = () => { playSound('click'); document.getElementById('sa-custom-alert').classList.remove('active'); };
 
 function createAdBanner() {
     const container = document.createElement('div'); container.className = 'ad-banner';
@@ -183,12 +204,14 @@ async function callPollinationsAI(prompt) {
 }
 
 window.goToAuth = () => {
+        playSound('click');
         document.getElementById('landing-layer').classList.add('hidden');
         document.getElementById('auth-layer').classList.remove('hidden');
         setAuthRole('student');
 };
 
 window.setAuthRole = (role) => {
+    playSound('click');
     selectedRole = role;
     const icon = role === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
     const color = role === 'student' ? 'var(--accent-primary)' : 'var(--accent-gold)';
@@ -201,11 +224,13 @@ window.setAuthRole = (role) => {
 };
 
 window.backToLanding = () => {
+    playSound('click');
     document.getElementById('auth-layer').classList.add('hidden');
     document.getElementById('landing-layer').classList.remove('hidden');
 };
 
 window.handleSmartAuth = async () => {
+    playSound('click');
     const name1 = document.getElementById('auth-name-1').value.trim();
     const name2 = document.getElementById('auth-name-2').value.trim();
     const name3 = document.getElementById('auth-name-3').value.trim();
@@ -248,6 +273,7 @@ function generateUID() {
 }
 
 function loginSuccess(name, icon, uid) {
+    playSound('success');
     currentUser = name;
     myUid = uid;
     localStorage.setItem('sa_user', name);
@@ -259,7 +285,6 @@ function loginSuccess(name, icon, uid) {
     document.getElementById('auth-layer').classList.add('hidden');
     updateMenuInfo();
     
-    // Handle Deep Links
     handleDeepLinks();
 
     if (selectedRole === 'teacher') {
@@ -279,36 +304,30 @@ function handleDeepLinks() {
     const postId = params.get('postId');
     const chatTarget = params.get('chat');
 
-    // AI Chat Share
     if(shareId) { 
         const prefix = selectedRole === 'teacher' ? 't' : 's';
         switchTab(`${prefix}-ai`); loadSharedChat(shareId, prefix); 
     }
     
-    // Exam Share
     if(examId) {
         if(selectedRole === 'student') {
             switchTab('s-exams');
             checkPhoneAndStart(examId);
         } else {
-             // Teacher viewing shared exam (maybe for editing or checking)
              switchTab('t-library');
              saAlert("هذا رابط امتحان. كمعلم يمكنك تعديله من المكتبة.", "info");
         }
     }
 
-    // Post Share
     if(postId) {
         const prefix = selectedRole === 'teacher' ? 't' : 's';
         switchTab(`${prefix}-reese`);
-        // Highlight post logic could go here, for now just load feed
         setTimeout(() => {
              const el = document.getElementById(`post-${postId}`);
              if(el) { el.scrollIntoView({behavior: "smooth"}); el.style.border = "2px solid var(--accent-primary)"; }
         }, 1500);
     }
 
-    // Chat with User
     if(chatTarget && chatTarget !== myUid) {
         const prefix = selectedRole === 'teacher' ? 't' : 's';
         switchTab(`${prefix}-dardasha`);
@@ -317,6 +336,7 @@ function handleDeepLinks() {
 }
 
 window.toggleMenu = () => {
+    playSound('click');
     document.getElementById('menu-modal').classList.toggle('open');
     document.getElementById('menu-edit-section').classList.add('hidden');
     document.getElementById('menu-avatar-section').classList.add('hidden');
@@ -334,14 +354,12 @@ function updateMenuInfo() {
     const reeseAvs = document.querySelectorAll('.reese-avatar-mini');
     reeseAvs.forEach(el => { el.innerHTML = `<i class="fas ${iconClass}" style="color:${color}"></i>`; });
     
-    // Update Profile Modal info
     document.getElementById('pi-name').innerText = currentUser;
     document.getElementById('pi-avatar').innerHTML = `<i class="fas ${iconClass}"></i>`;
     document.getElementById('pi-avatar').style.color = color;
     document.getElementById('pi-avatar').style.borderColor = color;
     document.getElementById('pi-id-box').innerText = myUid;
     
-    // Update Chat sidebar Avatar
     const prefix = selectedRole === 'teacher' ? 't' : 's';
     const chatAv = document.getElementById(`${prefix}-chat-my-avatar`);
     if(chatAv) {
@@ -352,11 +370,13 @@ function updateMenuInfo() {
 }
 
 window.toggleEditProfile = () => {
+    playSound('click');
     document.getElementById('menu-edit-section').classList.toggle('hidden');
     document.getElementById('menu-avatar-section').classList.add('hidden');
 };
 
 window.saveProfileName = async () => {
+    playSound('click');
     const newName = document.getElementById('edit-name-input').value.trim();
     if(!newName || newName === currentUser) return;
     saConfirm("تغيير الاسم سيؤدي لإنشاء حساب جديد. هل أنت متأكد؟", async () => {
@@ -371,19 +391,22 @@ window.saveProfileName = async () => {
 };
 
 window.toggleAvatarSelect = () => {
+    playSound('click');
     document.getElementById('menu-avatar-section').classList.toggle('hidden');
     document.getElementById('menu-edit-section').classList.add('hidden');
 };
 
 window.saveAvatar = async (iconClass) => {
+    playSound('click');
     localStorage.setItem('sa_icon', iconClass);
     await update(ref(db, `users/${selectedRole}s/${currentUser}`), { icon: iconClass });
     updateMenuInfo(); toggleAvatarSelect();
 };
 
-window.logout = () => { localStorage.clear(); location.reload(); };
+window.logout = () => { playSound('click'); localStorage.clear(); location.reload(); };
 
 window.shareApp = () => {
+    playSound('click');
     const url = window.location.href.split('?')[0]; 
     const text = "انضم لمنصة SA EDU التعليمية المتطورة!";
     if (navigator.share) navigator.share({ title: 'SA EDU', text: text, url: url }).catch(err => console.log(err));
@@ -406,6 +429,7 @@ function startTypewriter(elementId, text) {
 if(document.getElementById('landing-type-text')) { startTypewriter("landing-type-text", "منصة تعليمية ذكية تنقلك إلى آفاق المستقبل"); }
 
 window.switchTab = (tabId, btn) => {
+    playSound('click');
     const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
     document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
     document.getElementById(tabId).classList.remove('hidden');
@@ -428,14 +452,11 @@ window.switchTab = (tabId, btn) => {
     if(tabId === 's-ai' && !currentChatId) startNewChat('s');
 };
 
-// --- Dardasha Logic ---
-
 function initDardasha() {
     const prefix = selectedRole === 'teacher' ? 't' : 's';
     const list = document.getElementById(`${prefix}-chat-list`);
     list.innerHTML = getMultipleSkeletons(2);
     
-    // Listen for my chats
     onValue(ref(db, `user_chats/${myUid}`), (snap) => {
         list.innerHTML = '';
         if(!snap.exists()) {
@@ -444,7 +465,9 @@ function initDardasha() {
         }
         
         const chats = snap.val();
-        Object.entries(chats).forEach(([chatId, chatInfo]) => {
+        
+        const chatEntries = Object.entries(chats);
+        chatEntries.forEach(([chatId, chatInfo], index) => {
             const el = document.createElement('div');
             el.className = 'chat-item';
             el.onclick = () => openChatRoom(chatId, chatInfo.otherName, chatInfo.otherIcon, chatInfo.otherUid);
@@ -461,11 +484,20 @@ function initDardasha() {
                 </div>
             `;
             list.appendChild(el);
+            
+            list.appendChild(createAdBanner());
+        });
+        
+        chatEntries.forEach(([chatId, chatInfo]) => {
+             if(chatInfo.lastMsgTime > Date.now() - 5000 && chatInfo.lastMsg !== "📷 صورة" && activeChatRoomId !== chatId) {
+                 playSound('recv');
+             }
         });
     });
 }
 
 window.openMyProfileModal = () => {
+    playSound('click');
     document.getElementById('profile-info-modal').classList.remove('hidden');
 };
 
@@ -474,28 +506,29 @@ window.copyToClipboard = (text) => {
 };
 
 window.copyProfileLink = () => {
+    playSound('click');
     const url = `${window.location.href.split('?')[0]}?chat=${myUid}`;
     navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المحادثة المباشر!", "success"));
 };
 
 window.toggleUserSearchModal = () => {
+    playSound('click');
     document.getElementById('user-search-modal').classList.remove('hidden');
     document.getElementById('user-search-result').innerHTML = '';
     document.getElementById('user-search-id-input').value = '';
 };
 
 window.searchUserById = async (forcedId = null) => {
+    playSound('click');
     const id = forcedId || document.getElementById('user-search-id-input').value.trim();
     if(!id) return;
     
     const resultDiv = document.getElementById('user-search-result');
     if(!forcedId) resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري البحث...';
     
-    // Search in both students and teachers
     let foundUser = null;
     let foundRole = '';
     
-    // Try students
     const sSnap = await get(ref(db, `users/students`));
     if(sSnap.exists()) {
         Object.entries(sSnap.val()).forEach(([name, data]) => {
@@ -514,7 +547,6 @@ window.searchUserById = async (forcedId = null) => {
     
     if(foundUser) {
         if(forcedId) {
-             // Directly open chat if deep link
              document.getElementById('user-search-modal').classList.add('hidden');
              startChatWithUser(foundUser.name, foundUser.icon, foundUser.uid);
              return;
@@ -537,10 +569,8 @@ window.searchUserById = async (forcedId = null) => {
 
 window.startChatWithUser = async (otherName, otherIcon, otherUid) => {
     document.getElementById('user-search-modal').classList.add('hidden');
-    // Create consistent Chat ID (smaller UID first)
     const chatId = myUid < otherUid ? `${myUid}_${otherUid}` : `${otherUid}_${myUid}`;
     
-    // Update User Chats List for both
     const myUpdate = { otherName, otherIcon, otherUid, lastMsg: '', lastMsgTime: Date.now() };
     const otherUpdate = { otherName: currentUser, otherIcon: localStorage.getItem('sa_icon'), otherUid: myUid, lastMsg: '', lastMsgTime: Date.now() };
     
@@ -551,11 +581,11 @@ window.startChatWithUser = async (otherName, otherIcon, otherUid) => {
 };
 
 window.openChatRoom = (chatId, name, icon, uid) => {
+    playSound('click');
     activeChatRoomId = chatId;
     const prefix = selectedRole === 'teacher' ? 't' : 's';
     const win = document.getElementById(`${prefix}-chat-window`);
     
-    // Hide sidebar on mobile
     if(window.innerWidth < 768) {
         document.getElementById(`${prefix}-chat-sidebar`).classList.add('hidden');
     }
@@ -579,7 +609,6 @@ window.openChatRoom = (chatId, name, icon, uid) => {
         </div>
     `;
 
-    // Listen for messages
     const msgContainer = document.getElementById(`chat-msgs-${chatId}`);
     onValue(ref(db, `chats/${chatId}`), (snap) => {
         msgContainer.innerHTML = '';
@@ -590,9 +619,9 @@ window.openChatRoom = (chatId, name, icon, uid) => {
                 const div = document.createElement('div');
                 div.className = `msg-bubble ${isMe ? 'sent' : 'recv'}`;
                 
-                let content = msg.text;
+                let content = makeLinksClickable(msg.text);
                 if(msg.type === 'image') {
-                    content = `<img src="${msg.text}" class="whatsapp-img" onclick="openImageViewer(this.src)">`;
+                    content = `<img src="${msg.text}" class="whatsapp-img" style="height:100px; width:auto; object-fit:cover;" onclick="openImageViewer(this.src)">`;
                 }
                 
                 div.innerHTML = `
@@ -600,6 +629,7 @@ window.openChatRoom = (chatId, name, icon, uid) => {
                     <div class="msg-time">${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
                 `;
                 msgContainer.appendChild(div);
+                if(!isMe) playSound('recv'); 
             });
             msgContainer.scrollTop = msgContainer.scrollHeight;
         }
@@ -607,6 +637,7 @@ window.openChatRoom = (chatId, name, icon, uid) => {
 };
 
 window.closeChatWindow = (prefix) => {
+    playSound('click');
     document.getElementById(`${prefix}-chat-window`).classList.add('hidden');
     document.getElementById(`${prefix}-chat-sidebar`).classList.remove('hidden');
     activeChatRoomId = null;
@@ -621,6 +652,8 @@ window.sendChatMessage = async (chatId, otherUid) => {
     const text = input.value.trim();
     if(!text) return;
     
+    playSound('sent');
+    
     await push(ref(db, `chats/${chatId}`), {
         sender: myUid,
         text: text,
@@ -628,7 +661,6 @@ window.sendChatMessage = async (chatId, otherUid) => {
         timestamp: Date.now()
     });
     
-    // Update last msg
     await update(ref(db, `user_chats/${myUid}/${chatId}`), { lastMsg: text, lastMsgTime: Date.now() });
     await update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: text, lastMsgTime: Date.now() });
     
@@ -637,7 +669,6 @@ window.sendChatMessage = async (chatId, otherUid) => {
 
 window.sendChatImage = async (input, chatId, otherUid) => {
     if(input.files && input.files[0]) {
-        // Check Limit (5 per day)
         const today = new Date().toDateString();
         const usageKey = `img_usage_${myUid}_${today}`;
         let count = parseInt(localStorage.getItem(usageKey) || '0');
@@ -649,6 +680,7 @@ window.sendChatImage = async (input, chatId, otherUid) => {
         }
         
         const b64 = await getBase64(input.files[0]);
+        playSound('sent');
         
         await push(ref(db, `chats/${chatId}`), {
             sender: myUid,
@@ -668,6 +700,7 @@ window.sendChatImage = async (input, chatId, otherUid) => {
 };
 
 window.copyProfileLinkFor = (uid) => {
+     playSound('click');
      const url = `${window.location.href.split('?')[0]}?chat=${uid}`;
     navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المستخدم!", "success"));
 };
@@ -681,9 +714,8 @@ window.filterChats = (prefix, term) => {
     });
 };
 
-// --- End Dardasha Logic ---
-
 window.openReeseCompose = () => {
+    playSound('click');
     document.getElementById('reese-compose-modal').classList.add('open');
     const icon = localStorage.getItem('sa_icon');
     const color = selectedRole === 'teacher' ? 'var(--accent-gold)' : 'var(--accent-primary)';
@@ -698,6 +730,7 @@ window.openReeseCompose = () => {
 };
 
 window.closeReeseCompose = () => {
+    playSound('click');
     document.getElementById('reese-compose-modal').classList.remove('open');
     document.getElementById('reese-text-input').value = '';
     document.getElementById('reese-text-input').style.height = 'auto';
@@ -736,6 +769,7 @@ window.removeReeseImage = (idx) => { reeseImages.splice(idx, 1); renderReeseMedi
 window.publishReese = async () => {
     const text = document.getElementById('reese-text-input').value.trim();
     if(!text && reeseImages.length === 0) return saAlert("اكتب شيئاً أو أضف صورة", "error");
+    playSound('sent');
     const postData = { author: currentUser, role: selectedRole, icon: localStorage.getItem('sa_icon'), content: text, images: reeseImages, timestamp: Date.now(), likes: 0 };
     await push(ref(db, 'posts'), postData);
     closeReeseCompose(); saAlert("تم النشر بنجاح!", "success");
@@ -781,9 +815,9 @@ window.loadReesePosts = (prefix) => {
                         <button onclick="hideReese('${post.id}')" title="إخفاء من هنا" style="background:none; border:none; color:#666; cursor:pointer; font-size:1rem;"><i class="fas fa-eye-slash"></i></button>
                     </div>
                 </div>
-                <div class="reese-content">${post.content}</div>${imagesHtml}
+                <div class="reese-content">${makeLinksClickable(post.content)}</div>${imagesHtml}
                 <div class="reese-actions">
-                    <button class="reese-btn ${isLiked ? 'liked' : ''}" onclick="likeReese('${post.id}', ${post.likes || 0})"><i class="fas ${isLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}"></i> <span>${post.likes || 0}</span></button>
+                    <button class="reese-btn ${isLiked ? 'liked' : ''}" onclick="likeReese('${post.id}', ${post.likes || 0})"><i class="fas ${isLiked ? 'fa-thumbs-up' : 'fa-thumbs-up'}" style="font-size:1.3rem;"></i> <span style="font-size:1.1rem;">${post.likes || 0}</span></button>
                     <button class="reese-btn" onclick="shareReese('${post.id}')"><i class="fas fa-share"></i> مشاركة</button>
                 </div>`;
             container.appendChild(div); container.appendChild(createAdBanner());
@@ -793,6 +827,7 @@ window.loadReesePosts = (prefix) => {
 };
 
 window.toggleMyPostsView = () => {
+    playSound('click');
     isMyPostsView = !isMyPostsView;
     const prefix = selectedRole === 'teacher' ? 't' : 's';
     const icon = document.getElementById(`${prefix}-eraser-icon`);
@@ -802,6 +837,7 @@ window.toggleMyPostsView = () => {
 };
 
 window.likeReese = async (id, currentLikes) => {
+    playSound('like');
     const likedPosts = JSON.parse(localStorage.getItem(`liked_posts_${currentUser}`) || '[]');
     const index = likedPosts.indexOf(id);
     let newLikes = currentLikes;
@@ -834,12 +870,14 @@ window.openImageViewer = (src) => {
 };
 
 window.shareReese = (id) => {
+    playSound('click');
     const url = `${window.location.href.split('?')[0]}?postId=${id}`;
     if(navigator.share) { navigator.share({ title: 'Reese SA', text: 'شاهد هذا المنشور', url: url }).catch(e=>console.log(e)); } 
     else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المنشور", "success")); }
 };
 
 window.generateAiReese = async () => {
+    playSound('click');
     toggleConstructionOverlay(true, "SA AI THINKING", "توليد أفكار إبداعية...");
     const prompt = `Generate 3 distinct, engaging, and short social media post ideas for a ${selectedRole} on an educational app. Return them as a JSON array of strings (e.g., ["Idea 1", "Idea 2", "Idea 3"]). Language: Arabic. Keep them under 150 characters.`;
     
@@ -879,6 +917,7 @@ window.generateAiReese = async () => {
 function generateChatId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
 
 window.startNewChat = (prefix) => {
+    playSound('click');
     currentChatId = generateChatId(); currentChatMessages = []; isIncognito = false;
     document.getElementById(`${prefix}-ai-msgs`).innerHTML = ''; 
     document.getElementById(`${prefix}-incognito-btn`).classList.remove('active');
@@ -888,15 +927,33 @@ window.startNewChat = (prefix) => {
 window.renderAiWelcome = (prefix) => {
     const msgs = document.getElementById(`${prefix}-ai-msgs`);
     const firstName = currentUser.split(' ')[0];
+    
+    let roleSpecificChips = '';
+    let roleDesc = '';
+
+    if (selectedRole === 'teacher') {
+        roleDesc = 'يمكنني مساعدتك في إنشاء الاختبارات، تحضير الدروس، وإدارة الطلاب.';
+        roleSpecificChips = `
+            <div class="ai-chip" onclick="fillAiInput('${prefix}', 'أنشئ اختبار عن الكيمياء العضوية')"><i class="fas fa-flask"></i> إنشاء اختبار</div>
+            <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اكتب خطة درس عن التاريخ الحديث')"><i class="fas fa-book"></i> تحضير درس</div>
+            <div class="ai-chip" onclick="fillAiInput('${prefix}', 'كيف أجعل الحصة تفاعلية أكثر؟')"><i class="fas fa-users"></i> نصائح تفاعلية</div>
+        `;
+    } else {
+        roleDesc = 'أنا هنا لمساعدتك في المذاكرة، شرح الدروس، وحل المسائل الصعبة.';
+        roleSpecificChips = `
+            <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اشرح لي قانون نيوتن الثاني ببساطة')"><i class="fas fa-atom"></i> شرح درس</div>
+            <div class="ai-chip" onclick="fillAiInput('${prefix}', 'لخص لي أحداث الحرب العالمية الأولى')"><i class="fas fa-history"></i> تلخيص</div>
+            <div class="ai-chip" onclick="fillAiInput('${prefix}', 'ساعدني في تنظيم وقت المذاكرة')"><i class="fas fa-clock"></i> تنظيم الوقت</div>
+        `;
+    }
+
     msgs.innerHTML = `
         <div class="ai-welcome-screen">
             <div class="ai-logo-large"><i class="fas fa-wand-magic-sparkles"></i></div>
             <h3 class="ai-welcome-title">مرحباً ${firstName} 👋</h3>
-            <p class="ai-welcome-text">أنا مساعدك الذكي SA AI. <br>يمكنني قراءة الصور، إنشاء الاختبارات، ونشر الأفكار!</p>
+            <p class="ai-welcome-text">أنا مساعدك الذكي SA AI. <br>${roleDesc}</p>
             <div class="ai-chips">
-                <div class="ai-chip" onclick="fillAiInput('${prefix}', 'أنشئ اختبار عن الكيمياء العضوية')"><i class="fas fa-flask"></i> إنشاء اختبار</div>
-                <div class="ai-chip" onclick="fillAiInput('${prefix}', 'انشر بوست عن أهمية التعليم')"><i class="fas fa-feather"></i> كتابة منشور</div>
-                <div class="ai-chip" onclick="fillAiInput('${prefix}', 'اشرح لي هذا المفهوم المعقد ببساطة')"><i class="fas fa-lightbulb"></i> شرح مفهوم</div>
+                ${roleSpecificChips}
             </div>
         </div>`;
 };
@@ -904,6 +961,7 @@ window.renderAiWelcome = (prefix) => {
 window.fillAiInput = (prefix, text) => { document.getElementById(`${prefix}-ai-input`).value = text; };
 
 window.toggleIncognito = (prefix) => {
+    playSound('click');
     isIncognito = !isIncognito;
     document.getElementById(`${prefix}-incognito-btn`).classList.toggle('active', isIncognito);
     if(isIncognito) saAlert("الوضع المخفي: لن يتم حفظ هذه المحادثة في السجل", "info");
@@ -929,6 +987,7 @@ function saveChatToLocal() {
 }
 
 window.toggleHistory = (show) => {
+    playSound('click');
     const sidebar = document.getElementById('ai-history-sidebar');
     if(show) { 
         renderHistoryList(); 
@@ -976,6 +1035,7 @@ window.deleteLocalChat = (id) => {
 };
 
 window.shareCurrentChat = async () => {
+    playSound('click');
     if(currentChatMessages.length === 0) return saAlert("لا يمكن مشاركة محادثة فارغة", "info");
     saAlert("جاري إنشاء رابط للمشاركة...", "info");
     const shareRef = push(ref(db, 'shared_chats'));
@@ -1008,7 +1068,7 @@ function formatAiResponseText(text) {
         safeText = safeText.replace(/((<li>.*<\/li>\s*)+)/g, '<ul>$1</ul>');
     }
     safeText = safeText.replace(/\n/g, '<br>');
-    return safeText;
+    return makeLinksClickable(safeText);
 }
 
 function renderMessageUI(prefix, role, text, imgB64) {
@@ -1019,7 +1079,7 @@ function renderMessageUI(prefix, role, text, imgB64) {
     if (role === 'ai') {
         div.innerHTML = formatAiResponseText(text);
     } else {
-        div.innerText = text;
+        div.innerHTML = makeLinksClickable(text);
     }
 
     if(imgB64) { const img = document.createElement('img'); img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`; div.appendChild(img); }
@@ -1062,11 +1122,12 @@ function loadTeacherTests() {
     resultSelect.onchange = (e) => loadTestResults(e.target.value);
 }
 
-window.openResultsTab = (testId) => { switchTab('t-results'); document.getElementById('t-result-select').value = testId; loadTestResults(testId); };
+window.openResultsTab = (testId) => { playSound('click'); switchTab('t-results'); document.getElementById('t-result-select').value = testId; loadTestResults(testId); };
 
 let currentQType = 'mcq';
 
 window.setQType = (type, label) => {
+    playSound('click');
     currentQType = type;
     document.querySelectorAll('.type-radio-label').forEach(l => l.classList.remove('active'));
     label.classList.add('active');
@@ -1114,6 +1175,7 @@ document.getElementById('q-image-input').onchange = async (e) => {
 };
 
 window.addQuestionToList = () => {
+    playSound('click');
     const text = document.getElementById('q-text').value; const points = document.getElementById('q-points').value;
     let options = []; let correctVal = null;
     
@@ -1171,6 +1233,7 @@ function renderAddedQuestions() {
 window.deleteQuestion = (idx) => { saConfirm("حذف السؤال؟", () => { currentQuestions.splice(idx, 1); renderAddedQuestions(); }); };
 
 window.editQuestion = (idx) => {
+    playSound('click');
     const q = currentQuestions[idx];
     document.getElementById('q-text').value = q.text; document.getElementById('q-points').value = q.points;
     
@@ -1204,6 +1267,7 @@ window.resetCreateForm = () => {
 };
 
 window.editTest = async (testId) => {
+    playSound('click');
     const snap = await get(ref(db, `tests/${testId}`));
     if(!snap.exists()) return saAlert("الاختبار غير موجود", "error");
     const data = snap.val(); isEditingMode = true; editingTestId = testId;
@@ -1219,6 +1283,7 @@ window.editTest = async (testId) => {
 };
 
 window.saveTest = async () => {
+    playSound('click');
     const title = document.getElementById('new-test-name').value;
     let grade = document.getElementById('new-test-grade').value; if(grade === 'custom') grade = document.getElementById('custom-grade-input').value;
     const duration = document.getElementById('new-test-duration').value;
@@ -1230,10 +1295,11 @@ window.saveTest = async () => {
 };
 
 window.checkCustomGrade = (el) => { document.getElementById('custom-grade-input').classList.toggle('hidden', el.value !== 'custom'); };
-window.toggleTestVisibility = (k, s) => { update(ref(db, `tests/${k}`), { isHidden: s }); saAlert(s ? "تم إخفاء الاختبار عن الطلاب" : "الاختبار الآن مرئي للطلاب", "info"); };
+window.toggleTestVisibility = (k, s) => { playSound('click'); update(ref(db, `tests/${k}`), { isHidden: s }); saAlert(s ? "تم إخفاء الاختبار عن الطلاب" : "الاختبار الآن مرئي للطلاب", "info"); };
 window.deleteTest = (k) => { saConfirm("هل أنت متأكد من حذف هذا الاختبار؟", () => { remove(ref(db, `tests/${k}`)); remove(ref(db, `results/${k}`)); saAlert("تم الحذف بنجاح", "success"); }); };
 
 window.shareTest = (title, id) => {
+    playSound('click');
     const url = `${window.location.href.split('?')[0]}?examId=${id}`;
     if(navigator.share) { navigator.share({ title: 'SA EDU Exam', text: `ندعوكم لأداء اختبار "${title}"`, url: url }).catch(err=>console.log(err)); } 
     else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط الاختبار المباشر!", "success")); }
@@ -1262,6 +1328,7 @@ window.loadTestResults = (testId) => {
 };
 
 window.viewStudentDetails = async (testId, studentName) => {
+    playSound('click');
     let phone = "غير مسجل"; const userSnap = await get(ref(db, `users/students/${studentName}`));
     if(userSnap.exists() && userSnap.val().phone) phone = userSnap.val().phone;
     const resSnap = await get(ref(db, `results/${testId}/${studentName}`)); const res = resSnap.val();
@@ -1351,11 +1418,13 @@ window.loadStudentGrades = () => {
 
 let tempTestId = null;
 window.checkPhoneAndStart = async (id) => {
+    playSound('click');
     tempTestId = id; const userSnap = await get(ref(db, `users/students/${currentUser}`));
     if(userSnap.exists() && userSnap.val().phone) startTest(id); else document.getElementById('phone-modal').classList.remove('hidden');
 };
 
 window.savePhoneAndStart = async () => {
+    playSound('click');
     const phone = document.getElementById('student-phone-input').value.trim();
     if(!phone || phone.length < 10) return saAlert("يرجى إدخال رقم صحيح", "error");
     await update(ref(db, `users/students/${currentUser}`), { phone: phone });
@@ -1403,6 +1472,7 @@ window.saveAns = (i, v) => answers[i] = v;
 window.closeExam = () => { saConfirm("خروج من الامتحان؟ ستفقد تقدمك.", () => { clearInterval(timerInt); document.getElementById('s-taking-test').classList.add('hidden'); }); };
 
 window.submitExam = async () => {
+    playSound('success');
     clearInterval(timerInt); let score = 0, total = 0, details = [];
     const questions = activeTest.questions || [];
     questions.forEach((q, i) => {
@@ -1436,6 +1506,7 @@ window.submitExam = async () => {
 };
 
 window.reviewTest = async (id) => {
+    playSound('click');
     const resSnap = await get(ref(db, `results/${id}/${currentUser}`));
     if(!resSnap.exists()) return saAlert("لم تقم بهذا الاختبار", "info");
     const res = resSnap.val();
@@ -1458,7 +1529,7 @@ window.reviewTest = async (id) => {
     document.getElementById('s-review-test').classList.remove('hidden');
 };
 
-window.toggleAiGenerator = () => { document.getElementById('ai-gen-modal').classList.toggle('open'); };
+window.toggleAiGenerator = () => { playSound('click'); document.getElementById('ai-gen-modal').classList.toggle('open'); };
 
 window.previewChatImg = async (prefix) => {
     const input = document.getElementById(`${prefix}-ai-file`);
@@ -1491,8 +1562,13 @@ window.sendAiMsg = async (prefix) => {
     
     if(!txt && !fileInput.files[0]) return;
     
+    playSound('sent');
+
     if (!fileInput.files[0]) {
         if (txt.includes("أنشئ اختبار") || txt.includes("create exam") || txt.includes("امتحان")) {
+            if(selectedRole !== 'teacher') {
+                return saAlert("عذراً، هذه الميزة للمعلمين فقط.", "error");
+            }
             toggleAiGenerator();
             const topic = txt.replace("أنشئ اختبار", "").replace("عن", "").replace("create exam", "").replace("about", "").trim();
             if(topic) document.getElementById('ai-gen-text').value = topic;
@@ -1547,6 +1623,13 @@ window.sendAiMsg = async (prefix) => {
     
     try {
         let finalPrompt = "Reply in Arabic. ";
+        
+        if(selectedRole === 'student') {
+            finalPrompt += "You are a helpful study assistant for a student. Explain things simply. ";
+        } else {
+            finalPrompt += "You are an assistant for a teacher. Help with lesson planning and professional tasks. ";
+        }
+
         if (ocrText) {
             finalPrompt += `Context from image: "${ocrText}". `;
         }
@@ -1554,6 +1637,7 @@ window.sendAiMsg = async (prefix) => {
         
         const reply = await callPollinationsAI(finalPrompt);
         
+        playSound('recv');
         document.getElementById(loadId).remove();
         currentChatMessages.push({ role: 'ai', content: reply, image: null });
         renderMessageUI(prefix, 'ai', reply, null); 
@@ -1565,6 +1649,7 @@ window.sendAiMsg = async (prefix) => {
 };
 
 window.generateAiQuestions = async () => {
+    playSound('click');
     const topic = document.getElementById('ai-gen-text').value;
     const mcqCount = document.getElementById('ai-mcq-count').value || 0;
     const essayCount = document.getElementById('ai-essay-count').value || 0;
