@@ -14,6 +14,12 @@
     <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
 </head>
 <body>
+    <audio id="snd-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3" preload="auto"></audio>
+    <audio id="snd-sent" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3" preload="auto"></audio>
+    <audio id="snd-recv" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" preload="auto"></audio>
+    <audio id="snd-success" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3" preload="auto"></audio>
+    <audio id="snd-like" src="https://assets.mixkit.co/active_storage/sfx/2580/2580-preview.mp3" preload="auto"></audio>
+
     <div id="construction-overlay">
         <div class="construction-loader"></div>
         <div class="construction-text">SA AI Building...</div>
@@ -59,7 +65,6 @@
         </div>
     </div>
 
-    <!-- AI History Sidebar -->
     <div id="ai-history-sidebar" class="ai-history-sidebar">
         <div class="history-header">
             <span style="font-weight:bold; color:#fff;">سجل المحادثات</span>
@@ -68,7 +73,6 @@
         <div class="history-list" id="ai-history-list"></div>
     </div>
 
-    <!-- Teacher App -->
     <div id="teacher-app" class="hidden">
         <nav class="top-nav">
             <div class="nav-container">
@@ -80,8 +84,8 @@
             </div>
         </nav>
         <div class="portal-container">
-            <!-- T-Library Section -->
             <section id="t-library" class="app-section">
+                <div class="mobile-spacer"></div>
                 <div class="create-exam-cta" onclick="switchTab('t-create')">
                     <i class="fas fa-file-signature cta-bg-icon"></i>
                     <div class="cta-content">
@@ -102,9 +106,9 @@
                 <div id="t-tests-list"></div>
             </section>
 
-            <!-- T-Reese Section -->
-            <section id="t-reese" class="app-section hidden">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <section id="t-reese" class="app-section hidden full-width-section">
+                <div class="mobile-spacer"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 15px;">
                     <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
                     <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
                         <i class="fas fa-eraser" id="t-eraser-icon" style="color:#aaa;"></i>
@@ -115,10 +119,9 @@
                     <div class="reese-placeholder">ماذا يدور في ذهنك اليوم؟</div>
                     <i class="fas fa-pen-nib reese-icon-decor"></i>
                 </div>
-                <div id="reese-feed-container-t"></div>
+                <div id="reese-feed-container-t" class="feed-container"></div>
             </section>
 
-            <!-- T-Dardasha Section -->
             <section id="t-dardasha" class="app-section hidden" style="padding: 0; max-width: 100%;">
                 <div class="chat-layout">
                     <div class="chat-sidebar" id="t-chat-sidebar">
@@ -136,21 +139,20 @@
                         <div class="chat-list" id="t-chat-list"></div>
                     </div>
                     <div class="chat-window hidden" id="t-chat-window">
-                        <!-- Content injected by JS -->
                     </div>
                 </div>
             </section>
 
-            <!-- T-Results Section -->
             <section id="t-results" class="app-section hidden">
+                <div class="mobile-spacer"></div>
                 <div class="back-btn-header" onclick="switchTab('t-library')"><i class="fas fa-arrow-right"></i> الرئيسية</div>
                 <h2>نتائج الطلاب</h2>
                 <select id="t-result-select" class="smart-input" style="text-align: right;"><option>اختر الاختبار للعرض</option></select>
                 <div id="t-results-container"></div>
             </section>
 
-            <!-- T-Create Section -->
             <section id="t-create" class="app-section hidden">
+                <div class="mobile-spacer"></div>
                 <div class="back-btn-header" onclick="resetCreateForm(); switchTab('t-library');"><i class="fas fa-arrow-right"></i> إلغاء</div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin: 0;" id="create-page-title">اختبار جديد</h2>
@@ -221,7 +223,6 @@
                 </button>
             </section>
 
-            <!-- T-AI Section -->
             <section id="t-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
@@ -235,22 +236,28 @@
                         </div>
                     </div>
                     <div class="ai-messages" id="t-ai-msgs"></div>
-                </div>
-                <div class="ai-input-bar">
-                    <label for="t-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
-                    <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
-                    <input type="text" id="t-ai-input" class="ai-input-field" placeholder="اكتب رسالة (مثال: أنشئ اختبار عن...)">
-                    <button onclick="sendAiMsg('t')" class="send-btn"><i class="fas fa-arrow-up"></i></button>
-                    <div id="t-chat-preview" class="chat-img-preview">
-                        <i class="fas fa-times" onclick="clearChatImg('t')"></i>
-                        <img src="" id="t-chat-img-tag">
+                    
+                    <div class="gemini-input-wrapper">
+                        <div class="gemini-input-container">
+                            <label for="t-ai-file" class="gemini-btn"><i class="fas fa-image"></i></label>
+                            <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
+                            
+                            <label class="gemini-btn" title="صوت (قريباً)"><i class="fas fa-microphone"></i></label>
+                            
+                            <input type="text" id="t-ai-input" class="gemini-text-input" placeholder="اكتب، تخيل، أنشئ...">
+                            
+                            <button onclick="sendAiMsg('t')" class="gemini-send-btn"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                        <div id="t-chat-preview" class="chat-img-preview">
+                            <i class="fas fa-times" onclick="clearChatImg('t')"></i>
+                            <img src="" id="t-chat-img-tag">
+                        </div>
                     </div>
                 </div>
             </section>
         </div>
     </div>
 
-    <!-- Student App -->
     <div id="student-app" class="hidden">
         <nav class="top-nav">
             <div class="nav-container">
@@ -262,8 +269,8 @@
             </div>
         </nav>
         <div class="portal-container">
-            <!-- S-Exams Section -->
             <section id="s-exams" class="app-section">
+                <div class="mobile-spacer"></div>
                 <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="google-bar" id="s-search" placeholder="ابحث عن اختبار...">
@@ -285,9 +292,9 @@
                 <div id="s-exams-list"></div>
             </section>
 
-            <!-- S-Reese Section -->
-            <section id="s-reese" class="app-section hidden">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <section id="s-reese" class="app-section hidden full-width-section">
+                <div class="mobile-spacer"></div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 15px;">
                     <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
                     <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
                         <i class="fas fa-eraser" id="s-eraser-icon" style="color:#aaa;"></i>
@@ -298,10 +305,9 @@
                     <div class="reese-placeholder">شارك أفكارك مع الجميع...</div>
                     <i class="fas fa-pen-nib reese-icon-decor"></i>
                 </div>
-                <div id="reese-feed-container-s"></div>
+                <div id="reese-feed-container-s" class="feed-container"></div>
             </section>
 
-            <!-- S-Dardasha Section -->
             <section id="s-dardasha" class="app-section hidden" style="padding: 0; max-width: 100%;">
                 <div class="chat-layout">
                     <div class="chat-sidebar" id="s-chat-sidebar">
@@ -322,13 +328,12 @@
                 </div>
             </section>
 
-            <!-- S-Grades Section -->
             <section id="s-grades" class="app-section hidden">
+                <div class="mobile-spacer"></div>
                 <h2 style="margin-bottom: 20px;">لوحة الشرف (درجاتي)</h2>
                 <div id="s-grades-list"></div>
             </section>
 
-            <!-- S-AI Section -->
             <section id="s-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
@@ -342,20 +347,26 @@
                         </div>
                     </div>
                     <div class="ai-messages" id="s-ai-msgs"></div>
-                </div>
-                <div class="ai-input-bar">
-                    <label for="s-ai-file" class="attach-btn"><i class="fas fa-paperclip"></i></label>
-                    <input type="file" id="s-ai-file" hidden accept="image/*" onchange="previewChatImg('s')">
-                    <input type="text" id="s-ai-input" class="ai-input-field" placeholder="اسألني عن أي شيء...">
-                    <button onclick="sendAiMsg('s')" class="send-btn"><i class="fas fa-arrow-up"></i></button>
-                    <div id="s-chat-preview" class="chat-img-preview">
-                        <i class="fas fa-times" onclick="clearChatImg('s')"></i>
-                        <img src="" id="s-chat-img-tag">
+                    
+                    <div class="gemini-input-wrapper">
+                        <div class="gemini-input-container">
+                            <label for="s-ai-file" class="gemini-btn"><i class="fas fa-image"></i></label>
+                            <input type="file" id="s-ai-file" hidden accept="image/*" onchange="previewChatImg('s')">
+                            
+                            <label class="gemini-btn" title="صوت (قريباً)"><i class="fas fa-microphone"></i></label>
+
+                            <input type="text" id="s-ai-input" class="gemini-text-input" placeholder="اسألني عن أي شيء...">
+                            
+                            <button onclick="sendAiMsg('s')" class="gemini-send-btn"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                         <div id="s-chat-preview" class="chat-img-preview">
+                            <i class="fas fa-times" onclick="clearChatImg('s')"></i>
+                            <img src="" id="s-chat-img-tag">
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- S-Taking Test Overlay -->
             <section id="s-taking-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -368,7 +379,6 @@
                 </div>
             </section>
             
-            <!-- S-Review Test Overlay -->
             <section id="s-review-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div class="back-btn-header" onclick="document.getElementById('s-review-test').classList.add('hidden')"><i class="fas fa-arrow-right"></i> إغلاق المراجعة</div>
@@ -379,7 +389,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="reese-compose-modal" class="compose-overlay">
         <div class="compose-header">
             <span style="font-weight: bold; font-size: 1.1rem;">إنشاء ريس جديد</span>
@@ -464,7 +473,6 @@
         </div>
     </div>
 
-    <!-- Profile & Link Modal -->
     <div id="profile-info-modal" class="hidden">
         <div class="bottom-sheet-content">
              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
@@ -480,7 +488,6 @@
         </div>
     </div>
 
-    <!-- User Search Modal -->
     <div id="user-search-modal" class="hidden">
         <div class="bottom-sheet-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
