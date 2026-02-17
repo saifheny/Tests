@@ -28,6 +28,18 @@ let reeseImages = [];
 let myUid = null;
 let activeChatRoomId = null;
 
+// ==========================================
+// [FIX #1 & #3] ثوابت نظام التوجيه والتنقل
+// ==========================================
+const TEACHER_TABS = ['t-library', 't-reese', 't-dardasha', 't-ai'];
+const STUDENT_TABS = ['s-exams', 's-reese', 's-dardasha', 's-ai'];
+let _suppressHistoryPush = false; // يمنع التكرار عند استخدام popstate
+
+// [FIX #3] متغيرات تتبع السحب
+let _swipeStartX = 0;
+let _swipeStartY = 0;
+let _swipeStartTarget = null;
+
 let lastScrollTop = 0;
 window.addEventListener("scroll", function() {
     let st = window.pageYOffset || document.documentElement.scrollTop;
@@ -38,6 +50,154 @@ window.addEventListener("scroll", function() {
     }
     lastScrollTop = st <= 0 ? 0 : st;
 }, false);
+
+// ==========================================
+// [FIX #2] زر الرجوع - popstate listener
+// ==========================================
+window.addEventListener('popstate', (e) => {
+    if (!currentUser) return;
+    const hash = window.location.hash.replace('#', '');
+    if (!hash) return;
+    
+    const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+    const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
+    const idx = tabs.indexOf(hash);
+    
+    if (idx !== -1) {
+        // تجنب إضافة state جديد عند الضغط على زر الرجوع
+        _suppressHistoryPush = true;
+        const navBtns = document.querySelectorAll(`#${portal} .nav-btn`);
+        switchTab(hash, navBtns[idx]);
+        _suppressHistoryPush = false;
+    }
+});
+
+// ==========================================
+// [FIX #6] إصلاح الكيبورد على الموبايل
+// ==========================================
+function initKeyboardFix() {
+    if (!window.visualViewport) return;
+    
+    let lastViewportHeight = window.visualViewport.height;
+    
+    window.visualViewport.addEventListener('resize', () => {
+        const vvHeight = window.visualViewport.height;
+        const vvTop = window.visualViewport.offsetTop;
+        const diff = window.innerHeight - vvHeight - vvTop;
+        
+        // تطبيق على Gemini input wrapper
+        const geminiWrapper = document.querySelector('.gemini-input-wrapper');
+        if (geminiWrapper) {
+            geminiWrapper.style.bottom = Math.max(0, diff) + 'px';
+        }
+        
+        // تطبيق على chat-input-area (داخل chat-window)
+        const chatInputAreas = document.querySelectorAll('.chat-input-area');
+        chatInputAreas.forEach(area => {
+            area.style.bottom = Math.max(0, diff) + 'px';
+            area.style.position = diff > 50 ? 'sticky' : '';
+        });
+        
+        // scroll العنصر النشط ليظهر فوق الكيبورد
+        const activeEl = document.activeElement;
+        if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+            setTimeout(() => {
+                activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+        
+        lastViewportHeight = vvHeight;
+    });
+}
+
+// ==========================================
+// [FIX #3] تهيئة نظام السحب بين الأقسام
+// ==========================================
+function initSwipeNavigation(portalId) {
+    const portal = document.getElementById(portalId);
+    if (!portal) return;
+    
+    portal.addEventListener('touchstart', (e) => {
+        _swipeStartX = e.touches[0].clientX;
+        _swipeStartY = e.touches[0].clientY;
+        _swipeStartTarget = e.target;
+    }, { passive: true });
+    
+    portal.addEventListener('touchend', (e) => {
+        // تجاهل السحب إذا بدأ من داخل المحادثة أو النوافذ المنبثقة
+        if (_swipeStartTarget && (
+            _swipeStartTarget.closest('.chat-window') ||
+            _swipeStartTarget.closest('.chat-sidebar') ||
+            _swipeStartTarget.closest('input') ||
+            _swipeStartTarget.closest('textarea') ||
+            _swipeStartTarget.closest('.full-screen-overlay') ||
+            _swipeStartTarget.closest('.ai-messages')
+        )) return;
+        
+        const dx = e.changedTouches[0].clientX - _swipeStartX;
+        const dy = e.changedTouches[0].clientY - _swipeStartY;
+        
+        // التحقق: سحب أفقي > 70px وأكبر من 1.5× الرأسي
+        if (Math.abs(dx) < 70 || Math.abs(dx) <= Math.abs(dy) * 1.5) return;
+        
+        const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+        const currentHash = window.location.hash.replace('#', '');
+        let idx = tabs.indexOf(currentHash);
+        if (idx === -1) idx = 0;
+        
+        // RTL: سحب لليمين (dx>0) = القسم السابق، سحب لليسار (dx<0) = القسم التالي
+        const newIdx = dx > 0 ? idx + 1 : idx - 1;
+        
+        if (newIdx >= 0 && newIdx < tabs.length) {
+            const navBtns = document.querySelectorAll(`#${portalId} .nav-btn`);
+            // تأثير الانتقال حسب اتجاه السحب
+            const direction = dx > 0 ? 'left' : 'right';
+            switchTabWithDirection(tabs[newIdx], navBtns[newIdx], direction);
+        }
+    }, { passive: true });
+}
+
+// تبديل التبويب مع تأثير اتجاهي
+function switchTabWithDirection(tabId, btn, direction) {
+    const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
+    const section = document.getElementById(tabId);
+    if (!section) return;
+    
+    switchTab(tabId, btn);
+    
+    // إضافة تأثير الانتقال
+    section.classList.add(direction === 'right' ? 'section-enter' : 'section-enter-left');
+    setTimeout(() => {
+        section.classList.remove('section-enter', 'section-enter-left');
+    }, 300);
+}
+
+// ==========================================
+// [FIX #1] تحديث مؤشرات التبويب (Dots)
+// ==========================================
+function updateTabDots(activeTabId) {
+    const dotsContainer = document.getElementById('tab-dots');
+    if (!dotsContainer) return;
+    
+    const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+    dotsContainer.innerHTML = '';
+    
+    tabs.forEach((tab, idx) => {
+        const dot = document.createElement('div');
+        dot.className = 'tab-dot' + (tab === activeTabId ? ' active' : '');
+        dotsContainer.appendChild(dot);
+    });
+}
+
+function showTabDots() {
+    const dotsContainer = document.getElementById('tab-dots');
+    if (dotsContainer) dotsContainer.classList.remove('hidden');
+}
+
+function hideTabDots() {
+    const dotsContainer = document.getElementById('tab-dots');
+    if (dotsContainer) dotsContainer.classList.add('hidden');
+}
 
 window.addEventListener('click', function(e) {
     const searchModal = document.getElementById('user-search-modal');
@@ -56,22 +216,65 @@ window.addEventListener('click', function(e) {
     }
 });
 
+// ==========================================
+// نظام الأصوات الذكي - صوت فقط في الدردشة
+// + Toast notifications بديلاً عن الأصوات
+// ==========================================
 function playSound(type) {
+    // أصوات الدردشة فقط: sent و recv
+    const chatOnlySounds = ['sent', 'recv'];
+    if (!chatOnlySounds.includes(type)) return; // تجاهل كل الأصوات الأخرى
+    
     const soundMap = {
-        'click': 'snd-click',
         'sent': 'snd-sent',
         'recv': 'snd-recv',
-        'success': 'snd-success',
-        'like': 'snd-like'
     };
     const id = soundMap[type];
     if(id) {
         const audio = document.getElementById(id);
         if(audio) {
             audio.currentTime = 0;
-            audio.play().catch(e => console.log("Sound play error:", e));
+            audio.play().catch(e => {});
         }
     }
+}
+
+// Toast notification system - بديل جميل عن الأصوات
+function showToast(title, sub = '', type = 'msg', duration = 3000) {
+    let container = document.getElementById('sa-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'sa-toast-container';
+        document.body.appendChild(container);
+    }
+    
+    const icons = {
+        msg:     'fas fa-comment-dots',
+        success: 'fas fa-check',
+        error:   'fas fa-exclamation',
+        info:    'fas fa-bell',
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = `sa-toast ${type}`;
+    toast.innerHTML = `
+        <div class="sa-toast-icon"><i class="${icons[type] || icons.msg}"></i></div>
+        <div class="sa-toast-body">
+            <div class="sa-toast-title">${title}</div>
+            ${sub ? `<div class="sa-toast-sub">${sub}</div>` : ''}
+        </div>
+    `;
+    
+    toast.onclick = () => removeToast(toast);
+    container.appendChild(toast);
+    
+    setTimeout(() => removeToast(toast), duration);
+}
+
+function removeToast(toast) {
+    if (!toast || toast.classList.contains('removing')) return;
+    toast.classList.add('removing');
+    setTimeout(() => toast.remove(), 280);
 }
 
 function makeLinksClickable(text) {
@@ -123,6 +326,15 @@ function getEmptyStateHTML(type) {
 }
 
 window.saAlert = (msg, type = 'info', title = null) => {
+    // رسائل بسيطة → toast سريع
+    const simpleTypes = ['success', 'info'];
+    if (simpleTypes.includes(type) && !title) {
+        const toastType = type === 'success' ? 'success' : 'info';
+        showToast(msg, '', toastType, 3000);
+        return;
+    }
+    
+    // رسائل الخطأ والرسائل المهمة → alert modal كامل
     const modal = document.getElementById('sa-custom-alert');
     const iconDiv = document.getElementById('sa-alert-icon');
     const titleDiv = document.getElementById('sa-alert-title');
@@ -285,16 +497,29 @@ function loginSuccess(name, icon, uid) {
     document.getElementById('auth-layer').classList.add('hidden');
     updateMenuInfo();
     
-    handleDeepLinks();
-
     if (selectedRole === 'teacher') {
         document.getElementById('teacher-app').classList.remove('hidden');
         initTeacherApp();
+        // [FIX #3] تهيئة السحب بعد ظهور التطبيق
+        setTimeout(() => initSwipeNavigation('teacher-app'), 500);
     } else {
         document.getElementById('student-app').classList.remove('hidden');
         loadStudentExams(); loadStudentGrades(); initStudentReese(); 
+        // [FIX #3] تهيئة السحب بعد ظهور التطبيق
+        setTimeout(() => initSwipeNavigation('student-app'), 500);
     }
     initDardasha();
+    
+    // [FIX #6] تهيئة إصلاح الكيبورد
+    initKeyboardFix();
+    
+    // [FIX #1] استعادة القسم من URL عند التحميل
+    handleDeepLinksAndRouting();
+    
+    // [FIX #3] إظهار مؤشرات التبويب
+    showTabDots();
+    const defaultTab = selectedRole === 'teacher' ? 't-library' : 's-exams';
+    updateTabDots(window.location.hash.replace('#', '') || defaultTab);
 }
 
 function handleDeepLinks() {
@@ -332,6 +557,35 @@ function handleDeepLinks() {
         const prefix = selectedRole === 'teacher' ? 't' : 's';
         switchTab(`${prefix}-dardasha`);
         searchUserById(chatTarget);
+    }
+}
+
+// [FIX #1] دالة موحدة للتعامل مع Deep Links وURL Routing
+function handleDeepLinksAndRouting() {
+    const params = new URLSearchParams(window.location.search);
+    const hasDeepLink = params.get('shareId') || params.get('examId') || params.get('postId') || params.get('chat');
+    
+    if (hasDeepLink) {
+        // إذا في deep link، نفذها أولاً
+        handleDeepLinks();
+        return;
+    }
+    
+    // [FIX #1] فحص الـ hash للعودة للقسم المحفوظ
+    const hash = window.location.hash.replace('#', '');
+    const allTabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+    const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
+    
+    if (hash && allTabs.includes(hash)) {
+        const idx = allTabs.indexOf(hash);
+        const navBtns = document.querySelectorAll(`#${portal} .nav-btn`);
+        _suppressHistoryPush = true;
+        switchTab(hash, navBtns[idx]);
+        _suppressHistoryPush = false;
+    } else {
+        // القسم الافتراضي
+        const defaultTab = selectedRole === 'teacher' ? 't-library' : 's-exams';
+        window.history.replaceState({ tab: defaultTab }, '', '#' + defaultTab);
     }
 }
 
@@ -433,7 +687,21 @@ window.switchTab = (tabId, btn) => {
     const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
     document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
     document.getElementById(tabId).classList.remove('hidden');
-    if(btn) { document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+    if(btn) { 
+        document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active')); 
+        btn.classList.add('active'); 
+    }
+    
+    // [FIX #1] تحديث URL بـ hash لحفظ القسم الحالي
+    if (!_suppressHistoryPush) {
+        const allTabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+        if (allTabs.includes(tabId)) {
+            window.history.pushState({ tab: tabId }, '', '#' + tabId);
+        }
+    }
+    
+    // [FIX #1 & #3] تحديث مؤشرات التبويب
+    updateTabDots(tabId);
     
     if(tabId === 's-grades') loadStudentGrades();
     if(tabId === 's-exams') {
@@ -450,6 +718,20 @@ window.switchTab = (tabId, btn) => {
     }
     if(tabId === 't-ai' && !currentChatId) startNewChat('t');
     if(tabId === 's-ai' && !currentChatId) startNewChat('s');
+    
+    // [FIX #6] إضافة keyboard fix للـ AI input بعد التبويب
+    setTimeout(() => {
+        const aiInput = document.getElementById(`${tabId.charAt(0)}-ai-input`);
+        if (aiInput) {
+            aiInput.addEventListener('focus', () => {
+                if (window.innerWidth < 768) {
+                    setTimeout(() => {
+                        aiInput.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                    }, 350);
+                }
+            });
+        }
+    }, 100);
 };
 
 function initDardasha() {
@@ -491,6 +773,7 @@ function initDardasha() {
         chatEntries.forEach(([chatId, chatInfo]) => {
              if(chatInfo.lastMsgTime > Date.now() - 5000 && chatInfo.lastMsg !== "📷 صورة" && activeChatRoomId !== chatId) {
                  playSound('recv');
+                 showToast(chatInfo.otherName, chatInfo.lastMsg?.substring(0, 50) || '...', 'msg', 3500);
              }
         });
     });
@@ -602,19 +885,26 @@ window.openChatRoom = (chatId, name, icon, uid) => {
             </div>
         </div>
         <div class="chat-msgs-area" id="chat-msgs-${chatId}"></div>
-        <div class="chat-input-area">
-            <label class="icon-btn-small" style="cursor:pointer;"><i class="fas fa-camera"></i><input type="file" hidden accept="image/*" onchange="sendChatImage(this, '${chatId}', '${uid}')"></label>
-            <input type="text" id="chat-input-${chatId}" placeholder="اكتب رسالة..." onkeypress="handleChatEnter(event, '${chatId}', '${uid}')">
-            <button class="send-btn" style="width:35px; height:35px;" onclick="sendChatMessage('${chatId}', '${uid}')"><i class="fas fa-paper-plane"></i></button>
+        <div class="chat-input-area" id="chat-input-area-${chatId}">
+            <label class="icon-btn-small" style="cursor:pointer; background: rgba(59,130,246,0.15); color: var(--accent-primary);"><i class="fas fa-camera"></i><input type="file" hidden accept="image/*" onchange="sendChatImage(this, '${chatId}', '${uid}')"></label>
+            <input type="text" id="chat-input-${chatId}" placeholder="اكتب رسالة..." 
+                onkeypress="handleChatEnter(event, '${chatId}', '${uid}')"
+                onfocus="handleChatInputFocus(this)"
+            >
+            <button class="send-btn" onclick="sendChatMessage('${chatId}', '${uid}')"><i class="fas fa-paper-plane"></i></button>
         </div>
     `;
 
     const msgContainer = document.getElementById(`chat-msgs-${chatId}`);
+    let isFirstLoad = true; // تجنب إشعار عند التحميل الأول
+    
     onValue(ref(db, `chats/${chatId}`), (snap) => {
+        const previousCount = msgContainer.children.length;
         msgContainer.innerHTML = '';
         if(snap.exists()) {
             const msgs = snap.val();
-            Object.values(msgs).forEach(msg => {
+            const msgArr = Object.values(msgs);
+            msgArr.forEach(msg => {
                 const isMe = msg.sender === myUid;
                 const div = document.createElement('div');
                 div.className = `msg-bubble ${isMe ? 'sent' : 'recv'}`;
@@ -629,9 +919,18 @@ window.openChatRoom = (chatId, name, icon, uid) => {
                     <div class="msg-time">${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
                 `;
                 msgContainer.appendChild(div);
-                if(!isMe) playSound('recv'); 
             });
             msgContainer.scrollTop = msgContainer.scrollHeight;
+            
+            // إشعار صوتي + toast فقط للرسائل الجديدة (ليس عند التحميل الأول)
+            if (!isFirstLoad && msgArr.length > previousCount) {
+                const lastMsg = msgArr[msgArr.length - 1];
+                if (lastMsg && lastMsg.sender !== myUid) {
+                    playSound('recv');
+                    showToast(name, lastMsg.type === 'image' ? '📷 صورة' : (lastMsg.text?.substring(0,50) || ''), 'msg', 3500);
+                }
+            }
+            isFirstLoad = false;
         }
     });
 };
@@ -641,6 +940,20 @@ window.closeChatWindow = (prefix) => {
     document.getElementById(`${prefix}-chat-window`).classList.add('hidden');
     document.getElementById(`${prefix}-chat-sidebar`).classList.remove('hidden');
     activeChatRoomId = null;
+};
+
+// [FIX #6] إصلاح مشكلة الـ input مع الكيبورد في الموبايل
+window.handleChatInputFocus = (input) => {
+    if (window.innerWidth > 768) return;
+    
+    // انتظر قليلاً ريثما يظهر الكيبورد ثم scroll للـ input
+    setTimeout(() => {
+        input.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        // scroll منطقة الرسائل للأسفل
+        const chatId = input.id.replace('chat-input-', '');
+        const msgArea = document.getElementById(`chat-msgs-${chatId}`);
+        if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
+    }, 350);
 };
 
 window.handleChatEnter = (e, chatId, otherUid) => {
@@ -715,7 +1028,6 @@ window.filterChats = (prefix, term) => {
 };
 
 window.openReeseCompose = () => {
-    playSound('click');
     document.getElementById('reese-compose-modal').classList.add('open');
     const icon = localStorage.getItem('sa_icon');
     const color = selectedRole === 'teacher' ? 'var(--accent-gold)' : 'var(--accent-primary)';
@@ -725,9 +1037,56 @@ window.openReeseCompose = () => {
     document.getElementById('compose-name').innerText = currentUser;
     reeseImages = []; renderReeseMediaPreview();
     
-    document.getElementById('ai-reese-suggestions').innerHTML = '';
-    document.getElementById('ai-reese-suggestions').classList.add('hidden');
+    // تحميل الاقتراحات تلقائياً - دائماً ظاهرة
+    const container = document.getElementById('ai-reese-suggestions');
+    container.innerHTML = '';
+    container.classList.remove('hidden');
+    
+    // اقتراحات فورية placeholder
+    const placeholders = ['✨ جاري التوليد...', '🧠 ...', '💡 ...'];
+    placeholders.forEach(ph => {
+        const chip = document.createElement('div');
+        chip.className = 'suggestion-chip';
+        chip.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ${ph}`;
+        chip.style.opacity = '0.4';
+        chip.style.pointerEvents = 'none';
+        container.appendChild(chip);
+    });
+    
+    // تحميل اقتراحات حقيقية في الخلفية
+    loadReeseAiSuggestionsAuto();
 };
+
+async function loadReeseAiSuggestionsAuto() {
+    const prompt = `Generate 4 short, creative social media post ideas for a ${selectedRole} on an educational app. Return ONLY a JSON array of strings. Language: Arabic. Max 120 chars each.`;
+    try {
+        let text = await callPollinationsAI(prompt);
+        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        let suggestions = [];
+        try { suggestions = JSON.parse(text); } catch(e) { suggestions = [text]; }
+        if (!Array.isArray(suggestions)) suggestions = [text];
+        
+        const container = document.getElementById('ai-reese-suggestions');
+        if (!container) return;
+        container.innerHTML = '';
+        
+        suggestions.slice(0, 4).forEach(sug => {
+            const chip = document.createElement('div');
+            chip.className = 'suggestion-chip';
+            chip.innerHTML = `<i class="fas fa-sparkles" style="color:var(--accent-primary);"></i> ${sug}`;
+            chip.onclick = () => {
+                document.getElementById('reese-text-input').value = sug;
+                document.getElementById('reese-text-input').focus();
+            };
+            container.appendChild(chip);
+        });
+    } catch(e) {
+        const container = document.getElementById('ai-reese-suggestions');
+        if (container) {
+            container.innerHTML = '<div class="suggestion-chip" style="opacity:0.5; pointer-events:none;"><i class="fas fa-wifi-slash"></i> تعذر تحميل الاقتراحات</div>';
+        }
+    }
+}
 
 window.closeReeseCompose = () => {
     playSound('click');
@@ -877,41 +1236,10 @@ window.shareReese = (id) => {
 };
 
 window.generateAiReese = async () => {
-    playSound('click');
-    toggleConstructionOverlay(true, "SA AI THINKING", "توليد أفكار إبداعية...");
-    const prompt = `Generate 3 distinct, engaging, and short social media post ideas for a ${selectedRole} on an educational app. Return them as a JSON array of strings (e.g., ["Idea 1", "Idea 2", "Idea 3"]). Language: Arabic. Keep them under 150 characters.`;
-    
-    try {
-        let text = await callPollinationsAI(prompt);
-        text = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        let suggestions = [];
-        try {
-            suggestions = JSON.parse(text);
-        } catch(e) {
-            suggestions = [text];
-        }
-
-        if (!Array.isArray(suggestions)) suggestions = [text];
-
-        const container = document.getElementById('ai-reese-suggestions');
-        container.innerHTML = '';
-        container.classList.remove('hidden');
-
-        suggestions.forEach(sug => {
-            const chip = document.createElement('div');
-            chip.className = 'suggestion-chip';
-            chip.innerHTML = `${sug} <i class="fas fa-plus-circle"></i>`;
-            chip.onclick = () => {
-                document.getElementById('reese-text-input').value = sug;
-            };
-            container.appendChild(chip);
-        });
-        toggleConstructionOverlay(false);
-    } catch(e) { 
-        console.error(e);
-        toggleConstructionOverlay(false);
-        saAlert("فشل التوليد، تأكد من الاتصال.", "error"); 
-    }
+    // إعادة تحميل الاقتراحات
+    const container = document.getElementById('ai-reese-suggestions');
+    container.innerHTML = '<div class="suggestion-chip" style="opacity:0.5; pointer-events:none;"><i class="fas fa-circle-notch fa-spin"></i> جاري التوليد...</div>';
+    await loadReeseAiSuggestionsAuto();
 };
 
 function generateChatId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
