@@ -154,22 +154,29 @@ body {
     background: var(--glass-bg);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--glass-border);
-    z-index: 1000;
+    /* [FIX #4] رفع z-index فوق chat-layout (2000) لضمان ظهور الشريط دائماً */
+    z-index: 3000;
     display: flex; align-items: center; justify-content: center;
     transition: top 0.3s cubic-bezier(0.4, 0.0, 0.2, 1); 
 }
 .nav-hidden { top: -80px; }
 .nav-container { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 20px; max-width: 800px; }
 .nav-btn {
-    background: transparent; border: none; color: #666;
+    background: transparent; border: none; color: #555;
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
     cursor: pointer; transition: 0.3s; position: relative;
+    /* [FIX #5] تحسين التصميم العام للأزرار */
+    padding: 6px 4px; border-radius: 12px;
 }
-.nav-btn i { font-size: 1.3rem; transition: 0.3s; }
-.nav-btn span { font-size: 0.65rem; font-weight: 600; opacity: 0.7; }
+.nav-btn i { font-size: 1.3rem; transition: all 0.3s; }
+.nav-btn span { font-size: 0.65rem; font-weight: 600; opacity: 0.6; transition: all 0.3s; }
+/* [FIX #5] تحسين active state - خلفية خفيفة + لون واضح */
 .nav-btn.active { color: var(--text-main); }
 .nav-btn.active i { color: var(--accent-primary); transform: translateY(-3px); text-shadow: 0 0 15px var(--accent-glow); }
+.nav-btn.active span { color: var(--accent-primary); opacity: 1; }
+/* [FIX #5] أيقونة AI الخاصة */
 .magic-btn.active i { color: #d946ef; text-shadow: 0 0 15px rgba(217, 70, 239, 0.6); }
+.magic-btn.active span { color: #d946ef; }
 .portal-container {
     padding-top: calc(var(--nav-height) + 15px);
     padding-bottom: 100px;
@@ -314,7 +321,8 @@ body {
 @media (min-width: 768px) { .chat-sidebar { width: 350px; flex-shrink: 0; } .chat-layout { border: 1px solid #333; border-radius: 20px; margin-top: 10px; } }
 .chat-sidebar-header {
     padding: 15px; background: #181818; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222;
-    padding-top: 50px;
+    /* [FIX #4] padding-top يتطابق مع ارتفاع الشريط العلوي بالضبط */
+    padding-top: calc(var(--nav-height) + 10px);
 }
 @media (min-width: 768px) { .chat-sidebar-header { padding-top: 15px; } }
 
@@ -339,7 +347,8 @@ body {
 @media (min-width: 768px) { .chat-window { position: static; flex: 1; } }
 .chat-header {
     padding: 10px 15px; background: #181818; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #222;
-    padding-top: 50px;
+    /* [FIX #4] padding-top يتطابق مع ارتفاع الشريط العلوي */
+    padding-top: calc(var(--nav-height) + 10px);
 }
 @media (min-width: 768px) { .chat-header { padding-top: 10px; } }
 
@@ -359,9 +368,10 @@ body {
     width: 100%;
     max-width: 100%;
     padding: 0;
+    background: transparent;
 }
 .full-width-section {
-    padding-left: 0; padding-right: 0;
+    padding-left: 0; padding-right: 0; padding-bottom: 30px;
 }
 .reese-input-trigger {
     background: linear-gradient(135deg, #181818, #101010);
@@ -387,16 +397,26 @@ body {
 }
 .reese-placeholder { flex: 1; color: #666; font-size: 1rem; font-weight: 500; }
 .reese-icon-decor { color: var(--accent-primary); font-size: 1.2rem; opacity: 0.8; padding-left: 10px; }
+/* ريس - بدون حاوية، edge-to-edge كامل */
 .reese-card {
-    background: #111;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    padding: 20px 15px; 
-    margin-bottom: 15px;
+    background: transparent;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    border-bottom: none;
+    padding: 18px 15px 10px;
+    margin-bottom: 0;
     transition: 0.2s; position: relative;
     border-radius: 0;
 }
-@media (min-width: 768px) { .reese-card { border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); } }
+.reese-card:first-child { border-top: none; }
+/* فاصل بين البوستات بدلاً من border-bottom */
+.reese-card + .reese-card { border-top: 1px solid rgba(255,255,255,0.06); }
+@media (min-width: 768px) {
+    .reese-card {
+        border-radius: 0;
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+}
 
 .reese-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
 .reese-user { display: flex; gap: 10px; align-items: center; }
@@ -409,8 +429,8 @@ body {
 .reese-images-grid.two-imgs { grid-template-columns: 1fr 1fr; }
 .reese-post-img { width: 100%; height: 100%; object-fit: cover; max-height: 400px; background: #222; }
 .reese-actions {
-    border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px;
-    display: flex; justify-content: space-around;
+    border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;
+    display: flex; justify-content: space-around; margin-top: 8px;
 }
 .reese-btn {
     background: transparent; border: none; color: #888;
@@ -431,7 +451,8 @@ body {
 .compose-header {
     padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding-top: 50px;
+    /* [FIX #4] تطابق ارتفاع الشريط العلوي */
+    padding-top: calc(var(--nav-height) + 5px);
 }
 @media (min-width: 768px) { .compose-header { padding-top: 15px; } }
 .compose-body { padding: 20px; flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
@@ -484,11 +505,20 @@ body {
 .ai-layout {
     position: fixed; top: var(--nav-height); left: 0; right: 0; bottom: 0;
     display: flex; flex-direction: column; background: var(--bg-deep); z-index: 100;
+    overflow: hidden;
 }
+/* الشريط العلوي للـ AI يبقى ثابت دائماً في أعلى الـ layout */
 .ai-top-bar {
-    padding: 10px 15px; background: #000 !important;
+    padding: 10px 15px;
+    background: rgba(0,0,0,0.95) !important;
     border-bottom: 1px solid var(--glass-border);
-    display: flex; justify-content: space-between; align-items: center; z-index: 101;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 101;
+    position: sticky;
+    top: 0;
+    flex-shrink: 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 .ai-action-btn {
     background: rgba(255,255,255,0.05); color: #ccc;
@@ -613,7 +643,7 @@ body {
     padding-top: var(--nav-height);
 }
 .ai-history-sidebar.open { right: 0; }
-.history-header { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; padding-top: 50px; }
+.history-header { padding: 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; padding-top: calc(var(--nav-height) + 10px); }
 @media (min-width: 768px) { .history-header { padding-top: 15px; } }
 .history-list { flex: 1; overflow-y: auto; padding: 10px; }
 .history-item {
@@ -784,3 +814,335 @@ body {
 .pwa-btn { padding: 8px 16px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; }
 .pwa-btn.install { background: var(--accent-primary); color: white; }
 .pwa-btn.close { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* ==========================================
+   تحسينات جديدة - SA EDU Enhanced
+   ========================================== */
+
+/* [FIX #1 & #3] مؤشرات التبويب (Swipe Dots) */
+.tab-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px;
+    position: fixed;
+    bottom: calc(var(--nav-height) + 4px);
+    left: 0; right: 0;
+    pointer-events: none;
+    z-index: 999;
+}
+.tab-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+.tab-dot.active {
+    background: var(--accent-primary);
+    width: 20px;
+    border-radius: 3px;
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* [FIX #3] تأثير الانتقال عند التبديل بين الأقسام */
+.app-section {
+    animation: none;
+}
+.app-section.section-enter {
+    animation: sectionFadeIn 0.25s ease forwards;
+}
+@keyframes sectionFadeIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+.app-section.section-enter-left {
+    animation: sectionFadeInLeft 0.25s ease forwards;
+}
+@keyframes sectionFadeInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* [FIX #6] دعم إصلاح الكيبورد على الموبايل */
+.chat-input-area {
+    position: relative;
+    transition: transform 0.1s ease;
+}
+/* إصلاح chat-window للكيبورد */
+@media (max-width: 768px) {
+    .chat-window {
+        /* استخدام dvh لدعم الـ dynamic viewport */
+        height: 100%;
+        transition: height 0.05s ease;
+    }
+}
+
+/* [FIX #5] تحسين أيقونات الـ nav - إضافة مؤشر تحت الأيقونة النشطة */
+.nav-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    box-shadow: 0 0 6px var(--accent-glow);
+}
+.magic-btn.active::after {
+    background: #d946ef;
+    box-shadow: 0 0 6px rgba(217, 70, 239, 0.6);
+}
+
+/* [FIX #5] أيقونة الـ bars/menu واضحة دائماً */
+.nav-btn:last-child i {
+    color: #888;
+}
+.nav-btn:last-child span {
+    color: #888;
+    opacity: 0.8;
+}
+
+/* [FIX #7] تحسين Gemini Input - ثبات أعلى الكيبورد */
+.gemini-input-wrapper {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, #000 80%, transparent);
+    padding: 10px 15px 15px;
+    z-index: 200;
+    transition: bottom 0.1s ease;
+}
+/* اجعل مساحة كافية أسفل الرسائل */
+.ai-messages {
+    flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 130px;
+    display: flex; flex-direction: column; gap: 12px;
+}
+
+/* [FIX #7] تحسين chat-input-area للكيبورد */
+.chat-input-area {
+    padding: 10px;
+    background: #181818;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* ثبات عند فتح الكيبورد */
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    border-top: 1px solid #222;
+}
+
+/* [FIX #7] send button in chat */
+.send-btn {
+    width: 38px; height: 38px;
+    background: var(--accent-primary);
+    border: none; border-radius: 50%;
+    color: #fff; font-size: 1rem;
+    cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: 0.2s; flex-shrink: 0;
+}
+.send-btn:active { transform: scale(0.9); }
+
+/* [FIX #7] تحسين input الدردشة */
+.chat-input-area input {
+    flex: 1;
+    background: #2a2a2a;
+    border: 1px solid transparent;
+    padding: 10px 14px;
+    border-radius: 22px;
+    color: #fff;
+    outline: none;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+.chat-input-area input:focus {
+    border-color: var(--accent-primary);
+    background: #1a1a1a;
+}
+
+/* [FIX #7] تحسينات الأداء العامة */
+* { -webkit-font-smoothing: antialiased; }
+
+/* [FIX #7] تحسين Responsive */
+@media (max-width: 375px) {
+    .nav-btn span { font-size: 0.55rem; }
+    .nav-btn i { font-size: 1.2rem; }
+}
+
+/* [FIX #7] تحسين الانتقال بين الأقسام */
+.portal-container {
+    will-change: auto;
+}
+
+/* [FIX #2] مؤشر البوابة الخلفية */
+.back-gesture-hint {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 40px;
+    background: var(--accent-primary);
+    border-radius: 4px 0 0 4px;
+    opacity: 0;
+    z-index: 4000;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+/* ==========================================
+   تحسينات الجولة الثانية
+   ========================================== */
+
+/* إخفاء النقاط تماماً - مش محتاجينها */
+.tab-dots { display: none !important; }
+
+/* Toast Notification - بديل عن الأصوات */
+#sa-toast-container {
+    position: fixed;
+    bottom: calc(var(--nav-height) + 15px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 8000;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 8px;
+    pointer-events: none;
+    width: 90%;
+    max-width: 380px;
+}
+.sa-toast {
+    background: rgba(20, 20, 20, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 11px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    animation: toastIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
+    pointer-events: auto;
+    cursor: pointer;
+}
+.sa-toast.removing {
+    animation: toastOut 0.25s ease forwards;
+}
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastOut {
+    from { opacity: 1; transform: translateY(0) scale(1); }
+    to   { opacity: 0; transform: translateY(10px) scale(0.92); }
+}
+.sa-toast-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.sa-toast.msg .sa-toast-icon  { background: rgba(59,130,246,0.2); color: var(--accent-primary); }
+.sa-toast.success .sa-toast-icon { background: rgba(16,185,129,0.2); color: var(--success); }
+.sa-toast.error .sa-toast-icon   { background: rgba(239,68,68,0.2); color: var(--danger); }
+.sa-toast.info .sa-toast-icon    { background: rgba(245,158,11,0.2); color: var(--warning); }
+.sa-toast-body { flex: 1; min-width: 0; }
+.sa-toast-title { font-size: 0.85rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sa-toast-sub   { font-size: 0.75rem; color: #888; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* تقليل المسافة الفارغة أسفل الصفحات */
+.portal-container {
+    padding-bottom: 70px;
+}
+@media (max-width: 768px) {
+    .portal-container { padding-bottom: 60px; }
+}
+
+/* Reese input trigger - تحسين التصميم بدون أيقونة القلم */
+.reese-input-trigger {
+    background: linear-gradient(135deg, #181818, #101010);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px; padding: 13px 15px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer; margin-bottom: 0;
+    transition: all 0.3s ease;
+    position: relative; overflow: hidden;
+    margin: 0 0 0 0;
+}
+.reese-input-trigger::before {
+    content: ''; position: absolute; top:0; right:0; width:3px; height:100%;
+    background: linear-gradient(to bottom, var(--accent-primary), var(--accent-gold));
+    border-radius: 0 24px 24px 0;
+}
+.reese-input-trigger:hover { border-color: rgba(255,255,255,0.15); background: #1a1a1a; }
+
+/* إخفاء أيقونة القلم القديمة */
+.reese-icon-decor { display: none; }
+
+/* الاقتراحات دائماً ظاهرة في compose */
+#ai-reese-suggestions {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+    min-height: 36px;
+}
+#ai-reese-suggestions.loading-suggestions .suggestion-chip {
+    background: rgba(255,255,255,0.04);
+    color: #444;
+    pointer-events: none;
+    animation: pulse 1.2s infinite;
+}
+@keyframes pulse {
+    0%,100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+}
+.suggestion-chip {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #ccc; padding: 7px 12px; border-radius: 20px;
+    font-size: 0.8rem; cursor: pointer; transition: 0.2s;
+    display: inline-flex; align-items: center; gap: 6px;
+    line-height: 1.3;
+}
+.suggestion-chip:hover {
+    background: rgba(59,130,246,0.15);
+    border-color: var(--accent-primary);
+    color: #fff;
+}
+.suggestion-chip i { color: var(--accent-primary); font-size: 0.75rem; }
+
+/* زر AI suggestion في compose - أجمل */
+.ai-suggestion-btn {
+    background: linear-gradient(45deg, #8b5cf6, #d946ef);
+    color: white;
+    border: none; padding: 8px 16px; border-radius: 20px;
+    font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px;
+    width: fit-content; margin-bottom: 10px; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+    transition: all 0.2s;
+    font-weight: 600;
+}
+.ai-suggestion-btn:active { transform: scale(0.96); }
+
+/* Reese section header تحسين */
+.reese-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px 12px;
+}
+
+/* feed-container مباشر بلا padding إضافي */
+.feed-container {
+    background: transparent;
+}
+
+/* تحسين reese-header */
+.reese-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
