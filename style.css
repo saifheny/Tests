@@ -283,7 +283,7 @@ body {
     display: flex; height: calc(100vh - 80px); background: #000; position: relative; overflow: hidden;
 }
 .chat-sidebar {
-    width: 100%; height: 100%; background: #111; border-left: 1px solid #333; display: flex; flex-direction: column;
+    width: 100%; height: 100%; background: #000; border-left: 1px solid #222; display: flex; flex-direction: column;
 }
 
 @media (max-width: 768px) {
@@ -302,16 +302,25 @@ body {
         width: 100%;
         height: 100%;
         border: none;
+        background: #000;
     }
     .chat-window {
-        position: absolute; 
-        inset: 0; 
+        position: fixed; 
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
         z-index: 2001; 
         background: #000; 
         display: flex; 
         flex-direction: column;
         height: 100%;
         width: 100%;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .chat-window:not(.hidden) {
+        transform: translateX(0);
     }
     .portal-container {
         padding: 0;
@@ -320,15 +329,15 @@ body {
 
 @media (min-width: 768px) { .chat-sidebar { width: 350px; flex-shrink: 0; } .chat-layout { border: 1px solid #333; border-radius: 20px; margin-top: 10px; } }
 .chat-sidebar-header {
-    padding: 15px; background: #181818; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222;
+    padding: 15px; background: #000; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a1a1a;
     /* [FIX #4] padding-top يتطابق مع ارتفاع الشريط العلوي بالضبط */
     padding-top: calc(var(--nav-height) + 10px);
 }
 @media (min-width: 768px) { .chat-sidebar-header { padding-top: 15px; } }
 
 .my-chat-info { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.chat-search-bar { padding: 10px; background: #111; border-bottom: 1px solid #222; position: relative; }
-.chat-search-bar input { width: 100%; background: #202020; border: none; padding: 10px 40px 10px 15px; border-radius: 12px; color: #fff; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+.chat-search-bar { padding: 10px; background: #000; border-bottom: 1px solid #1a1a1a; position: relative; }
+.chat-search-bar input { width: 100%; background: #141414; border: 1px solid rgba(255,255,255,0.07); padding: 10px 40px 10px 15px; border-radius: 14px; color: #fff; transition: all 0.3s ease; }
 .chat-search-bar input:focus {
     background: #000;
     border: 1px solid var(--accent-primary);
@@ -336,11 +345,13 @@ body {
     transform: scale(1.01);
 }
 .chat-search-bar i { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none;}
-.chat-list { flex: 1; overflow-y: auto; }
+.chat-list { flex: 1; overflow-y: auto; padding: 8px; }
 .chat-item {
-    display: flex; padding: 12px; gap: 12px; cursor: pointer; transition: 0.2s; border-bottom: 1px solid #1a1a1a;
+    display: flex; padding: 12px; gap: 12px; cursor: pointer; transition: 0.2s;
+    border-radius: 14px; margin-bottom: 4px;
 }
-.chat-item:hover { background: #1a1a1a; }
+.chat-item:hover { background: #161616; }
+.chat-item:active { background: #1f1f1f; }
 .chat-window {
     background: var(--bg-deep); display: flex; flex-direction: column;
 }
@@ -604,6 +615,21 @@ body {
     transition: 0.2s;
 }
 .gemini-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* أيقونة الصورة في AI chat - محسّنة */
+.gemini-img-btn {
+    color: #666;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.2s;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+.gemini-img-btn:hover { background: rgba(59,130,246,0.15); color: var(--accent-primary); border-color: var(--accent-primary); }
 .gemini-text-input {
     flex: 1;
     background: transparent;
@@ -615,15 +641,38 @@ body {
     padding: 8px 0;
 }
 .gemini-send-btn {
-    background: transparent;
-    color: var(--accent-primary);
+    background: var(--accent-primary);
+    color: #fff;
     border: none;
     cursor: pointer;
-    font-size: 1.2rem;
-    padding: 8px;
+    font-size: 1rem;
+    padding: 0;
     transition: 0.2s;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
 }
-.gemini-send-btn:hover { transform: scale(1.1); color: #fff; }
+.gemini-send-btn:hover { transform: scale(1.1); background: #2563eb; }
+.gemini-send-btn:active { transform: scale(0.93); }
+
+/* زرار الميكروفون */
+.gemini-mic-btn {
+    background: rgba(255,255,255,0.08);
+    color: #aaa;
+    border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+    transition: 0.2s;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.gemini-mic-btn:hover { background: rgba(59,130,246,0.15); color: var(--accent-primary); border-color: var(--accent-primary); }
+.gemini-mic-btn.recording { background: rgba(239,68,68,0.2); color: var(--danger); border-color: var(--danger); animation: micPulse 1s infinite; }
+@keyframes micPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
 .chat-img-preview {
     position: absolute; bottom: 80px; right: 20px;
     background: #222; padding: 5px; border-radius: 10px;
@@ -878,22 +927,9 @@ body {
     }
 }
 
-/* [FIX #5] تحسين أيقونات الـ nav - إضافة مؤشر تحت الأيقونة النشطة */
-.nav-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--accent-primary);
-    box-shadow: 0 0 6px var(--accent-glow);
-}
-.magic-btn.active::after {
-    background: #d946ef;
-    box-shadow: 0 0 6px rgba(217, 70, 239, 0.6);
-}
+/* النقطة تحت الأيقونة النشطة - محذوفة */
+.nav-btn.active::after { display: none; }
+.magic-btn.active::after { display: none; }
 
 /* [FIX #5] أيقونة الـ bars/menu واضحة دائماً */
 .nav-btn:last-child i {
@@ -947,8 +983,8 @@ body {
 /* [FIX #7] تحسين input الدردشة */
 .chat-input-area input {
     flex: 1;
-    background: #2a2a2a;
-    border: 1px solid transparent;
+    background: #1e1e1e;
+    border: 1px solid rgba(255,255,255,0.08);
     padding: 10px 14px;
     border-radius: 22px;
     color: #fff;
@@ -959,8 +995,21 @@ body {
 }
 .chat-input-area input:focus {
     border-color: var(--accent-primary);
-    background: #1a1a1a;
+    background: #161616;
 }
+
+/* زرار الصورة في الدردشة */
+.chat-img-attach-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #888;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1rem;
+    transition: 0.2s; flex-shrink: 0;
+}
+.chat-img-attach-btn:hover { background: rgba(59,130,246,0.15); color: var(--accent-primary); border-color: var(--accent-primary); }
 
 /* [FIX #7] تحسينات الأداء العامة */
 * { -webkit-font-smoothing: antialiased; }
