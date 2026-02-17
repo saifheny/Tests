@@ -242,14 +242,13 @@
                     
                     <div class="gemini-input-wrapper">
                         <div class="gemini-input-container">
-                            <label for="t-ai-file" class="gemini-btn"><i class="fas fa-image"></i></label>
+                            <label for="t-ai-file" class="gemini-img-btn" title="إرفاق صورة"><i class="fas fa-camera"></i></label>
                             <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
                             
-                            <label class="gemini-btn" title="صوت (قريباً)"><i class="fas fa-microphone"></i></label>
+                            <input type="text" id="t-ai-input" class="gemini-text-input" placeholder="اكتب، تخيل، أنشئ..." oninput="toggleAiSendMic('t', this.value)">
                             
-                            <input type="text" id="t-ai-input" class="gemini-text-input" placeholder="اكتب، تخيل، أنشئ...">
-                            
-                            <button onclick="sendAiMsg('t')" class="gemini-send-btn"><i class="fas fa-paper-plane"></i></button>
+                            <button id="t-mic-btn" class="gemini-mic-btn" onclick="startVoiceInput('t')" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
+                            <button id="t-send-btn" onclick="sendAiMsg('t')" class="gemini-send-btn" style="display:none"><i class="fas fa-paper-plane"></i></button>
                         </div>
                         <div id="t-chat-preview" class="chat-img-preview">
                             <i class="fas fa-times" onclick="clearChatImg('t')"></i>
@@ -356,14 +355,13 @@
                     
                     <div class="gemini-input-wrapper">
                         <div class="gemini-input-container">
-                            <label for="s-ai-file" class="gemini-btn"><i class="fas fa-image"></i></label>
+                            <label for="s-ai-file" class="gemini-img-btn" title="إرفاق صورة"><i class="fas fa-camera"></i></label>
                             <input type="file" id="s-ai-file" hidden accept="image/*" onchange="previewChatImg('s')">
                             
-                            <label class="gemini-btn" title="صوت (قريباً)"><i class="fas fa-microphone"></i></label>
-
-                            <input type="text" id="s-ai-input" class="gemini-text-input" placeholder="اسألني عن أي شيء...">
+                            <input type="text" id="s-ai-input" class="gemini-text-input" placeholder="اسألني عن أي شيء..." oninput="toggleAiSendMic('s', this.value)">
                             
-                            <button onclick="sendAiMsg('s')" class="gemini-send-btn"><i class="fas fa-paper-plane"></i></button>
+                            <button id="s-mic-btn" class="gemini-mic-btn" onclick="startVoiceInput('s')" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
+                            <button id="s-send-btn" onclick="sendAiMsg('s')" class="gemini-send-btn" style="display:none"><i class="fas fa-paper-plane"></i></button>
                         </div>
                          <div id="s-chat-preview" class="chat-img-preview">
                             <i class="fas fa-times" onclick="clearChatImg('s')"></i>
@@ -600,6 +598,79 @@
     <!-- [FIX #1] نظام التوجيه بـ URL يتم تهيئته في script.js -->
     <!-- [FIX #3] مؤشر السحب بين الأقسام -->
     <div id="tab-dots" class="tab-dots hidden"></div>
+
+    <!-- وظائف الميكروفون والتبديل بين الإرسال والصوت -->
+    <script>
+    // تبديل بين زرار الصوت والإرسال في الـ AI chat
+    function toggleAiSendMic(role, value) {
+        const micBtn = document.getElementById(role + '-mic-btn');
+        const sendBtn = document.getElementById(role + '-send-btn');
+        if (!micBtn || !sendBtn) return;
+        if (value && value.trim()) {
+            micBtn.style.display = 'none';
+            sendBtn.style.display = 'flex';
+        } else {
+            micBtn.style.display = 'flex';
+            sendBtn.style.display = 'none';
+        }
+    }
+
+    // Voice input باستخدام Web Speech API
+    let mediaRecorder = null;
+    let isRecording = false;
+
+    function startVoiceInput(role) {
+        const micBtn = document.getElementById(role + '-mic-btn');
+        const input = document.getElementById(role + '-ai-input');
+        
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            // Web Speech API غير متاحة
+            if (typeof saAlert === 'function') {
+                saAlert('❌', 'غير مدعوم', 'المتصفح لا يدعم الإدخال الصوتي. جرب Chrome أو Edge.');
+            } else {
+                alert('المتصفح لا يدعم الإدخال الصوتي. جرب Chrome.');
+            }
+            return;
+        }
+
+        if (isRecording) {
+            if (window._speechRecog) window._speechRecog.stop();
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recog = new SpeechRecognition();
+        window._speechRecog = recog;
+        recog.lang = 'ar-SA';
+        recog.continuous = false;
+        recog.interimResults = false;
+
+        recog.onstart = () => {
+            isRecording = true;
+            if (micBtn) micBtn.classList.add('recording');
+        };
+
+        recog.onresult = (e) => {
+            const text = e.results[0][0].transcript;
+            if (input) {
+                input.value = (input.value + ' ' + text).trim();
+                toggleAiSendMic(role, input.value);
+            }
+        };
+
+        recog.onerror = () => {
+            isRecording = false;
+            if (micBtn) micBtn.classList.remove('recording');
+        };
+
+        recog.onend = () => {
+            isRecording = false;
+            if (micBtn) micBtn.classList.remove('recording');
+        };
+
+        recog.start();
+    }
+    </script>
 
     <script type="module" src="script.js"></script>
 </body>
