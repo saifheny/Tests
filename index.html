@@ -117,7 +117,10 @@
                 <div class="reese-input-trigger" onclick="openReeseCompose()">
                     <div class="reese-avatar-mini" id="reese-trigger-avatar-t"></div>
                     <div class="reese-placeholder">ماذا يدور في ذهنك اليوم؟</div>
-                    <i class="fas fa-pen-nib reese-icon-decor"></i>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <i class="fas fa-image" style="color:#555; font-size:1rem;"></i>
+                        <i class="fas fa-paper-plane" style="color:var(--accent-primary); font-size:1rem;"></i>
+                    </div>
                 </div>
                 <div id="reese-feed-container-t" class="feed-container"></div>
             </section>
@@ -303,7 +306,10 @@
                 <div class="reese-input-trigger" onclick="openReeseCompose()">
                     <div class="reese-avatar-mini" id="reese-trigger-avatar-s"></div>
                     <div class="reese-placeholder">شارك أفكارك مع الجميع...</div>
-                    <i class="fas fa-pen-nib reese-icon-decor"></i>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <i class="fas fa-image" style="color:#555; font-size:1rem;"></i>
+                        <i class="fas fa-paper-plane" style="color:var(--accent-primary); font-size:1rem;"></i>
+                    </div>
                 </div>
                 <div id="reese-feed-container-s" class="feed-container"></div>
             </section>
@@ -408,7 +414,7 @@
 
             <div id="reese-media-preview" class="compose-media-preview hidden"></div>
             <button class="ai-suggestion-btn" onclick="generateAiReese()">
-                <i class="fas fa-wand-magic-sparkles"></i> اقتراح AI
+                <i class="fas fa-rotate"></i> تحديث الاقتراحات
             </button>
             <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
                 <label class="add-media-btn" title="إضافة صور">
@@ -586,6 +592,14 @@
             <button class="pwa-btn install" onclick="installPWA()">تثبيت</button>
         </div>
     </div>
+
+    <!-- Toast notification container -->
+    <div id="sa-toast-container"></div>
+
+    <!-- [FIX #5] تحسين الأيقونات - توحيد الألوان في CSS -->
+    <!-- [FIX #1] نظام التوجيه بـ URL يتم تهيئته في script.js -->
+    <!-- [FIX #3] مؤشر السحب بين الأقسام -->
+    <div id="tab-dots" class="tab-dots hidden"></div>
 
     <script type="module" src="script.js"></script>
 </body>
