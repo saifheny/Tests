@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, set, get, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { initVoiceModule } from "./voice.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAjE-2q6PONBkCin9ZN22gDp9Q8pAH9ZW8",
@@ -28,14 +29,10 @@ let reeseImages = [];
 let myUid = null;
 let activeChatRoomId = null;
 
-// ==========================================
-// [FIX #1 & #3] ثوابت نظام التوجيه والتنقل
-// ==========================================
 const TEACHER_TABS = ['t-library', 't-reese', 't-dardasha', 't-ai'];
 const STUDENT_TABS = ['s-exams', 's-reese', 's-dardasha', 's-ai'];
-let _suppressHistoryPush = false; // يمنع التكرار عند استخدام popstate
+let _suppressHistoryPush = false;
 
-// [FIX #3] متغيرات تتبع السحب
 let _swipeStartX = 0;
 let _swipeStartY = 0;
 let _swipeStartTarget = null;
@@ -51,9 +48,6 @@ window.addEventListener("scroll", function() {
     lastScrollTop = st <= 0 ? 0 : st;
 }, false);
 
-// ==========================================
-// [FIX #2] زر الرجوع - popstate listener
-// ==========================================
 window.addEventListener('popstate', (e) => {
     if (!currentUser) return;
     const hash = window.location.hash.replace('#', '');
@@ -64,7 +58,6 @@ window.addEventListener('popstate', (e) => {
     const idx = tabs.indexOf(hash);
     
     if (idx !== -1) {
-        // تجنب إضافة state جديد عند الضغط على زر الرجوع
         _suppressHistoryPush = true;
         const navBtns = document.querySelectorAll(`#${portal} .nav-btn`);
         switchTab(hash, navBtns[idx]);
@@ -72,9 +65,6 @@ window.addEventListener('popstate', (e) => {
     }
 });
 
-// ==========================================
-// [FIX #6] إصلاح الكيبورد على الموبايل
-// ==========================================
 function initKeyboardFix() {
     if (!window.visualViewport) return;
     
@@ -85,20 +75,17 @@ function initKeyboardFix() {
         const vvTop = window.visualViewport.offsetTop;
         const diff = window.innerHeight - vvHeight - vvTop;
         
-        // تطبيق على Gemini input wrapper
         const geminiWrapper = document.querySelector('.gemini-input-wrapper');
         if (geminiWrapper) {
             geminiWrapper.style.bottom = Math.max(0, diff) + 'px';
         }
         
-        // تطبيق على chat-input-area (داخل chat-window)
         const chatInputAreas = document.querySelectorAll('.chat-input-area');
         chatInputAreas.forEach(area => {
             area.style.bottom = Math.max(0, diff) + 'px';
-            area.style.position = diff > 50 ? 'sticky' : '';
+            area.style.position = diff > 50 ? 'sticky' : 'absolute';
         });
         
-        // scroll العنصر النشط ليظهر فوق الكيبورد
         const activeEl = document.activeElement;
         if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
             setTimeout(() => {
@@ -110,9 +97,6 @@ function initKeyboardFix() {
     });
 }
 
-// ==========================================
-// [FIX #3] تهيئة نظام السحب بين الأقسام
-// ==========================================
 function initSwipeNavigation(portalId) {
     const portal = document.getElementById(portalId);
     if (!portal) return;
@@ -124,7 +108,6 @@ function initSwipeNavigation(portalId) {
     }, { passive: true });
     
     portal.addEventListener('touchend', (e) => {
-        // تجاهل السحب إذا بدأ من داخل المحادثة أو النوافذ المنبثقة
         if (_swipeStartTarget && (
             _swipeStartTarget.closest('.chat-window') ||
             _swipeStartTarget.closest('.chat-sidebar') ||
@@ -137,7 +120,6 @@ function initSwipeNavigation(portalId) {
         const dx = e.changedTouches[0].clientX - _swipeStartX;
         const dy = e.changedTouches[0].clientY - _swipeStartY;
         
-        // التحقق: سحب أفقي > 70px وأكبر من 1.5× الرأسي
         if (Math.abs(dx) < 70 || Math.abs(dx) <= Math.abs(dy) * 1.5) return;
         
         const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
@@ -145,19 +127,16 @@ function initSwipeNavigation(portalId) {
         let idx = tabs.indexOf(currentHash);
         if (idx === -1) idx = 0;
         
-        // RTL: سحب لليمين (dx>0) = القسم السابق، سحب لليسار (dx<0) = القسم التالي
         const newIdx = dx > 0 ? idx + 1 : idx - 1;
         
         if (newIdx >= 0 && newIdx < tabs.length) {
             const navBtns = document.querySelectorAll(`#${portalId} .nav-btn`);
-            // تأثير الانتقال حسب اتجاه السحب
             const direction = dx > 0 ? 'left' : 'right';
             switchTabWithDirection(tabs[newIdx], navBtns[newIdx], direction);
         }
     }, { passive: true });
 }
 
-// تبديل التبويب مع تأثير اتجاهي
 function switchTabWithDirection(tabId, btn, direction) {
     const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
     const section = document.getElementById(tabId);
@@ -165,16 +144,12 @@ function switchTabWithDirection(tabId, btn, direction) {
     
     switchTab(tabId, btn);
     
-    // إضافة تأثير الانتقال
     section.classList.add(direction === 'right' ? 'section-enter' : 'section-enter-left');
     setTimeout(() => {
         section.classList.remove('section-enter', 'section-enter-left');
     }, 300);
 }
 
-// ==========================================
-// [FIX #1] تحديث مؤشرات التبويب (Dots)
-// ==========================================
 function updateTabDots(activeTabId) {
     const dotsContainer = document.getElementById('tab-dots');
     if (!dotsContainer) return;
@@ -216,14 +191,9 @@ window.addEventListener('click', function(e) {
     }
 });
 
-// ==========================================
-// نظام الأصوات الذكي - صوت فقط في الدردشة
-// + Toast notifications بديلاً عن الأصوات
-// ==========================================
 function playSound(type) {
-    // أصوات الدردشة فقط: sent و recv
     const chatOnlySounds = ['sent', 'recv'];
-    if (!chatOnlySounds.includes(type)) return; // تجاهل كل الأصوات الأخرى
+    if (!chatOnlySounds.includes(type)) return;
     
     const soundMap = {
         'sent': 'snd-sent',
@@ -239,7 +209,6 @@ function playSound(type) {
     }
 }
 
-// Toast notification system - بديل جميل عن الأصوات
 function showToast(title, sub = '', type = 'msg', duration = 3000) {
     let container = document.getElementById('sa-toast-container');
     if (!container) {
@@ -326,7 +295,6 @@ function getEmptyStateHTML(type) {
 }
 
 window.saAlert = (msg, type = 'info', title = null) => {
-    // رسائل بسيطة → toast سريع
     const simpleTypes = ['success', 'info'];
     if (simpleTypes.includes(type) && !title) {
         const toastType = type === 'success' ? 'success' : 'info';
@@ -334,7 +302,6 @@ window.saAlert = (msg, type = 'info', title = null) => {
         return;
     }
     
-    // رسائل الخطأ والرسائل المهمة → alert modal كامل
     const modal = document.getElementById('sa-custom-alert');
     const iconDiv = document.getElementById('sa-alert-icon');
     const titleDiv = document.getElementById('sa-alert-title');
@@ -500,78 +467,196 @@ function loginSuccess(name, icon, uid) {
     if (selectedRole === 'teacher') {
         document.getElementById('teacher-app').classList.remove('hidden');
         initTeacherApp();
-        // [FIX #3] تهيئة السحب بعد ظهور التطبيق
         setTimeout(() => initSwipeNavigation('teacher-app'), 500);
     } else {
         document.getElementById('student-app').classList.remove('hidden');
-        loadStudentExams(); loadStudentGrades(); initStudentReese(); 
-        // [FIX #3] تهيئة السحب بعد ظهور التطبيق
+        loadStudentExams(); loadStudentGrades(); initStudentReese();
+        updateStreakOnLogin();
+        setTimeout(() => renderXPHud(), 300);
         setTimeout(() => initSwipeNavigation('student-app'), 500);
     }
     initDardasha();
+    initVoiceModule(db, currentUser, myUid);
     
-    // [FIX #6] تهيئة إصلاح الكيبورد
     initKeyboardFix();
     
-    // [FIX #1] استعادة القسم من URL عند التحميل
     handleDeepLinksAndRouting();
     
-    // [FIX #3] إظهار مؤشرات التبويب
     showTabDots();
     const defaultTab = selectedRole === 'teacher' ? 't-library' : 's-exams';
     updateTabDots(window.location.hash.replace('#', '') || defaultTab);
 }
 
-function handleDeepLinks() {
-    const params = new URLSearchParams(window.location.search);
-    const shareId = params.get('shareId');
-    const examId = params.get('examId');
-    const postId = params.get('postId');
-    const chatTarget = params.get('chat');
+function updateOGMeta(title, description, imageUrl) {
+    const baseUrl = window.location.href.split('?')[0];
+    const fullUrl = window.location.href;
 
-    if(shareId) { 
-        const prefix = selectedRole === 'teacher' ? 't' : 's';
-        switchTab(`${prefix}-ai`); loadSharedChat(shareId, prefix); 
-    }
-    
-    if(examId) {
-        if(selectedRole === 'student') {
-            switchTab('s-exams');
-            checkPhoneAndStart(examId);
-        } else {
-             switchTab('t-library');
-             saAlert("هذا رابط امتحان. كمعلم يمكنك تعديله من المكتبة.", "info");
-        }
-    }
+    const set = (selector, attr, val) => {
+        const el = document.querySelector(selector);
+        if (el) el.setAttribute(attr, val);
+    };
 
-    if(postId) {
-        const prefix = selectedRole === 'teacher' ? 't' : 's';
-        switchTab(`${prefix}-reese`);
-        setTimeout(() => {
-             const el = document.getElementById(`post-${postId}`);
-             if(el) { el.scrollIntoView({behavior: "smooth"}); el.style.border = "2px solid var(--accent-primary)"; }
-        }, 1500);
+    document.title = title + ' | SA EDU';
+    set('meta[property="og:title"]', 'content', title);
+    set('meta[property="og:description"]', 'content', description);
+    set('meta[property="og:url"]', 'content', fullUrl);
+    set('meta[name="twitter:title"]', 'content', title);
+    set('meta[name="twitter:description"]', 'content', description);
+    if (imageUrl) {
+        set('meta[property="og:image"]', 'content', imageUrl);
+        set('meta[name="twitter:image"]', 'content', imageUrl);
     }
-
-    if(chatTarget && chatTarget !== myUid) {
-        const prefix = selectedRole === 'teacher' ? 't' : 's';
-        switchTab(`${prefix}-dardasha`);
-        searchUserById(chatTarget);
-    }
+    set('link[rel="canonical"]', 'href', fullUrl);
 }
 
-// [FIX #1] دالة موحدة للتعامل مع Deep Links وURL Routing
+async function handleDeepLinks() {
+    const params = new URLSearchParams(window.location.search);
+    const shareId  = params.get('shareId');
+    const examId   = params.get('examId');
+    const postId   = params.get('postId');
+    const chatUid  = params.get('chat');
+    const chatRoom = params.get('room');
+    const aiTab    = params.get('aiTab');
+
+    if (!shareId && !examId && !postId && !chatUid && !chatRoom && !aiTab) return;
+
+    showDeepLinkLoader();
+
+    if (aiTab) {
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        updateOGMeta('المساعد الذكي SA AI', 'تحدث مع مساعد الذكاء الاصطناعي على SA EDU');
+        switchTab(`${prefix}-ai`);
+        hideDeepLinkLoader();
+        return;
+    }
+
+    if (shareId) {
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        updateOGMeta('محادثة AI مشاركة', 'شاهد هذه المحادثة مع الذكاء الاصطناعي على SA EDU');
+        switchTab(`${prefix}-ai`);
+        loadSharedChat(shareId, prefix);
+        hideDeepLinkLoader();
+        return;
+    }
+
+    if (examId) {
+        const snap = await get(ref(db, `tests/${examId}`));
+        if (snap.exists()) {
+            const d = snap.val();
+            const subjectLabel = d.subject || 'اختبار';
+            updateOGMeta(
+                `${subjectLabel}: ${d.title}`,
+                `اختبار ${subjectLabel} • ${d.questions?.length || 0} سؤال • ${d.duration} دقيقة • أعده ${d.teacher}`,
+            );
+
+            if (selectedRole === 'student') {
+                switchTab('s-exams');
+                hideDeepLinkLoader();
+                checkPhoneAndStart(examId);
+            } else {
+                switchTab('t-library');
+                hideDeepLinkLoader();
+                await new Promise(r => setTimeout(r, 300));
+                const card = document.querySelector(`[data-exam-id="${examId}"]`);
+                if (card) { card.scrollIntoView({ behavior: 'smooth' }); card.style.border = '2px solid var(--accent-gold)'; setTimeout(() => card.style.border = '', 3000); }
+                saAlert("هذا رابط امتحان. كمعلم يمكنك تعديله من المكتبة.", "info");
+            }
+        } else {
+            hideDeepLinkLoader();
+            saAlert("الامتحان غير موجود أو تم حذفه", "error");
+        }
+        return;
+    }
+
+    if (postId) {
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        const postSnap = await get(ref(db, `reese_posts/${postId}`));
+        if (postSnap.exists()) {
+            const pd = postSnap.val();
+            updateOGMeta(
+                `منشور من ${pd.author || 'مستخدم'} على Reese`,
+                pd.text?.substring(0, 160) || 'منشور على منصة SA EDU',
+                pd.images?.[0] || pd.image || null
+            );
+        }
+        switchTab(`${prefix}-reese`);
+        hideDeepLinkLoader();
+        const tryScroll = (attempts = 0) => {
+            const el = document.getElementById(`post-${postId}`);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el.style.transition = 'box-shadow 0.4s';
+                el.style.boxShadow = '0 0 0 3px var(--accent-primary)';
+                setTimeout(() => { el.style.boxShadow = ''; }, 3000);
+            } else if (attempts < 10) {
+                setTimeout(() => tryScroll(attempts + 1), 200);
+            }
+        };
+        tryScroll();
+        return;
+    }
+
+    if (chatRoom) {
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        const roomSnap = await get(ref(db, `chat_room_meta/${chatRoom}`));
+        if (roomSnap.exists()) {
+            const rm = roomSnap.val();
+            const otherUid = rm.members?.find(m => m !== myUid);
+            const otherName = rm.names?.[otherUid] || 'مستخدم';
+            const otherIcon = rm.icons?.[otherUid] || 'fa-user';
+            updateOGMeta(`محادثة مع ${otherName}`, `افتح المحادثة مع ${otherName} على SA EDU`);
+            switchTab(`${prefix}-dardasha`);
+            hideDeepLinkLoader();
+            openChatRoom(chatRoom, otherName, otherIcon, otherUid);
+        } else {
+            switchTab(`${prefix}-dardasha`);
+            hideDeepLinkLoader();
+        }
+        return;
+    }
+
+    if (chatUid && chatUid !== myUid) {
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        const usnap = await get(ref(db, `users/students/${chatUid}`)).catch(() => null)
+            || await get(ref(db, `users/teachers/${chatUid}`)).catch(() => null);
+        if (usnap?.exists()) {
+            const ud = usnap.val();
+            updateOGMeta(`تواصل مع ${ud.username || 'مستخدم'}`, `ابدأ محادثة مع ${ud.username || 'مستخدم'} على SA EDU`);
+        }
+        switchTab(`${prefix}-dardasha`);
+        searchUserById(chatUid);
+        hideDeepLinkLoader();
+        return;
+    }
+
+    hideDeepLinkLoader();
+}
+
+function showDeepLinkLoader() {
+    let el = document.getElementById('deeplink-loader');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'deeplink-loader';
+        el.innerHTML = `<div class="dl-spinner"></div><p>جاري الفتح...</p>`;
+        document.body.appendChild(el);
+    }
+    el.style.display = 'flex';
+}
+
+function hideDeepLinkLoader() {
+    const el = document.getElementById('deeplink-loader');
+    if (el) el.style.display = 'none';
+}
+
 function handleDeepLinksAndRouting() {
     const params = new URLSearchParams(window.location.search);
-    const hasDeepLink = params.get('shareId') || params.get('examId') || params.get('postId') || params.get('chat');
+    const hasDeepLink = params.get('shareId') || params.get('examId') || params.get('postId') || params.get('chat') || params.get('room') || params.get('aiTab');
     
     if (hasDeepLink) {
-        // إذا في deep link، نفذها أولاً
         handleDeepLinks();
         return;
     }
     
-    // [FIX #1] فحص الـ hash للعودة للقسم المحفوظ
     const hash = window.location.hash.replace('#', '');
     const allTabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
     const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
@@ -583,7 +668,6 @@ function handleDeepLinksAndRouting() {
         switchTab(hash, navBtns[idx]);
         _suppressHistoryPush = false;
     } else {
-        // القسم الافتراضي
         const defaultTab = selectedRole === 'teacher' ? 't-library' : 's-exams';
         window.history.replaceState({ tab: defaultTab }, '', '#' + defaultTab);
     }
@@ -692,7 +776,6 @@ window.switchTab = (tabId, btn) => {
         btn.classList.add('active'); 
     }
     
-    // [FIX #1] تحديث URL بـ hash لحفظ القسم الحالي
     if (!_suppressHistoryPush) {
         const allTabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
         if (allTabs.includes(tabId)) {
@@ -700,13 +783,13 @@ window.switchTab = (tabId, btn) => {
         }
     }
     
-    // [FIX #1 & #3] تحديث مؤشرات التبويب
     updateTabDots(tabId);
     
     if(tabId === 's-grades') loadStudentGrades();
     if(tabId === 's-exams') {
         loadStudentExams();
-        startTypewriter("student-type-text", "الاختبارات المتاحة لتطويرك");
+        startTypewriter("student-type-text", "تحليل المستوى الدراسي");
+        if (selectedRole === 'student') setTimeout(() => renderXPHud(), 200);
     }
     if(tabId === 't-library') {
         loadTeacherTests();
@@ -719,7 +802,6 @@ window.switchTab = (tabId, btn) => {
     if(tabId === 't-ai' && !currentChatId) startNewChat('t');
     if(tabId === 's-ai' && !currentChatId) startNewChat('s');
     
-    // [FIX #6] إضافة keyboard fix للـ AI input بعد التبويب
     setTimeout(() => {
         const aiInput = document.getElementById(`${tabId.charAt(0)}-ai-input`);
         if (aiInput) {
@@ -863,76 +945,303 @@ window.startChatWithUser = async (otherName, otherIcon, otherUid) => {
     openChatRoom(chatId, otherName, otherIcon, otherUid);
 };
 
+let _activeChatMsgKeys = {};
+let _voiceRecorder = null;
+let _voiceChunks = [];
+let _isVoiceRecording = false;
+let _voiceChatId = null;
+let _voiceOtherUid = null;
+
 window.openChatRoom = (chatId, name, icon, uid) => {
     playSound('click');
     activeChatRoomId = chatId;
+    _activeChatMsgKeys = {};
     const prefix = selectedRole === 'teacher' ? 't' : 's';
     const win = document.getElementById(`${prefix}-chat-window`);
-    
-    if(window.innerWidth < 768) {
+
+    if (window.innerWidth < 768) {
         document.getElementById(`${prefix}-chat-sidebar`).classList.add('hidden');
     }
     win.classList.remove('hidden');
-    
+
     win.innerHTML = `
         <div class="chat-header">
-            <button class="icon-btn-small" onclick="closeChatWindow('${prefix}')"><i class="fas fa-arrow-right"></i></button>
-            <div class="avatar-frame mini-frame" style="width:35px; height:35px; font-size:1rem;"><i class="fas ${icon}"></i></div>
-            <div style="font-weight:bold;">${name}</div>
-            <div style="margin-right:auto; display:flex; gap:10px;">
-                <button class="icon-btn-small" title="اتصال صوتي (قريباً)"><i class="fas fa-phone"></i></button>
-                <button class="icon-btn-small" onclick="copyProfileLinkFor('${uid}')" title="نسخ رابط المستخدم"><i class="fas fa-link"></i></button>
+            <button class="icon-btn-small" onclick="closeChatWindow('${prefix}')"><i class="ph-bold ph-arrow-right"></i></button>
+            <div class="avatar-frame mini-frame" style="width:38px;height:38px;font-size:1.1rem;border-width:1px;"><i class="fas ${icon}"></i></div>
+            <div>
+                <div style="font-weight:700;font-size:0.95rem;">${name}</div>
+                <div id="chat-online-${chatId}" style="font-size:0.7rem;color:#25d366;">متصل</div>
+            </div>
+            <div style="margin-right:auto;display:flex;gap:10px;">
+                <button class="icon-btn-small" onclick="copyProfileLinkFor('${uid}')" title="نسخ رابط"><i class="ph-bold ph-link"></i></button>
             </div>
         </div>
         <div class="chat-msgs-area" id="chat-msgs-${chatId}"></div>
         <div class="chat-input-area" id="chat-input-area-${chatId}">
-            <label class="chat-img-attach-btn" title="إرسال صورة"><i class="fas fa-camera"></i><input type="file" hidden accept="image/*" onchange="sendChatImage(this, '${chatId}', '${uid}')"></label>
-            <input type="text" id="chat-input-${chatId}" placeholder="اكتب رسالة..." 
-                onkeypress="handleChatEnter(event, '${chatId}', '${uid}')"
-                onfocus="handleChatInputFocus(this)"
-            >
-            <button class="send-btn" onclick="sendChatMessage('${chatId}', '${uid}')"><i class="fas fa-paper-plane"></i></button>
+            <label class="chat-img-attach-btn" title="إرسال صور">
+                <i class="ph-bold ph-camera"></i>
+                <input type="file" hidden accept="image/*" multiple onchange="sendChatImages(this,'${chatId}','${uid}')">
+            </label>
+            <input type="text" id="chat-input-${chatId}" placeholder="اكتب رسالة..."
+                onkeypress="handleChatEnter(event,'${chatId}','${uid}')"
+                oninput="toggleChatMicSend('${chatId}')"
+                onfocus="handleChatInputFocus(this)">
+            <button id="chat-send-btn-${chatId}" class="send-btn" style="display:none" onclick="sendChatMessage('${chatId}','${uid}')"><i class="ph-bold ph-paper-plane-tilt"></i></button>
+            <button id="chat-mic-btn-${chatId}" class="send-btn" style="background:rgba(255,255,255,0.08);color:#aaa;" onclick="toggleVoiceRecord('${chatId}','${uid}')"><i class="ph-bold ph-microphone"></i></button>
+        </div>
+        <div id="voice-recording-bar-${chatId}" class="voice-recording-bar hidden">
+            <div class="voice-wave-anim"><span></span><span></span><span></span><span></span><span></span></div>
+            <span id="voice-timer-${chatId}" style="color:#ef4444;font-weight:bold;font-size:0.9rem;min-width:40px;">0:00</span>
+            <button onclick="cancelVoiceRecord('${chatId}')" style="background:none;border:none;color:#ef4444;font-size:1.2rem;cursor:pointer;"><i class="ph-bold ph-x"></i></button>
+            <button onclick="stopAndSendVoice('${chatId}','${uid}')" style="background:#25d366;border:none;color:#fff;padding:8px 16px;border-radius:20px;font-weight:bold;cursor:pointer;font-size:0.85rem;"><i class="ph-bold ph-paper-plane-tilt"></i> إرسال</button>
         </div>
     `;
 
     const msgContainer = document.getElementById(`chat-msgs-${chatId}`);
-    let isFirstLoad = true; // تجنب إشعار عند التحميل الأول
-    
+    let isFirstLoad = true;
+    let prevCount = 0;
+
     onValue(ref(db, `chats/${chatId}`), (snap) => {
-        const previousCount = msgContainer.children.length;
         msgContainer.innerHTML = '';
-        if(snap.exists()) {
-            const msgs = snap.val();
-            const msgArr = Object.values(msgs);
-            msgArr.forEach(msg => {
-                const isMe = msg.sender === myUid;
-                const div = document.createElement('div');
-                div.className = `msg-bubble ${isMe ? 'sent' : 'recv'}`;
-                
-                let content = makeLinksClickable(msg.text);
-                if(msg.type === 'image') {
-                    content = `<img src="${msg.text}" class="whatsapp-img" style="height:100px; width:auto; object-fit:cover;" onclick="openImageViewer(this.src)">`;
-                }
-                
-                div.innerHTML = `
-                    ${content}
-                    <div class="msg-time">${new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-                `;
-                msgContainer.appendChild(div);
-            });
-            msgContainer.scrollTop = msgContainer.scrollHeight;
-            
-            // إشعار صوتي + toast فقط للرسائل الجديدة (ليس عند التحميل الأول)
-            if (!isFirstLoad && msgArr.length > previousCount) {
-                const lastMsg = msgArr[msgArr.length - 1];
-                if (lastMsg && lastMsg.sender !== myUid) {
-                    playSound('recv');
-                    showToast(name, lastMsg.type === 'image' ? '📷 صورة' : (lastMsg.text?.substring(0,50) || ''), 'msg', 3500);
-                }
+        _activeChatMsgKeys = {};
+        if (!snap.exists()) { isFirstLoad = false; return; }
+
+        const msgs = snap.val();
+        const msgArr = Object.entries(msgs).map(([k, v]) => ({ ...v, _key: k })).sort((a, b) => a.timestamp - b.timestamp);
+
+        let lastDateLabel = '';
+        msgArr.forEach(msg => {
+            const dateStr = new Date(msg.timestamp).toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'long' });
+            if (dateStr !== lastDateLabel) {
+                lastDateLabel = dateStr;
+                const sep = document.createElement('div');
+                sep.className = 'chat-date-separator';
+                sep.innerText = dateStr;
+                msgContainer.appendChild(sep);
             }
-            isFirstLoad = false;
+            _activeChatMsgKeys[msg._key] = true;
+            appendChatMsg(msgContainer, msg, chatId, uid, name);
+        });
+
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+
+        if (!isFirstLoad && msgArr.length > prevCount) {
+            const lastMsg = msgArr[msgArr.length - 1];
+            if (lastMsg && lastMsg.sender !== myUid) {
+                playSound('recv');
+                showToast(name, lastMsg.type === 'image' ? '📷 صورة' : lastMsg.type === 'voice' ? '🎤 رسالة صوتية' : (lastMsg.text?.substring(0, 50) || ''), 'msg', 3500);
+                update(ref(db, `chats/${chatId}/${lastMsg._key}`), { readBy: myUid });
+            }
         }
+        prevCount = msgArr.length;
+        isFirstLoad = false;
     });
+
+    update(ref(db, `users/${selectedRole}s/${currentUser}`), { online: true, lastSeen: Date.now() });
+};
+
+function appendChatMsg(container, msg, chatId, otherUid, otherName) {
+    const isMe = msg.sender === myUid;
+    const isDeleted = msg.deleted === true;
+
+    const wrap = document.createElement('div');
+    wrap.className = `wapp-msg-wrap ${isMe ? 'me' : 'them'}`;
+    wrap.id = `msg-wrap-${msg._key}`;
+
+    let content = '';
+    if (isDeleted) {
+        content = `<div class="wapp-msg deleted-msg"><i class="ph-bold ph-prohibit" style="color:#aaa;margin-left:5px;"></i><span style="color:#aaa;font-style:italic;">تم حذف هذه الرسالة</span></div>`;
+    } else if (msg.type === 'images' && msg.images) {
+        const imgs = msg.images;
+        const grid = imgs.length === 1 ? 'one' : imgs.length === 2 ? 'two' : imgs.length === 3 ? 'three' : 'four';
+        const imgHtml = imgs.map(src => `<img src="${src}" onclick="openImageViewer(this.src)" style="width:100%;height:100%;object-fit:cover;cursor:pointer;">`).join('');
+        content = `<div class="wapp-msg"><div class="wapp-img-grid grid-${grid}">${imgHtml}</div>${buildMsgFooter(msg, isMe)}</div>`;
+    } else if (msg.type === 'voice') {
+        content = `<div class="wapp-msg">
+            <div class="wapp-voice-player">
+                <button class="voice-play-btn" onclick="toggleVoicePlay(this,'${msg._key}')"><i class="ph-bold ph-play"></i></button>
+                <div class="voice-waveform">${generateWaveform()}</div>
+                <span class="voice-duration">${msg.duration || '0:00'}</span>
+                <audio id="audio-${msg._key}" src="${msg.text}" preload="metadata" onended="resetVoiceBtn('${msg._key}')"></audio>
+            </div>
+            ${buildMsgFooter(msg, isMe)}
+        </div>`;
+    } else {
+        content = `<div class="wapp-msg"><div class="wapp-text">${makeLinksClickable(msg.text || '')}</div>${buildMsgFooter(msg, isMe)}</div>`;
+    }
+
+    wrap.innerHTML = content;
+
+    if (!isDeleted && isMe) {
+        wrap.addEventListener('contextmenu', (e) => { e.preventDefault(); showMsgContextMenu(e, msg._key, chatId, otherUid, msg.text, isMe); });
+        wrap.addEventListener('touchstart', touchHoldHandler(wrap, msg._key, chatId, otherUid, msg.text, isMe), { passive: true });
+    }
+
+    container.appendChild(wrap);
+}
+
+function buildMsgFooter(msg, isMe) {
+    const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const readIcon = isMe ? `<i class="ph-bold ph-checks" style="color:${msg.readBy ? '#53bdeb' : '#aaa'};font-size:0.85rem;margin-right:2px;"></i>` : '';
+    return `<div class="msg-footer-row">${readIcon}<span class="msg-time-wapp">${time}</span></div>`;
+}
+
+function generateWaveform() {
+    const bars = 20;
+    let html = '';
+    for (let i = 0; i < bars; i++) {
+        const h = Math.random() * 20 + 4;
+        html += `<div class="waveform-bar" style="height:${h}px"></div>`;
+    }
+    return html;
+}
+
+function touchHoldHandler(wrap, key, chatId, otherUid, text, isMe) {
+    let holdTimer = null;
+    return function(e) {
+        holdTimer = setTimeout(() => { showMsgContextMenu(e.touches[0], key, chatId, otherUid, text, isMe); }, 600);
+        wrap.addEventListener('touchend', () => clearTimeout(holdTimer), { once: true });
+        wrap.addEventListener('touchmove', () => clearTimeout(holdTimer), { once: true });
+    };
+}
+
+function showMsgContextMenu(e, msgKey, chatId, otherUid, text, isMe) {
+    document.querySelectorAll('.msg-ctx-menu').forEach(el => el.remove());
+    const menu = document.createElement('div');
+    menu.className = 'msg-ctx-menu';
+    menu.style.top = (e.clientY || e.pageY) + 'px';
+    menu.style.left = (e.clientX || e.pageX) + 'px';
+    const copyBtn = `<div class="ctx-item" onclick="navigator.clipboard.writeText('${(text||'').replace(/'/g,"\\'")}').then(()=>showToast('تم النسخ','','success',1500)); document.querySelector('.msg-ctx-menu').remove()"><i class="ph-bold ph-copy"></i> نسخ</div>`;
+    const deleteBtn = isMe ? `<div class="ctx-item danger" onclick="deleteChatMsg('${chatId}','${msgKey}','${otherUid}'); document.querySelector('.msg-ctx-menu').remove()"><i class="ph-bold ph-trash"></i> حذف للجميع</div>` : '';
+    menu.innerHTML = copyBtn + deleteBtn;
+    document.body.appendChild(menu);
+    setTimeout(() => { document.addEventListener('click', () => menu.remove(), { once: true }); }, 100);
+}
+
+window.deleteChatMsg = async (chatId, msgKey, otherUid) => {
+    await update(ref(db, `chats/${chatId}/${msgKey}`), { deleted: true, text: '', type: 'text' });
+    showToast('تم حذف الرسالة', '', 'success', 2000);
+};
+
+window.toggleChatMicSend = (chatId) => {
+    const inp = document.getElementById(`chat-input-${chatId}`);
+    const send = document.getElementById(`chat-send-btn-${chatId}`);
+    const mic = document.getElementById(`chat-mic-btn-${chatId}`);
+    if (!inp || !send || !mic) return;
+    if (inp.value.trim()) { send.style.display = 'flex'; mic.style.display = 'none'; }
+    else { send.style.display = 'none'; mic.style.display = 'flex'; }
+};
+
+window.toggleVoiceRecord = async (chatId, otherUid) => {
+    if (_isVoiceRecording) { stopAndSendVoice(chatId, otherUid); return; }
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        _voiceRecorder = new MediaRecorder(stream);
+        _voiceChunks = [];
+        _voiceChatId = chatId;
+        _voiceOtherUid = otherUid;
+        _isVoiceRecording = true;
+        const bar = document.getElementById(`voice-recording-bar-${chatId}`);
+        bar.classList.remove('hidden');
+        const micBtn = document.getElementById(`chat-mic-btn-${chatId}`);
+        micBtn.style.background = '#ef4444';
+        micBtn.style.color = '#fff';
+
+        let seconds = 0;
+        const timerEl = document.getElementById(`voice-timer-${chatId}`);
+        const timerInt = setInterval(() => {
+            seconds++;
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            if (timerEl) timerEl.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }, 1000);
+        _voiceRecorder._timerInt = timerInt;
+        _voiceRecorder._seconds = () => seconds;
+
+        _voiceRecorder.ondataavailable = (e) => { if (e.data.size > 0) _voiceChunks.push(e.data); };
+        _voiceRecorder.start(100);
+    } catch (e) {
+        saAlert('لم يُسمح بالوصول للمايكروفون', 'error');
+    }
+};
+
+window.cancelVoiceRecord = (chatId) => {
+    if (_voiceRecorder) { clearInterval(_voiceRecorder._timerInt); _voiceRecorder.stop(); _voiceRecorder.stream?.getTracks().forEach(t => t.stop()); }
+    _isVoiceRecording = false; _voiceChunks = [];
+    const bar = document.getElementById(`voice-recording-bar-${chatId}`);
+    if (bar) bar.classList.add('hidden');
+    const micBtn = document.getElementById(`chat-mic-btn-${chatId}`);
+    if (micBtn) { micBtn.style.background = 'rgba(255,255,255,0.08)'; micBtn.style.color = '#aaa'; }
+};
+
+window.stopAndSendVoice = async (chatId, otherUid) => {
+    if (!_voiceRecorder || !_isVoiceRecording) return;
+    const seconds = _voiceRecorder._seconds();
+    clearInterval(_voiceRecorder._timerInt);
+
+    return new Promise((resolve) => {
+        _voiceRecorder.onstop = async () => {
+            const blob = new Blob(_voiceChunks, { type: 'audio/webm' });
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const b64 = reader.result;
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                const dur = `${m}:${s < 10 ? '0' : ''}${s}`;
+                playSound('sent');
+                await push(ref(db, `chats/${chatId}`), { sender: myUid, text: b64, type: 'voice', duration: dur, timestamp: Date.now() });
+                await update(ref(db, `user_chats/${myUid}/${chatId}`), { lastMsg: '🎤 رسالة صوتية', lastMsgTime: Date.now() });
+                await update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: '🎤 رسالة صوتية', lastMsgTime: Date.now() });
+                resolve();
+            };
+            reader.readAsDataURL(blob);
+        };
+        _voiceRecorder.stop();
+        _voiceRecorder.stream?.getTracks().forEach(t => t.stop());
+        _isVoiceRecording = false; _voiceChunks = [];
+        const bar = document.getElementById(`voice-recording-bar-${chatId}`);
+        if (bar) bar.classList.add('hidden');
+        const micBtn = document.getElementById(`chat-mic-btn-${chatId}`);
+        if (micBtn) { micBtn.style.background = 'rgba(255,255,255,0.08)'; micBtn.style.color = '#aaa'; }
+    });
+};
+
+window.toggleVoicePlay = (btn, key) => {
+    const audio = document.getElementById(`audio-${key}`);
+    if (!audio) return;
+    if (audio.paused) {
+        document.querySelectorAll('audio').forEach(a => { if (a !== audio) { a.pause(); a.currentTime = 0; } });
+        document.querySelectorAll('.voice-play-btn').forEach(b => b.innerHTML = '<i class="ph-bold ph-play"></i>');
+        audio.play();
+        btn.innerHTML = '<i class="ph-bold ph-pause"></i>';
+    } else {
+        audio.pause();
+        btn.innerHTML = '<i class="ph-bold ph-play"></i>';
+    }
+};
+
+window.resetVoiceBtn = (key) => {
+    const btn = document.querySelector(`#msg-wrap-${key} .voice-play-btn`);
+    if (btn) btn.innerHTML = '<i class="ph-bold ph-play"></i>';
+};
+
+window.sendChatImages = async (input, chatId, otherUid) => {
+    if (!input.files || input.files.length === 0) return;
+    const today = new Date().toDateString();
+    const usageKey = `img_usage_${myUid}_${today}`;
+    let count = parseInt(localStorage.getItem(usageKey) || '0');
+    const files = Array.from(input.files).slice(0, 4);
+    if (count + files.length > 10) { saAlert('تجاوزت حد الصور اليوم', 'error'); input.value = ''; return; }
+
+    const images = [];
+    for (const f of files) { images.push(await getBase64(f)); }
+    playSound('sent');
+    await push(ref(db, `chats/${chatId}`), { sender: myUid, images, type: 'images', timestamp: Date.now() });
+    count += files.length;
+    localStorage.setItem(usageKey, count);
+    await update(ref(db, `user_chats/${myUid}/${chatId}`), { lastMsg: `📷 ${images.length} صور`, lastMsgTime: Date.now() });
+    await update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: `📷 ${images.length} صور`, lastMsgTime: Date.now() });
+    input.value = '';
 };
 
 window.closeChatWindow = (prefix) => {
@@ -942,14 +1251,11 @@ window.closeChatWindow = (prefix) => {
     activeChatRoomId = null;
 };
 
-// [FIX #6] إصلاح مشكلة الـ input مع الكيبورد في الموبايل
 window.handleChatInputFocus = (input) => {
     if (window.innerWidth > 768) return;
     
-    // انتظر قليلاً ريثما يظهر الكيبورد ثم scroll للـ input
     setTimeout(() => {
         input.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        // scroll منطقة الرسائل للأسفل
         const chatId = input.id.replace('chat-input-', '');
         const msgArea = document.getElementById(`chat-msgs-${chatId}`);
         if (msgArea) msgArea.scrollTop = msgArea.scrollHeight;
@@ -1012,10 +1318,32 @@ window.sendChatImage = async (input, chatId, otherUid) => {
     }
 };
 
-window.copyProfileLinkFor = (uid) => {
-     playSound('click');
-     const url = `${window.location.href.split('?')[0]}?chat=${uid}`;
-    navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المستخدم!", "success"));
+window.copyProfileLinkFor = async (otherUid) => {
+    playSound('click');
+    if (!activeChatRoomId) {
+        const url = `${window.location.href.split('?')[0]}?chat=${otherUid}`;
+        navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط المستخدم!", "success"));
+        return;
+    }
+    const roomId = activeChatRoomId;
+    const myData = { username: currentUser };
+    const otherSnap = await get(ref(db, `users/students/${otherUid}`)).catch(() => null)
+        || await get(ref(db, `users/teachers/${otherUid}`)).catch(() => null);
+    const otherName = otherSnap?.val()?.username || 'مستخدم';
+    const otherIcon = otherSnap?.val()?.icon || 'fa-user';
+
+    await update(ref(db, `chat_room_meta/${roomId}`), {
+        members: [myUid, otherUid],
+        names: { [myUid]: currentUser, [otherUid]: otherName },
+        icons: { [myUid]: localStorage.getItem('sa_icon') || 'fa-user', [otherUid]: otherIcon }
+    });
+
+    const url = `${window.location.href.split('?')[0]}?room=${roomId}`;
+    if (navigator.share) {
+        navigator.share({ title: `محادثة مع ${otherName}`, text: `افتح محادثتنا على SA EDU`, url }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط الدردشة المباشر!", "success"));
+    }
 };
 
 window.filterChats = (prefix, term) => {
@@ -1037,12 +1365,10 @@ window.openReeseCompose = () => {
     document.getElementById('compose-name').innerText = currentUser;
     reeseImages = []; renderReeseMediaPreview();
     
-    // تحميل الاقتراحات تلقائياً - دائماً ظاهرة
     const container = document.getElementById('ai-reese-suggestions');
     container.innerHTML = '';
     container.classList.remove('hidden');
     
-    // اقتراحات فورية placeholder
     const placeholders = ['✨ جاري التوليد...', '🧠 ...', '💡 ...'];
     placeholders.forEach(ph => {
         const chip = document.createElement('div');
@@ -1053,27 +1379,42 @@ window.openReeseCompose = () => {
         container.appendChild(chip);
     });
     
-    // تحميل اقتراحات حقيقية في الخلفية
     loadReeseAiSuggestionsAuto();
 };
 
+let _lastReeseSuggestions = [];
+
 async function loadReeseAiSuggestionsAuto() {
-    const prompt = `Generate 4 short, creative social media post ideas for a ${selectedRole} on an educational app. Return ONLY a JSON array of strings. Language: Arabic. Max 120 chars each.`;
+    const container = document.getElementById('ai-reese-suggestions');
+    if (!container) return;
+
+    const roleAr = selectedRole === 'teacher' ? 'معلم' : 'طالب';
+    const prevStr = _lastReeseSuggestions.length > 0 ? `اقتراحات سابقة (لا تكررها أبداً): ${_lastReeseSuggestions.join(' | ')}` : '';
+    const categories = selectedRole === 'teacher'
+        ? ['تحفيز الطلاب', 'نصيحة تعليمية', 'فكرة درس مبتكرة', 'سؤال تفاعلي للطلاب']
+        : ['تحفيز ذاتي', 'نصيحة مذاكرة', 'إنجاز شخصي', 'سؤال للمجتمع'];
+
+    const prompt = `أنت مساعد منصة SA EDU التعليمية. اقترح 4 منشورات قصيرة وذكية لـ ${roleAr} على منصة تعليمية اجتماعية. كل اقتراح يجب أن يكون في فئة مختلفة: ${categories.join(', ')}. المنشورات تكون طبيعية وواقعية ومميزة وغير رسمية. ${prevStr}. أعد فقط JSON array من 4 strings باللغة العربية. كل منشور أقل من 130 حرف. لا تكتب أي شيء آخر.`;
+
     try {
         let text = await callPollinationsAI(prompt);
         text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const first = text.indexOf('[');
+        const last = text.lastIndexOf(']');
+        if (first !== -1 && last !== -1) text = text.substring(first, last + 1);
         let suggestions = [];
         try { suggestions = JSON.parse(text); } catch(e) { suggestions = [text]; }
         if (!Array.isArray(suggestions)) suggestions = [text];
-        
-        const container = document.getElementById('ai-reese-suggestions');
-        if (!container) return;
+
+        suggestions = suggestions.filter(s => typeof s === 'string' && s.trim().length > 5);
+        _lastReeseSuggestions = suggestions.slice(0, 4);
+
         container.innerHTML = '';
-        
-        suggestions.slice(0, 4).forEach(sug => {
+        const catIcons = ['✨', '💡', '🔥', '🎯'];
+        suggestions.slice(0, 4).forEach((sug, i) => {
             const chip = document.createElement('div');
             chip.className = 'suggestion-chip';
-            chip.innerHTML = `<i class="fas fa-sparkles" style="color:var(--accent-primary);"></i> ${sug}`;
+            chip.innerHTML = `<span style="font-size:1rem;">${catIcons[i] || '✨'}</span> ${sug}`;
             chip.onclick = () => {
                 document.getElementById('reese-text-input').value = sug;
                 document.getElementById('reese-text-input').focus();
@@ -1081,10 +1422,7 @@ async function loadReeseAiSuggestionsAuto() {
             container.appendChild(chip);
         });
     } catch(e) {
-        const container = document.getElementById('ai-reese-suggestions');
-        if (container) {
-            container.innerHTML = '<div class="suggestion-chip" style="opacity:0.5; pointer-events:none;"><i class="fas fa-wifi-slash"></i> تعذر تحميل الاقتراحات</div>';
-        }
+        container.innerHTML = '<div class="suggestion-chip" style="opacity:0.5; pointer-events:none;"><i class="fas fa-wifi-slash"></i> تعذر تحميل الاقتراحات</div>';
     }
 }
 
@@ -1236,7 +1574,6 @@ window.shareReese = (id) => {
 };
 
 window.generateAiReese = async () => {
-    // إعادة تحميل الاقتراحات
     const container = document.getElementById('ai-reese-suggestions');
     container.innerHTML = '<div class="suggestion-chip" style="opacity:0.5; pointer-events:none;"><i class="fas fa-circle-notch fa-spin"></i> جاري التوليد...</div>';
     await loadReeseAiSuggestionsAuto();
@@ -1249,7 +1586,6 @@ window.startNewChat = (prefix) => {
     currentChatId = generateChatId(); currentChatMessages = []; isIncognito = false;
     document.getElementById(`${prefix}-ai-msgs`).innerHTML = ''; 
     document.getElementById(`${prefix}-incognito-btn`).classList.remove('active');
-    // إعادة زرار الميكروفون
     window.toggleAiSendMic(prefix, '');
     renderAiWelcome(prefix); toggleHistory(false);
 };
@@ -1356,7 +1692,6 @@ window.loadLocalChat = (id) => {
         document.getElementById(`${prefix}-ai-msgs`).innerHTML = '';
         currentChatMessages.forEach(msg => { renderMessageUI(prefix, msg.role, msg.content, msg.image); });
         toggleHistory(false);
-        // إعادة تهيئة أزرار الميكروفون/الإرسال
         window.toggleAiSendMic(prefix, document.getElementById(`${prefix}-ai-input`)?.value || '');
     }
 };
@@ -1412,17 +1747,46 @@ function formatAiResponseText(text) {
 
 function renderMessageUI(prefix, role, text, imgB64) {
     const msgs = document.getElementById(`${prefix}-ai-msgs`);
-    const div = document.createElement('div'); 
-    div.className = `chat-msg ${role}`; 
-    
+    const wrap = document.createElement('div');
+    wrap.className = `chat-msg-wrap ${role}`;
+
+    const div = document.createElement('div');
+    div.className = `chat-msg ${role}`;
+
     if (role === 'ai') {
         div.innerHTML = formatAiResponseText(text);
     } else {
         div.innerHTML = makeLinksClickable(text);
     }
 
-    if(imgB64) { const img = document.createElement('img'); img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`; div.appendChild(img); }
-    msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight;
+    if (imgB64) {
+        const img = document.createElement('img');
+        img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`;
+        div.appendChild(img);
+    }
+
+    wrap.appendChild(div);
+
+    if (role === 'ai' && text) {
+        const actions = document.createElement('div');
+        actions.className = 'msg-ai-actions';
+        let liked = false;
+        actions.innerHTML = `
+            <button class="msg-action-btn like-btn" title="إعجاب" onclick="this.classList.toggle('liked'); this.querySelector('.like-count').innerText = this.classList.contains('liked') ? '1' : '0';">
+                <i class="ph-bold ph-thumbs-up"></i> <span class="like-count">0</span>
+            </button>
+            <button class="msg-action-btn" title="مشاركة" onclick="(()=>{ if(navigator.share) navigator.share({text: \`${text.replace(/`/g,"'").substring(0,200)}\`}); else navigator.clipboard.writeText(\`${text.replace(/`/g,"'").substring(0,300)}\`).then(()=>showToast('تم النسخ','','success',2000)); })()">
+                <i class="ph-bold ph-share-network"></i>
+            </button>
+            <button class="msg-action-btn" title="نسخ" onclick="navigator.clipboard.writeText(\`${text.replace(/`/g,"'")}\`).then(()=>showToast('تم نسخ الرد','','success',2000))">
+                <i class="ph-bold ph-copy"></i>
+            </button>
+        `;
+        wrap.appendChild(actions);
+    }
+
+    msgs.appendChild(wrap);
+    msgs.scrollTop = msgs.scrollHeight;
 }
 
 function loadTeacherTests() {
@@ -1439,10 +1803,12 @@ function loadTeacherTests() {
                 const opt = document.createElement('option'); opt.value = key; opt.innerText = val.title; resultSelect.appendChild(opt);
                 const hiddenStyle = val.isHidden ? 'opacity:0.6; border:1px dashed #666;' : '';
                 const cardWrapper = document.createElement('div'); cardWrapper.className = 'card-wrapper';
+                cardWrapper.setAttribute('data-exam-id', key);
+                const subjectBadge = val.subject ? `<span class="subject-badge">${val.subject}</span>` : '';
                 cardWrapper.innerHTML = `
                     <div class="mini-card" style="${hiddenStyle}">
                         <div class="card-header">
-                            <div><h3 class="card-title">${val.title}</h3><div class="card-meta"><span>${getGradeLabel(val.grade)}</span> • <span>${val.duration} دقيقة</span></div></div>
+                            <div><h3 class="card-title">${val.title}</h3><div class="card-meta">${subjectBadge}<span>${getGradeLabel(val.grade)}</span> • <span>${val.duration} دقيقة</span></div></div>
                             <div class="teacher-badge">نشط</div>
                         </div>
                         <div class="icon-actions">
@@ -1599,6 +1965,7 @@ window.editQuestion = (idx) => {
 
 window.resetCreateForm = () => {
     document.getElementById('new-test-name').value = ''; document.getElementById('new-test-grade').value = ''; document.getElementById('new-test-duration').value = '';
+    const subj = document.getElementById('new-test-subject'); if(subj) subj.value = '';
     document.getElementById('custom-grade-input').classList.add('hidden');
     document.getElementById('create-page-title').innerText = "اختبار جديد";
     document.getElementById('btn-save-test').innerHTML = '<i class="fas fa-save"></i> نشر الاختبار النهائي';
@@ -1619,6 +1986,8 @@ window.editTest = async (testId) => {
     else { gradeSelect.value = 'custom'; document.getElementById('custom-grade-input').classList.remove('hidden'); document.getElementById('custom-grade-input').value = data.grade; }
     currentQuestions = data.questions || []; if(!Array.isArray(currentQuestions)) currentQuestions = Object.values(currentQuestions);
     renderAddedQuestions();
+    const subjectEl = document.getElementById('new-test-subject');
+    if(subjectEl && data.subject) { subjectEl.value = data.subject; }
 };
 
 window.saveTest = async () => {
@@ -1626,8 +1995,17 @@ window.saveTest = async () => {
     const title = document.getElementById('new-test-name').value;
     let grade = document.getElementById('new-test-grade').value; if(grade === 'custom') grade = document.getElementById('custom-grade-input').value;
     const duration = document.getElementById('new-test-duration').value;
-    if(!title || !grade || !duration || currentQuestions.length === 0) return saAlert("البيانات ناقصة (تأكد من إضافة سؤال واحد على الأقل)", "error");
-    const payload = { teacher: currentUser, title, grade, duration, questions: currentQuestions, timestamp: Date.now(), isHidden: false };
+    const subject = document.getElementById('new-test-subject').value;
+    if(!title || !grade || !duration || !subject || currentQuestions.length === 0) {
+        if (!subject) {
+            const el = document.getElementById('new-test-subject');
+            el.classList.add('new-test-subject-required');
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => el.classList.remove('new-test-subject-required'), 1500);
+        }
+        return saAlert("البيانات ناقصة — تأكد من اختيار المادة وإضافة سؤال واحد على الأقل", "error");
+    }
+    const payload = { teacher: currentUser, title, grade, duration, subject, questions: currentQuestions, timestamp: Date.now(), isHidden: false };
     if (isEditingMode && editingTestId) { await update(ref(db, `tests/${editingTestId}`), payload); saAlert("تم تعديل الاختبار بنجاح!", "success"); } 
     else { await push(ref(db, 'tests'), payload); saAlert("تم نشر الاختبار بنجاح!", "success"); }
     resetCreateForm(); switchTab('t-library');
@@ -1637,11 +2015,20 @@ window.checkCustomGrade = (el) => { document.getElementById('custom-grade-input'
 window.toggleTestVisibility = (k, s) => { playSound('click'); update(ref(db, `tests/${k}`), { isHidden: s }); saAlert(s ? "تم إخفاء الاختبار عن الطلاب" : "الاختبار الآن مرئي للطلاب", "info"); };
 window.deleteTest = (k) => { saConfirm("هل أنت متأكد من حذف هذا الاختبار؟", () => { remove(ref(db, `tests/${k}`)); remove(ref(db, `results/${k}`)); saAlert("تم الحذف بنجاح", "success"); }); };
 
-window.shareTest = (title, id) => {
+window.shareTest = async (title, id) => {
     playSound('click');
     const url = `${window.location.href.split('?')[0]}?examId=${id}`;
-    if(navigator.share) { navigator.share({ title: 'SA EDU Exam', text: `ندعوكم لأداء اختبار "${title}"`, url: url }).catch(err=>console.log(err)); } 
-    else { navigator.clipboard.writeText(url).then(() => saAlert("تم نسخ رابط الاختبار المباشر!", "success")); }
+    const snap = await get(ref(db, `tests/${id}`)).catch(() => null);
+    const subject = snap?.val()?.subject || '';
+    const questionCount = snap?.val()?.questions?.length || 0;
+    const duration = snap?.val()?.duration || '';
+    const teacher = snap?.val()?.teacher || '';
+    const shareText = `📚 ${subject ? subject + ' - ' : ''}${title}\n👤 ${teacher}\n❓ ${questionCount} سؤال • ⏱ ${duration} دقيقة\n\nاضغط للدخول للاختبار:`;
+    if (navigator.share) {
+        navigator.share({ title: `اختبار: ${title}`, text: shareText, url }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(`${shareText}\n${url}`).then(() => saAlert("تم نسخ رابط الاختبار!", "success"));
+    }
 };
 function getGradeLabel(c) { return ({'1p':'1 ابتدائي','3s':'3 ثانوي'})[c] || c; }
 
@@ -1711,6 +2098,8 @@ function loadStudentExams() {
         results.forEach(item => {
             if(!item) return; foundExam = true; const { key, val, hasTaken, score } = item;
             const cardWrapper = document.createElement('div'); cardWrapper.className = 'card-wrapper';
+            cardWrapper.setAttribute('data-exam-id', key);
+            const subjectBadge = val.subject ? `<span class="subject-badge">${val.subject}</span>` : '';
             let buttonsHtml = hasTaken ? 
                 `<button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
                     <button class="action-icon edit" onclick="checkPhoneAndStart('${key}')" title="إعادة الاختبار"><i class="fas fa-redo"></i></button>
@@ -1720,7 +2109,7 @@ function loadStudentExams() {
             cardWrapper.innerHTML = `
                 <div class="mini-card">
                     <div class="card-header">
-                        <div><h3 class="card-title">${val.title}</h3><div class="card-meta"><span>${val.teacher}</span> • ${val.duration} دقيقة</div></div>
+                        <div><h3 class="card-title">${val.title}</h3><div class="card-meta">${subjectBadge}<span>${val.teacher}</span> • ${val.duration} دقيقة</div></div>
                         ${hasTaken ? `<span style="color:var(--success); font-weight:bold;">${score}%</span>` : ''}
                     </div>
                     <div class="icon-actions">${buttonsHtml}</div>
@@ -1893,9 +2282,6 @@ window.clearChatImg = (prefix) => {
     document.getElementById(`${prefix}-chat-preview`).style.display = 'none';
 };
 
-// ==========================================
-// تبديل بين زرار الصوت والإرسال في AI chat
-// ==========================================
 window.toggleAiSendMic = (role, value) => {
     const micBtn = document.getElementById(role + '-mic-btn');
     const sendBtn = document.getElementById(role + '-send-btn');
@@ -1909,9 +2295,6 @@ window.toggleAiSendMic = (role, value) => {
     }
 };
 
-// ==========================================
-// Voice Input - إدخال صوتي
-// ==========================================
 let _isRecording = false;
 window._speechRecog = null;
 
@@ -2021,7 +2404,6 @@ window.sendAiMsg = async (prefix) => {
     currentChatMessages.push({ role: 'user', content: txt, image: imgB64 });
     renderMessageUI(prefix, 'user', txt, imgB64);
     input.value = '';
-    // إعادة زرار الميكروفون بعد الإرسال
     window.toggleAiSendMic(prefix, '');
     saveChatToLocal();
     
@@ -2034,12 +2416,12 @@ window.sendAiMsg = async (prefix) => {
     msgs.scrollTop = msgs.scrollHeight;
     
     try {
-        let finalPrompt = "Reply in Arabic. ";
+        let finalPrompt = "";
         
         if(selectedRole === 'student') {
-            finalPrompt += "You are a helpful study assistant for a student. Explain things simply. ";
+            finalPrompt += `أنت مساعد دراسي ذكي اسمه SA AI للطلاب. أجب باللغة العربية. حجم إجابتك يجب أن يتناسب مع السؤال: الأسئلة البسيطة والتحيات تحتاج ردود قصيرة (جملة أو اثنتان)، الأسئلة التفسيرية تحتاج شرح متوسط، والأسئلة المعقدة تحتاج إجابة مفصلة. لا تطول إذا السؤال لا يحتاج لذلك. `;
         } else {
-            finalPrompt += "You are an assistant for a teacher. Help with lesson planning and professional tasks. ";
+            finalPrompt += `أنت مساعد معلمين ذكي اسمه SA AI. أجب باللغة العربية. حجم إجابتك يجب أن يتناسب مع السؤال: الأسئلة البسيطة ردود قصيرة، والأسئلة التفصيلية ردود شاملة. `;
         }
 
         if (ocrText) {
@@ -2121,6 +2503,393 @@ window.generateAiQuestions = async () => {
         toggleConstructionOverlay(false);
         saAlert("فشل البناء. حاول مرة أخرى.", "error"); 
     }
+};
+
+window.openStudentAnalytics = async () => {
+    playSound('click');
+    switchTab('s-analytics');
+    const content = document.getElementById('student-analytics-content');
+    content.innerHTML = '<div style="text-align:center;padding:40px;"><div class="analytics-loading-spin"></div><p style="color:#888;margin-top:15px;">جاري تحليل مستواك...</p></div>';
+
+    const testSnap = await get(ref(db, 'tests'));
+    const allTests = testSnap.val() || {};
+    let totalScore = 0, totalPossible = 0, examCount = 0;
+    let grades = {}, subjectStats = {}, weeklyData = {};
+
+    for (const [testId, testData] of Object.entries(allTests)) {
+        const resSnap = await get(ref(db, `results/${testId}/${currentUser}`));
+        if (resSnap.exists()) {
+            const res = resSnap.val();
+            examCount++;
+            totalScore += res.score;
+            totalPossible += res.total;
+            if (testData.grade) grades[testData.grade] = (grades[testData.grade] || 0) + 1;
+
+            let subject = testData.subject || "عام";
+            if (!testData.subject && testData.title) {
+                if (testData.title.includes("فيزياء")) subject = "فيزياء";
+                else if (testData.title.includes("كيمياء")) subject = "كيمياء";
+                else if (testData.title.includes("أحياء")) subject = "أحياء";
+                else if (testData.title.includes("رياضيات")) subject = "رياضيات";
+                else if (testData.title.includes("عربي")) subject = "لغة عربية";
+                else if (testData.title.includes("نجليزي") || testData.title.includes("انجليزي")) subject = "إنجليزية";
+            }
+            if (!subjectStats[subject]) subjectStats[subject] = { score: 0, total: 0, count: 0 };
+            subjectStats[subject].score += res.score;
+            subjectStats[subject].total += res.total;
+            subjectStats[subject].count++;
+
+            const weekKey = new Date(res.timestamp).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+            if (!weeklyData[weekKey]) weeklyData[weekKey] = { score: 0, total: 0 };
+            weeklyData[weekKey].score += res.score;
+            weeklyData[weekKey].total += res.total;
+        }
+    }
+
+    if (examCount === 0) {
+        content.innerHTML = '<div style="text-align:center;padding:40px;color:#888;"><div style="font-size:3rem;margin-bottom:15px;">📊</div><p>لم تقم بأي اختبارات بعد</p></div>';
+        return;
+    }
+
+    const overallPct = Math.round((totalScore / totalPossible) * 100);
+    let levelLabel = "مبتدئ", levelColor = "#aaa";
+    if (overallPct >= 90) { levelLabel = "عبقري"; levelColor = "var(--accent-gold)"; }
+    else if (overallPct >= 75) { levelLabel = "ممتاز"; levelColor = "var(--success)"; }
+    else if (overallPct >= 60) { levelLabel = "جيد جداً"; levelColor = "var(--accent-primary)"; }
+    else if (overallPct >= 50) { levelLabel = "جيد"; levelColor = "var(--warning)"; }
+    else { levelLabel = "يحتاج تحسين"; levelColor = "var(--danger)"; }
+
+    const xpData = getXPData();
+    const xpLevel = getCurrentLevel(xpData.totalXP);
+
+    const subjectEntries = Object.entries(subjectStats);
+    const worstSubject = subjectEntries.reduce((w, [s, d]) => {
+        const p = d.total > 0 ? d.score / d.total : 1;
+        return p < (w.pct ?? 1) ? { name: s, pct: p } : w;
+    }, { name: '-', pct: 1 });
+
+    const weeklyEntries = Object.entries(weeklyData).slice(-7);
+    const maxWeekly = Math.max(...weeklyEntries.map(([, d]) => d.total > 0 ? Math.round(d.score / d.total * 100) : 0), 1);
+
+    const subjectBars = subjectEntries.map(([subj, data]) => {
+        const pct = Math.round((data.score / data.total) * 100);
+        const col = pct >= 75 ? 'var(--success)' : pct >= 50 ? 'var(--accent-gold)' : 'var(--danger)';
+        return `<div class="ana-subject-row">
+            <div class="ana-subject-label">${subj}</div>
+            <div class="ana-bar-wrap"><div class="ana-bar-fill" style="width:${pct}%;background:${col};"></div></div>
+            <div class="ana-subject-pct" style="color:${col};">${pct}%</div>
+        </div>`;
+    }).join('');
+
+    const weeklyBars = weeklyEntries.map(([dateKey, data]) => {
+        const pct = data.total > 0 ? Math.round(data.score / data.total * 100) : 0;
+        const h = Math.round((pct / maxWeekly) * 100);
+        const col = pct >= 75 ? 'var(--success)' : pct >= 50 ? 'var(--accent-gold)' : 'var(--danger)';
+        return `<div class="ana-chart-bar-wrap">
+            <div class="ana-chart-bar-pct">${pct}%</div>
+            <div class="ana-chart-bar" style="height:${Math.max(h, 5)}%;background:${col};"></div>
+            <div class="ana-chart-label">${dateKey}</div>
+        </div>`;
+    }).join('');
+
+    const donutOffset = 100 - overallPct;
+
+    content.innerHTML = `
+        <div class="ana-hero">
+            <div class="ana-donut-wrap">
+                <svg viewBox="0 0 36 36" class="ana-donut-svg">
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1a1a1a" stroke-width="3.8"/>
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="${levelColor}" stroke-width="3.8"
+                        stroke-dasharray="${overallPct} ${100-overallPct}" stroke-dashoffset="25"
+                        stroke-linecap="round" class="ana-donut-ring"/>
+                </svg>
+                <div class="ana-donut-center">
+                    <div class="ana-donut-pct" style="color:${levelColor};">${overallPct}%</div>
+                    <div class="ana-donut-lbl">${levelLabel}</div>
+                </div>
+            </div>
+            <div class="ana-hero-stats">
+                <div class="ana-stat-chip"><span class="ana-stat-val">${examCount}</span><span class="ana-stat-name">اختبار</span></div>
+                <div class="ana-stat-chip"><span class="ana-stat-val" style="color:var(--accent-gold);">⚡${xpData.totalXP}</span><span class="ana-stat-name">XP</span></div>
+                <div class="ana-stat-chip"><span class="ana-stat-val" style="color:#f97316;">🔥${xpData.streak}</span><span class="ana-stat-name">أيام</span></div>
+                <div class="ana-stat-chip"><span class="ana-stat-val">${xpLevel.icon}</span><span class="ana-stat-name">${xpLevel.name}</span></div>
+            </div>
+        </div>
+
+        <div class="ana-section-title"><i class="ph-bold ph-chart-bar"></i> أداء المواد</div>
+        <div class="ana-subjects">${subjectBars}</div>
+
+        <div class="ana-section-title"><i class="ph-bold ph-trend-up"></i> التقدم الأسبوعي</div>
+        <div class="ana-chart-area">${weeklyBars}</div>
+
+        <div class="ana-insights">
+            <div class="ana-insight-card warn">
+                <i class="ph-bold ph-warning-circle"></i>
+                <div>
+                    <div style="font-weight:700;margin-bottom:3px;">أضعف مادة</div>
+                    <div style="color:#aaa;font-size:0.85rem;">${worstSubject.name !== '-' ? worstSubject.name + ' · ' + Math.round(worstSubject.pct*100) + '%' : 'لا بيانات'}</div>
+                </div>
+            </div>
+            <div class="ana-insight-card ok">
+                <i class="ph-bold ph-medal"></i>
+                <div>
+                    <div style="font-weight:700;margin-bottom:3px;">الشارات</div>
+                    <div style="color:#aaa;font-size:0.85rem;">${xpData.earnedBadges.length} شارة مكتسبة</div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center;font-size:0.75rem;color:#555;margin-top:15px;">بناءً على ${examCount} اختبار</div>
+    `;
+};
+
+
+const XP_LEVELS = [
+    { name: 'مبتدئ', minXP: 0, maxXP: 200, cssClass: 'level-1', icon: '🌱', unlocks: 'اختبارات سهلة' },
+    { name: 'متوسط', minXP: 200, maxXP: 600, cssClass: 'level-2', icon: '📘', unlocks: 'تحديات أصعب' },
+    { name: 'متقدم', minXP: 600, maxXP: 1200, cssClass: 'level-3', icon: '⚡', unlocks: 'وضع تحدي الوقت' },
+    { name: 'خبير', minXP: 1200, maxXP: Infinity, cssClass: 'level-4', icon: '👑', unlocks: 'لوحة الشرف الذهبية' }
+];
+
+const BADGES_DEF = [
+    { id: 'first_exam', label: '🥇 أول اختبار', condition: (s) => s.totalExams >= 1 },
+    { id: 'streak5', label: '🔥 5 أيام متتالية', condition: (s) => s.streak >= 5 },
+    { id: 'correct100', label: '🎯 100 إجابة صحيحة', condition: (s) => s.correctAnswers >= 100 },
+    { id: 'speed_demon', label: '⚡ منهي سريع', condition: (s) => s.fastFinishes >= 1 },
+    { id: 'perfect', label: '💯 إجابة مثالية', condition: (s) => s.perfectExams >= 1 },
+    { id: 'streak3', label: '🔥 3 أيام متتالية', condition: (s) => s.streak >= 3 },
+];
+
+const DAILY_XP_GOAL = 50;
+const REWARD_BOX_THRESHOLD = 200;
+
+function getXPData() {
+    const key = `xp_data_${currentUser}`;
+    const raw = localStorage.getItem(key);
+    if (raw) return JSON.parse(raw);
+    return {
+        totalXP: 0,
+        dailyXP: 0,
+        dailyDate: '',
+        streak: 0,
+        lastPlayDate: '',
+        totalExams: 0,
+        correctAnswers: 0,
+        fastFinishes: 0,
+        perfectExams: 0,
+        earnedBadges: [],
+        lifetimeXP: 0,
+        rewardBoxCount: 0,
+        lastRewardAt: 0,
+    };
+}
+
+function saveXPData(data) {
+    localStorage.setItem(`xp_data_${currentUser}`, JSON.stringify(data));
+}
+
+function getCurrentLevel(xp) {
+    for (let i = XP_LEVELS.length - 1; i >= 0; i--) {
+        if (xp >= XP_LEVELS[i].minXP) return XP_LEVELS[i];
+    }
+    return XP_LEVELS[0];
+}
+
+function updateStreakOnLogin() {
+    const data = getXPData();
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (data.lastPlayDate === today) return data;
+    if (data.lastPlayDate === yesterday) {
+        data.streak += 1;
+    } else if (data.lastPlayDate !== '') {
+        data.streak = 1;
+    } else {
+        data.streak = 1;
+    }
+    data.lastPlayDate = today;
+    if (today !== data.dailyDate) {
+        data.dailyXP = 0;
+        data.dailyDate = today;
+    }
+    saveXPData(data);
+    return data;
+}
+
+function showXPGainToast(amount, reason) {
+    const el = document.createElement('div');
+    el.className = 'xp-gain-toast';
+    el.innerHTML = `+${amount} XP ${reason}`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2100);
+}
+
+function checkAndAwardBadges(data) {
+    let newBadge = false;
+    BADGES_DEF.forEach(b => {
+        if (!data.earnedBadges.includes(b.id) && b.condition(data)) {
+            data.earnedBadges.push(b.id);
+            newBadge = true;
+            showToast('شارة جديدة! ' + b.label, '', 'success', 4000);
+        }
+    });
+    return newBadge;
+}
+
+function checkRewardBox(data) {
+    const boxes = Math.floor(data.lifetimeXP / REWARD_BOX_THRESHOLD);
+    if (boxes > data.rewardBoxCount) {
+        data.rewardBoxCount = boxes;
+        const rewards = [
+            { title: '🎉 +30 XP مجاني!', msg: 'حظ سعيد! حصلت على مكافأة XP.', xp: 30 },
+            { title: '🏅 لقب خاص: نجم ساطع', msg: 'أنت تستحق هذا اللقب!', xp: 0 },
+            { title: '⚡ +50 XP بونص!', msg: 'استمر في التقدم!', xp: 50 },
+        ];
+        const r = rewards[Math.floor(Math.random() * rewards.length)];
+        if (r.xp > 0) { data.totalXP += r.xp; data.lifetimeXP += r.xp; data.dailyXP += r.xp; }
+        document.getElementById('xp-reward-title').innerText = r.title;
+        document.getElementById('xp-reward-msg').innerText = r.msg;
+        document.getElementById('xp-reward-modal').classList.remove('hidden');
+        document.getElementById('xp-reward-icon').style.animation = 'none';
+        setTimeout(() => { document.getElementById('xp-reward-icon').style.animation = 'rewardPop 0.5s ease'; }, 50);
+    }
+    return data;
+}
+
+function awardXP(baseXP, reason, opts = {}) {
+    if (selectedRole !== 'student') return;
+    let data = getXPData();
+    const today = new Date().toDateString();
+    if (today !== data.dailyDate) { data.dailyXP = 0; data.dailyDate = today; }
+
+    let bonus = 0;
+    let bonusMsg = '';
+    if (opts.allCorrect) { bonus += Math.round(baseXP * 0.5); bonusMsg += ' 🎯بونص مثالي'; }
+    if (opts.fast) { bonus += Math.round(baseXP * 0.3); bonusMsg += ' ⚡بونص سرعة'; }
+
+    let multiplier = 1;
+    if (data.streak >= 3) { multiplier = 1.5; bonusMsg += ' 🔥×1.5'; }
+
+    const earned = Math.round((baseXP + bonus) * multiplier);
+    data.totalXP += earned;
+    data.lifetimeXP += earned;
+    data.dailyXP += earned;
+    if (opts.examCompleted) data.totalExams += 1;
+    if (opts.correctCount) data.correctAnswers += opts.correctCount;
+    if (opts.fast) data.fastFinishes += 1;
+    if (opts.allCorrect) data.perfectExams += 1;
+
+    checkAndAwardBadges(data);
+    data = checkRewardBox(data);
+    saveXPData(data);
+
+    showXPGainToast(earned, reason + bonusMsg);
+    renderXPHud();
+}
+
+function renderXPHud() {
+    if (selectedRole !== 'student') return;
+    const data = getXPData();
+    const level = getCurrentLevel(data.totalXP);
+    const el = document.getElementById('xp-level-badge');
+    if (el) {
+        el.className = 'xp-level-badge ' + level.cssClass;
+        document.getElementById('xp-level-name').innerText = level.icon + ' ' + level.name;
+    }
+    const sc = document.getElementById('xp-streak-count');
+    if (sc) sc.innerText = data.streak;
+    const tc = document.getElementById('xp-total-count');
+    if (tc) tc.innerText = data.totalXP;
+    const pct = Math.min(100, Math.round((data.dailyXP / DAILY_XP_GOAL) * 100));
+    const fill = document.getElementById('xp-daily-fill');
+    if (fill) fill.style.width = pct + '%';
+    const lbl = document.getElementById('xp-daily-label');
+    if (lbl) lbl.innerText = `${data.dailyXP} / ${DAILY_XP_GOAL} XP`;
+
+    const badgesRow = document.getElementById('xp-badges-row');
+    if (badgesRow) {
+        badgesRow.innerHTML = '';
+        data.earnedBadges.forEach(bid => {
+            const def = BADGES_DEF.find(b => b.id === bid);
+            if (def) {
+                const chip = document.createElement('div');
+                chip.className = 'xp-badge-chip';
+                chip.innerText = def.label;
+                badgesRow.appendChild(chip);
+            }
+        });
+    }
+}
+
+window.openLeaderboard = async () => {
+    document.getElementById('leaderboard-modal').classList.remove('hidden');
+    const list = document.getElementById('leaderboard-list');
+    list.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>';
+
+    const myData = getXPData();
+    await update(ref(db, `xp_scores/${currentUser}`), { xp: myData.totalXP, name: currentUser });
+
+    const snap = await get(ref(db, 'xp_scores'));
+    list.innerHTML = '';
+    if (!snap.exists()) { list.innerHTML = '<p style="color:#666; text-align:center;">لا يوجد بيانات بعد</p>'; return; }
+
+    const entries = [];
+    snap.forEach(child => { entries.push({ name: child.val().name || child.key, xp: child.val().xp || 0 }); });
+    entries.sort((a, b) => b.xp - a.xp);
+
+    const medals = ['🥇', '🥈', '🥉'];
+    entries.slice(0, 10).forEach((entry, i) => {
+        const div = document.createElement('div');
+        div.className = 'leaderboard-item' + (i < 3 ? ` top-${i+1}` : '');
+        const isMe = entry.name === currentUser;
+        div.innerHTML = `
+            <div class="leaderboard-rank">${medals[i] || (i+1)}</div>
+            <div class="leaderboard-name">${entry.name}${isMe ? ' <span style="color:var(--accent-primary); font-size:0.75rem;">(أنت)</span>' : ''}</div>
+            <div class="leaderboard-xp"><i class="fas fa-bolt"></i> ${entry.xp} XP</div>
+        `;
+        list.appendChild(div);
+    });
+    if (entries.length === 0) list.innerHTML = '<p style="color:#666; text-align:center;">لا يوجد بيانات كافية بعد</p>';
+};
+
+const _origSubmitExam = window.submitExam;
+window.submitExam = async function() {
+    const startTime = window._examStartTime || Date.now();
+    const durationMs = (activeTest ? activeTest.duration * 60 * 1000 : 999999999);
+    const elapsed = Date.now() - startTime;
+    const fast = elapsed < durationMs * 0.5;
+
+    let score = 0, total = 0;
+    const questions = activeTest ? activeTest.questions || [] : [];
+    questions.forEach((q, i) => {
+        const pts = parseInt(q.points) || 1;
+        total += pts;
+        if (q.type === 'essay') { if (answers[i] && answers[i].trim().length > 2) score += pts; }
+        else { if (answers[i] === q.correct) score += pts; }
+    });
+    const allCorrect = total > 0 && score === total;
+    const correctCount = questions.filter((q, i) => {
+        if (q.type === 'essay') return answers[i] && answers[i].trim().length > 2;
+        return answers[i] === q.correct;
+    }).length;
+    const baseXP = Math.max(10, Math.round((score / Math.max(total, 1)) * 50));
+
+    await _origSubmitExam.call(this);
+
+    const xpData = getXPData();
+    const streakMultiplier = xpData.streak >= 3 ? 1.5 : 1;
+    awardXP(baseXP, '🎓 إتمام اختبار', {
+        allCorrect,
+        fast,
+        examCompleted: true,
+        correctCount,
+    });
+    renderXPHud();
+};
+
+const _origStartTest = window.startTest;
+window.startTest = async function(id) {
+    window._examStartTime = Date.now();
+    await _origStartTest.call(this, id);
 };
 
 const savedUser = localStorage.getItem('sa_user'); const savedRole = localStorage.getItem('sa_role'); const savedIcon = localStorage.getItem('sa_icon'); const savedUid = localStorage.getItem('sa_uid');
