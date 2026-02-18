@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -27,6 +26,7 @@
     <link rel="canonical" href="https://sa-edu.com">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" defer></script>
     <link rel="stylesheet" href="style.css">
     <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
     <script type="application/ld+json">
@@ -179,7 +179,12 @@
                                 <div class="avatar-frame mini-frame" id="t-chat-my-avatar"></div>
                                 <span>دردشة</span>
                             </div>
-                            <button class="icon-btn-small" onclick="toggleUserSearchModal()"><i class="fas fa-plus"></i></button>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                <button class="icon-btn-small voice-room-entry-btn" onclick="openVoiceRooms()" title="غرف الصوت">
+                                    <i class="ph-bold ph-microphone"></i>
+                                </button>
+                                <button class="icon-btn-small" onclick="toggleUserSearchModal()"><i class="fas fa-plus"></i></button>
+                            </div>
                         </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
@@ -229,6 +234,22 @@
                     </select>
                     <input type="number" id="new-test-duration" class="smart-input" placeholder="المدة (د)" style="width: 100px; text-align: center;">
                 </div>
+                <select id="new-test-subject" class="smart-input" style="margin-top:0; border-color: rgba(255,255,255,0.1);" required>
+                    <option value="" disabled selected>📚 اختر المادة (مطلوب) *</option>
+                    <option value="رياضيات">📐 رياضيات</option>
+                    <option value="فيزياء">⚡ فيزياء</option>
+                    <option value="كيمياء">🧪 كيمياء</option>
+                    <option value="أحياء">🌿 أحياء</option>
+                    <option value="لغة عربية">📖 لغة عربية</option>
+                    <option value="لغة إنجليزية">🌍 لغة إنجليزية</option>
+                    <option value="تاريخ">🏛️ تاريخ</option>
+                    <option value="جغرافيا">🗺️ جغرافيا</option>
+                    <option value="علوم">🔬 علوم</option>
+                    <option value="حاسب آلي">💻 حاسب آلي</option>
+                    <option value="دراسات اجتماعية">📚 دراسات اجتماعية</option>
+                    <option value="تربية دينية">🕌 تربية دينية</option>
+                    <option value="أخرى">📝 أخرى</option>
+                </select>
                 <input type="text" id="custom-grade-input" class="smart-input hidden" placeholder="اكتب اسم الصف هنا..." style="border-color: var(--accent-gold);">
                 <div id="q-editor-box" style="background: #151515; padding: 20px; border-radius: 20px; border: 1px solid #333; margin-top: 20px;">
                     <h3 style="font-size: 1rem; color: #888; margin-top: 0; margin-bottom: 15px;">إضافة سؤال</h3>
@@ -319,6 +340,29 @@
         <div class="portal-container">
             <section id="s-exams" class="app-section">
                 <div class="mobile-spacer"></div>
+                <div id="xp-hud" class="xp-hud">
+                    <div class="xp-hud-top">
+                        <div class="xp-level-badge" id="xp-level-badge">
+                            <i class="fas fa-star"></i> <span id="xp-level-name">مبتدئ</span>
+                        </div>
+                        <div class="xp-streak" id="xp-streak-display">
+                            <i class="fas fa-fire" style="color:#f97316;"></i> <span id="xp-streak-count">0</span> يوم
+                        </div>
+                        <div class="xp-total" id="xp-total-display">
+                            <i class="fas fa-bolt" style="color:var(--accent-gold);"></i> <span id="xp-total-count">0</span> XP
+                        </div>
+                    </div>
+                    <div class="xp-daily-goal-wrap">
+                        <div class="xp-daily-goal-label">
+                            <span>هدف اليوم</span>
+                            <span id="xp-daily-label">0 / 50 XP</span>
+                        </div>
+                        <div class="xp-daily-bar">
+                            <div class="xp-daily-fill" id="xp-daily-fill" style="width:0%"></div>
+                        </div>
+                    </div>
+                    <div class="xp-badges-row" id="xp-badges-row"></div>
+                </div>
                 <div class="search-wrap">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" class="google-bar" id="s-search" placeholder="ابحث عن اختبار...">
@@ -377,7 +421,12 @@
                                 <div class="avatar-frame mini-frame" id="s-chat-my-avatar"></div>
                                 <span>دردشة</span>
                             </div>
-                            <button class="icon-btn-small" onclick="toggleUserSearchModal()"><i class="fas fa-plus"></i></button>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                <button class="icon-btn-small voice-room-entry-btn" onclick="openVoiceRooms()" title="غرف الصوت">
+                                    <i class="ph-bold ph-microphone"></i>
+                                </button>
+                                <button class="icon-btn-small" onclick="toggleUserSearchModal()"><i class="fas fa-plus"></i></button>
+                            </div>
                         </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
@@ -391,7 +440,12 @@
 
             <section id="s-grades" class="app-section hidden">
                 <div class="mobile-spacer"></div>
-                <h2 style="margin-bottom: 20px;">لوحة الشرف (درجاتي)</h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="margin:0;">لوحة الشرف (درجاتي)</h2>
+                    <button onclick="openLeaderboard()" style="background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3); color:var(--accent-gold); padding:8px 14px; border-radius:20px; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:6px; font-family:var(--font-main);">
+                        <i class="fas fa-trophy"></i> المتصدرون
+                    </button>
+                </div>
                 <div id="s-grades-list"></div>
             </section>
 
@@ -624,6 +678,25 @@
         </div>
     </div>
 
+    <div id="xp-reward-modal" class="hidden">
+        <div class="bottom-sheet-content" style="background:#111; text-align:center;">
+            <i class="fas fa-gift" id="xp-reward-icon" style="font-size:4rem; color:var(--accent-gold); display:block; margin-bottom:15px;"></i>
+            <h2 id="xp-reward-title" style="color:var(--accent-gold);">🎁 صندوق مكافآت!</h2>
+            <p id="xp-reward-msg" style="color:#aaa; font-size:1rem; margin-bottom:20px;"></p>
+            <button onclick="document.getElementById('xp-reward-modal').classList.add('hidden')" class="modern-btn">رائع! <i class="fas fa-thumbs-up"></i></button>
+        </div>
+    </div>
+
+    <div id="leaderboard-modal" class="hidden">
+        <div class="bottom-sheet-content" style="background:#111; max-height:85vh;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="margin:0;"><i class="fas fa-trophy" style="color:var(--accent-gold);"></i> لوحة المتصدرين</h3>
+                <button onclick="document.getElementById('leaderboard-modal').classList.add('hidden')" style="background:none; border:none; color:#fff;"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+            <div id="leaderboard-list"></div>
+        </div>
+    </div>
+
     <div id="sa-custom-alert" class="">
         <div class="sa-alert-box">
             <div id="sa-alert-icon" class="sa-alert-icon"></div>
@@ -720,6 +793,95 @@
     }
     </script>
 
+    <!-- ============ VOICE ROOMS SYSTEM ============ -->
+    <div id="voice-audio-container" style="display:none;"></div>
+
+    <!-- Voice Rooms List Panel -->
+    <div class="vr-panel-backdrop" onclick="closeVoiceRooms()"></div>
+    <div id="voice-rooms-panel" class="vr-panel">
+        <div class="vr-panel-handle"></div>
+        <div class="vr-panel-header">
+            <div>
+                <div class="vr-panel-title"><i class="ph-bold ph-microphone"></i> غرف الصوت</div>
+                <div class="vr-panel-sub">تحدث مع الجميع مباشرة</div>
+            </div>
+            <button class="icon-btn-small" onclick="closeVoiceRooms()"><i class="ph-bold ph-x"></i></button>
+        </div>
+
+        <div class="vr-create-box">
+            <input type="text" id="voice-room-name-input" class="vr-name-input" placeholder="اسم الغرفة (اختياري)..." maxlength="30">
+            <button class="vr-create-btn" onclick="voiceCreateRoom()">
+                <i class="ph-bold ph-plus-circle"></i> إنشاء غرفة جديدة
+            </button>
+        </div>
+
+        <div class="vr-divider"><span>الغرف المفتوحة</span></div>
+
+        <div id="voice-rooms-list" class="vr-rooms-list">
+            <div class="vr-loading"><div class="vr-spin"></div></div>
+        </div>
+    </div>
+
+    <!-- Audio Permission Gate -->
+    <div id="voice-audio-gate" class="vr-gate">
+        <div class="vr-gate-card">
+            <button class="vr-gate-close" onclick="closeVoiceGate()"><i class="ph-bold ph-x"></i></button>
+            <div class="vr-gate-icon">
+                <i class="ph-bold ph-microphone"></i>
+                <div class="vr-gate-ripple"></div>
+                <div class="vr-gate-ripple" style="animation-delay:0.4s"></div>
+            </div>
+            <div class="vr-gate-title">الوصول للمايكروفون</div>
+            <div class="vr-gate-desc">SA EDU تحتاج إذن للمايكروفون لتفعيل المكالمة الصوتية الجماعية</div>
+            <button id="voice-gate-btn" class="vr-gate-btn" onclick="voiceConfirmEntry()">
+                <i class="ph-bold ph-microphone"></i> دخول الغرفة
+            </button>
+        </div>
+    </div>
+
+    <!-- Active Voice Room Full Screen -->
+    <div id="voice-room-screen" class="vr-room-screen">
+        <div class="vr-room-bg"></div>
+
+        <div class="vr-room-topbar">
+            <div class="vr-live-badge"><span class="vr-pulse"></span> مباشر</div>
+            <div>
+                <div id="vroom-name" class="vr-room-title">غرفة صوتية</div>
+                <div id="vroom-count" class="vr-room-count">0 مشارك</div>
+            </div>
+            <button class="vr-topbar-btn" onclick="voiceShareRoom()" title="مشاركة">
+                <i class="ph-bold ph-share-network"></i>
+            </button>
+        </div>
+
+        <div id="voice-users-grid" class="vr-users-grid"></div>
+
+        <!-- Filters popup -->
+        <div id="vr-filter-menu" class="vr-filter-menu">
+            <div class="vr-filter-opt active" onclick="voiceApplyFilter('none', this)"><i class="ph-bold ph-wave-sawtooth"></i><span>عادي</span></div>
+            <div class="vr-filter-opt" onclick="voiceApplyFilter('deep', this)"><i class="ph-bold ph-equalizer"></i><span>عميق</span></div>
+            <div class="vr-filter-opt" onclick="voiceApplyFilter('echo', this)"><i class="ph-bold ph-arrows-clockwise"></i><span>صدى</span></div>
+            <div class="vr-filter-opt" onclick="voiceApplyFilter('robot', this)"><i class="ph-bold ph-robot"></i><span>روبوت</span></div>
+        </div>
+
+        <!-- Dock -->
+        <div class="vr-dock-wrap">
+            <div class="vr-dock">
+                <button id="vr-mic-btn" class="vr-dock-btn active" onclick="voiceToggleMic()" title="كتم/تشغيل">
+                    <i class="ph-bold ph-microphone"></i>
+                </button>
+                <button class="vr-dock-btn" onclick="voiceToggleFilters()" title="فلاتر الصوت">
+                    <i class="ph-bold ph-sliders-horizontal"></i>
+                </button>
+                <button class="vr-dock-btn danger" onclick="voiceExitRoom()" title="مغادرة">
+                    <i class="ph-bold ph-phone-disconnect"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- ============ END VOICE ROOMS ============ -->
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
