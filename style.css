@@ -3213,19 +3213,32 @@ animation: shakeField 0.4s ease;
 
 @keyframes slideOutRight {
     from { transform: translateX(0); opacity: 1; }
-    to   { transform: translateX(60px); opacity: 0; }
+    to   { transform: translateX(40%); opacity: 0; }
 }
 @keyframes slideOutLeft {
     from { transform: translateX(0); opacity: 1; }
-    to   { transform: translateX(-60px); opacity: 0; }
+    to   { transform: translateX(-40%); opacity: 0; }
 }
 @keyframes slideInRight {
-    from { transform: translateX(-60px); opacity: 0; }
+    from { transform: translateX(-40%); opacity: 0; }
     to   { transform: translateX(0); opacity: 1; }
 }
 @keyframes slideInLeft {
-    from { transform: translateX(60px); opacity: 0; }
+    from { transform: translateX(40%); opacity: 0; }
     to   { transform: translateX(0); opacity: 1; }
+}
+
+.app-section.sliding-out-right,
+.app-section.sliding-out-left {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+.app-section.sliding-in-right,
+.app-section.sliding-in-left {
+    position: relative;
+    z-index: 2;
 }
 
 /* ---- SWIPE PROGRESS BAR (Facebook-like) ---- */
@@ -4293,3 +4306,165 @@ animation: shakeField 0.4s ease;
 
 /* ══ PATCH v5.1 — Hide tab dots permanently ══ */
 #tab-dots, .tab-dots, .tab-dot { display: none !important; }
+
+/* ══════════════════════════════════════════
+   PATCH v5.2 — Exam BG + Chat BG + AI chips
+   ══════════════════════════════════════════ */
+
+/* ── EXAMS SECTION BEAUTIFUL BACKGROUND ── */
+.exams-section {
+    position: relative;
+    min-height: 100%;
+}
+.exams-bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(59,130,246,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 30% at 90% 50%, rgba(217,70,239,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(16,185,129,0.08) 0%, transparent 60%),
+        #000;
+    animation: examBgPulse 8s ease-in-out infinite alternate;
+}
+.exams-section > *:not(.exams-bg-layer) {
+    position: relative;
+    z-index: 1;
+}
+@keyframes examBgPulse {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+/* Floating particles behind exams */
+.exams-bg-layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle 1px at 20% 30%, rgba(59,130,246,0.4) 0%, transparent 100%),
+        radial-gradient(circle 1px at 80% 20%, rgba(217,70,239,0.3) 0%, transparent 100%),
+        radial-gradient(circle 2px at 60% 70%, rgba(16,185,129,0.3) 0%, transparent 100%),
+        radial-gradient(circle 1px at 40% 60%, rgba(255,215,0,0.25) 0%, transparent 100%),
+        radial-gradient(circle 1px at 15% 80%, rgba(59,130,246,0.25) 0%, transparent 100%);
+    animation: floatParticles 12s ease-in-out infinite alternate;
+}
+@keyframes floatParticles {
+    0%   { transform: translateY(0px); }
+    100% { transform: translateY(-20px); }
+}
+
+/* ── CHAT WINDOW BEAUTIFUL BACKGROUND ── */
+.chat-msgs-area {
+    background:
+        radial-gradient(ellipse 100% 60% at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 50% at 100% 100%, rgba(217,70,239,0.04) 0%, transparent 60%),
+        #000 !important;
+    background-attachment: local !important;
+}
+
+/* Subtle chat pattern overlay */
+.chat-msgs-area::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: 
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.5) 0px, transparent 1px, transparent 40px, rgba(255,255,255,0.5) 41px),
+        repeating-linear-gradient(-45deg, rgba(255,255,255,0.5) 0px, transparent 1px, transparent 40px, rgba(255,255,255,0.5) 41px);
+}
+
+/* ── AI CHIPS ROTATION ANIMATION ── */
+.ai-welcome-chips-grid {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Refresh chips hint */
+.ai-chip-v2 {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ai-chip-v2::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.ai-chip-v2:active::after { opacity: 1; }
+.ai-chip-v2:active { transform: scale(0.95); }
+
+/* ── EXAM RESULT OVERLAY ── */
+#exam-result-overlay {
+    animation: examResultIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes examResultIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── NO DOTS ── */
+#tab-dots, .tab-dots, .tab-dot { display: none !important; }
+
+/* ── AI messages: user right, AI below full width ── */
+.chat-msg-wrap.user {
+    display: flex !important;
+    justify-content: flex-end !important;
+    padding: 4px 0 !important;
+    background: transparent !important;
+}
+
+/* Ensure AI messages don't share same side */
+.ai-full-msg + .chat-msg-wrap.user,
+.chat-msg-wrap.user + .ai-full-msg {
+    margin-top: 6px;
+}
+
+/* ── VOICE MESSAGE: simple functional ── */
+.voice-msg-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(59,130,246,0.12);
+    border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 20px;
+    min-width: 180px;
+    max-width: 260px;
+}
+.voice-play-btn {
+    width: 36px; height: 36px;
+    background: var(--blue);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: 0.15s;
+}
+.voice-play-btn:active { transform: scale(0.92); }
+.voice-waveform-mini {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 24px;
+}
+.voice-waveform-mini span {
+    display: block;
+    width: 3px;
+    background: rgba(59,130,246,0.5);
+    border-radius: 2px;
+}
+.voice-duration {
+    font-size: 0.75rem;
+    color: #555;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
