@@ -4290,3 +4290,6 @@ animation: shakeField 0.4s ease;
 .chat-call-btn { display: none !important; }
 #direct-call-overlay { display: none !important; }
 .call-toast { display: none !important; }
+
+/* ══ PATCH v5.1 — Hide tab dots permanently ══ */
+#tab-dots, .tab-dots, .tab-dot { display: none !important; }
