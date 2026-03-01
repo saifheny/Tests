@@ -1097,9 +1097,6 @@ window.openChatRoom = (chatId, name, icon, uid) => {
                 <div id="chat-online-${chatId}" style="font-size:0.7rem;color:#25d366;">متصل</div>
             </div>
             <div style="margin-right:auto;display:flex;gap:10px;">
-                <button class="chat-call-btn" id="chat-call-btn-${chatId}" onclick="startDirectCall('${uid}', '${name}', '${icon}')" title="مكالمة صوتية">
-                    <i class="ph-bold ph-phone"></i>
-                </button>
                 <button class="icon-btn-small" onclick="copyProfileLinkFor('${uid}')" title="نسخ رابط"><i class="ph-bold ph-link"></i></button>
             </div>
         </div>
@@ -1878,53 +1875,63 @@ function formatAiResponseText(text) {
 
 function renderMessageUI(prefix, role, text, imgB64) {
     const msgs = document.getElementById(`${prefix}-ai-msgs`);
-    const wrap = document.createElement('div');
-    wrap.className = `chat-msg-wrap ${role}`;
-
-    // Add AI avatar for AI messages
-    if (role === 'ai') {
-        const avatar = document.createElement('div');
-        avatar.className = 'ai-msg-avatar';
-        avatar.innerHTML = '<i class="fas fa-wand-magic-sparkles" style="font-size:0.75rem;"></i>';
-        wrap.appendChild(avatar);
-    }
-
-    const div = document.createElement('div');
-    div.className = `chat-msg ${role}`;
 
     if (role === 'ai') {
-        div.innerHTML = formatAiResponseText(text);
+        // AI: no bubble - full width like ChatGPT
+        const wrap = document.createElement('div');
+        wrap.className = 'ai-full-msg';
+
+        const content = document.createElement('div');
+        content.className = 'ai-full-content';
+        if (text) content.innerHTML = formatAiResponseText(text);
+
+        if (imgB64) {
+            const img = document.createElement('img');
+            img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`;
+            img.style.cssText = 'max-width:100%;border-radius:10px;margin-top:10px;display:block;';
+            content.appendChild(img);
+        }
+
+        wrap.appendChild(content);
+
+        if (text) {
+            const actions = document.createElement('div');
+            actions.className = 'ai-full-actions';
+            const safeText = text.replace(/`/g,"'");
+            actions.innerHTML = `
+                <button class="ai-act-btn like-btn" title="إعجاب" onclick="this.classList.toggle('liked')">
+                    <i class="ph-bold ph-thumbs-up"></i>
+                </button>
+                <button class="ai-act-btn" title="نسخ" onclick="navigator.clipboard.writeText(\`${safeText.substring(0,2000)}\`).then(()=>showToast('تم النسخ','','success',2000))">
+                    <i class="ph-bold ph-copy"></i>
+                </button>
+                <button class="ai-act-btn" title="مشاركة" onclick="(()=>{ if(navigator.share) navigator.share({text:\`${safeText.substring(0,200)}\`}); else navigator.clipboard.writeText(\`${safeText.substring(0,300)}\`).then(()=>showToast('تم النسخ','','success',2000)); })()">
+                    <i class="ph-bold ph-share-network"></i>
+                </button>
+            `;
+            wrap.appendChild(actions);
+        }
+
+        msgs.appendChild(wrap);
     } else {
-        div.innerHTML = makeLinksClickable(text);
+        // User: bubble on right
+        const wrap = document.createElement('div');
+        wrap.className = 'chat-msg-wrap user';
+
+        const div = document.createElement('div');
+        div.className = 'chat-msg user';
+        div.innerHTML = makeLinksClickable(text || '');
+
+        if (imgB64) {
+            const img = document.createElement('img');
+            img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`;
+            div.appendChild(img);
+        }
+
+        wrap.appendChild(div);
+        msgs.appendChild(wrap);
     }
 
-    if (imgB64) {
-        const img = document.createElement('img');
-        img.src = imgB64.startsWith('data:') ? imgB64 : `data:image/jpeg;base64,${imgB64}`;
-        div.appendChild(img);
-    }
-
-    wrap.appendChild(div);
-
-    if (role === 'ai' && text) {
-        const actions = document.createElement('div');
-        actions.className = 'msg-ai-actions';
-        let liked = false;
-        actions.innerHTML = `
-            <button class="msg-action-btn like-btn" title="إعجاب" onclick="this.classList.toggle('liked'); this.querySelector('.like-count').innerText = this.classList.contains('liked') ? '1' : '0';">
-                <i class="ph-bold ph-thumbs-up"></i> <span class="like-count">0</span>
-            </button>
-            <button class="msg-action-btn" title="مشاركة" onclick="(()=>{ if(navigator.share) navigator.share({text: \`${text.replace(/`/g,"'").substring(0,200)}\`}); else navigator.clipboard.writeText(\`${text.replace(/`/g,"'").substring(0,300)}\`).then(()=>showToast('تم النسخ','','success',2000)); })()">
-                <i class="ph-bold ph-share-network"></i>
-            </button>
-            <button class="msg-action-btn" title="نسخ" onclick="navigator.clipboard.writeText(\`${text.replace(/`/g,"'")}\`).then(()=>showToast('تم نسخ الرد','','success',2000))">
-                <i class="ph-bold ph-copy"></i>
-            </button>
-        `;
-        wrap.appendChild(actions);
-    }
-
-    msgs.appendChild(wrap);
     msgs.scrollTop = msgs.scrollHeight;
 }
 
@@ -2581,12 +2588,56 @@ window.sendAiMsg = async (prefix) => {
         
         // Correct Arabic spelling before sending
         const correctedTxt = correctArabicSpelling(txt);
-        
-        if(selectedRole === 'student') {
+
+        // Build user context
+        const userName = currentUser || 'الطالب';
+        const userRole = selectedRole === 'student' ? 'طالب' : 'معلم';
+        const userIcon = localStorage.getItem('sa_icon') || '';
+        const userUidStr = myUid || '';
+
+        // Fetch user grades for context (students only)
+        let gradesContext = '';
+        if (selectedRole === 'student') {
+            try {
+                const testsSnap = await get(ref(db, 'tests'));
+                const testsData = testsSnap.val() || {};
+                const gradeLines = [];
+                for (const [tid, td] of Object.entries(testsData)) {
+                    const rSnap = await get(ref(db, `results/${tid}/${currentUser}`));
+                    if (rSnap.exists()) {
+                        const r = rSnap.val();
+                        gradeLines.push(`- ${td.title}: ${r.percentage}% (${r.score}/${r.total})`);
+                    }
+                }
+                if (gradeLines.length > 0) {
+                    gradesContext = `\nنتائج الاختبارات الخاصة بـ ${userName}:\n${gradeLines.join('\n')}`;
+                }
+            } catch(e) { /* ignore */ }
+        }
+
+        const userContext = `اسم المستخدم: ${userName}. الدور: ${userRole}.${gradesContext}\n`;
+
+        // Check repeated question cache
+        const _cacheKey = `sa_ai_cache_${correctedTxt.trim().toLowerCase().substring(0,80)}`;
+        const _cached = sessionStorage.getItem(_cacheKey);
+        const _forceNew = txt.includes('إجابة ثانية') || txt.includes('اجابة ثانية') || txt.includes('جاوب تاني') || txt.includes('غير الإجابة');
+
+        if (_cached && !_forceNew) {
+            playSound('recv');
+            document.getElementById(loadId).remove();
+            currentChatMessages.push({ role: 'ai', content: _cached, image: null });
+            renderMessageUI(prefix, 'ai', _cached, null);
+            saveChatToLocal();
+            return;
+        }
+
+        if (selectedRole === 'student') {
             finalPrompt += `أنت مساعد دراسي ذكي اسمه SA AI للطلاب. أجب باللغة العربية. حجم إجابتك يجب أن يتناسب مع السؤال: الأسئلة البسيطة والتحيات تحتاج ردود قصيرة (جملة أو اثنتان)، الأسئلة التفسيرية تحتاج شرح متوسط، والأسئلة المعقدة تحتاج إجابة مفصلة. لا تطول إذا السؤال لا يحتاج لذلك. إذا وجدت أخطاء إملائية في السؤال افهمها وأجب عنها بشكل طبيعي دون التنبيه. `;
         } else {
             finalPrompt += `أنت مساعد معلمين ذكي اسمه SA AI. أجب باللغة العربية. حجم إجابتك يجب أن يتناسب مع السؤال: الأسئلة البسيطة ردود قصيرة، والأسئلة التفصيلية ردود شاملة. إذا وجدت أخطاء إملائية في السؤال افهمها وأجب عنها بشكل طبيعي. `;
         }
+
+        finalPrompt += `معلومات المستخدم: ${userContext}`;
 
         if (ocrText) {
             finalPrompt += `Context from image: "${ocrText}". `;
@@ -2594,6 +2645,11 @@ window.sendAiMsg = async (prefix) => {
         finalPrompt += correctedTxt;
         
         const reply = await callPollinationsAI(finalPrompt);
+
+        // Cache this answer for repeated questions (max 200 chars questions)
+        if (correctedTxt.length < 200) {
+            try { sessionStorage.setItem(_cacheKey, reply); } catch(e) {}
+        }
         
         playSound('recv');
         document.getElementById(loadId).remove();
@@ -3339,18 +3395,12 @@ function listenForCallSignals() {
         // Show incoming call notification
         showIncomingCallNotification(data.callerName, data.callerIcon, null);
         
-        // Wait for PeerJS incoming call event
-        // Clean signal
         await remove(signalRef);
     });
 }
 
-// Attach call signal listener after login
 const _origLoginSuccess = loginSuccess;
-// We can't easily override loginSuccess, so we'll call it in the existing listener.
-// Add to initVoiceModule callback or after initialization:
 
-// Watch for Firebase call signals
 const _watchCallsInterval = setInterval(() => {
     if (myUid && db) {
         listenForCallSignals();
@@ -3359,9 +3409,6 @@ const _watchCallsInterval = setInterval(() => {
 }, 1000);
 
 
-// ======================================================
-// SA EDU — HERO SECTION UPDATES
-// ======================================================
 
 function updateHeroSections() {
     const icon = localStorage.getItem('sa_icon') || 'fa-user-astronaut';
@@ -3385,7 +3432,6 @@ function updateHeroSections() {
     }
 }
 
-// Update heroes when tab switches
 const _origSwitchTab = window.switchTab;
 window.switchTab = (tabId, btn) => {
     _origSwitchTab(tabId, btn);
@@ -3397,7 +3443,6 @@ window.switchTab = (tabId, btn) => {
     }, 500);
 };
 
-// Update exam count for teacher hero
 function updateTeacherExamCount(count) {
     const el = document.getElementById('teacher-exam-count');
     if (el) el.textContent = count;
