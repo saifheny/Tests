@@ -43,6 +43,7 @@ let _incomingCallData = null;
 
 // =========== ARABIC SPELL CORRECTION MAP ===========
 const ARABIC_CORRECTIONS = {
+    // عامية مصرية / خليجية → فصحى
     'كيفيه': 'كيفية', 'الاعلام': 'الإعلام', 'السؤل': 'السؤال',
     'اريد': 'أريد', 'انا': 'أنا', 'اعطني': 'أعطني',
     'اشرحلي': 'اشرح لي', 'ايه': 'ما هو', 'ازاي': 'كيف',
@@ -50,7 +51,27 @@ const ARABIC_CORRECTIONS = {
     'الفرق': 'ما الفرق', 'يعني': 'أي', 'بس': 'لكن',
     'طب': 'إذن', 'احسن': 'أفضل', 'وضحلي': 'وضح لي',
     'ازى': 'كيف', 'ليه': 'لماذا', 'مستقبلا': 'مستقبلاً',
-    'دائما': 'دائماً', 'ايضا': 'أيضاً', 'اخيرا': 'أخيراً'
+    'دائما': 'دائماً', 'ايضا': 'أيضاً', 'اخيرا': 'أخيراً',
+    'هتقولي': 'أخبرني', 'قولي': 'أخبرني', 'هاتلي': 'أعطني',
+    'كمان': 'أيضاً', 'خالص': 'تماماً', 'اوي': 'جداً',
+    'عشان': 'لأن', 'علشان': 'لأن', 'مين': 'من',
+    'فين': 'أين', 'امتى': 'متى', 'ازيك': 'كيف حالك',
+    'تمام': 'حسناً', 'ماشي': 'حسناً', 'اوك': 'حسناً',
+    'شوية': 'قليلاً', 'كتير': 'كثيراً', 'زي': 'مثل',
+    'الحاجه': 'الأمر', 'الموضوع ده': 'هذا الموضوع',
+    'الكلام ده': 'هذا الكلام', 'ده': 'هذا', 'دي': 'هذه',
+    'دول': 'هؤلاء', 'اللي': 'الذي', 'اللى': 'الذي',
+    'مش فاهم': 'لا أفهم', 'مش عارف': 'لا أعرف',
+    'حل لي': 'احل لي', 'حلي': 'احل لي', 'هحل': 'سأحل',
+    'وجاب': 'واجب', 'الوجاب': 'الواجب', 'وجبات': 'واجبات',
+    'مسئله': 'مسألة', 'مسأله': 'مسألة', 'المسأله': 'المسألة',
+    'المسئله': 'المسألة', 'سؤاله': 'سؤاله', 'الاسأله': 'الأسئلة',
+    'اسئله': 'أسئلة', 'السؤله': 'الأسئلة', 'استفسار': 'سؤال',
+    'الاجابه': 'الإجابة', 'اجابه': 'إجابة', 'اجابات': 'إجابات',
+    'حسابات': 'حسابات', 'معادله': 'معادلة', 'معادلة': 'معادلة',
+    'مقابله': 'مقابلة', 'مقارنه': 'مقارنة', 'ملاحظه': 'ملاحظة',
+    'الى': 'إلى', 'إلي': 'إلى', 'علي': 'على', 'عليه': 'عليه',
+    'ان': 'أن', 'إن': 'أن', 'فى': 'في', 'فيه': 'فيه'
 };
 
 function correctArabicSpelling(text) {
@@ -182,13 +203,11 @@ function initSwipeNavigation(portalId) {
     }, { passive: true });
 
     portal.addEventListener('touchmove', (e) => {
+        // Only block swipe if touching an input/textarea directly
         if (_swipeStartTarget && (
-            _swipeStartTarget.closest('.chat-window') ||
-            _swipeStartTarget.closest('.chat-sidebar') ||
             _swipeStartTarget.closest('input') ||
             _swipeStartTarget.closest('textarea') ||
-            _swipeStartTarget.closest('.full-screen-overlay') ||
-            _swipeStartTarget.closest('.ai-messages')
+            _swipeStartTarget.closest('.full-screen-overlay')
         )) return;
         const dx = e.touches[0].clientX - _swipeStartX;
         const dy = e.touches[0].clientY - _swipeStartY;
@@ -196,12 +215,6 @@ function initSwipeNavigation(portalId) {
         const progress = Math.min(Math.abs(dx) / (window.innerWidth * 0.5), 1) * 100;
         const bar = document.getElementById('swipe-progress-bar');
         if (bar) { bar.classList.add('active'); bar.style.width = progress + '%'; }
-        const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
-        const currentHash = window.location.hash.replace('#', '');
-        const idx = tabs.indexOf(currentHash);
-        updateTabDots(currentHash || tabs[Math.max(idx,0)]);
-        const dotsContainer = document.getElementById('tab-dots');
-        if (dotsContainer) { dotsContainer.classList.remove('hidden'); dotsContainer.classList.add('swipe-visible'); }
     }, { passive: true });
 
     portal.addEventListener('touchend', (e) => {
@@ -210,13 +223,11 @@ function initSwipeNavigation(portalId) {
             bar.style.width = '100%';
             setTimeout(() => { bar.classList.remove('active'); bar.style.width = '0%'; }, 200);
         }
+        // Only block if touching input/textarea or overlay
         if (_swipeStartTarget && (
-            _swipeStartTarget.closest('.chat-window') ||
-            _swipeStartTarget.closest('.chat-sidebar') ||
             _swipeStartTarget.closest('input') ||
             _swipeStartTarget.closest('textarea') ||
-            _swipeStartTarget.closest('.full-screen-overlay') ||
-            _swipeStartTarget.closest('.ai-messages')
+            _swipeStartTarget.closest('.full-screen-overlay')
         )) return;
         const dx = e.changedTouches[0].clientX - _swipeStartX;
         const dy = e.changedTouches[0].clientY - _swipeStartY;
@@ -263,10 +274,6 @@ function switchTabWithDirection(tabId, btn, direction) {
     setTimeout(() => {
         newSection.classList.remove(inClass);
     }, 320);
-
-    // Show tab dots temporarily
-    updateTabDots(tabId);
-    showTabDotsTemporarily();
 }
 
 let _tabDotsTimer = null;
@@ -2632,9 +2639,23 @@ window.sendAiMsg = async (prefix) => {
         }
 
         if (selectedRole === 'student') {
-            finalPrompt += `أنت مساعد دراسي ذكي اسمه SA AI للطلاب. أجب باللغة العربية. حجم إجابتك يجب أن يتناسب مع السؤال: الأسئلة البسيطة والتحيات تحتاج ردود قصيرة (جملة أو اثنتان)، الأسئلة التفسيرية تحتاج شرح متوسط، والأسئلة المعقدة تحتاج إجابة مفصلة. لا تطول إذا السؤال لا يحتاج لذلك. إذا وجدت أخطاء إملائية في السؤال افهمها وأجب عنها بشكل طبيعي دون التنبيه. `;
+            finalPrompt += `أنت مساعد دراسي ذكي اسمه SA AI للطلاب. أجب باللغة العربية دائماً.
+قواعد مهمة:
+- إذا وجدت أخطاء إملائية في السؤال، افهم المقصود وأجب عليه مباشرة بدون أي تعليق على الأخطاء
+- إذا كان السؤال واجباً أو مسألة حسابية أو معادلة، احلها خطوة بخطوة بشكل واضح
+- إذا كان السؤال بسيطاً أو تحية، أجب بجملة أو اثنتين فقط
+- إذا كان السؤال يحتاج شرحاً، اشرح بالتفصيل المناسب
+- لا تقل أبداً "لاحظت خطأ في كتابتك" أو أي تنبيه عن الإملاء
+- الطالب يكتب بالعامية أحياناً - افهمها وأجب بالفصحى
+- اسم الطالب: ${userName}
+`;
         } else {
-            finalPrompt += `أنت مساعد معلمين ذكي اسمه SA AI. أجب باللغة العربية. حجم إجابتك يجب أن يتناسب مع السؤال: الأسئلة البسيطة ردود قصيرة، والأسئلة التفصيلية ردود شاملة. إذا وجدت أخطاء إملائية في السؤال افهمها وأجب عنها بشكل طبيعي. `;
+            finalPrompt += `أنت مساعد معلمين ذكي اسمه SA AI. أجب باللغة العربية دائماً.
+قواعد مهمة:
+- إذا وجدت أخطاء إملائية في السؤال، افهم المقصود وأجب مباشرة بدون تعليق على الأخطاء
+- الأسئلة البسيطة تحتاج ردوداً قصيرة، والتفصيلية تحتاج ردوداً شاملة
+- اسم المعلم: ${userName}
+`;
         }
 
         finalPrompt += `معلومات المستخدم: ${userContext}`;
@@ -3395,12 +3416,18 @@ function listenForCallSignals() {
         // Show incoming call notification
         showIncomingCallNotification(data.callerName, data.callerIcon, null);
         
+        // Wait for PeerJS incoming call event
+        // Clean signal
         await remove(signalRef);
     });
 }
 
+// Attach call signal listener after login
 const _origLoginSuccess = loginSuccess;
+// We can't easily override loginSuccess, so we'll call it in the existing listener.
+// Add to initVoiceModule callback or after initialization:
 
+// Watch for Firebase call signals
 const _watchCallsInterval = setInterval(() => {
     if (myUid && db) {
         listenForCallSignals();
@@ -3409,6 +3436,9 @@ const _watchCallsInterval = setInterval(() => {
 }, 1000);
 
 
+// ======================================================
+// SA EDU — HERO SECTION UPDATES
+// ======================================================
 
 function updateHeroSections() {
     const icon = localStorage.getItem('sa_icon') || 'fa-user-astronaut';
@@ -3432,6 +3462,7 @@ function updateHeroSections() {
     }
 }
 
+// Update heroes when tab switches
 const _origSwitchTab = window.switchTab;
 window.switchTab = (tabId, btn) => {
     _origSwitchTab(tabId, btn);
@@ -3443,6 +3474,7 @@ window.switchTab = (tabId, btn) => {
     }, 500);
 };
 
+// Update exam count for teacher hero
 function updateTeacherExamCount(count) {
     const el = document.getElementById('teacher-exam-count');
     if (el) el.textContent = count;
