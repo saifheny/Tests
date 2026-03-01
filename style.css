@@ -4139,3 +4139,154 @@ animation: shakeField 0.4s ease;
     border-radius: 50%;
     animation: pulse 1s infinite;
 }
+
+
+/* ══════════════════════════════════════════
+   PATCH v5.0 — AI full-width + 3D buttons
+   ══════════════════════════════════════════ */
+
+/* ── AI MESSAGES: ChatGPT style, no bubble ── */
+.ai-full-msg {
+    width: 100%;
+    padding: 18px 0 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    animation: msgFade 0.3s ease;
+}
+.ai-full-content {
+    font-size: 0.97rem;
+    line-height: 1.75;
+    color: #e0e0e0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    width: 100%;
+}
+.ai-full-content strong { color: #fff; font-weight: 700; }
+.ai-full-content ul  { padding-right: 20px; margin: 8px 0; }
+.ai-full-content li  { margin-bottom: 5px; }
+.ai-full-content code {
+    background: rgba(255,255,255,0.08);
+    padding: 2px 6px; border-radius: 4px;
+    font-family: monospace; font-size: 0.9em;
+}
+.ai-full-content pre {
+    background: #0d0d0d; padding: 12px; border-radius: 10px;
+    overflow-x: auto; border: 1px solid #2a2a2a; margin: 10px 0;
+}
+.ai-full-content pre code { background: transparent; padding: 0; }
+.ai-full-content a { color: var(--blue); text-decoration: underline; }
+
+.ai-full-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 6px;
+}
+.ai-act-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.07);
+    color: #555;
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.9rem; transition: 0.2s;
+}
+.ai-act-btn:hover { background: rgba(255,255,255,0.08); color: #aaa; border-color: rgba(255,255,255,0.15); }
+.ai-act-btn.liked { color: var(--blue); border-color: var(--blue); background: rgba(59,130,246,0.1); }
+
+/* User bubble stays right */
+.chat-msg-wrap.user {
+    display: flex;
+    justify-content: flex-end;
+    margin: 6px 0;
+}
+.chat-msg.user {
+    max-width: 75%;
+    background: var(--blue);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 18px 18px 4px 18px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    box-shadow: 0 4px 15px rgba(59,130,246,0.3);
+}
+
+/* ── 3D BUTTONS ─────────────────────────────── */
+.modern-btn {
+    box-shadow:
+        0 6px 0 rgba(0,0,0,0.4),
+        0 4px 20px rgba(255,255,255,0.12),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+    transform: translateY(0);
+    transition: all 0.15s ease;
+}
+.modern-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4), 0 2px 8px rgba(255,255,255,0.08);
+}
+.modern-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.45), 0 6px 25px rgba(255,255,255,0.18), inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+.glossy-black-btn {
+    box-shadow:
+        0 6px 0 rgba(0,0,0,0.6),
+        0 4px 15px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(255,255,255,0.1);
+    transform: translateY(0);
+    transition: all 0.15s ease;
+}
+.glossy-black-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 rgba(0,0,0,0.6);
+}
+.glossy-black-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 rgba(0,0,0,0.65), 0 6px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+/* 3D Send button */
+.send-btn {
+    box-shadow: 0 4px 0 #1d4ed8, 0 4px 12px rgba(59,130,246,0.4);
+    transition: all 0.15s ease;
+}
+.send-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #1d4ed8; }
+.send-btn:hover  { transform: translateY(-1px); box-shadow: 0 5px 0 #1d4ed8, 0 6px 15px rgba(59,130,246,0.5); }
+
+/* 3D Nav active button */
+.nav-btn.active i {
+    filter: drop-shadow(0 3px 6px var(--blue-glow));
+}
+.magic-btn.active i {
+    filter: drop-shadow(0 3px 6px var(--purple-glow));
+}
+
+/* 3D CTA icon */
+.cta-icon-wrapper {
+    box-shadow: 0 6px 0 #1d4ed8, 0 4px 20px rgba(59,130,246,0.4);
+}
+.student-stats-cta .cta-icon-wrapper {
+    box-shadow: 0 6px 0 #1d4ed8, 0 4px 20px rgba(59,130,246,0.4);
+}
+
+/* 3D VR create & gate buttons */
+.vr-create-btn {
+    box-shadow: 0 5px 0 #047857, 0 4px 15px rgba(16,185,129,0.3);
+}
+.vr-create-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #047857; }
+.vr-gate-btn {
+    box-shadow: 0 5px 0 #047857, 0 6px 20px rgba(16,185,129,0.3);
+}
+.vr-gate-btn:not(:disabled):active { transform: translateY(4px); box-shadow: 0 1px 0 #047857; }
+
+/* 3D search user btn */
+.search-user-btn {
+    box-shadow: 0 5px 0 #1d4ed8, 0 4px 15px rgba(59,130,246,0.35);
+    transition: all 0.15s ease;
+}
+.search-user-btn:hover  { transform: translateY(-2px); box-shadow: 0 7px 0 #1d4ed8, 0 6px 20px rgba(59,130,246,0.45); }
+.search-user-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #1d4ed8; }
+
+/* ── HIDE CALL from chat completely ─────────── */
+.chat-call-btn { display: none !important; }
+#direct-call-overlay { display: none !important; }
+.call-toast { display: none !important; }
