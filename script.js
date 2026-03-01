@@ -1724,26 +1724,62 @@ window.startNewChat = (prefix) => {
 window.renderAiWelcome = (prefix) => {
     const msgs = document.getElementById(`${prefix}-ai-msgs`);
     const firstName = currentUser.split(' ')[0];
-    
-    let roleSpecificChips = '';
-    let roleDesc = '';
 
-    if (selectedRole === 'teacher') {
-        roleDesc = 'إنشاء اختبارات، تحضير دروس، وإدارة طلابك بذكاء.';
-        roleSpecificChips = `
-            <div class="ai-chip-v2" onclick="fillAiInput('${prefix}', 'أنشئ اختبار عن الكيمياء العضوية')"><i class="fas fa-flask"></i><span>إنشاء اختبار</span></div>
-            <div class="ai-chip-v2" onclick="fillAiInput('${prefix}', 'اكتب خطة درس متكاملة عن التاريخ الحديث')"><i class="fas fa-book"></i><span>تحضير درس</span></div>
-            <div class="ai-chip-v2" onclick="fillAiInput('${prefix}', 'كيف أجعل الحصة تفاعلية أكثر؟')"><i class="fas fa-users"></i><span>تفاعل الطلاب</span></div>
-            <div class="ai-chip-v2" onclick="fillAiInput('${prefix}', 'اقترح لي أساليب تقييم مبتكرة')"><i class="fas fa-chart-bar"></i><span>أساليب تقييم</span></div>
-        `;
-    } else {
-        roleDesc = 'شرح دروس، حل مسائل، وتلخيص المواد الدراسية.';
-        roleSpecificChips = `
-            <div class="ai-chip-v2" onclick="fillAiInput('${prefix}', 'اشرح لي قانون نيوتن الثاني ببساطة')"><i class="fas fa-atom"></i><span>شرح درس</span></div>
-            <div class="ai-chip-v2" onclick="fillAiInput('${prefix}', 'لخص لي أحداث الحرب العالمية الأولى')"><i class="fas fa-history"></i><span>تلخيص</span></div>
-            <div class="ai-chip-v2" onclick="fillAiInput('${prefix}', 'ساعدني في تنظيم وقت المذاكرة')"><i class="fas fa-clock"></i><span>تنظيم الوقت</span></div>
-            <div class="ai-chip-v2" onclick="fillAiInput('${prefix}', 'ما الفرق بين الخلية الحيوانية والنباتية؟')"><i class="fas fa-dna"></i><span>مقارنة علمية</span></div>
-        `;
+    const teacherChipSets = [
+        [
+            { icon: 'fa-flask', label: 'إنشاء اختبار', prompt: 'أنشئ اختبار عن الكيمياء العضوية' },
+            { icon: 'fa-book', label: 'تحضير درس', prompt: 'اكتب خطة درس متكاملة عن التاريخ الحديث' },
+            { icon: 'fa-users', label: 'تفاعل الطلاب', prompt: 'كيف أجعل الحصة تفاعلية أكثر؟' },
+            { icon: 'fa-chart-bar', label: 'أساليب تقييم', prompt: 'اقترح لي أساليب تقييم مبتكرة' },
+        ],
+        [
+            { icon: 'fa-pen', label: 'تصحيح إجابات', prompt: 'كيف أصحح إجابات الطلاب بعدالة؟' },
+            { icon: 'fa-bullhorn', label: 'تحفيز الطلاب', prompt: 'أعطني أفكاراً لتحفيز الطلاب على المشاركة' },
+            { icon: 'fa-calendar', label: 'جدول مراجعة', prompt: 'صمم لي جدول مراجعة شهري للمادة' },
+            { icon: 'fa-lightbulb', label: 'فكرة نشاط', prompt: 'اقترح نشاطاً تعليمياً مميزاً للفصل' },
+        ],
+        [
+            { icon: 'fa-comments', label: 'أسئلة نقاش', prompt: 'اكتب أسئلة نقاش مثيرة للتفكير عن البيئة' },
+            { icon: 'fa-star', label: 'أفضل الممارسات', prompt: 'ما أفضل ممارسات التعليم الحديث؟' },
+            { icon: 'fa-file-alt', label: 'ملخص للطلاب', prompt: 'لخص درس الضوء والبصريات بأسلوب بسيط' },
+            { icon: 'fa-brain', label: 'خرائط ذهنية', prompt: 'ساعدني في إنشاء خريطة ذهنية عن العلوم' },
+        ],
+    ];
+
+    const studentChipSets = [
+        [
+            { icon: 'fa-atom', label: 'شرح درس', prompt: 'اشرح لي قانون نيوتن الثاني ببساطة' },
+            { icon: 'fa-history', label: 'تلخيص', prompt: 'لخص لي أحداث الحرب العالمية الأولى' },
+            { icon: 'fa-clock', label: 'تنظيم الوقت', prompt: 'ساعدني في تنظيم وقت المذاكرة' },
+            { icon: 'fa-dna', label: 'مقارنة علمية', prompt: 'ما الفرق بين الخلية الحيوانية والنباتية؟' },
+        ],
+        [
+            { icon: 'fa-calculator', label: 'حل رياضيات', prompt: 'اشرح لي حل المعادلات التربيعية خطوة بخطوة' },
+            { icon: 'fa-book-open', label: 'فهم النص', prompt: 'ساعدني في تحليل نص أدبي' },
+            { icon: 'fa-flask', label: 'تجربة علمية', prompt: 'اشرح لي كيف تعمل عملية التمثيل الضوئي' },
+            { icon: 'fa-globe', label: 'جغرافيا', prompt: 'أخبرني عن أهم الأنهار في العالم' },
+        ],
+        [
+            { icon: 'fa-pencil-alt', label: 'تدريب كتابة', prompt: 'ساعدني في كتابة مقال عن التكنولوجيا' },
+            { icon: 'fa-question-circle', label: 'أسئلة اختبار', prompt: 'اصنع لي أسئلة تدريبية على درس الكيمياء' },
+            { icon: 'fa-lightbulb', label: 'نصائح مذاكرة', prompt: 'أعطني أفضل النصائح لتذكر المعلومات' },
+            { icon: 'fa-chart-line', label: 'تحسين نتائج', prompt: 'كيف أحسن نتائجي في الامتحانات؟' },
+        ],
+    ];
+
+    const chipSets = selectedRole === 'teacher' ? teacherChipSets : studentChipSets;
+    const roleDesc = selectedRole === 'teacher'
+        ? 'إنشاء اختبارات، تحضير دروس، وإدارة طلابك بذكاء.'
+        : 'شرح دروس، حل مسائل، وتلخيص المواد الدراسية.';
+
+    let currentSetIdx = Math.floor(Math.random() * chipSets.length);
+
+    function buildChips(setIdx) {
+        return chipSets[setIdx].map(c =>
+            `<div class="ai-chip-v2" onclick="window._selectAiChip('${prefix}', '${c.prompt.replace(/'/g,"\\'")}', this)">
+                <i class="fas ${c.icon}"></i><span>${c.label}</span>
+            </div>`
+        ).join('');
     }
 
     msgs.innerHTML = `
@@ -1753,10 +1789,49 @@ window.renderAiWelcome = (prefix) => {
             </div>
             <h3 class="ai-welcome-title">مرحباً ${firstName} 👋</h3>
             <p class="ai-welcome-text">أنا <strong>SA AI</strong> — مساعدك الذكي.<br>${roleDesc}</p>
-            <div class="ai-welcome-chips-grid">
-                ${roleSpecificChips}
+            <div class="ai-welcome-chips-grid" id="${prefix}-chips-grid">
+                ${buildChips(currentSetIdx)}
             </div>
         </div>`;
+
+    // Store state on grid element for chip rotation
+    const grid = document.getElementById(`${prefix}-chips-grid`);
+    grid._setIdx = currentSetIdx;
+    grid._chipSets = chipSets;
+    grid._prefix = prefix;
+};
+
+window._selectAiChip = (prefix, prompt, chipEl) => {
+    // Rotate chips to next set
+    const grid = document.getElementById(`${prefix}-chips-grid`);
+    if (grid) {
+        const sets = grid._chipSets;
+        if (sets) {
+            grid._setIdx = (grid._setIdx + 1) % sets.length;
+            const newIdx = grid._setIdx;
+            // Animate out then swap
+            grid.style.opacity = '0';
+            grid.style.transform = 'translateY(8px)';
+            setTimeout(() => {
+                grid.innerHTML = sets[newIdx].map(c =>
+                    `<div class="ai-chip-v2" onclick="window._selectAiChip('${prefix}', '${c.prompt.replace(/'/g,"\\'")}', this)">
+                        <i class="fas ${c.icon}"></i><span>${c.label}</span>
+                    </div>`
+                ).join('');
+                grid._setIdx = newIdx;
+                grid.style.opacity = '1';
+                grid.style.transform = 'translateY(0)';
+            }, 200);
+        }
+    }
+    // Fill input and send
+    const input = document.getElementById(`${prefix}-ai-input`);
+    if (input) {
+        input.value = prompt;
+        window.toggleAiSendMic(prefix, prompt);
+        // Auto-send
+        setTimeout(() => window.sendAiMsg(prefix), 100);
+    }
 };
 
 window.fillAiInput = (prefix, text) => {
@@ -2354,37 +2429,129 @@ window.closeExam = () => { saConfirm("خروج من الامتحان؟ ستفق�
 
 window.submitExam = async () => {
     playSound('success');
-    clearInterval(timerInt); let score = 0, total = 0, details = [];
+    clearInterval(timerInt);
+    
+    // Check if already taken before (first attempt only)
+    const existingSnap = await get(ref(db, `results/${activeTest.id}/${currentUser}`));
+    const isFirstAttempt = !existingSnap.exists();
+    
+    let score = 0, total = 0, details = [];
     const questions = activeTest.questions || [];
     questions.forEach((q, i) => {
-        const pts = parseInt(q.points) || 1; 
-        total += pts; 
-        
+        const pts = parseInt(q.points) || 1;
+        total += pts;
         let isCorrect = false;
         if (q.type === 'essay') {
-            if (answers[i] && answers[i].trim().length > 2) {
-                isCorrect = true; 
-                score += pts;
-            }
+            if (answers[i] && answers[i].trim().length > 2) { isCorrect = true; score += pts; }
         } else {
             isCorrect = answers[i] === q.correct;
-            if(isCorrect) score += pts; 
+            if (isCorrect) score += pts;
         }
-        
-        details.push({ 
-            q: q.text, 
-            image: q.image || null, 
-            user: answers[i]||'-', 
-            correct: q.correct, 
-            isCorrect,
-            type: q.type || 'mcq'
-        });
+        details.push({ q: q.text, image: q.image || null, user: answers[i]||'-', correct: q.correct, isCorrect, type: q.type || 'mcq' });
     });
     const pct = total === 0 ? 0 : Math.round((score/total)*100);
-    await set(ref(db, `results/${activeTest.id}/${currentUser}`), { score, total, percentage: pct, timestamp: Date.now(), details });
-    saAlert(`تم التسليم! النتيجة التقريبية: ${pct}%`, "success");
-    document.getElementById('s-taking-test').classList.add('hidden'); loadStudentExams(); loadStudentGrades(); 
+
+    // Only save if first attempt
+    if (isFirstAttempt) {
+        await set(ref(db, `results/${activeTest.id}/${currentUser}`), { score, total, percentage: pct, timestamp: Date.now(), details });
+    }
+
+    document.getElementById('s-taking-test').classList.add('hidden');
+    
+    // Show beautiful result screen
+    showExamResultScreen(activeTest.title, score, total, pct, details, isFirstAttempt);
 };
+
+function showExamResultScreen(title, score, total, pct, details, isFirstAttempt) {
+    const wrongAnswers = details.filter(d => !d.isCorrect && d.type !== 'essay');
+    const essayCount  = details.filter(d => d.type === 'essay').length;
+    const correctCount = details.filter(d => d.isCorrect).length;
+    
+    const color = pct >= 90 ? '#ffd700' : pct >= 50 ? '#10b981' : '#ef4444';
+    const emoji = pct >= 90 ? '🏆' : pct >= 70 ? '🌟' : pct >= 50 ? '✅' : '📚';
+    const msg   = pct >= 90 ? 'ممتاز! أداء رائع جداً' : pct >= 70 ? 'جيد جداً، استمر!' : pct >= 50 ? 'جيد، يمكنك التحسن أكثر' : 'تحتاج لمراجعة أكثر';
+
+    const overlay = document.createElement('div');
+    overlay.id = 'exam-result-overlay';
+    overlay.style.cssText = `
+        position:fixed; inset:0; z-index:99999;
+        background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
+        display:flex; align-items:center; justify-content:center;
+        padding:20px; overflow-y:auto;
+        animation: fadeIn 0.4s ease;
+    `;
+
+    const wrongHtml = wrongAnswers.length > 0 ? `
+        <div style="margin-top:20px; text-align:right;">
+            <div style="font-size:0.85rem; color:#ef4444; font-weight:700; margin-bottom:10px;">❌ الأسئلة الخاطئة:</div>
+            ${wrongAnswers.slice(0,5).map(d => `
+                <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); border-radius:12px; padding:10px 14px; margin-bottom:8px; font-size:0.82rem;">
+                    <div style="color:#ccc; margin-bottom:4px;">${d.q.substring(0,80)}${d.q.length>80?'...':''}</div>
+                    <div style="color:#10b981;">✓ الصح: <strong>${d.correct}</strong></div>
+                    <div style="color:#ef4444;">✗ إجابتك: ${d.user}</div>
+                </div>
+            `).join('')}
+            ${wrongAnswers.length > 5 ? `<div style="color:#666;font-size:0.8rem;text-align:center;">+ ${wrongAnswers.length-5} أسئلة أخرى</div>` : ''}
+        </div>
+    ` : '';
+
+    overlay.innerHTML = `
+        <div style="max-width:420px; width:100%; text-align:center;">
+            <!-- Score circle -->
+            <div style="position:relative; width:140px; height:140px; margin:0 auto 20px;">
+                <svg width="140" height="140" style="transform:rotate(-90deg);">
+                    <circle cx="70" cy="70" r="60" fill="none" stroke="#1a1a2e" stroke-width="12"/>
+                    <circle cx="70" cy="70" r="60" fill="none" stroke="${color}" stroke-width="12"
+                        stroke-dasharray="${2*Math.PI*60}" 
+                        stroke-dashoffset="${2*Math.PI*60*(1-pct/100)}"
+                        stroke-linecap="round"
+                        style="filter:drop-shadow(0 0 8px ${color}); transition:stroke-dashoffset 1.2s ease;"/>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                    <div style="font-size:2rem; font-weight:900; color:${color};">${pct}%</div>
+                    <div style="font-size:0.75rem; color:#666;">${score}/${total}</div>
+                </div>
+            </div>
+
+            <div style="font-size:2.5rem; margin-bottom:8px;">${emoji}</div>
+            <div style="font-size:1.4rem; font-weight:800; color:#fff; margin-bottom:6px;">${title}</div>
+            <div style="color:${color}; font-size:1rem; font-weight:600; margin-bottom:20px;">${msg}</div>
+
+            <!-- Stats -->
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px;">
+                <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:14px;padding:14px 6px;">
+                    <div style="font-size:1.5rem;font-weight:900;color:#10b981;">${correctCount}</div>
+                    <div style="font-size:0.72rem;color:#555;margin-top:2px;">إجابات صحيحة</div>
+                </div>
+                <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:14px 6px;">
+                    <div style="font-size:1.5rem;font-weight:900;color:#ef4444;">${wrongAnswers.length}</div>
+                    <div style="font-size:0.72rem;color:#555;margin-top:2px;">إجابات خاطئة</div>
+                </div>
+                <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);border-radius:14px;padding:14px 6px;">
+                    <div style="font-size:1.5rem;font-weight:900;color:#3b82f6;">${essayCount}</div>
+                    <div style="font-size:0.72rem;color:#555;margin-top:2px;">أسئلة مقالية</div>
+                </div>
+            </div>
+
+            ${!isFirstAttempt ? `<div style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:12px;padding:10px;margin-bottom:16px;font-size:0.82rem;color:#ffd700;">⚡ درجتك الأولى محفوظة — هذه المحاولة لم تُحسب</div>` : ''}
+
+            ${wrongHtml}
+
+            <button onclick="document.getElementById('exam-result-overlay').remove(); loadStudentExams(); loadStudentGrades();"
+                style="margin-top:24px; width:100%; padding:16px; background:${color}; color:#000; border:none; border-radius:16px; font-size:1rem; font-weight:800; cursor:pointer; box-shadow:0 6px 0 rgba(0,0,0,0.4), 0 4px 20px ${color}44;">
+                ${pct >= 50 ? '🎉 رائع! العودة للرئيسية' : '📚 العودة والمراجعة'}
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+    // Animate circle
+    setTimeout(() => {
+        const circle = overlay.querySelector('circle:last-child');
+        if (circle) circle.style.strokeDashoffset = String(2*Math.PI*60*(1-pct/100));
+    }, 100);
+    loadStudentGrades();
+}
 
 window.reviewTest = async (id) => {
     playSound('click');
