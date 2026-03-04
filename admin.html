@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SA EDU — لوحة الإدارة</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+  --bg:#000; --surface:#0a0a0a; --card:#111; --border:#1c1c1c;
+  --blue:#3b82f6; --purple:#d946ef; --green:#10b981;
+  --gold:#ffd700; --red:#ef4444; --orange:#f97316;
+  --text:#e0e0e0; --muted:#555; --accent:var(--blue);
+  --nav:56px; --sidebar:240px; --radius:14px;
+  --transition:all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse at 40% 30%,rgba(59,130,246,.15) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(217,70,239,.1) 0%,transparent 60%),#000;display:flex;align-items:center;justify-content:center;}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px 32px;width:100%;max-width:380px;text-align:center;box-shadow:0 40px 80px rgba(0,0,0,.8);}
+.login-logo{font-size:2.8rem;margin-bottom:6px;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.login-card h2{font-size:1.4rem;font-weight:800;margin-bottom:4px;}
+.login-card p{color:var(--muted);font-size:.85rem;margin-bottom:28px;}
+.login-input{width:100%;background:#0d0d0d;border:1px solid var(--border);color:var(--text);padding:14px 16px;border-radius:12px;font-size:1rem;font-family:inherit;margin-bottom:14px;outline:none;transition:var(--transition);}
+.login-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.15);}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;border-radius:12px;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;box-shadow:0 6px 0 #1d4ed8,0 4px 20px rgba(59,130,246,.3);transition:var(--transition);}
+.login-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #1d4ed8;}
+.login-err{color:var(--red);font-size:.82rem;margin-top:10px;min-height:20px;}
+
+/* ── LAYOUT ── */
+#admin-shell{display:none;min-height:100vh;}
+.admin-layout{display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);background:var(--surface);border-left:1px solid var(--border);height:100vh;position:fixed;right:0;top:0;display:flex;flex-direction:column;z-index:100;transition:var(--transition);}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);}
+.sidebar-logo .brand{font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sidebar-logo .brand-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.sidebar-nav{flex:1;padding:12px 8px;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;cursor:pointer;color:var(--muted);font-size:.88rem;font-weight:600;margin-bottom:4px;transition:var(--transition);}
+.nav-item i{width:18px;text-align:center;font-size:.95rem;}
+.nav-item:hover{background:rgba(255,255,255,.04);color:#999;}
+.nav-item.active{background:rgba(59,130,246,.12);color:var(--blue);}
+.nav-item .badge{margin-right:auto;background:var(--red);color:#fff;font-size:.65rem;padding:2px 7px;border-radius:10px;font-weight:700;}
+.nav-section-title{font-size:.68rem;color:#333;font-weight:700;letter-spacing:.08em;padding:8px 14px 4px;text-transform:uppercase;}
+.sidebar-footer{padding:14px 10px;border-top:1px solid var(--border);}
+.logout-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;cursor:pointer;color:var(--red);font-size:.85rem;font-weight:600;transition:var(--transition);}
+.logout-btn:hover{background:rgba(239,68,68,.08);}
+
+/* ── MAIN CONTENT ── */
+.main-content{margin-right:var(--sidebar);flex:1;padding:24px;min-height:100vh;}
+.page{display:none;animation:pageIn .25s ease;}
+.page.active{display:block;}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;}
+.page-title{font-size:1.5rem;font-weight:900;}
+.page-sub{font-size:.82rem;color:var(--muted);margin-top:2px;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:-30px;left:-30px;width:100px;height:100px;border-radius:50%;opacity:.08;}
+.stat-card.blue::before{background:var(--blue);}
+.stat-card.purple::before{background:var(--purple);}
+.stat-card.green::before{background:var(--green);}
+.stat-card.gold::before{background:var(--gold);}
+.stat-card.red::before{background:var(--red);}
+.stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:14px;}
+.stat-icon.blue{background:rgba(59,130,246,.12);color:var(--blue);}
+.stat-icon.purple{background:rgba(217,70,239,.12);color:var(--purple);}
+.stat-icon.green{background:rgba(16,185,129,.12);color:var(--green);}
+.stat-icon.gold{background:rgba(255,215,0,.12);color:var(--gold);}
+.stat-icon.red{background:rgba(239,68,68,.12);color:var(--red);}
+.stat-num{font-size:2rem;font-weight:900;line-height:1;}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:4px;}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+th{background:#0d0d0d;color:var(--muted);font-size:.78rem;font-weight:700;padding:12px 16px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:12px 16px;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;font-size:.72rem;font-weight:700;}
+.tag.green{background:rgba(16,185,129,.12);color:var(--green);}
+.tag.red{background:rgba(239,68,68,.12);color:var(--red);}
+.tag.blue{background:rgba(59,130,246,.12);color:var(--blue);}
+.tag.gold{background:rgba(255,215,0,.12);color:var(--gold);}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:10px;border:none;cursor:pointer;font-size:.83rem;font-weight:700;font-family:inherit;transition:var(--transition);}
+.btn:active{transform:scale(.96);}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 4px 0 #1d4ed8;}
+.btn-primary:active{box-shadow:0 1px 0 #1d4ed8;transform:translateY(3px);}
+.btn-danger{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2);}
+.btn-danger:hover{background:var(--red);color:#fff;}
+.btn-ghost{background:rgba(255,255,255,.05);color:#888;border:1px solid var(--border);}
+.btn-ghost:hover{background:rgba(255,255,255,.08);color:var(--text);}
+.btn-green{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.2);}
+.btn-green:hover{background:var(--green);color:#000;}
+.btn-sm{padding:6px 12px;font-size:.76rem;}
+
+/* ── SEARCH + FILTER BAR ── */
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.search-input{background:#0d0d0d;border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:.85rem;font-family:inherit;outline:none;flex:1;min-width:180px;transition:var(--transition);}
+.search-input:focus{border-color:var(--blue);}
+.select-input{background:#0d0d0d;border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:.85rem;font-family:inherit;outline:none;cursor:pointer;}
+.select-input:focus{border-color:var(--blue);}
+
+/* ── THEME BUILDER ── */
+.theme-section{margin-bottom:28px;}
+.theme-section h3{font-size:1rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+.color-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:var(--transition);}
+.color-item:hover{border-color:#333;transform:translateY(-2px);}
+.color-item.selected{border-color:var(--blue);box-shadow:0 0 0 2px rgba(59,130,246,.3);}
+.color-swatch{height:44px;border-radius:8px;margin-bottom:8px;}
+.color-name{font-size:.75rem;font-weight:600;color:var(--text);}
+.color-val{font-size:.68rem;color:var(--muted);}
+.preset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.preset-card{background:var(--card);border:2px solid var(--border);border-radius:14px;padding:14px;cursor:pointer;transition:var(--transition);text-align:center;}
+.preset-card:hover{transform:translateY(-3px);border-color:#333;}
+.preset-card.active{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.2);}
+.preset-preview{display:flex;gap:4px;justify-content:center;margin-bottom:8px;}
+.preset-dot{width:16px;height:16px;border-radius:50%;}
+.preset-name{font-size:.82rem;font-weight:700;}
+.custom-color-row{display:flex;align-items:center;gap:12px;padding:12px;background:#0d0d0d;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;}
+.custom-color-row label{font-size:.82rem;color:var(--muted);flex:1;}
+.color-picker{width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;background:transparent;padding:0;}
+.custom-color-row input[type=text]{background:transparent;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:.8rem;width:100px;font-family:monospace;outline:none;}
+.font-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.font-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;transition:var(--transition);text-align:center;}
+.font-card:hover{border-color:#333;}
+.font-card.active{border-color:var(--blue);}
+.font-preview{font-size:1.3rem;margin-bottom:6px;}
+.font-name{font-size:.75rem;color:var(--muted);}
+.radius-slider{display:flex;align-items:center;gap:14px;}
+.radius-slider input[type=range]{flex:1;accent-color:var(--blue);}
+.radius-preview{display:flex;gap:8px;}
+.radius-box{width:40px;height:40px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#fff;font-weight:700;}
+.icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:8px;max-height:300px;overflow-y:auto;}
+.icon-item{background:var(--card);border:2px solid var(--border);border-radius:10px;padding:10px;cursor:pointer;text-align:center;font-size:1.3rem;transition:var(--transition);}
+.icon-item:hover{border-color:#333;transform:scale(1.05);}
+.icon-item.active{border-color:var(--blue);}
+.apply-btn-row{position:sticky;bottom:16px;display:flex;gap:10px;justify-content:flex-end;padding-top:16px;}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:1.1rem;font-weight:800;margin-bottom:16px;}
+.modal-input{width:100%;background:#0d0d0d;border:1px solid var(--border);color:var(--text);padding:12px 14px;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;margin-bottom:10px;transition:var(--transition);}
+.modal-input:focus{border-color:var(--blue);}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+
+/* ── ACTIVITY LOG ── */
+.log-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.log-item:last-child{border-bottom:none;}
+.log-dot{width:8px;height:8px;border-radius:50%;margin-top:6px;flex-shrink:0;}
+.log-time{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+.log-text{font-size:.83rem;flex:1;}
+
+/* ── CHARTS ── */
+.chart-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.chart-bar-label{font-size:.78rem;color:var(--muted);width:100px;text-align:right;flex-shrink:0;}
+.chart-bar-track{flex:1;height:8px;background:#1a1a1a;border-radius:4px;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1);}
+.chart-bar-val{font-size:.75rem;color:var(--muted);width:40px;}
+
+/* ── TOGGLE ── */
+.toggle{width:44px;height:24px;background:#1a1a1a;border-radius:12px;position:relative;cursor:pointer;border:1px solid var(--border);transition:var(--transition);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#444;border-radius:50%;top:2px;right:2px;transition:var(--transition);}
+.toggle.on{background:var(--blue);border-color:var(--blue);}
+.toggle.on::after{background:#fff;transform:translateX(-20px);}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#111;border:1px solid var(--border);border-radius:14px;padding:12px 20px;font-size:.85rem;font-weight:600;z-index:99999;opacity:0;transition:.3s;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.6);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── MOBILE SIDEBAR ── */
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;backdrop-filter:blur(2px);}
+.mobile-header{display:none;position:fixed;top:0;left:0;right:0;height:52px;background:var(--surface);border-bottom:1px solid var(--border);z-index:200;padding:0 16px;align-items:center;gap:12px;}
+.mobile-menu-btn{width:36px;height:36px;border:1px solid var(--border);background:transparent;color:var(--text);border-radius:10px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+
+/* ── CONFIRM DIALOG ── */
+.confirm-overlay{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.confirm-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 24px;max-width:360px;width:100%;text-align:center;}
+.confirm-box h4{font-size:1.1rem;margin-bottom:8px;}
+.confirm-box p{font-size:.85rem;color:var(--muted);margin-bottom:20px;}
+.confirm-btns{display:flex;gap:10px;}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty-state i{font-size:2.5rem;opacity:.3;margin-bottom:12px;display:block;}
+.empty-state p{font-size:.9rem;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{right:-100%;transition:right .3s ease;}
+  .sidebar.open{right:0;}
+  #sidebar-overlay.show{display:block;}
+  .mobile-header{display:flex;}
+  .main-content{margin-right:0;padding:16px;padding-top:68px;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .page-header{flex-direction:column;align-items:flex-start;}
+  .color-grid{grid-template-columns:repeat(2,1fr);}
+  .preset-grid{grid-template-columns:repeat(2,1fr);}
+  .font-grid{grid-template-columns:repeat(2,1fr);}
+  th,td{padding:10px 12px;}
+}
+@media(max-width:480px){
+  .stat-grid{grid-template-columns:1fr 1fr;}
+  .filter-bar{flex-direction:column;}
+  .search-input{width:100%;}
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:#222;border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:#333;}
+
+.skeleton{background:linear-gradient(90deg,#111 25%,#1a1a1a 50%,#111 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.skel-row{height:16px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><i class="fas fa-shield-halved"></i></div>
+    <h2>لوحة إدارة SA EDU</h2>
+    <p>ادخل بيانات الأدمن للمتابعة</p>
+    <input class="login-input" type="text" id="admin-user" placeholder="اسم المستخدم" autocomplete="off">
+    <input class="login-input" type="password" id="admin-pass" placeholder="كلمة المرور" onkeypress="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> دخول</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div id="admin-shell">
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <button class="mobile-menu-btn" onclick="openSidebar()"><i class="fas fa-bars"></i></button>
+    <span style="font-weight:800;font-size:1rem;">SA EDU Admin</span>
+  </div>
+
+  <div class="admin-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="brand">⚡ SA EDU Admin</div>
+        <div class="brand-sub">لوحة التحكم الكاملة</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">الرئيسية</div>
+        <div class="nav-item active" onclick="goto('dashboard')"><i class="fas fa-chart-pie"></i> لوحة التحكم</div>
+        <div class="nav-item" onclick="goto('activity')"><i class="fas fa-bolt"></i> النشاط الحي</div>
+
+        <div class="nav-section-title">المستخدمون</div>
+        <div class="nav-item" onclick="goto('students')"><i class="fas fa-user-graduate"></i> الطلاب <span class="badge" id="nb-students">0</span></div>
+        <div class="nav-item" onclick="goto('teachers')"><i class="fas fa-chalkboard-teacher"></i> المعلمون <span class="badge" id="nb-teachers">0</span></div>
+
+        <div class="nav-section-title">المحتوى</div>
+        <div class="nav-item" onclick="goto('exams')"><i class="fas fa-file-alt"></i> الاختبارات <span class="badge" id="nb-exams">0</span></div>
+        <div class="nav-item" onclick="goto('results')"><i class="fas fa-chart-bar"></i> النتائج</div>
+        <div class="nav-item" onclick="goto('chats')"><i class="fas fa-comments"></i> الرسائل</div>
+
+        <div class="nav-section-title">الإعدادات</div>
+        <div class="nav-item" onclick="goto('design')"><i class="fas fa-palette"></i> التصميم والألوان</div>
+        <div class="nav-item" onclick="goto('settings')"><i class="fas fa-cog"></i> إعدادات المنصة</div>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="logout-btn" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div><div class="page-title">لوحة التحكم 📊</div><div class="page-sub" id="dash-date"></div></div>
+          <button class="btn btn-primary btn-sm" onclick="loadAll()"><i class="fas fa-sync-alt"></i> تحديث</button>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card blue"><div class="stat-icon blue"><i class="fas fa-user-graduate"></i></div><div class="stat-num" id="s-count">—</div><div class="stat-label">طالب مسجل</div></div>
+          <div class="stat-card purple"><div class="stat-icon purple"><i class="fas fa-chalkboard-teacher"></i></div><div class="stat-num" id="t-count">—</div><div class="stat-label">معلم مسجل</div></div>
+          <div class="stat-card green"><div class="stat-icon green"><i class="fas fa-file-alt"></i></div><div class="stat-num" id="e-count">—</div><div class="stat-label">اختبار منشور</div></div>
+          <div class="stat-card gold"><div class="stat-icon gold"><i class="fas fa-star"></i></div><div class="stat-num" id="r-count">—</div><div class="stat-label">نتيجة مسجلة</div></div>
+          <div class="stat-card red"><div class="stat-icon red"><i class="fas fa-comments"></i></div><div class="stat-num" id="m-count">—</div><div class="stat-label">رسالة دردشة</div></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:14px;font-size:.95rem;">🏆 أعلى طلاب نتائجاً</div>
+            <div id="top-students-list"><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div></div>
+          </div>
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:14px;font-size:.95rem;">📚 أكثر اختبارات حُلّت</div>
+            <div id="top-exams-list"><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:16px;font-size:.95rem;">📈 توزيع الدرجات</div>
+          <div id="grade-dist-chart">
+            <div class="chart-bar-row"><div class="chart-bar-label">ممتاز 90%+</div><div class="chart-bar-track"><div class="chart-bar-fill" id="bar-excellent" style="width:0%;background:var(--gold);"></div></div><div class="chart-bar-val" id="val-excellent">0</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">جيد جداً 70%+</div><div class="chart-bar-track"><div class="chart-bar-fill" id="bar-vgood" style="width:0%;background:var(--blue);"></div></div><div class="chart-bar-val" id="val-vgood">0</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">جيد 50%+</div><div class="chart-bar-track"><div class="chart-bar-fill" id="bar-good" style="width:0%;background:var(--green);"></div></div><div class="chart-bar-val" id="val-good">0</div></div>
+            <div class="chart-bar-row"><div class="chart-bar-label">ضعيف أقل 50%</div><div class="chart-bar-track"><div class="chart-bar-fill" id="bar-weak" style="width:0%;background:var(--red);"></div></div><div class="chart-bar-val" id="val-weak">0</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ACTIVITY ── -->
+      <div class="page" id="page-activity">
+        <div class="page-header">
+          <div><div class="page-title">النشاط الحي ⚡</div><div class="page-sub">آخر الأحداث على المنصة</div></div>
+          <button class="btn btn-ghost btn-sm" onclick="loadActivity()"><i class="fas fa-sync-alt"></i> تحديث</button>
+        </div>
+        <div class="card"><div id="activity-log"><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div></div></div>
+      </div>
+
+      <!-- ── STUDENTS ── -->
+      <div class="page" id="page-students">
+        <div class="page-header">
+          <div><div class="page-title">الطلاب 👨‍🎓</div><div class="page-sub">إدارة حسابات الطلاب</div></div>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllStudents()"><i class="fas fa-trash"></i> حذف الكل</button>
+        </div>
+        <div class="filter-bar">
+          <input class="search-input" placeholder="🔍 ابحث باسم الطالب..." id="search-students" oninput="renderStudents()">
+          <select class="select-input" id="filter-students" onchange="renderStudents()">
+            <option value="">كل الطلاب</option>
+            <option value="active">نشطون (امتحنوا)</option>
+            <option value="idle">لم يمتحنوا</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>الطالب</th><th>UID</th><th>الاختبارات</th><th>أعلى درجة</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="students-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px;">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── TEACHERS ── -->
+      <div class="page" id="page-teachers">
+        <div class="page-header">
+          <div><div class="page-title">المعلمون 👨‍🏫</div><div class="page-sub">إدارة حسابات المعلمين</div></div>
+        </div>
+        <div class="filter-bar">
+          <input class="search-input" placeholder="🔍 ابحث باسم المعلم..." id="search-teachers" oninput="renderTeachers()">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>المعلم</th><th>UID</th><th>اختباراته</th><th>إجراءات</th></tr></thead>
+            <tbody id="teachers-tbody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:30px;">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── EXAMS ── -->
+      <div class="page" id="page-exams">
+        <div class="page-header">
+          <div><div class="page-title">الاختبارات 📝</div><div class="page-sub">عرض وإدارة جميع الاختبارات</div></div>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllExams()"><i class="fas fa-trash"></i> حذف الكل</button>
+        </div>
+        <div class="filter-bar">
+          <input class="search-input" placeholder="🔍 ابحث باسم الاختبار..." id="search-exams" oninput="renderExams()">
+          <select class="select-input" id="filter-exams-subject" onchange="renderExams()">
+            <option value="">كل المواد</option>
+            <option>رياضيات</option><option>علوم</option><option>عربي</option>
+            <option>إنجليزي</option><option>تاريخ</option><option>فيزياء</option><option>كيمياء</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>الاختبار</th><th>المعلم</th><th>المادة</th><th>الأسئلة</th><th>المدة</th><th>الطلاب</th><th>إجراءات</th></tr></thead>
+            <tbody id="exams-tbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px;">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── RESULTS ── -->
+      <div class="page" id="page-results">
+        <div class="page-header">
+          <div><div class="page-title">النتائج 🏆</div><div class="page-sub">كل نتائج الطلاب</div></div>
+          <select class="select-input" id="results-exam-filter" onchange="renderResults()">
+            <option value="">كل الاختبارات</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>الطالب</th><th>الاختبار</th><th>الدرجة</th><th>النسبة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+            <tbody id="results-tbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px;">جاري التحميل...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── CHATS ── -->
+      <div class="page" id="page-chats">
+        <div class="page-header">
+          <div><div class="page-title">الرسائل 💬</div><div class="page-sub">مراقبة المحادثات</div></div>
+        </div>
+        <div class="card" id="chats-content"><div class="skeleton skel-row"></div><div class="skeleton skel-row"></div></div>
+      </div>
+
+      <!-- ── DESIGN ── -->
+      <div class="page" id="page-design">
+        <div class="page-header">
+          <div><div class="page-title">التصميم والألوان 🎨</div><div class="page-sub">خصّص مظهر منصة SA EDU</div></div>
+        </div>
+
+        <!-- Presets -->
+        <div class="theme-section">
+          <h3><i class="fas fa-magic" style="color:var(--purple);"></i> ثيمات جاهزة</h3>
+          <div class="preset-grid" id="preset-grid"></div>
+        </div>
+
+        <!-- Accent Colors -->
+        <div class="theme-section">
+          <h3><i class="fas fa-droplet" style="color:var(--blue);"></i> لون الأساس (Accent)</h3>
+          <div class="color-grid" id="accent-grid"></div>
+        </div>
+
+        <!-- Background Colors -->
+        <div class="theme-section">
+          <h3><i class="fas fa-square" style="color:var(--muted);"></i> لون الخلفية</h3>
+          <div class="color-grid" id="bg-grid"></div>
+        </div>
+
+        <!-- Custom Colors -->
+        <div class="theme-section">
+          <h3><i class="fas fa-sliders-h" style="color:var(--green);"></i> ألوان مخصصة</h3>
+          <div class="custom-color-row">
+            <label>لون الأساس</label>
+            <input type="color" class="color-picker" id="custom-accent" value="#3b82f6" oninput="previewCustom()">
+            <input type="text" id="custom-accent-hex" value="#3b82f6" oninput="syncColorPicker('custom-accent',this.value)">
+          </div>
+          <div class="custom-color-row">
+            <label>لون الخلفية</label>
+            <input type="color" class="color-picker" id="custom-bg" value="#000000" oninput="previewCustom()">
+            <input type="text" id="custom-bg-hex" value="#000000" oninput="syncColorPicker('custom-bg',this.value)">
+          </div>
+          <div class="custom-color-row">
+            <label>لون البطاقات</label>
+            <input type="color" class="color-picker" id="custom-card" value="#111111" oninput="previewCustom()">
+            <input type="text" id="custom-card-hex" value="#111111" oninput="syncColorPicker('custom-card',this.value)">
+          </div>
+        </div>
+
+        <!-- Fonts -->
+        <div class="theme-section">
+          <h3><i class="fas fa-font" style="color:var(--gold);"></i> الخط</h3>
+          <div class="font-grid" id="font-grid"></div>
+        </div>
+
+        <!-- Border Radius -->
+        <div class="theme-section">
+          <h3><i class="fas fa-border-all" style="color:var(--orange);"></i> استدارة الزوايا</h3>
+          <div class="card" style="padding:16px;">
+            <div class="radius-slider">
+              <span style="font-size:.8rem;color:var(--muted);">حادة</span>
+              <input type="range" min="0" max="28" value="14" id="radius-range" oninput="previewRadius(this.value)">
+              <span style="font-size:.8rem;color:var(--muted);">دائرية</span>
+              <div class="radius-preview">
+                <div class="radius-box" id="radius-box-preview">14px</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nav Icons -->
+        <div class="theme-section">
+          <h3><i class="fas fa-icons" style="color:var(--red);"></i> أيقونات التنقل</h3>
+          <div style="margin-bottom:12px;font-size:.82rem;color:var(--muted);">اختر أيقونات الأقسام الأربعة</div>
+          <div id="icon-selector-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"></div>
+        </div>
+
+        <!-- Apply -->
+        <div class="apply-btn-row">
+          <button class="btn btn-ghost" onclick="resetDesign()"><i class="fas fa-undo"></i> إعادة تعيين</button>
+          <button class="btn btn-primary" onclick="applyDesign()"><i class="fas fa-check"></i> تطبيق على المنصة</button>
+        </div>
+      </div>
+
+      <!-- ── SETTINGS ── -->
+      <div class="page" id="page-settings">
+        <div class="page-header">
+          <div><div class="page-title">إعدادات المنصة ⚙️</div></div>
+        </div>
+        <div style="display:grid;gap:14px;max-width:600px;">
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:14px;">🔐 تغيير بيانات الأدمن</div>
+            <input class="modal-input" type="text" id="set-new-user" placeholder="اسم مستخدم جديد">
+            <input class="modal-input" type="password" id="set-new-pass" placeholder="كلمة مرور جديدة">
+            <input class="modal-input" type="password" id="set-confirm-pass" placeholder="تأكيد كلمة المرور">
+            <button class="btn btn-primary" onclick="changeAdminCreds()"><i class="fas fa-save"></i> حفظ</button>
+          </div>
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:14px;">🛡️ إعدادات عامة</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div><div style="font-size:.88rem;font-weight:600;">السماح بالتسجيل الجديد</div><div style="font-size:.75rem;color:var(--muted);">السماح للطلاب والمعلمين بإنشاء حسابات</div></div>
+                <div class="toggle on" id="toggle-reg" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div><div style="font-size:.88rem;font-weight:600;">الوضع الليلي الإجباري</div><div style="font-size:.75rem;color:var(--muted);">إجبار الثيم الداكن على المنصة</div></div>
+                <div class="toggle on" id="toggle-dark" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div><div style="font-size:.88rem;font-weight:600;">الإشعارات الصوتية</div><div style="font-size:.75rem;color:var(--muted);">تشغيل أصوات الأحداث</div></div>
+                <div class="toggle on" id="toggle-sound" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="border-color:rgba(239,68,68,.3);">
+            <div style="font-weight:700;margin-bottom:14px;color:var(--red);">⚠️ منطقة الخطر</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <button class="btn btn-danger" style="justify-content:flex-start;" onclick="clearAllChats()"><i class="fas fa-comment-slash"></i> مسح كل الرسائل</button>
+              <button class="btn btn-danger" style="justify-content:flex-start;" onclick="clearAllResults()"><i class="fas fa-chart-bar"></i> مسح كل النتائج</button>
+              <button class="btn btn-danger" style="justify-content:flex-start;" onclick="nukeAll()"><i class="fas fa-bomb"></i> مسح كل شيء (إعادة تعيين كاملة)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, get, set, remove, update, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyAjE-2q6PONBkCin9ZN22gDp9Q8pAH9ZW8",
+    authDomain: "story-97cf7.firebaseapp.com",
+    databaseURL: "https://story-97cf7-default-rtdb.firebaseio.com",
+    projectId: "story-97cf7",
+    storageBucket: "story-97cf7.firebasestorage.app",
+    messagingSenderId: "742801388214",
+    appId: "1:742801388214:web:32a305a8057b0582c5ec17"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── ADMIN CREDENTIALS (stored locally) ──
+const DEFAULT_USER = 'admin';
+const DEFAULT_PASS = 'saEDU2025!';
+let adminCreds = JSON.parse(localStorage.getItem('sa_admin_creds') || 'null') || { user: DEFAULT_USER, pass: DEFAULT_PASS };
+
+// ── GLOBAL DATA ──
+let allStudents = {}, allTeachers = {}, allExams = {}, allResults = {}, allChats = {};
+let designSettings = JSON.parse(localStorage.getItem('sa_design') || '{}');
+
+// ── LOGIN ──
+window.doLogin = () => {
+    const u = document.getElementById('admin-user').value.trim();
+    const p = document.getElementById('admin-pass').value;
+    if (u === adminCreds.user && p === adminCreds.pass) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('admin-shell').style.display = 'block';
+        loadAll();
+        applyStoredDesign();
+        document.getElementById('dash-date').innerText = new Date().toLocaleDateString('ar-EG', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    } else {
+        document.getElementById('login-err').innerText = '❌ بيانات خاطئة، حاول مرة أخرى';
+        setTimeout(() => document.getElementById('login-err').innerText = '', 2500);
+    }
+};
+window.doLogout = () => {
+    document.getElementById('admin-shell').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('admin-user').value = '';
+    document.getElementById('admin-pass').value = '';
+};
+
+// ── NAVIGATION ──
+window.goto = (page) => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => { if (n.innerText.trim().includes(['dashboard'=>'لوحة','activity'=>'النشاط','students'=>'الطلاب','teachers'=>'المعلمون','exams'=>'الاختبارات','results'=>'النتائج','chats'=>'الرسائل','design'=>'التصميم','settings'=>'إعدادات'][page] || '') n.classList.add('active'); });
+    // proper active state
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    const map = {dashboard:'لوحة التحكم',activity:'النشاط الحي',students:'الطلاب',teachers:'المعلمون',exams:'الاختبارات',results:'النتائج',chats:'الرسائل',design:'التصميم',settings:'إعدادات'};
+    document.querySelectorAll('.nav-item').forEach(n => { if(n.innerText.includes(map[page])) n.classList.add('active'); });
+    closeSidebar();
+    if (page === 'activity') loadActivity();
+    if (page === 'chats') loadChats();
+    if (page === 'results') renderResults();
+    if (page === 'design') initDesignPage();
+};
+
+window.openSidebar = () => { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebar-overlay').classList.add('show'); };
+window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebar-overlay').classList.remove('show'); };
+
+// ── LOAD ALL DATA ──
+window.loadAll = async () => {
+    const [stuSnap, teaSnap, exaSnap, resSnap, chatSnap] = await Promise.all([
+        get(ref(db, 'users/students')),
+        get(ref(db, 'users/teachers')),
+        get(ref(db, 'tests')),
+        get(ref(db, 'results')),
+        get(ref(db, 'chats')),
+    ]);
+    allStudents = stuSnap.val() || {};
+    allTeachers = teaSnap.val() || {};
+    allExams    = exaSnap.val() || {};
+    allResults  = resSnap.val() || {};
+    allChats    = chatSnap.val() || {};
+
+    const stuCount = Object.keys(allStudents).length;
+    const teaCount = Object.keys(allTeachers).length;
+    const exaCount = Object.keys(allExams).length;
+
+    // count total results
+    let resCount = 0, msgCount = 0;
+    Object.values(allResults).forEach(r => resCount += Object.keys(r).length);
+    Object.values(allChats).forEach(c => msgCount += Object.keys(c).length);
+
+    document.getElementById('s-count').innerText = stuCount;
+    document.getElementById('t-count').innerText = teaCount;
+    document.getElementById('e-count').innerText = exaCount;
+    document.getElementById('r-count').innerText = resCount;
+    document.getElementById('m-count').innerText = msgCount;
+    document.getElementById('nb-students').innerText = stuCount;
+    document.getElementById('nb-teachers').innerText = teaCount;
+    document.getElementById('nb-exams').innerText = exaCount;
+
+    renderStudents();
+    renderTeachers();
+    renderExams();
+    renderResults();
+    renderTopStudents();
+    renderTopExams();
+    renderGradeDist();
+    fillResultsFilter();
+};
+
+// ── STUDENTS ──
+window.renderStudents = () => {
+    const q = document.getElementById('search-students')?.value.toLowerCase() || '';
+    const f = document.getElementById('filter-students')?.value || '';
+    const tbody = document.getElementById('students-tbody');
+    const rows = [];
+
+    Object.entries(allStudents).forEach(([name, data]) => {
+        if (q && !name.toLowerCase().includes(q)) return;
+        // check if they took any exam
+        let examCount = 0, highestPct = 0;
+        Object.entries(allResults).forEach(([tid, res]) => {
+            if (res[name]) { examCount++; if(res[name].percentage > highestPct) highestPct = res[name].percentage; }
+        });
+        if (f === 'active' && examCount === 0) return;
+        if (f === 'idle' && examCount > 0) return;
+        const uid = data.uid || (name.charCodeAt(0).toString(16));
+        const col = highestPct >= 90 ? 'gold' : highestPct >= 50 ? 'green' : examCount === 0 ? 'blue' : 'red';
+        rows.push(`<tr>
+            <td><div style="font-weight:700;">${name}</div><div style="font-size:.72rem;color:var(--muted);">${data.phone||''}</div></td>
+            <td style="font-family:monospace;font-size:.75rem;color:var(--muted);">${(data.uid||'—').substring(0,12)}…</td>
+            <td><span class="tag blue">${examCount} اختبار</span></td>
+            <td><span class="tag ${col}">${highestPct}%</span></td>
+            <td><span class="tag ${examCount>0?'green':'blue'}">${examCount>0?'نشط':'لم يمتحن'}</span></td>
+            <td style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="viewStudentResults('${name}')"><i class="fas fa-chart-bar"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteStudent('${name}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`);
+    });
+    tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">لا يوجد طلاب</td></tr>';
+};
+
+window.viewStudentResults = (name) => {
+    const lines = [];
+    Object.entries(allResults).forEach(([tid, res]) => {
+        if (res[name]) {
+            const exam = allExams[tid];
+            lines.push(`<div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+                <div><div style="font-weight:700;">${exam?.title||tid}</div><div style="font-size:.75rem;color:var(--muted);">${new Date(res[name].timestamp).toLocaleDateString('ar-EG')}</div></div>
+                <span class="tag ${res[name].percentage>=50?'green':'red'}">${res[name].percentage}%</span>
+            </div>`);
+        }
+    });
+    showModal(`نتائج ${name}`, lines.length ? lines.join('') : '<div class="empty-state"><i class="fas fa-chart-bar"></i><p>لم يؤدِ أي اختبار</p></div>');
+};
+
+window.deleteStudent = (name) => {
+    confirmAction(`هل تريد حذف الطالب "${name}"؟`, 'سيتم حذف الحساب ونتائجه كاملاً', async () => {
+        await remove(ref(db, `users/students/${name}`));
+        // remove results
+        const ops = Object.keys(allResults).map(tid => remove(ref(db, `results/${tid}/${name}`)));
+        await Promise.all(ops);
+        delete allStudents[name];
+        toast('تم حذف الطالب', 'green');
+        renderStudents();
+        document.getElementById('s-count').innerText = Object.keys(allStudents).length;
+        document.getElementById('nb-students').innerText = Object.keys(allStudents).length;
+    });
+};
+
+window.deleteAllStudents = () => {
+    confirmAction('حذف كل الطلاب؟', 'سيتم حذف جميع الحسابات والنتائج، لا يمكن التراجع!', async () => {
+        await remove(ref(db, 'users/students'));
+        await remove(ref(db, 'results'));
+        allStudents = {}; allResults = {};
+        renderStudents(); toast('تم حذف كل الطلاب', 'green');
+        document.getElementById('s-count').innerText = 0;
+        document.getElementById('nb-students').innerText = 0;
+    });
+};
+
+// ── TEACHERS ──
+window.renderTeachers = () => {
+    const q = document.getElementById('search-teachers')?.value.toLowerCase() || '';
+    const tbody = document.getElementById('teachers-tbody');
+    const rows = [];
+    Object.entries(allTeachers).forEach(([name, data]) => {
+        if (q && !name.toLowerCase().includes(q)) return;
+        const examCount = Object.values(allExams).filter(e => e.teacher === name).length;
+        rows.push(`<tr>
+            <td><div style="font-weight:700;">${name}</div></td>
+            <td style="font-family:monospace;font-size:.75rem;color:var(--muted);">${(data.uid||'—').substring(0,12)}…</td>
+            <td><span class="tag purple">${examCount} اختبار</span></td>
+            <td style="display:flex;gap:6px;">
+                <button class="btn btn-danger btn-sm" onclick="deleteTeacher('${name}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`);
+    });
+    tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted);">لا يوجد معلمون</td></tr>';
+};
+
+window.deleteTeacher = (name) => {
+    confirmAction(`حذف المعلم "${name}"؟`, 'سيتم حذف الحساب فقط', async () => {
+        await remove(ref(db, `users/teachers/${name}`));
+        delete allTeachers[name];
+        renderTeachers(); toast('تم حذف المعلم', 'green');
+        document.getElementById('t-count').innerText = Object.keys(allTeachers).length;
+        document.getElementById('nb-teachers').innerText = Object.keys(allTeachers).length;
+    });
+};
+
+// ── EXAMS ──
+window.renderExams = () => {
+    const q = document.getElementById('search-exams')?.value.toLowerCase() || '';
+    const subj = document.getElementById('filter-exams-subject')?.value || '';
+    const tbody = document.getElementById('exams-tbody');
+    const rows = [];
+    Object.entries(allExams).forEach(([id, exam]) => {
+        if (q && !exam.title?.toLowerCase().includes(q)) return;
+        if (subj && exam.subject !== subj) return;
+        const takers = allResults[id] ? Object.keys(allResults[id]).length : 0;
+        const qCount = Array.isArray(exam.questions) ? exam.questions.length : Object.keys(exam.questions||{}).length;
+        rows.push(`<tr>
+            <td><div style="font-weight:700;">${exam.title}</div><div style="font-size:.72rem;color:var(--muted);">${id.substring(0,12)}…</div></td>
+            <td>${exam.teacher||'—'}</td>
+            <td><span class="tag blue">${exam.subject||'—'}</span></td>
+            <td>${qCount}</td>
+            <td>${exam.duration||'—'} دقيقة</td>
+            <td><span class="tag ${takers>0?'green':'blue'}">${takers} طالب</span></td>
+            <td style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="viewExamResults('${id}','${exam.title}')"><i class="fas fa-eye"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteExam('${id}','${exam.title}')"><i class="fas fa-trash"></i></button>
+            </td>
+        </tr>`);
+    });
+    tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">لا توجد اختبارات</td></tr>';
+};
+
+window.viewExamResults = (id, title) => {
+    const res = allResults[id] || {};
+    const rows = Object.entries(res).map(([s,r]) =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+            <div style="font-weight:600;">${s}</div>
+            <span class="tag ${r.percentage>=50?'green':'red'}">${r.percentage}% (${r.score}/${r.total})</span>
+        </div>`
+    ).join('') || '<div class="empty-state"><i class="fas fa-users"></i><p>لم يؤده أحد بعد</p></div>';
+    showModal(`نتائج: ${title}`, rows);
+};
+
+window.deleteExam = (id, title) => {
+    confirmAction(`حذف "${title}"؟`, 'سيتم حذف الاختبار ونتائجه كاملاً', async () => {
+        await remove(ref(db, `tests/${id}`));
+        await remove(ref(db, `results/${id}`));
+        delete allExams[id]; delete allResults[id];
+        renderExams(); toast('تم حذف الاختبار', 'green');
+        document.getElementById('e-count').innerText = Object.keys(allExams).length;
+        document.getElementById('nb-exams').innerText = Object.keys(allExams).length;
+    });
+};
+
+window.deleteAllExams = () => {
+    confirmAction('حذف كل الاختبارات؟', 'لا يمكن التراجع!', async () => {
+        await remove(ref(db, 'tests'));
+        await remove(ref(db, 'results'));
+        allExams = {}; allResults = {};
+        renderExams(); toast('تم حذف كل الاختبارات', 'green');
+        document.getElementById('e-count').innerText = 0;
+        document.getElementById('nb-exams').innerText = 0;
+    });
+};
+
+// ── RESULTS ──
+window.fillResultsFilter = () => {
+    const sel = document.getElementById('results-exam-filter');
+    sel.innerHTML = '<option value="">كل الاختبارات</option>';
+    Object.entries(allExams).forEach(([id,e]) => {
+        const opt = document.createElement('option');
+        opt.value = id; opt.innerText = e.title;
+        sel.appendChild(opt);
+    });
+};
+
+window.renderResults = () => {
+    const filter = document.getElementById('results-exam-filter')?.value || '';
+    const tbody = document.getElementById('results-tbody');
+    const rows = [];
+    Object.entries(allResults).forEach(([tid, res]) => {
+        if (filter && tid !== filter) return;
+        const exam = allExams[tid];
+        Object.entries(res).forEach(([student, r]) => {
+            rows.push(`<tr>
+                <td style="font-weight:700;">${student}</td>
+                <td>${exam?.title||tid}</td>
+                <td>${r.score}/${r.total}</td>
+                <td><span class="tag ${r.percentage>=90?'gold':r.percentage>=50?'green':'red'}">${r.percentage}%</span></td>
+                <td style="font-size:.78rem;color:var(--muted);">${r.timestamp?new Date(r.timestamp).toLocaleDateString('ar-EG'):'-'}</td>
+                <td><button class="btn btn-danger btn-sm" onclick="deleteResult('${tid}','${student}')"><i class="fas fa-trash"></i></button></td>
+            </tr>`);
+        });
+    });
+    tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--muted);">لا توجد نتائج</td></tr>';
+};
+
+window.deleteResult = async (tid, student) => {
+    await remove(ref(db, `results/${tid}/${student}`));
+    if (allResults[tid]) delete allResults[tid][student];
+    renderResults(); toast('تم حذف النتيجة');
+};
+
+// ── CHATS ──
+window.loadChats = () => {
+    const box = document.getElementById('chats-content');
+    const entries = Object.entries(allChats);
+    if (!entries.length) { box.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><p>لا توجد محادثات</p></div>'; return; }
+    box.innerHTML = entries.map(([cid, msgs]) => {
+        const msgList = Object.values(msgs||{});
+        const last = msgList[msgList.length-1];
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);">
+            <div><div style="font-weight:700;font-size:.88rem;">${cid.substring(0,30)}</div><div style="font-size:.75rem;color:var(--muted);">${msgList.length} رسالة ${last?.type==='voice'?'🎤':last?.type==='image'?'🖼️':'💬'}</div></div>
+            <button class="btn btn-danger btn-sm" onclick="deleteChat('${cid}')"><i class="fas fa-trash"></i></button>
+        </div>`;
+    }).join('');
+};
+
+window.deleteChat = async (cid) => {
+    await remove(ref(db, `chats/${cid}`));
+    delete allChats[cid];
+    loadChats(); toast('تم حذف المحادثة');
+};
+
+// ── ACTIVITY ──
+window.loadActivity = () => {
+    const log = document.getElementById('activity-log');
+    const events = [];
+    Object.entries(allStudents).forEach(([n]) => events.push({type:'student',text:`طالب جديد: ${n}`,color:'var(--blue)'}));
+    Object.entries(allExams).forEach(([,e]) => events.push({type:'exam',text:`اختبار: ${e.title} بواسطة ${e.teacher}`,color:'var(--green)'}));
+    Object.entries(allResults).forEach(([tid,res]) => Object.entries(res).forEach(([s,r]) =>
+        events.push({type:'result',text:`${s} أدّى "${allExams[tid]?.title||tid}" — ${r.percentage}%`,color:r.percentage>=50?'var(--green)':'var(--red)',time:r.timestamp})));
+    events.sort((a,b) => (b.time||0)-(a.time||0));
+    log.innerHTML = events.slice(0,30).map(e => `
+        <div class="log-item">
+            <div class="log-dot" style="background:${e.color};"></div>
+            <div class="log-text">${e.text}</div>
+            ${e.time?`<div class="log-time">${new Date(e.time).toLocaleDateString('ar-EG')}</div>`:''}
+        </div>`).join('') || '<div class="empty-state"><i class="fas fa-bolt"></i><p>لا يوجد نشاط بعد</p></div>';
+};
+
+// ── DASHBOARD CHARTS ──
+window.renderTopStudents = () => {
+    const scores = {};
+    Object.entries(allResults).forEach(([,res]) => Object.entries(res).forEach(([s,r]) => {
+        if (!scores[s] || r.percentage > scores[s]) scores[s] = r.percentage;
+    }));
+    const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('top-students-list').innerHTML = sorted.length ? sorted.map(([s,p]) => `
+        <div class="chart-bar-row"><div class="chart-bar-label">${s.split(' ')[0]}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${p}%;background:var(--blue);"></div></div>
+        <div class="chart-bar-val">${p}%</div></div>`).join('')
+    : '<div class="empty-state" style="padding:20px;"><i class="fas fa-trophy"></i><p style="font-size:.8rem;">لا يوجد بيانات</p></div>';
+};
+
+window.renderTopExams = () => {
+    const counts = {};
+    Object.entries(allResults).forEach(([tid,res]) => { counts[tid] = Object.keys(res).length; });
+    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('top-exams-list').innerHTML = sorted.length ? sorted.map(([tid,c]) => `
+        <div class="chart-bar-row"><div class="chart-bar-label">${(allExams[tid]?.title||tid).substring(0,12)}</div>
+        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.min(c*10,100)}%;background:var(--purple);"></div></div>
+        <div class="chart-bar-val">${c}</div></div>`).join('')
+    : '<div class="empty-state" style="padding:20px;"><i class="fas fa-file-alt"></i><p style="font-size:.8rem;">لا يوجد بيانات</p></div>';
+};
+
+window.renderGradeDist = () => {
+    let excellent=0,vgood=0,good=0,weak=0;
+    Object.values(allResults).forEach(res => Object.values(res).forEach(r => {
+        if(r.percentage>=90) excellent++;
+        else if(r.percentage>=70) vgood++;
+        else if(r.percentage>=50) good++;
+        else weak++;
+    }));
+    const total = excellent+vgood+good+weak || 1;
+    setTimeout(() => {
+        document.getElementById('bar-excellent').style.width = (excellent/total*100)+'%';
+        document.getElementById('bar-vgood').style.width = (vgood/total*100)+'%';
+        document.getElementById('bar-good').style.width = (good/total*100)+'%';
+        document.getElementById('bar-weak').style.width = (weak/total*100)+'%';
+        document.getElementById('val-excellent').innerText = excellent;
+        document.getElementById('val-vgood').innerText = vgood;
+        document.getElementById('val-good').innerText = good;
+        document.getElementById('val-weak').innerText = weak;
+    }, 200);
+};
+
+// ── DESIGN PAGE ──
+const ACCENT_COLORS = [
+    {name:'أزرق إلكتروني',val:'#3b82f6'},{name:'بنفسجي',val:'#d946ef'},{name:'أخضر زمردي',val:'#10b981'},
+    {name:'ذهبي',val:'#ffd700'},{name:'أحمر نار',val:'#ef4444'},{name:'برتقالي',val:'#f97316'},
+    {name:'وردي',val:'#ec4899'},{name:'سماوي',val:'#06b6d4'},{name:'ليموني',val:'#84cc16'},
+    {name:'بنفسجي غامق',val:'#7c3aed'},{name:'تيل',val:'#14b8a6'},{name:'رمادي فاتح',val:'#94a3b8'},
+];
+const BG_COLORS = [
+    {name:'أسود خالص',val:'#000000'},{name:'رمادي داكن جداً',val:'#050505'},{name:'داكن',val:'#0a0a0a'},
+    {name:'رمادي داكن',val:'#111111'},{name:'نيلي داكن',val:'#0a0f1e'},{name:'أخضر داكن',val:'#0a1a0a'},
+    {name:'بنفسجي داكن',val:'#0f0a1e'},{name:'بني داكن',val:'#1a0f0a'},{name:'تيل داكن',val:'#0a1a1a'},
+];
+const PRESETS = [
+    {name:'الافتراضي',colors:['#000','#3b82f6','#111']},
+    {name:'Midnight Purple',colors:['#0f0a1e','#d946ef','#1a1028']},
+    {name:'Ocean Dark',colors:['#0a0f1e','#06b6d4','#0f1828']},
+    {name:'Forest Night',colors:['#0a1a0a','#10b981','#0f1f0f']},
+    {name:'Sunset Glow',colors:['#1a0f0a','#f97316','#221510']},
+    {name:'Royal Gold',colors:['#0a0a00','#ffd700','#141400']},
+    {name:'Rose Dark',colors:['#1a0a12','#ec4899','#22101a']},
+    {name:'Crimson Night',colors:['#1a0a0a','#ef4444','#220f0f']},
+    {name:'Arctic',colors:['#050a14','#94a3b8','#0a1020']},
+    {name:'Cyber Green',colors:['#000a00','#84cc16','#061000']},
+    {name:'Deep Space',colors:['#000010','#7c3aed','#080018']},
+    {name:'Teal Matrix',colors:['#001414','#14b8a6','#00201e']},
+];
+const FONTS = [
+    {name:'Segoe UI (افتراضي)',val:"'Segoe UI',system-ui,sans-serif",preview:'أ'},
+    {name:'Cairo',val:"'Cairo',sans-serif",preview:'أ'},
+    {name:'Tajawal',val:"'Tajawal',sans-serif",preview:'أ'},
+    {name:'Almarai',val:"'Almarai',sans-serif",preview:'أ'},
+    {name:'Noto Kufi Arabic',val:"'Noto Kufi Arabic',sans-serif",preview:'أ'},
+    {name:'Monospace',val:"'Courier New',monospace",preview:'A'},
+];
+const NAV_ICON_SETS = [
+    {label:'اختبارات',options:['fa-file-alt','fa-scroll','fa-clipboard','fa-book-open','fa-graduation-cap']},
+    {label:'ريس',options:['fa-seedling','fa-fire','fa-star','fa-bolt','fa-compass']},
+    {label:'دردشة',options:['fa-comments','fa-message','fa-envelope','fa-comment-dots','fa-paper-plane']},
+    {label:'AI',options:['fa-wand-magic-sparkles','fa-robot','fa-brain','fa-microchip','fa-infinity']},
+];
+let currentDesign = {
+    accent: '#3b82f6', bg: '#000000', card: '#111111',
+    font: "'Segoe UI',system-ui,sans-serif", radius: 14,
+    icons: ['fa-file-alt','fa-seedling','fa-comments','fa-wand-magic-sparkles']
+};
+
+window.initDesignPage = () => {
+    // Presets
+    document.getElementById('preset-grid').innerHTML = PRESETS.map((p,i) =>
+        `<div class="preset-card ${JSON.stringify(p.colors)===JSON.stringify([currentDesign.bg,currentDesign.accent,currentDesign.card])?'active':''}" onclick="applyPreset(${i})">
+            <div class="preset-preview">${p.colors.map(c=>`<div class="preset-dot" style="background:${c};"></div>`).join('')}</div>
+            <div class="preset-name">${p.name}</div>
+        </div>`).join('');
+
+    // Accent colors
+    document.getElementById('accent-grid').innerHTML = ACCENT_COLORS.map(c =>
+        `<div class="color-item ${currentDesign.accent===c.val?'selected':''}" onclick="selectAccent('${c.val}')">
+            <div class="color-swatch" style="background:${c.val};box-shadow:0 4px 12px ${c.val}44;"></div>
+            <div class="color-name">${c.name}</div>
+            <div class="color-val">${c.val}</div>
+        </div>`).join('');
+
+    // BG colors
+    document.getElementById('bg-grid').innerHTML = BG_COLORS.map(c =>
+        `<div class="color-item ${currentDesign.bg===c.val?'selected':''}" onclick="selectBg('${c.val}')">
+            <div class="color-swatch" style="background:${c.val};border:1px solid #333;"></div>
+            <div class="color-name">${c.name}</div>
+            <div class="color-val">${c.val}</div>
+        </div>`).join('');
+
+    // Fonts
+    document.getElementById('font-grid').innerHTML = FONTS.map(f =>
+        `<div class="font-card ${currentDesign.font===f.val?'active':''}" onclick="selectFont('${f.val.replace(/'/g,'\\'')}')" style="font-family:${f.val};">
+            <div class="font-preview">${f.preview}</div>
+            <div class="font-name">${f.name}</div>
+        </div>`).join('');
+
+    // Icons
+    document.getElementById('icon-selector-wrap').innerHTML = NAV_ICON_SETS.map((set,si) =>
+        `<div><div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;font-weight:700;">${set.label}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${set.options.map(ic => `<div class="icon-item ${currentDesign.icons[si]===ic?'active':''}" onclick="selectIcon(${si},'${ic}',this)"><i class="fas ${ic}"></i></div>`).join('')}
+        </div></div>`).join('');
+
+    // Radius
+    document.getElementById('radius-range').value = currentDesign.radius;
+    document.getElementById('radius-box-preview').style.borderRadius = currentDesign.radius+'px';
+    document.getElementById('radius-box-preview').innerText = currentDesign.radius+'px';
+};
+
+window.applyPreset = (i) => {
+    const p = PRESETS[i];
+    currentDesign.bg = p.colors[0];
+    currentDesign.accent = p.colors[1];
+    currentDesign.card = p.colors[2];
+    document.getElementById('custom-accent').value = p.colors[1];
+    document.getElementById('custom-accent-hex').value = p.colors[1];
+    document.getElementById('custom-bg').value = p.colors[0];
+    document.getElementById('custom-bg-hex').value = p.colors[0];
+    document.getElementById('custom-card').value = p.colors[2];
+    document.getElementById('custom-card-hex').value = p.colors[2];
+    initDesignPage(); toast('تم تطبيق الثيم: '+p.name);
+};
+window.selectAccent = (v) => { currentDesign.accent = v; document.querySelectorAll('#accent-grid .color-item').forEach(el => el.classList.remove('selected')); event.currentTarget.classList.add('selected'); };
+window.selectBg = (v) => { currentDesign.bg = v; document.querySelectorAll('#bg-grid .color-item').forEach(el => el.classList.remove('selected')); event.currentTarget.classList.add('selected'); };
+window.selectFont = (v) => { currentDesign.font = v; document.querySelectorAll('.font-card').forEach(el => el.classList.remove('active')); event.currentTarget.classList.add('active'); };
+window.selectIcon = (si, ic, el) => { currentDesign.icons[si] = ic; el.closest('div').querySelectorAll('.icon-item').forEach(e => e.classList.remove('active')); el.classList.add('active'); };
+window.previewRadius = (v) => { document.getElementById('radius-box-preview').style.borderRadius = v+'px'; document.getElementById('radius-box-preview').innerText = v+'px'; currentDesign.radius = parseInt(v); };
+window.previewCustom = () => {
+    currentDesign.accent = document.getElementById('custom-accent').value;
+    currentDesign.bg = document.getElementById('custom-bg').value;
+    currentDesign.card = document.getElementById('custom-card').value;
+    document.getElementById('custom-accent-hex').value = currentDesign.accent;
+    document.getElementById('custom-bg-hex').value = currentDesign.bg;
+    document.getElementById('custom-card-hex').value = currentDesign.card;
+};
+window.syncColorPicker = (id, val) => { if(/^#[0-9a-f]{6}$/i.test(val)) { document.getElementById(id).value = val; previewCustom(); } };
+window.resetDesign = () => { currentDesign = {accent:'#3b82f6',bg:'#000000',card:'#111111',font:"'Segoe UI',system-ui,sans-serif",radius:14,icons:['fa-file-alt','fa-seedling','fa-comments','fa-wand-magic-sparkles']}; initDesignPage(); toast('تم إعادة التعيين'); };
+window.applyDesign = () => {
+    localStorage.setItem('sa_design', JSON.stringify(currentDesign));
+    applyStoredDesign();
+    // Save to Firebase so the main platform picks it up
+    set(ref(db, 'admin/design'), { ...currentDesign, updatedAt: Date.now() });
+    toast('✅ تم تطبيق التصميم على المنصة!', 'green');
+};
+function applyStoredDesign() {
+    const d = JSON.parse(localStorage.getItem('sa_design') || '{}');
+    if (!d.accent) return;
+    document.documentElement.style.setProperty('--accent', d.accent);
+    document.documentElement.style.setProperty('--blue', d.accent);
+    document.documentElement.style.setProperty('--bg', d.bg || '#000');
+    document.documentElement.style.setProperty('--card', d.card || '#111');
+    if (d.font) document.body.style.fontFamily = d.font;
+    if (d.radius) document.documentElement.style.setProperty('--radius', d.radius+'px');
+}
+
+// ── SETTINGS ──
+window.changeAdminCreds = () => {
+    const u = document.getElementById('set-new-user').value.trim();
+    const p = document.getElementById('set-new-pass').value;
+    const c = document.getElementById('set-confirm-pass').value;
+    if (!u || !p) return toast('أدخل البيانات كاملة', 'red');
+    if (p !== c) return toast('كلمة المرور غير متطابقة', 'red');
+    if (p.length < 6) return toast('كلمة المرور قصيرة جداً', 'red');
+    adminCreds = { user: u, pass: p };
+    localStorage.setItem('sa_admin_creds', JSON.stringify(adminCreds));
+    toast('✅ تم تغيير بيانات الأدمن', 'green');
+};
+
+window.clearAllChats = () => confirmAction('مسح كل الرسائل؟', '', async () => {
+    await remove(ref(db, 'chats'));
+    await remove(ref(db, 'user_chats'));
+    allChats = {}; toast('تم مسح الرسائل', 'green');
+});
+window.clearAllResults = () => confirmAction('مسح كل النتائج؟', '', async () => {
+    await remove(ref(db, 'results'));
+    allResults = {}; renderResults(); toast('تم مسح النتائج', 'green');
+});
+window.nukeAll = () => confirmAction('⚠️ مسح كل شيء؟', 'سيتم حذف الطلاب، المعلمون، الاختبارات، النتائج، الرسائل — لا رجعة!', async () => {
+    await Promise.all([
+        remove(ref(db,'users/students')), remove(ref(db,'users/teachers')),
+        remove(ref(db,'tests')), remove(ref(db,'results')),
+        remove(ref(db,'chats')), remove(ref(db,'user_chats')),
+        remove(ref(db,'rooms')),
+    ]);
+    allStudents={}; allTeachers={}; allExams={}; allResults={}; allChats={};
+    loadAll(); toast('⚠️ تم مسح كل شيء', 'red');
+});
+
+// ── UTILITIES ──
+window.toast = (msg, color='blue') => {
+    const t = document.getElementById('toast');
+    const colors = {blue:'var(--blue)',green:'var(--green)',red:'var(--red)',gold:'var(--gold)'};
+    t.style.borderColor = colors[color]||colors.blue;
+    t.style.color = colors[color]||colors.blue;
+    t.innerText = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+};
+
+window.showModal = (title, html) => {
+    const old = document.getElementById('generic-modal');
+    if (old) old.remove();
+    const bg = document.createElement('div');
+    bg.className = 'modal-bg'; bg.id = 'generic-modal';
+    bg.innerHTML = `<div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h3 style="margin:0;">${title}</h3><button class="btn btn-ghost btn-sm" onclick="document.getElementById('generic-modal').remove()"><i class="fas fa-times"></i></button></div>${html}</div>`;
+    document.body.appendChild(bg);
+};
+
+window.confirmAction = (title, sub, fn) => {
+    const old = document.getElementById('confirm-dlg');
+    if (old) old.remove();
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay'; overlay.id = 'confirm-dlg';
+    overlay.innerHTML = `
+        <div class="confirm-box">
+            <h4>${title}</h4>
+            ${sub?`<p>${sub}</p>`:''}
+            <div class="confirm-btns">
+                <button class="btn btn-ghost" style="flex:1;" onclick="document.getElementById('confirm-dlg').remove()">إلغاء</button>
+                <button class="btn btn-danger" style="flex:1;" id="confirm-yes-btn">تأكيد</button>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('confirm-yes-btn').onclick = () => { overlay.remove(); fn(); };
+};
+</script>
+</body>
+</html>
