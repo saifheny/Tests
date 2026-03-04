@@ -616,6 +616,18 @@ function loginSuccess(name, icon, uid) {
     
     // Update hero sections
     setTimeout(updateHeroSections, 300);
+
+    // Apply admin design settings from Firebase (live updates)
+    onValue(ref(db, 'admin/design'), (snap) => {
+        const d = snap.val();
+        if (!d) return;
+        const root = document.documentElement.style;
+        if (d.accent) { root.setProperty('--accent-primary', d.accent); root.setProperty('--blue', d.accent); root.setProperty('--accent-glow', d.accent + '55'); }
+        if (d.bg)     { root.setProperty('--bg-deep', d.bg); document.body.style.background = d.bg; }
+        if (d.card)   { root.setProperty('--bg-card', d.card); root.setProperty('--bg-surface', d.card); }
+        if (d.font)   { document.body.style.fontFamily = d.font; }
+        if (d.radius) { root.setProperty('--radius', d.radius + 'px'); }
+    });
 }
 
 function updateOGMeta(title, description, imageUrl) {
