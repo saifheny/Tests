@@ -594,8 +594,6 @@ window.goto = (page) => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(n => { if (n.innerText.trim().includes(['dashboard'=>'لوحة','activity'=>'النشاط','students'=>'الطلاب','teachers'=>'المعلمون','exams'=>'الاختبارات','results'=>'النتائج','chats'=>'الرسائل','design'=>'التصميم','settings'=>'إعدادات'][page] || '') n.classList.add('active'); });
-    // proper active state
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     const map = {dashboard:'لوحة التحكم',activity:'النشاط الحي',students:'الطلاب',teachers:'المعلمون',exams:'الاختبارات',results:'النتائج',chats:'الرسائل',design:'التصميم',settings:'إعدادات'};
     document.querySelectorAll('.nav-item').forEach(n => { if(n.innerText.includes(map[page])) n.classList.add('active'); });
@@ -878,7 +876,7 @@ window.loadActivity = () => {
     const log = document.getElementById('activity-log');
     const events = [];
     Object.entries(allStudents).forEach(([n]) => events.push({type:'student',text:`طالب جديد: ${n}`,color:'var(--blue)'}));
-    Object.entries(allExams).forEach(([,e]) => events.push({type:'exam',text:`اختبار: ${e.title} بواسطة ${e.teacher}`,color:'var(--green)'}));
+    Object.entries(allExams).forEach(([_tid,e]) => events.push({type:'exam',text:`اختبار: ${e.title} بواسطة ${e.teacher}`,color:'var(--green)'}));
     Object.entries(allResults).forEach(([tid,res]) => Object.entries(res).forEach(([s,r]) =>
         events.push({type:'result',text:`${s} أدّى "${allExams[tid]?.title||tid}" — ${r.percentage}%`,color:r.percentage>=50?'var(--green)':'var(--red)',time:r.timestamp})));
     events.sort((a,b) => (b.time||0)-(a.time||0));
@@ -893,7 +891,7 @@ window.loadActivity = () => {
 // ── DASHBOARD CHARTS ──
 window.renderTopStudents = () => {
     const scores = {};
-    Object.entries(allResults).forEach(([,res]) => Object.entries(res).forEach(([s,r]) => {
+    Object.entries(allResults).forEach(([_tid2,res]) => Object.entries(res).forEach(([s,r]) => {
         if (!scores[s] || r.percentage > scores[s]) scores[s] = r.percentage;
     }));
     const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]).slice(0,5);
@@ -1007,8 +1005,8 @@ window.initDesignPage = () => {
         </div>`).join('');
 
     // Fonts
-    document.getElementById('font-grid').innerHTML = FONTS.map(f =>
-        `<div class="font-card ${currentDesign.font===f.val?'active':''}" onclick="selectFont('${f.val.replace(/'/g,'\\'')}')" style="font-family:${f.val};">
+    document.getElementById('font-grid').innerHTML = FONTS.map((f,fi) =>
+        `<div class="font-card ${currentDesign.font===f.val?'active':''}" onclick="selectFontByIdx(${fi})" style="font-family:${f.val};">
             <div class="font-preview">${f.preview}</div>
             <div class="font-name">${f.name}</div>
         </div>`).join('');
@@ -1017,7 +1015,7 @@ window.initDesignPage = () => {
     document.getElementById('icon-selector-wrap').innerHTML = NAV_ICON_SETS.map((set,si) =>
         `<div><div style="font-size:.78rem;color:var(--muted);margin-bottom:8px;font-weight:700;">${set.label}</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
-            ${set.options.map(ic => `<div class="icon-item ${currentDesign.icons[si]===ic?'active':''}" onclick="selectIcon(${si},'${ic}',this)"><i class="fas ${ic}"></i></div>`).join('')}
+            ${set.options.map((ic,oi) => `<div class="icon-item ${currentDesign.icons[si]===ic?'active':''}" onclick="selectIconByIdx(${si},${oi},this)"><i class="fas ${ic}"></i></div>`).join('')}
         </div></div>`).join('');
 
     // Radius
@@ -1039,10 +1037,10 @@ window.applyPreset = (i) => {
     document.getElementById('custom-card-hex').value = p.colors[2];
     initDesignPage(); toast('تم تطبيق الثيم: '+p.name);
 };
+window.selectFontByIdx = (fi) => { currentDesign.font = FONTS[fi].val; document.querySelectorAll('.font-card').forEach(el => el.classList.remove('active')); event.currentTarget.classList.add('active'); };
+window.selectIconByIdx = (si, oi, el) => { currentDesign.icons[si] = NAV_ICON_SETS[si].options[oi]; el.closest('div').querySelectorAll('.icon-item').forEach(e => e.classList.remove('active')); el.classList.add('active'); };
 window.selectAccent = (v) => { currentDesign.accent = v; document.querySelectorAll('#accent-grid .color-item').forEach(el => el.classList.remove('selected')); event.currentTarget.classList.add('selected'); };
 window.selectBg = (v) => { currentDesign.bg = v; document.querySelectorAll('#bg-grid .color-item').forEach(el => el.classList.remove('selected')); event.currentTarget.classList.add('selected'); };
-window.selectFont = (v) => { currentDesign.font = v; document.querySelectorAll('.font-card').forEach(el => el.classList.remove('active')); event.currentTarget.classList.add('active'); };
-window.selectIcon = (si, ic, el) => { currentDesign.icons[si] = ic; el.closest('div').querySelectorAll('.icon-item').forEach(e => e.classList.remove('active')); el.classList.add('active'); };
 window.previewRadius = (v) => { document.getElementById('radius-box-preview').style.borderRadius = v+'px'; document.getElementById('radius-box-preview').innerText = v+'px'; currentDesign.radius = parseInt(v); };
 window.previewCustom = () => {
     currentDesign.accent = document.getElementById('custom-accent').value;
