@@ -684,17 +684,46 @@ window.renderStudents = () => {
 };
 
 window.viewStudentResults = (name) => {
+    const stu = allStudents[name] || {};
+    const infoHtml = `<div style="background:#0d0d0d;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="width:48px;height:48px;background:rgba(59,130,246,.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;"><i class="fas fa-user-graduate" style="color:var(--blue);"></i></div>
+            <div><div style="font-weight:800;font-size:1.1rem;">${name}</div><div style="font-size:.75rem;color:var(--muted);">طالب</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;">
+            <div style="background:rgba(255,255,255,.04);padding:8px 12px;border-radius:10px;"><span style="color:var(--muted);">UID:</span><br><code style="font-size:.72rem;color:var(--blue);">${stu.uid||'—'}</code></div>
+            <div style="background:rgba(255,255,255,.04);padding:8px 12px;border-radius:10px;"><span style="color:var(--muted);">رقم الهاتف:</span><br><strong>${stu.phone||'—'}</strong></div>
+            <div style="background:rgba(255,255,255,.04);padding:8px 12px;border-radius:10px;"><span style="color:var(--muted);">الصف:</span><br><strong>${stu.grade||'—'}</strong></div>
+            <div style="background:rgba(255,255,255,.04);padding:8px 12px;border-radius:10px;"><span style="color:var(--muted);">المدرسة:</span><br><strong>${stu.school||'—'}</strong></div>
+        </div>
+    </div>`;
+    let examCount=0, totalPct=0;
     const lines = [];
     Object.entries(allResults).forEach(([tid, res]) => {
         if (res[name]) {
+            examCount++;
+            totalPct += res[name].percentage;
             const exam = allExams[tid];
-            lines.push(`<div class="card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
-                <div><div style="font-weight:700;">${exam?.title||tid}</div><div style="font-size:.75rem;color:var(--muted);">${new Date(res[name].timestamp).toLocaleDateString('ar-EG')}</div></div>
-                <span class="tag ${res[name].percentage>=50?'green':'red'}">${res[name].percentage}%</span>
+            lines.push(`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+                <div>
+                    <div style="font-weight:600;">${exam?.title||tid}</div>
+                    <div style="font-size:.72rem;color:var(--muted);">${res[name].timestamp?new Date(res[name].timestamp).toLocaleDateString('ar-EG'):''} · ${res[name].score||0}/${res[name].total||0} درجة</div>
+                </div>
+                <span class="tag ${res[name].percentage>=90?'gold':res[name].percentage>=50?'green':'red'}">${res[name].percentage}%</span>
             </div>`);
         }
     });
-    showModal(`نتائج ${name}`, lines.length ? lines.join('') : '<div class="empty-state"><i class="fas fa-chart-bar"></i><p>لم يؤدِ أي اختبار</p></div>');
+    const statsHtml = examCount>0?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:900;color:var(--blue);">${examCount}</div>
+            <div style="font-size:.72rem;color:var(--muted);">اختبار أُدي</div>
+        </div>
+        <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:900;color:var(--green);">${Math.round(totalPct/examCount)}%</div>
+            <div style="font-size:.72rem;color:var(--muted);">متوسط الدرجات</div>
+        </div>
+    </div>`:'';
+    showModal('👤 '+name, infoHtml+statsHtml+(lines.length?'<div>'+lines.join('')+'</div>':'<div class="empty-state"><i class="fas fa-chart-bar"></i><p>لم يؤدِ أي اختبار</p></div>'));
 };
 
 window.deleteStudent = (name) => {
@@ -734,12 +763,45 @@ window.renderTeachers = () => {
             <td><div style="font-weight:700;">${name}</div></td>
             <td style="font-family:monospace;font-size:.75rem;color:var(--muted);">${(data.uid||'—').substring(0,12)}…</td>
             <td><span class="tag purple">${examCount} اختبار</span></td>
-            <td style="display:flex;gap:6px;">
+            <td style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="viewTeacherFull('${name}')"><i class="fas fa-eye"></i></button>
                 <button class="btn btn-danger btn-sm" onclick="deleteTeacher('${name}')"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`);
     });
     tbody.innerHTML = rows.length ? rows.join('') : '<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted);">لا يوجد معلمون</td></tr>';
+};
+
+window.viewTeacherFull = (name) => {
+    const tea = allTeachers[name] || {};
+    const teacherExams = Object.entries(allExams).filter(([,e])=>e.teacher===name);
+    let totalStudents = 0;
+    teacherExams.forEach(([tid])=>{ totalStudents += allResults[tid]?Object.keys(allResults[tid]).length:0; });
+    const infoHtml = `<div style="background:#0d0d0d;border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="width:48px;height:48px;background:rgba(255,215,0,.12);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;"><i class="fas fa-chalkboard-teacher" style="color:var(--gold);"></i></div>
+            <div><div style="font-weight:800;font-size:1.1rem;">${name}</div><div style="font-size:.75rem;color:var(--muted);">معلم</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;">
+            <div style="background:rgba(255,255,255,.04);padding:8px 12px;border-radius:10px;"><span style="color:var(--muted);">UID:</span><br><code style="font-size:.72rem;color:var(--gold);">${tea.uid||'—'}</code></div>
+            <div style="background:rgba(255,255,255,.04);padding:8px 12px;border-radius:10px;"><span style="color:var(--muted);">البريد:</span><br><strong>${tea.email||'—'}</strong></div>
+        </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:rgba(217,70,239,.08);border:1px solid rgba(217,70,239,.2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:900;color:var(--purple);">${teacherExams.length}</div>
+            <div style="font-size:.72rem;color:var(--muted);">اختبارات أنشأها</div>
+        </div>
+        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:1.6rem;font-weight:900;color:var(--blue);">${totalStudents}</div>
+            <div style="font-size:.72rem;color:var(--muted);">طالب أدّى اختباراته</div>
+        </div>
+    </div>`;
+    const examsHtml = teacherExams.length ? teacherExams.map(([tid,e])=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:center;">
+        <div><div style="font-weight:600;">${e.title}</div><div style="font-size:.72rem;color:var(--muted);">${e.subject||'—'} · ${e.duration||'—'} دقيقة</div></div>
+        <span class="tag blue">${allResults[tid]?Object.keys(allResults[tid]).length:0} طالب</span>
+    </div>`).join('') : '<div class="empty-state"><i class="fas fa-file-alt"></i><p>لم ينشئ اختبارات بعد</p></div>';
+    showModal('👨‍🏫 '+name, infoHtml+'<div>'+examsHtml+'</div>');
 };
 
 window.deleteTeacher = (name) => {
@@ -771,8 +833,10 @@ window.renderExams = () => {
             <td>${exam.duration||'—'} دقيقة</td>
             <td><span class="tag ${takers>0?'green':'blue'}">${takers} طالب</span></td>
             <td style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button class="btn btn-ghost btn-sm" onclick="viewExamResults('${id}','${exam.title}')"><i class="fas fa-eye"></i></button>
-                <button class="btn btn-danger btn-sm" onclick="deleteExam('${id}','${exam.title}')"><i class="fas fa-trash"></i></button>
+                <button class="btn btn-ghost btn-sm" onclick="viewExamFull('${id}')" title="تفاصيل"><i class="fas fa-list-alt"></i></button>
+                <button class="btn btn-green btn-sm" onclick="viewExamResults('${id}','${exam.title}')" title="النتائج"><i class="fas fa-chart-bar"></i></button>
+                <button class="btn btn-primary btn-sm" onclick="editExam('${id}')" title="تعديل"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteExam('${id}','${exam.title}')" title="حذف"><i class="fas fa-trash"></i></button>
             </td>
         </tr>`);
     });
@@ -781,13 +845,108 @@ window.renderExams = () => {
 
 window.viewExamResults = (id, title) => {
     const res = allResults[id] || {};
+    const exam = allExams[id] || {};
+    const qCount = Array.isArray(exam.questions)?exam.questions.length:Object.keys(exam.questions||{}).length;
     const rows = Object.entries(res).map(([s,r]) =>
-        `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
-            <div style="font-weight:600;">${s}</div>
-            <span class="tag ${r.percentage>=50?'green':'red'}">${r.percentage}% (${r.score}/${r.total})</span>
+        `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+            <div>
+                <div style="font-weight:700;">${s}</div>
+                <div style="font-size:.72rem;color:var(--muted);">${r.timestamp?new Date(r.timestamp).toLocaleString('ar-EG'):''}</div>
+            </div>
+            <div style="text-align:center;">
+                <span class="tag ${r.percentage>=90?'gold':r.percentage>=50?'green':'red'}" style="font-size:.9rem;">${r.percentage}%</span>
+                <div style="font-size:.72rem;color:var(--muted);margin-top:3px;">${r.score}/${r.total}</div>
+            </div>
         </div>`
     ).join('') || '<div class="empty-state"><i class="fas fa-users"></i><p>لم يؤده أحد بعد</p></div>';
-    showModal(`نتائج: ${title}`, rows);
+    const info = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;">
+        <div style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:900;color:var(--blue);">${qCount}</div>
+            <div style="font-size:.72rem;color:var(--muted);">سؤال</div>
+        </div>
+        <div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:900;color:var(--green);">${Object.keys(res).length}</div>
+            <div style="font-size:.72rem;color:var(--muted);">طالب أداه</div>
+        </div>
+        <div style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:12px;padding:12px;text-align:center;">
+            <div style="font-size:1.4rem;font-weight:900;color:var(--gold);">${exam.duration||'—'}</div>
+            <div style="font-size:.72rem;color:var(--muted);">دقيقة</div>
+        </div>
+    </div>`;
+    showModal(`📊 ${title}`, info+rows);
+};
+
+window.viewExamFull = (id) => {
+    const exam = allExams[id];
+    if (!exam) return;
+    const qs = Array.isArray(exam.questions)?exam.questions:Object.values(exam.questions||{});
+    const qHtml = qs.map((q,i) => {
+        const isEssay = q.type==='essay';
+        return `<div style="background:#0d0d0d;border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;">
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:6px;">${isEssay?'📝 مقالي':'🔵 اختيار متعدد'} · ${q.points||1} درجة</div>
+            <div style="font-weight:600;margin-bottom:8px;">${i+1}. ${q.text}</div>
+            ${!isEssay&&q.options?`<div style="display:flex;flex-wrap:wrap;gap:6px;">${q.options.map(o=>`<span style="background:${o===q.correct?'rgba(16,185,129,.15)':'rgba(255,255,255,.05)'};border:1px solid ${o===q.correct?'rgba(16,185,129,.4)':'rgba(255,255,255,.08)'};border-radius:8px;padding:4px 10px;font-size:.8rem;">${o===q.correct?'✓ ':''} ${o}</span>`).join('')}</div>`:''}
+            ${isEssay?`<div style="font-size:.8rem;color:var(--green);">نموذج الإجابة: ${q.correct||'—'}</div>`:''}
+        </div>`;
+    }).join('');
+    const info = `<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:16px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.85rem;">
+            <div><span style="color:var(--muted);">المعلم:</span> <strong>${exam.teacher||'—'}</strong></div>
+            <div><span style="color:var(--muted);">المادة:</span> <strong>${exam.subject||'—'}</strong></div>
+            <div><span style="color:var(--muted);">المدة:</span> <strong>${exam.duration||'—'} دقيقة</strong></div>
+            <div><span style="color:var(--muted);">الصف:</span> <strong>${exam.grade||'—'}</strong></div>
+            <div><span style="color:var(--muted);">الأسئلة:</span> <strong>${qs.length}</strong></div>
+            <div><span style="color:var(--muted);">الحالة:</span> <strong>${exam.isHidden?'مخفي':'نشط'}</strong></div>
+        </div>
+    </div>`;
+    showModal('📋 '+exam.title, info+'<div style="max-height:400px;overflow-y:auto;">'+qHtml+'</div>');
+};
+
+window.editExam = (id) => {
+    const exam = allExams[id];
+    if (!exam) return;
+    const old = document.getElementById('edit-exam-modal');
+    if (old) old.remove();
+    const bg = document.createElement('div');
+    bg.className='modal-bg'; bg.id='edit-exam-modal';
+    bg.innerHTML = `<div class="modal" style="max-width:600px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h3 style="margin:0;">✏️ تعديل الاختبار</h3>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('edit-exam-modal').remove()"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div><label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">عنوان الاختبار</label>
+                <input class="modal-input" id="ee-title" value="${(exam.title||'').replace(/"/g,'&quot;')}" style="margin:0;"></div>
+            <div><label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">المادة</label>
+                <input class="modal-input" id="ee-subject" value="${exam.subject||''}" style="margin:0;"></div>
+            <div><label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">مدة الاختبار (دقيقة)</label>
+                <input class="modal-input" id="ee-duration" type="number" value="${exam.duration||30}" style="margin:0;"></div>
+            <div><label style="font-size:.78rem;color:var(--muted);display:block;margin-bottom:4px;">الصف</label>
+                <input class="modal-input" id="ee-grade" value="${exam.grade||''}" style="margin:0;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px;background:#0d0d0d;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;">
+            <label style="font-size:.85rem;flex:1;">إخفاء الاختبار عن الطلاب</label>
+            <div class="toggle ${exam.isHidden?'on':''}" id="ee-hidden" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="document.getElementById('edit-exam-modal').remove()">إلغاء</button>
+            <button class="btn btn-primary" onclick="saveExamEdit('${id}')"><i class="fas fa-save"></i> حفظ التعديلات</button>
+        </div>
+    </div>`;
+    document.body.appendChild(bg);
+};
+
+window.saveExamEdit = async (id) => {
+    const title   = document.getElementById('ee-title').value.trim();
+    const subject = document.getElementById('ee-subject').value.trim();
+    const duration= parseInt(document.getElementById('ee-duration').value)||30;
+    const grade   = document.getElementById('ee-grade').value.trim();
+    const isHidden= document.getElementById('ee-hidden').classList.contains('on');
+    if (!title) return toast('أدخل عنوان الاختبار','red');
+    await update(ref(db,'tests/'+id), {title,subject,duration,grade,isHidden});
+    allExams[id] = {...allExams[id], title,subject,duration,grade,isHidden};
+    document.getElementById('edit-exam-modal').remove();
+    renderExams(); toast('✅ تم حفظ التعديلات','green');
 };
 
 window.deleteExam = (id, title) => {
