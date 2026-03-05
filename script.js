@@ -192,124 +192,145 @@ function initKeyboardFix() {
     });
 }
 
+// ══════════════════════════════════════════════════════════
+//  FACEBOOK-STYLE SWIPE NAVIGATION  v2.0
+// ══════════════════════════════════════════════════════════
+let _swipeState = { active:false, startX:0, startY:0, currentX:0, target:null, trackEl:null, currentIdx:0, tabs:[], prefix:'', dirLocked:false, isHoriz:false };
+
 function initSwipeNavigation(portalId) {
-    const portal = document.getElementById(portalId);
-    if (!portal) return;
-
-    portal.addEventListener('touchstart', (e) => {
-        _swipeStartX = e.touches[0].clientX;
-        _swipeStartY = e.touches[0].clientY;
-        _swipeStartTarget = e.target;
-    }, { passive: true });
-
-    portal.addEventListener('touchmove', (e) => {
-        // Only block swipe if touching an input/textarea directly
-        if (_swipeStartTarget && (
-            _swipeStartTarget.closest('input') ||
-            _swipeStartTarget.closest('textarea') ||
-            _swipeStartTarget.closest('.full-screen-overlay')
-        )) return;
-        const dx = e.touches[0].clientX - _swipeStartX;
-        const dy = e.touches[0].clientY - _swipeStartY;
-        if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
-        const progress = Math.min(Math.abs(dx) / (window.innerWidth * 0.5), 1) * 100;
-        const bar = document.getElementById('swipe-progress-bar');
-        if (bar) { bar.classList.add('active'); bar.style.width = progress + '%'; }
-    }, { passive: true });
-
-    portal.addEventListener('touchend', (e) => {
-        const bar = document.getElementById('swipe-progress-bar');
-        if (bar) {
-            bar.style.width = '100%';
-            setTimeout(() => { bar.classList.remove('active'); bar.style.width = '0%'; }, 200);
+    const prefix = portalId === 'teacher-app' ? 't' : 's';
+    const track = document.getElementById(prefix+'-pages-track');
+    const viewport = document.getElementById(prefix+'-portal-viewport');
+    if (!track || !viewport) return;
+    _layoutPages(prefix);
+    viewport.addEventListener('touchstart', (e) => {
+        if (e.target.closest('input')||e.target.closest('textarea')||e.target.closest('.full-screen-overlay')||e.target.closest('.modal-bg')||e.target.closest('.confirm-overlay')) return;
+        const tabs = selectedRole==='teacher'?TEACHER_TABS:STUDENT_TABS;
+        const hash = window.location.hash.replace('#','');
+        let idx = tabs.indexOf(hash); if(idx<0) idx=0;
+        _swipeState = { active:true, startX:e.touches[0].clientX, startY:e.touches[0].clientY, currentX:e.touches[0].clientX, target:e.target, trackEl:track, currentIdx:idx, tabs, prefix, dirLocked:false, isHoriz:false };
+        track.style.transition = 'none';
+    }, {passive:true});
+    viewport.addEventListener('touchmove', (e) => {
+        if (!_swipeState.active||!_swipeState.trackEl) return;
+        const dx = e.touches[0].clientX - _swipeState.startX;
+        const dy = e.touches[0].clientY - _swipeState.startY;
+        if (!_swipeState.dirLocked) {
+            if (Math.abs(dx)>8||Math.abs(dy)>8) { _swipeState.dirLocked=true; _swipeState.isHoriz=Math.abs(dx)>Math.abs(dy)*0.8; }
         }
-        // Only block if touching input/textarea or overlay
-        if (_swipeStartTarget && (
-            _swipeStartTarget.closest('input') ||
-            _swipeStartTarget.closest('textarea') ||
-            _swipeStartTarget.closest('.full-screen-overlay')
-        )) return;
-        const dx = e.changedTouches[0].clientX - _swipeStartX;
-        const dy = e.changedTouches[0].clientY - _swipeStartY;
-        if (Math.abs(dx) < 70 || Math.abs(dx) <= Math.abs(dy) * 1.5) return;
-        const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
-        const currentHash = window.location.hash.replace('#', '');
-        let idx = tabs.indexOf(currentHash);
-        if (idx === -1) idx = 0;
-        const newIdx = dx > 0 ? idx + 1 : idx - 1;
-        if (newIdx >= 0 && newIdx < tabs.length) {
-            const navBtns = document.querySelectorAll(`#${portalId} .nav-btn`);
-            const direction = dx > 0 ? 'left' : 'right';
-            switchTabWithDirection(tabs[newIdx], navBtns[newIdx], direction);
-        }
-    }, { passive: true });
+        if (!_swipeState.isHoriz) return;
+        _swipeState.currentX = e.touches[0].clientX;
+        const totalDx = e.touches[0].clientX - _swipeState.startX;
+        const W = window.innerWidth;
+        const baseOffset = -(_swipeState.currentIdx * W);
+        let newOffset = baseOffset + totalDx;
+        const maxIdx = _swipeState.tabs.length-1;
+        if (_swipeState.currentIdx===0&&totalDx>0) newOffset = baseOffset+totalDx*0.25;
+        if (_swipeState.currentIdx===maxIdx&&totalDx<0) newOffset = baseOffset+totalDx*0.25;
+        _swipeState.trackEl.style.transform = 'translateX('+newOffset+'px)';
+        const frac = _swipeState.currentIdx + (-totalDx/W);
+        _updateTabIndicatorFrac(_swipeState.prefix, Math.max(0,Math.min(maxIdx,frac)));
+    }, {passive:true});
+    viewport.addEventListener('touchend', (e) => {
+        if (!_swipeState.active||!_swipeState.isHoriz) { _swipeState.active=false; return; }
+        const dx = e.changedTouches[0].clientX - _swipeState.startX;
+        let newIdx = _swipeState.currentIdx;
+        if (dx<-50&&newIdx<_swipeState.tabs.length-1) newIdx++;
+        else if (dx>50&&newIdx>0) newIdx--;
+        _snapToPage(_swipeState.prefix, newIdx);
+        _swipeState.active = false;
+    }, {passive:true});
+    viewport.addEventListener('touchcancel', () => {
+        if (_swipeState.active&&_swipeState.isHoriz) _snapToPage(_swipeState.prefix,_swipeState.currentIdx);
+        _swipeState.active=false;
+    }, {passive:true});
+}
+
+function _layoutPages(prefix) {
+    const tabs = prefix==='t'?TEACHER_TABS:STUDENT_TABS;
+    const track = document.getElementById(prefix+'-pages-track');
+    if (!track) return;
+    const W = window.innerWidth;
+    track.style.cssText = 'display:flex;width:'+(tabs.length*100)+'vw;will-change:transform;';
+    const containers = track.querySelectorAll('.portal-container');
+    containers.forEach(c => { c.style.cssText = 'width:'+W+'px;flex-shrink:0;min-height:100vh;box-sizing:border-box;overflow-x:hidden;'; });
+    const hash = window.location.hash.replace('#','');
+    let idx = tabs.indexOf(hash); if(idx<0) idx=0;
+    track.style.transform = 'translateX('+(-idx*W)+'px)';
+}
+
+function _snapToPage(prefix, idx) {
+    const tabs = prefix==='t'?TEACHER_TABS:STUDENT_TABS;
+    const track = document.getElementById(prefix+'-pages-track');
+    if (!track) return;
+    const W = window.innerWidth;
+    track.style.transition = 'transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94)';
+    track.style.transform = 'translateX('+(-idx*W)+'px)';
+    const portalId = prefix==='t'?'teacher-app':'student-app';
+    const allSections = document.querySelectorAll('#'+portalId+' .app-section');
+    allSections.forEach(s => s.classList.add('hidden'));
+    const targetSection = document.getElementById(tabs[idx]);
+    if (targetSection) targetSection.classList.remove('hidden');
+    const navBtns = document.querySelectorAll('#'+portalId+' .nav-btn');
+    navBtns.forEach((b,i) => b.classList.toggle('active', i===idx));
+    _updateTabIndicatorFrac(prefix, idx);
+    _suppressHistoryPush = true;
+    window.history.replaceState({tab:tabs[idx]},'','#'+tabs[idx]);
+    setTimeout(()=>{ _suppressHistoryPush=false; },100);
+    _runTabSideEffects(tabs[idx]);
+    _swipeState.currentIdx = idx;
+}
+
+function _runTabSideEffects(tabId) {
+    if(tabId==='s-grades') loadStudentGrades();
+    if(tabId==='s-exams') { loadStudentExams(); startTypewriter('student-type-text','تحليل المستوى الدراسي'); }
+    if(tabId==='t-library') { loadTeacherTests(); startTypewriter('cta-type-text','اضغط هنا لكتابة الامتحان'); }
+    if(tabId==='t-reese'||tabId==='s-reese') { const p=selectedRole==='teacher'?'t':'s'; loadReesePosts(p); }
+}
+
+function _updateTabIndicator(prefix) {
+    const tabs = prefix==='t'?TEACHER_TABS:STUDENT_TABS;
+    const hash = window.location.hash.replace('#','');
+    let idx = tabs.indexOf(hash); if(idx<0) idx=0;
+    _updateTabIndicatorFrac(prefix, idx);
+}
+
+function _updateTabIndicatorFrac(prefix, frac) {
+    const indicator = document.getElementById(prefix+'-tab-indicator');
+    if (!indicator) return;
+    const nav = document.getElementById(prefix+'-nav-container');
+    if (!nav) return;
+    const btns = Array.from(nav.querySelectorAll('.nav-btn'));
+    const tabCount = prefix==='t'?TEACHER_TABS.length:STUDENT_TABS.length;
+    if (frac>=tabCount) { indicator.style.opacity='0'; return; }
+    indicator.style.opacity='1';
+    const lo = Math.floor(frac);
+    const hi = Math.min(lo+1, tabCount-1);
+    const t = frac-lo;
+    const btnLo = btns[lo]; const btnHi = btns[hi];
+    if (!btnLo||!btnHi) return;
+    const navRect = nav.getBoundingClientRect();
+    const rLo = btnLo.getBoundingClientRect();
+    const rHi = btnHi.getBoundingClientRect();
+    const leftLo = rLo.left-navRect.left+rLo.width*0.15;
+    const leftHi = rHi.left-navRect.left+rHi.width*0.15;
+    const wLo = rLo.width*0.7; const wHi = rHi.width*0.7;
+    indicator.style.transform = 'translateX('+(leftLo+(leftHi-leftLo)*t)+'px)';
+    indicator.style.width = (wLo+(wHi-wLo)*t)+'px';
 }
 
 function switchTabWithDirection(tabId, btn, direction) {
-    const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
-    const newSection = document.getElementById(tabId);
-    if (!newSection) return;
-
-    // Get current visible section
-    const currentSection = document.querySelector(`#${portal} .app-section:not(.hidden)`);
-
-    // Determine animation classes based on direction
-    // direction: 'right' means swiping right (going to previous tab = slide in from left)
-    // direction: 'left' means swiping left (going to next tab = slide in from right)
-    const outClass = direction === 'left' ? 'sliding-out-left' : 'sliding-out-right';
-    const inClass  = direction === 'left' ? 'sliding-in-left'  : 'sliding-in-right';
-
-    if (currentSection && currentSection !== newSection) {
-        currentSection.classList.add(outClass);
-        setTimeout(() => {
-            currentSection.classList.remove(outClass);
-        }, 320);
-    }
-
-    // Switch the tab normally (hides current, shows new)
-    switchTab(tabId, btn);
-
-    // Apply slide-in to the new section
-    newSection.classList.add(inClass);
-    setTimeout(() => {
-        newSection.classList.remove(inClass);
-    }, 320);
+    // Legacy: just use snap
+    const prefix = selectedRole==='teacher'?'t':'s';
+    const tabs = selectedRole==='teacher'?TEACHER_TABS:STUDENT_TABS;
+    const idx = tabs.indexOf(tabId); if(idx<0) return;
+    _snapToPage(prefix, idx);
 }
 
 let _tabDotsTimer = null;
-
-function updateTabDots(activeTabId) {
-    const dotsContainer = document.getElementById('tab-dots');
-    if (!dotsContainer) return;
-    const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
-    dotsContainer.innerHTML = '';
-    tabs.forEach((tab) => {
-        const dot = document.createElement('div');
-        dot.className = 'tab-dot' + (tab === activeTabId ? ' active' : '');
-        dotsContainer.appendChild(dot);
-    });
-}
-
-function showTabDotsTemporarily() {
-    const dotsContainer = document.getElementById('tab-dots');
-    if (!dotsContainer) return;
-    dotsContainer.classList.remove('hidden');
-    dotsContainer.classList.add('swipe-visible');
-    if (_tabDotsTimer) clearTimeout(_tabDotsTimer);
-    _tabDotsTimer = setTimeout(() => {
-        dotsContainer.classList.remove('swipe-visible');
-    }, 2500);
-}
-
-function showTabDots() {
-    // Only used internally - don't show permanently, only on swipe
-}
-function hideTabDots() {
-    const dotsContainer = document.getElementById('tab-dots');
-    if (dotsContainer) {
-        dotsContainer.classList.remove('swipe-visible');
-    }
-}
+function showTabDotsTemporarily() {}
+function hideTabDots() {}
+function updateTabDots() {}
 
 window.addEventListener('click', function(e) {
     const searchModal = document.getElementById('user-search-modal');
@@ -595,13 +616,13 @@ function loginSuccess(name, icon, uid) {
     if (selectedRole === 'teacher') {
         document.getElementById('teacher-app').classList.remove('hidden');
         initTeacherApp();
-        setTimeout(() => initSwipeNavigation('teacher-app'), 500);
+        setTimeout(() => { initSwipeNavigation('teacher-app'); _updateTabIndicator('t'); }, 600);
     } else {
         document.getElementById('student-app').classList.remove('hidden');
         loadStudentExams(); loadStudentGrades(); initStudentReese();
         updateStreakOnLogin();
         // XP HUD removed
-        setTimeout(() => initSwipeNavigation('student-app'), 500);
+        setTimeout(() => { initSwipeNavigation('student-app'); _updateTabIndicator('s'); }, 600);
     }
     initDardasha();
     initVoiceModule(db, currentUser, myUid);
@@ -926,7 +947,19 @@ window.switchTab = (tabId, btn) => {
         }
     }
     
-    updateTabDots(tabId);
+    // Update pages-track position to match tab
+    const _pfx = selectedRole === 'teacher' ? 't' : 's';
+    const _allTabs2 = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+    const _tidx = _allTabs2.indexOf(tabId);
+    if (_tidx >= 0) {
+        const _tr = document.getElementById(_pfx+'-pages-track');
+        if (_tr) {
+            _tr.style.transition = 'transform 0.32s cubic-bezier(0.25,0.46,0.45,0.94)';
+            _tr.style.transform = 'translateX('+(-_tidx*window.innerWidth)+'px)';
+            _swipeState.currentIdx = _tidx;
+        }
+        _updateTabIndicatorFrac(_pfx, _tidx);
+    }
     
     if(tabId === 's-grades') loadStudentGrades();
     if(tabId === 's-exams') {
