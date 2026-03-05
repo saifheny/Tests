@@ -133,15 +133,25 @@ let _swipeStartY = 0;
 let _swipeStartTarget = null;
 
 let lastScrollTop = 0;
-window.addEventListener("scroll", function() {
-    let st = window.pageYOffset || document.documentElement.scrollTop;
-    if (st > lastScrollTop && st > 10){
-        document.querySelector('.top-nav').classList.add('nav-hidden');
-    } else {
-        document.querySelector('.top-nav').classList.remove('nav-hidden');
+// Scroll hide nav — works on window AND section scroll containers
+function _handleNavScroll(st) {
+    const nav = document.querySelector('.top-nav');
+    if (!nav) return;
+    if (st > lastScrollTop && st > 40) {
+        nav.classList.add('nav-hidden');
+    } else if (st < lastScrollTop - 8) {
+        nav.classList.remove('nav-hidden');
     }
-    lastScrollTop = st <= 0 ? 0 : st;
-}, false);
+    lastScrollTop = Math.max(0, st);
+}
+window.addEventListener('scroll', () => _handleNavScroll(window.pageYOffset||document.documentElement.scrollTop), {passive:true});
+// Also catch scrolling inside app sections
+document.addEventListener('scroll', (e) => {
+    const t = e.target;
+    if (t && t.classList && (t.classList.contains('app-section')||t.classList.contains('portal-container'))) {
+        _handleNavScroll(t.scrollTop);
+    }
+}, {passive:true, capture:true});
 
 window.addEventListener('popstate', (e) => {
     if (!currentUser) return;
@@ -464,14 +474,27 @@ async function recognizeImageText(imageBase64) {
     }
 }
 
-async function callPollinationsAI(prompt) {
-    const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
+async function callPollinationsAI(prompt, systemPrompt = '') {
     try {
+        // Use Pollinations messages API for better system prompt support
+        const body = systemPrompt
+            ? JSON.stringify({ messages: [{ role:'system', content: systemPrompt }, { role:'user', content: prompt }], model:'openai', seed:-1, jsonMode:false })
+            : null;
+        if (body) {
+            const r = await fetch('https://text.pollinations.ai/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body
+            });
+            if (r.ok) return await r.text();
+        }
+        // Fallback to GET
+        const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('API Error');
         return await response.text();
     } catch (error) {
-        console.error("AI Error:", error);
+        console.error('AI Error:', error);
         throw error;
     }
 }
@@ -561,13 +584,13 @@ function loginSuccess(name, icon, uid) {
     if (selectedRole === 'teacher') {
         document.getElementById('teacher-app').classList.remove('hidden');
         initTeacherApp();
-        setTimeout(() => initSwipeNavigation('teacher-app'), 400);
+        setTimeout(() => { initSwipeNavigation('teacher-app'); _initFbBar('t'); }, 400);
     } else {
         document.getElementById('student-app').classList.remove('hidden');
         loadStudentExams(); loadStudentGrades(); initStudentReese();
         updateStreakOnLogin();
         // XP HUD removed
-        setTimeout(() => initSwipeNavigation('student-app'), 400);
+        setTimeout(() => { initSwipeNavigation('student-app'); _initFbBar('s'); }, 400);
     }
     initDardasha();
     initVoiceModule(db, currentUser, myUid);
@@ -875,6 +898,27 @@ function startTypewriter(elementId, text) {
 }
 if(document.getElementById('landing-type-text')) { startTypewriter("landing-type-text", "منصة تعليمية ذكية تنقلك إلى آفاق المستقبل"); }
 
+// ── FACEBOOK-STYLE TAB BAR ──────────────────────────────
+function _initFbBar(prefix) {
+    setTimeout(() => _moveFbBar(prefix, null), 300);
+}
+
+function _moveFbBar(prefix, activeBtn) {
+    const barId = prefix + '-fb-bar';
+    const navId = prefix + '-nav-container';
+    const bar = document.getElementById(barId);
+    const nav = document.getElementById(navId);
+    if (!bar || !nav) return;
+    const btn = activeBtn || nav.querySelector('.nav-btn.active');
+    if (!btn || btn.onclick?.toString().includes('toggleMenu')) { bar.style.opacity='0'; return; }
+    const navRect = nav.getBoundingClientRect();
+    const btnRect = btn.getBoundingClientRect();
+    bar.style.opacity = '1';
+    bar.style.width = btnRect.width + 'px';
+    bar.style.transform = 'translateX(' + (btnRect.left - navRect.left) + 'px)';
+}
+
+
 window.switchTab = (tabId, btn) => {
     playSound('click');
     const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
@@ -884,6 +928,9 @@ window.switchTab = (tabId, btn) => {
         document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active')); 
         btn.classList.add('active'); 
     }
+    // Move Facebook bar
+    const _pfxBar = selectedRole === 'teacher' ? 't' : 's';
+    _moveFbBar(_pfxBar, btn || null);
     
     if (!_suppressHistoryPush) {
         const allTabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
@@ -2781,34 +2828,61 @@ window.sendAiMsg = async (prefix) => {
             return;
         }
 
-        if (selectedRole === 'student') {
-            finalPrompt += `أنت مساعد دراسي ذكي اسمه SA AI للطلاب. أجب باللغة العربية دائماً.
-قواعد مهمة:
-- إذا وجدت أخطاء إملائية في السؤال، افهم المقصود وأجب عليه مباشرة بدون أي تعليق على الأخطاء
-- إذا كان السؤال واجباً أو مسألة حسابية أو معادلة، احلها خطوة بخطوة بشكل واضح
-- إذا كان السؤال بسيطاً أو تحية، أجب بجملة أو اثنتين فقط
-- إذا كان السؤال يحتاج شرحاً، اشرح بالتفصيل المناسب
-- لا تقل أبداً "لاحظت خطأ في كتابتك" أو أي تنبيه عن الإملاء
-- الطالب يكتب بالعامية أحياناً - افهمها وأجب بالفصحى
-- اسم الطالب: ${userName}
-`;
-        } else {
-            finalPrompt += `أنت مساعد معلمين ذكي اسمه SA AI. أجب باللغة العربية دائماً.
-قواعد مهمة:
-- إذا وجدت أخطاء إملائية في السؤال، افهم المقصود وأجب مباشرة بدون تعليق على الأخطاء
-- الأسئلة البسيطة تحتاج ردوداً قصيرة، والتفصيلية تحتاج ردوداً شاملة
-- اسم المعلم: ${userName}
-`;
-        }
-
-        finalPrompt += `معلومات المستخدم: ${userContext}`;
-
-        if (ocrText) {
-            finalPrompt += `Context from image: "${ocrText}". `;
-        }
-        finalPrompt += correctedTxt;
+        // Classify query intent for smarter response
+        const queryLower = correctedTxt.toLowerCase();
+        const isGreeting = /^(مرحبا|هلا|هاي|سلام|اهلا|صباح|مساء|كيفك|عامل|ازيك|ايه الاخبار|هي|hi|hello)/.test(queryLower.trim());
+        const isMath = /(\d+[\+\-\×\÷\*\/]\d+|معادل|حل.*مسأل|احسب|انتج|اشتق|تكامل|sqrt|log|sin|cos|جبر|هندس|رياضيات)/.test(queryLower);
+        const isExam = /(واجب|امتحان|اختبار|سؤال|أسئلة|اعمل اختبار|اكتب اختبار|انشئ اختبار)/.test(queryLower);
+        const isShort = correctedTxt.length < 40 || isGreeting;
+        const needsDetail = isMath || isExam || correctedTxt.length > 80;
         
-        const reply = await callPollinationsAI(finalPrompt);
+        const responseStyle = isShort 
+            ? 'رد بجملة أو اثنتين فقط، مختصر جداً.'
+            : needsDetail 
+                ? 'رد بتفصيل كامل، خطوة بخطوة إذا لزم، بدون اختصار.'
+                : 'رد بشكل مناسب لطول السؤال، لا قصير جداً ولا طويل.';
+
+        let systemPrompt = '';
+        let userMessage = '';
+
+        if (selectedRole === 'student') {
+            systemPrompt = `أنت SA AI — مساعد دراسي ذكي ومتفوق لطلاب منصة SA EDU التعليمية.
+اسم الطالب: ${userName}
+${gradesContext ? 'نتائجه: ' + gradesContext : ''}
+
+قواعد الرد:
+- ${responseStyle}
+- افهم العامية المصرية والخليجية والأخطاء الإملائية تلقائياً ولا تعلق عليها أبداً
+- الرياضيات والمعادلات: اشرح خطوة بخطوة مع النتيجة النهائية
+- الواجبات: احلها كاملاً مع الشرح
+- لا تقل أبداً "لاحظت خطأً في كتابتك"
+- الأسئلة البسيطة: رد خفيف وسريع
+- إذا سألك عن شيء خارج المنهج، ساعده بذكاء
+- أجب دائماً بالعربية الفصحى مع لمسة ودية`;
+            userMessage = ocrText ? `[صورة: ${ocrText}]
+${correctedTxt}` : correctedTxt;
+        } else {
+            systemPrompt = `أنت SA AI — مساعد معلمين احترافي على منصة SA EDU.
+اسم المعلم: ${userName}
+
+قواعد الرد:
+- ${responseStyle}
+- لإنشاء الاختبارات: أنشئها بصيغة واضحة ومنظمة مع الإجابات
+- لتحضير الدروس: قدم خطة متكاملة وعملية
+- افهم الأخطاء الإملائية تلقائياً بدون تعليق
+- إذا طلب تقييماً: كن موضوعياً ومفيداً
+- أجب بالعربية الفصحى`;
+            userMessage = ocrText ? `[صورة: ${ocrText}]
+${correctedTxt}` : correctedTxt;
+        }
+
+        // Add conversation history for context
+        const historyStr = currentChatMessages.slice(-6).map(m => 
+            `${m.role==='user'?'المستخدم':'SA AI'}: ${(m.content||'').substring(0,200)}`
+        ).join('\n');
+        if (historyStr) userMessage = '[سياق المحادثة]\n' + historyStr + '\n\n[السؤال الجديد]\n' + userMessage;
+
+        const reply = await callPollinationsAI(userMessage, systemPrompt);
 
         // Cache this answer for repeated questions (max 200 chars questions)
         if (correctedTxt.length < 200) {
