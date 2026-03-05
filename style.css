@@ -4312,48 +4312,8 @@ animation: shakeField 0.4s ease;
    ══════════════════════════════════════════ */
 
 /* ── EXAMS SECTION BEAUTIFUL BACKGROUND ── */
-.exams-section {
-    position: relative;
-    min-height: 100%;
-}
-.exams-bg-layer {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    background:
-        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(59,130,246,0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 30% at 90% 50%, rgba(217,70,239,0.1) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(16,185,129,0.08) 0%, transparent 60%),
-        #000;
-    animation: examBgPulse 8s ease-in-out infinite alternate;
-}
-.exams-section > *:not(.exams-bg-layer) {
-    position: relative;
-    z-index: 1;
-}
-@keyframes examBgPulse {
-    0%   { background-position: 0% 0%; }
-    100% { background-position: 100% 100%; }
-}
-
-/* Floating particles behind exams */
-.exams-bg-layer::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-        radial-gradient(circle 1px at 20% 30%, rgba(59,130,246,0.4) 0%, transparent 100%),
-        radial-gradient(circle 1px at 80% 20%, rgba(217,70,239,0.3) 0%, transparent 100%),
-        radial-gradient(circle 2px at 60% 70%, rgba(16,185,129,0.3) 0%, transparent 100%),
-        radial-gradient(circle 1px at 40% 60%, rgba(255,215,0,0.25) 0%, transparent 100%),
-        radial-gradient(circle 1px at 15% 80%, rgba(59,130,246,0.25) 0%, transparent 100%);
-    animation: floatParticles 12s ease-in-out infinite alternate;
-}
-@keyframes floatParticles {
-    0%   { transform: translateY(0px); }
-    100% { transform: translateY(-20px); }
-}
+.exams-section { position: relative; }
+.exams-bg-layer { display: none; }
 
 /* ── CHAT WINDOW BEAUTIFUL BACKGROUND ── */
 .chat-msgs-area {
@@ -4519,3 +4479,96 @@ animation: shakeField 0.4s ease;
 }
 .slide-in-right { animation: slideInFromRight 0.28s cubic-bezier(0.4,0,0.2,1) both; }
 .slide-in-left  { animation: slideInFromLeft  0.28s cubic-bezier(0.4,0,0.2,1) both; }
+
+/* ══════════════════════════════════════
+   FINAL PATCH — Chat BG + Scroll Nav + Facebook Tab Bar
+   ══════════════════════════════════════ */
+
+/* ── 1. CHAT WINDOW BEAUTIFUL BACKGROUND ── */
+.chat-msgs-area {
+    background:
+        radial-gradient(ellipse 120% 60% at 50% 0%, rgba(30,40,80,0.55) 0%, transparent 65%),
+        radial-gradient(ellipse 80% 50% at 100% 100%, rgba(59,0,80,0.25) 0%, transparent 60%),
+        #080810 !important;
+    background-attachment: local !important;
+    position: relative;
+}
+/* Subtle pattern overlay on chat */
+.chat-msgs-area::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.028;
+    background-image:
+        radial-gradient(circle at 25% 25%, rgba(255,255,255,1) 1px, transparent 1px),
+        radial-gradient(circle at 75% 75%, rgba(255,255,255,1) 1px, transparent 1px);
+    background-size: 48px 48px;
+}
+.chat-msgs-area > * { position: relative; z-index: 1; }
+
+/* ── 2. SCROLL — NAV HIDE (student too) ── */
+.top-nav {
+    transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease !important;
+    will-change: transform;
+}
+.nav-hidden {
+    transform: translateY(-100%) !important;
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+/* ── 3. FACEBOOK-STYLE SLIDING TAB BAR ── */
+
+/* Remove old indicator / dots */
+.tab-indicator,
+#tab-dots, .tab-dots, .tab-dot,
+.swipe-progress-bar { display: none !important; }
+
+/* The nav container gets a bottom bar */
+.nav-container {
+    position: relative !important;
+    padding-bottom: 3px !important;
+}
+
+/* Facebook-style sliding underline */
+.fb-tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 60px;
+    background: #fff;
+    border-radius: 3px 3px 0 0;
+    pointer-events: none;
+    will-change: transform, width;
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1),
+                width 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Nav icons — inactive: dim gray, active: pure white */
+.nav-btn i,
+.nav-btn .ph-bold {
+    color: #444 !important;
+    transition: color 0.2s !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+.nav-btn.active i,
+.nav-btn.active .ph-bold {
+    color: #ffffff !important;
+    filter: none !important;
+    text-shadow: none !important;
+    transform: none !important;
+}
+.magic-btn.active i { color: #ffffff !important; filter: none !important; }
+
+/* Separator between nav sections */
+.nav-section-divider {
+    width: 1px;
+    height: 22px;
+    background: rgba(255,255,255,0.08);
+    flex-shrink: 0;
+    align-self: center;
+}
