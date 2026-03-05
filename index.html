@@ -122,14 +122,16 @@
 
     <div id="teacher-app" class="hidden">
         <nav class="top-nav">
-            <div class="nav-container">
-                <button class="nav-btn active" onclick="switchTab('t-library', this)"><i class="fas fa-layer-group"></i><span>المكتبة</span></button>
-                <button class="nav-btn" onclick="switchTab('t-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
-                <button class="nav-btn" onclick="switchTab('t-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
-                <button class="nav-btn magic-btn" onclick="switchTab('t-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
-                <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
+            <div class="nav-container" id="t-nav-container">
+                <button class="nav-btn active" data-tab-idx="0" onclick="switchTab('t-library', this)"><i class="fas fa-layer-group"></i><span>المكتبة</span></button>
+                <button class="nav-btn" data-tab-idx="1" onclick="switchTab('t-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
+                <button class="nav-btn" data-tab-idx="2" onclick="switchTab('t-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
+                <button class="nav-btn magic-btn" data-tab-idx="3" onclick="switchTab('t-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
+                <button class="nav-btn" data-tab-idx="4" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
+                <div class="tab-indicator" id="t-tab-indicator"></div>
             </div>
         </nav>
+        <div class="portal-viewport" id="t-portal-viewport"><div class="pages-track" id="t-pages-track">
         <div class="portal-container">
             <section id="t-library" class="app-section">
                 <div class="mobile-spacer"></div>
@@ -335,18 +337,21 @@
                 </div>
             </section>
         </div>
+        </div></div><!-- /t-pages-track /t-portal-viewport -->
     </div>
 
     <div id="student-app" class="hidden">
         <nav class="top-nav">
-            <div class="nav-container">
-                <button class="nav-btn active" onclick="switchTab('s-exams', this)"><i class="fas fa-book-open"></i><span>اختبارات</span></button>
-                <button class="nav-btn" onclick="switchTab('s-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
-                <button class="nav-btn" onclick="switchTab('s-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
-                <button class="nav-btn magic-btn" onclick="switchTab('s-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
-                <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
+            <div class="nav-container" id="s-nav-container">
+                <button class="nav-btn active" data-tab-idx="0" onclick="switchTab('s-exams', this)"><i class="fas fa-book-open"></i><span>اختبارات</span></button>
+                <button class="nav-btn" data-tab-idx="1" onclick="switchTab('s-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
+                <button class="nav-btn" data-tab-idx="2" onclick="switchTab('s-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
+                <button class="nav-btn magic-btn" data-tab-idx="3" onclick="switchTab('s-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
+                <button class="nav-btn" data-tab-idx="4" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
+                <div class="tab-indicator" id="s-tab-indicator"></div>
             </div>
         </nav>
+        <div class="portal-viewport" id="s-portal-viewport"><div class="pages-track" id="s-pages-track">
         <div class="portal-container">
             <section id="s-exams" class="app-section exams-section">
                 <div class="exams-bg-layer"></div>
@@ -717,6 +722,7 @@
             <button class="pwa-btn close" onclick="closePWA()">إغلاق</button>
             <button class="pwa-btn install" onclick="installPWA()">تثبيت</button>
         </div>
+        </div></div><!-- /s-pages-track /s-portal-viewport -->
     </div>
 
     <div id="sa-toast-container"></div>
