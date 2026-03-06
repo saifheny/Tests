@@ -3789,22 +3789,7 @@ animation: shakeField 0.4s ease;
 .nav-btn {
     position: relative;
 }
-.nav-btn.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: var(--accent-primary);
-    box-shadow: 0 0 6px var(--accent-glow);
-}
-.magic-btn.active::after {
-    background: #d946ef;
-    box-shadow: 0 0 6px rgba(217,70,239,0.6);
-}
+/* dot removed */ .nav-btn.active::after, .magic-btn.active::after { display: none !important; }
 
 /* ---- EXAM CARD ENHANCEMENTS ---- */
 .exam-card-header-row {
@@ -4098,11 +4083,8 @@ animation: shakeField 0.4s ease;
     to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
-/* NAV LABEL HIDDEN */
-.nav-btn span, .nav-btn.active span { display: none !important; }
-.magic-btn.active span {
-    color: #d946ef;
-}
+/* nav labels hidden */
+.nav-btn span, .nav-btn.active span, .magic-btn.active span { display: none !important; }
 
 /* ---- LOADING OVERLAY IMPROVED ---- */
 #construction-overlay {
@@ -4306,8 +4288,48 @@ animation: shakeField 0.4s ease;
    ══════════════════════════════════════════ */
 
 /* ── EXAMS SECTION BEAUTIFUL BACKGROUND ── */
-.exams-section { position: relative; }
-.exams-bg-layer { display: none; }
+.exams-section {
+    position: relative;
+    min-height: 100%;
+}
+.exams-bg-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 80% 40% at 50% -10%, rgba(59,130,246,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 30% at 90% 50%, rgba(217,70,239,0.1) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(16,185,129,0.08) 0%, transparent 60%),
+        #000;
+    animation: examBgPulse 8s ease-in-out infinite alternate;
+}
+.exams-section > *:not(.exams-bg-layer) {
+    position: relative;
+    z-index: 1;
+}
+@keyframes examBgPulse {
+    0%   { background-position: 0% 0%; }
+    100% { background-position: 100% 100%; }
+}
+
+/* Floating particles behind exams */
+.exams-bg-layer::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle 1px at 20% 30%, rgba(59,130,246,0.4) 0%, transparent 100%),
+        radial-gradient(circle 1px at 80% 20%, rgba(217,70,239,0.3) 0%, transparent 100%),
+        radial-gradient(circle 2px at 60% 70%, rgba(16,185,129,0.3) 0%, transparent 100%),
+        radial-gradient(circle 1px at 40% 60%, rgba(255,215,0,0.25) 0%, transparent 100%),
+        radial-gradient(circle 1px at 15% 80%, rgba(59,130,246,0.25) 0%, transparent 100%);
+    animation: floatParticles 12s ease-in-out infinite alternate;
+}
+@keyframes floatParticles {
+    0%   { transform: translateY(0px); }
+    100% { transform: translateY(-20px); }
+}
 
 /* ── CHAT WINDOW BEAUTIFUL BACKGROUND ── */
 .chat-msgs-area {
@@ -4424,194 +4446,85 @@ animation: shakeField 0.4s ease;
 }
 
 
-/* Hide ALL dots/indicators */
-#tab-dots, .tab-dots, .tab-dot,
-.tab-indicator, .swipe-progress-bar { display: none !important; }
+/* ════════════════════════════════════════════════
+   SA EDU FINAL PATCH — v4
+   ════════════════════════════════════════════════ */
 
-
-/* ══════════════════════════════════════
-   SWIPE + NAV FINAL FIX
-   ══════════════════════════════════════ */
-
-/* ── HIDE ALL DOTS & INDICATORS ── */
-#tab-dots, .tab-dots, .tab-dot,
-.tab-indicator, .swipe-progress-bar { display: none !important; }
-
-/* ── NAV ACTIVE: pure white, no glow ── */
-.nav-btn.active i,
-.nav-btn.active .ph-bold {
-    color: #ffffff !important;
-    filter: none !important;
-    text-shadow: none !important;
-    transform: scale(1.08);
-}
-.magic-btn.active i {
-    color: #ffffff !important;
-    filter: none !important;
-    text-shadow: none !important;
-}
-.nav-btn i, .nav-btn .ph-bold {
-    color: #555 !important;
-    transition: color 0.2s, transform 0.2s;
-}
-
-/* ── SMOOTH SECTION TRANSITIONS ── */
-.app-section {
-    animation: none;
-    transition: opacity 0.25s ease;
-}
-.app-section.hidden { display: none !important; }
-
-/* ── SLIDE ANIMATIONS ── */
-@keyframes slideInFromRight {
-    from { opacity: 0; transform: translateX(-28px); }
-    to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes slideInFromLeft {
-    from { opacity: 0; transform: translateX(28px); }
-    to   { opacity: 1; transform: translateX(0); }
-}
-.slide-in-right { animation: slideInFromRight 0.28s cubic-bezier(0.4,0,0.2,1) both; }
-.slide-in-left  { animation: slideInFromLeft  0.28s cubic-bezier(0.4,0,0.2,1) both; }
-
-/* ══════════════════════════════════════
-   FINAL PATCH — Chat BG + Scroll Nav + Facebook Tab Bar
-   ══════════════════════════════════════ */
-
-/* ── 1. CHAT WINDOW BEAUTIFUL BACKGROUND ── */
-.chat-msgs-area {
-    background:
-        radial-gradient(ellipse 120% 60% at 50% 0%, rgba(30,40,80,0.55) 0%, transparent 65%),
-        radial-gradient(ellipse 80% 50% at 100% 100%, rgba(59,0,80,0.25) 0%, transparent 60%),
-        #080810 !important;
-    background-attachment: local !important;
-    position: relative;
-}
-/* Subtle pattern overlay on chat */
-.chat-msgs-area::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.028;
-    background-image:
-        radial-gradient(circle at 25% 25%, rgba(255,255,255,1) 1px, transparent 1px),
-        radial-gradient(circle at 75% 75%, rgba(255,255,255,1) 1px, transparent 1px);
-    background-size: 48px 48px;
-}
-.chat-msgs-area > * { position: relative; z-index: 1; }
-
-/* ── 2. SCROLL — NAV HIDE (student too) ── */
-.top-nav {
-    transition: transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.28s ease !important;
-    will-change: transform;
-}
-.nav-hidden {
-    transform: translateY(-100%) !important;
-    opacity: 0 !important;
-    pointer-events: none;
-}
-
-/* ── 3. FACEBOOK-STYLE SLIDING TAB BAR ── */
-
-/* Remove old indicator / dots */
-.tab-indicator,
+/* ── HIDE ALL DOTS / PROGRESS BAR ── */
 #tab-dots, .tab-dots, .tab-dot,
 .swipe-progress-bar { display: none !important; }
 
-/* The nav container gets a bottom bar */
-.nav-container {
-    position: relative !important;
-    padding-bottom: 3px !important;
-}
+/* ── ACTIVE ICON: white, no glow ── */
+.nav-btn i { color: rgba(255,255,255,0.35); transition: color 0.2s; }
+.nav-btn.active i { color: #ffffff !important; filter: none !important; text-shadow: none !important; transform: none; }
+.magic-btn.active i { color: #ffffff !important; filter: none !important; }
 
-/* Facebook-style sliding underline */
+/* ── FACEBOOK-STYLE SLIDING BAR ── */
+.nav-container { position: relative !important; padding-bottom: 0 !important; }
 .fb-tab-bar {
     position: absolute;
-    bottom: 0;
-    left: 0;
+    bottom: 0; left: 0;
     height: 3px;
-    width: 60px;
     background: #fff;
     border-radius: 3px 3px 0 0;
     pointer-events: none;
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), width 0.28s cubic-bezier(0.4,0,0.2,1);
     will-change: transform, width;
-    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1),
-                width 0.28s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* Nav icons — inactive: dim gray, active: pure white */
-.nav-btn i,
-.nav-btn .ph-bold {
-    color: #444 !important;
-    transition: color 0.2s !important;
-    filter: none !important;
-    text-shadow: none !important;
-}
-.nav-btn.active i,
-.nav-btn.active .ph-bold {
-    color: #ffffff !important;
-    filter: none !important;
-    text-shadow: none !important;
-    transform: none !important;
-}
-.magic-btn.active i { color: #ffffff !important; filter: none !important; }
-
-/* Separator between nav sections */
-.nav-section-divider {
-    width: 1px;
-    height: 22px;
-    background: rgba(255,255,255,0.08);
-    flex-shrink: 0;
-    align-self: center;
+/* ── CHAT WINDOW BACKGROUND ── */
+.chat-msgs-area {
+    background: radial-gradient(ellipse 120% 60% at 50% 0%,rgba(20,30,70,.6) 0%,transparent 70%), #07070f !important;
 }
 
+/* ── SCROLL: nav hides smoothly ── */
+.top-nav { transition: transform 0.3s ease, opacity 0.3s ease !important; }
+.nav-hidden { transform: translateY(-100%) !important; opacity: 0 !important; pointer-events: none; }
 
-/* ══════════════════════════════════════
-   FACEBOOK SWIPE TRACK v3
-   ══════════════════════════════════════ */
+/* ── EXAMS SECTION: plain black ── */
+.exams-section { background: transparent !important; }
+.exams-bg-layer { display: none !important; }
 
-/* The track holds all pages side by side */
-.swipe-track {
-    display: flex;
-    will-change: transform;
-    touch-action: pan-y;
-    align-items: flex-start;
+/* ════ RESPONSIVE ════ */
+
+/* ── MOBILE (default — already styled) ── */
+@media (max-width: 600px) {
+    .portal-container { padding-left: 12px !important; padding-right: 12px !important; }
+    .nav-btn { min-width: 44px; }
 }
 
-/* Each page = one tab's content */
-.swipe-page {
-    flex-shrink: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    min-height: 100vh;
-    box-sizing: border-box;
-    /* don't clip content */
-    overscroll-behavior-x: none;
+/* ── TABLET 601–1024 ── */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .portal-container { max-width: 720px !important; margin: 0 auto !important; padding-left: 24px !important; padding-right: 24px !important; }
+    .top-nav .nav-container { max-width: 720px; }
+    .mini-card-grid { grid-template-columns: repeat(2,1fr) !important; }
+    .exam-card { max-width: 100% !important; }
+    .nav-btn i { font-size: 1.4rem; }
 }
 
-/* Sections inside swipe-page are always visible */
-.swipe-page .app-section {
-    display: block !important;
-    position: relative !important;
-    transform: none !important;
-    opacity: 1 !important;
-}
-.swipe-page .app-section.hidden {
-    display: block !important;
+/* ── DESKTOP 1025+ ── */
+@media (min-width: 1025px) {
+    :root { --nav-height: 56px; }
+    body { font-size: 15px; }
+    .top-nav .nav-container { max-width: 900px; }
+    .portal-container { max-width: 900px !important; margin: 0 auto !important; padding-left: 32px !important; padding-right: 32px !important; }
+    .nav-btn { gap: 0; padding: 10px 8px; }
+    .nav-btn i { font-size: 1.25rem; }
+    /* show labels on desktop */
+    .nav-btn span { display: block !important; font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
+    .nav-btn.active span { color: #fff !important; }
+    .mini-card-grid { grid-template-columns: repeat(3,1fr) !important; }
+    /* exam cards row on desktop */
+    #s-exams-list, #t-tests-list { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+    /* chat layout on desktop */
+    .chat-layout { display: flex !important; height: calc(100vh - var(--nav-height)); }
+    .chat-sidebar { width: 300px; flex-shrink: 0; border-left: 1px solid #1a1a1a; }
+    .chat-window { position: static !important; flex: 1; transform: none !important; display: flex !important; }
+    /* swipe disabled on desktop — just show first tab */
 }
 
-/* Portal container when track is active — no fixed width */
-.portal-container:has(.swipe-track) {
-    padding: 0 !important;
-    max-width: none !important;
-    overflow: visible;
-}
-
-/* Fb bar smooth transition when tapping tabs */
-.fb-tab-bar {
-    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1),
-                width 0.28s cubic-bezier(0.4,0,0.2,1) !important;
+/* ── LARGE DESKTOP 1400+ ── */
+@media (min-width: 1400px) {
+    .portal-container { max-width: 1100px !important; }
+    #s-exams-list, #t-tests-list { grid-template-columns: repeat(3,1fr); }
 }
