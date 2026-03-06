@@ -133,25 +133,20 @@ let _swipeStartY = 0;
 let _swipeStartTarget = null;
 
 let lastScrollTop = 0;
-// Scroll hide nav — works on window AND section scroll containers
-function _handleNavScroll(st) {
+function _scrollNavCheck(st) {
     const nav = document.querySelector('.top-nav');
     if (!nav) return;
-    if (st > lastScrollTop && st > 40) {
-        nav.classList.add('nav-hidden');
-    } else if (st < lastScrollTop - 8) {
-        nav.classList.remove('nav-hidden');
-    }
+    if (st > lastScrollTop && st > 50)      nav.classList.add('nav-hidden');
+    else if (st < lastScrollTop - 10)       nav.classList.remove('nav-hidden');
     lastScrollTop = Math.max(0, st);
 }
-window.addEventListener('scroll', () => _handleNavScroll(window.pageYOffset||document.documentElement.scrollTop), {passive:true});
-// Also catch scrolling inside app sections
+window.addEventListener('scroll', () => _scrollNavCheck(window.pageYOffset || document.documentElement.scrollTop), { passive: true });
+// also catch scroll inside sections
 document.addEventListener('scroll', (e) => {
-    const t = e.target;
-    if (t && t.classList && (t.classList.contains('app-section')||t.classList.contains('portal-container'))) {
-        _handleNavScroll(t.scrollTop);
-    }
-}, {passive:true, capture:true});
+    const el = e.target;
+    if (el && typeof el.scrollTop === 'number' && el !== document)
+        _scrollNavCheck(el.scrollTop);
+}, { passive: true, capture: true });
 
 window.addEventListener('popstate', (e) => {
     if (!currentUser) return;
@@ -202,182 +197,141 @@ function initKeyboardFix() {
     });
 }
 
-// ══════════════════════════════════════════════════════════
-//  FACEBOOK-STYLE SWIPE NAVIGATION  v2.0
-// ══════════════════════════════════════════════════════════
-// ── SWIPE NAVIGATION (clean, no pages-track) ──
-// ═══════════════════════════════════════════════════════
-//  FACEBOOK-STYLE SWIPE  —  Real side-by-side pages v3
-//  Pages are physically side-by-side; track slides with finger
-// ═══════════════════════════════════════════════════════
-
-let _swSt = {
-    active:false, startX:0, startY:0, lastX:0,
-    dirLocked:false, isHoriz:false,
-    trackEl:null, currentIdx:0, tabCount:0,
-    prefix:''
-};
-
 function initSwipeNavigation(portalId) {
-    const prefix = portalId === 'teacher-app' ? 't' : 's';
-    _buildSwipeTrack(prefix);
-
     const portal = document.getElementById(portalId);
     if (!portal) return;
 
     portal.addEventListener('touchstart', (e) => {
-        const t = e.target;
-        if (t.closest('input')||t.closest('textarea')||
-            t.closest('.full-screen-overlay')||t.closest('.modal-bg')||
-            t.closest('.chat-window:not(.hidden)')||
-            t.closest('.exam-screen')) return;
-        const track = document.getElementById(prefix+'-swipe-track');
-        if (!track) return;
-        const tabs = prefix==='t'?TEACHER_TABS:STUDENT_TABS;
-        const hash = window.location.hash.replace('#','');
-        let idx = tabs.indexOf(hash); if(idx<0) idx=0;
-        _swSt = {
-            active:true, startX:e.touches[0].clientX, startY:e.touches[0].clientY,
-            lastX:e.touches[0].clientX, dirLocked:false, isHoriz:false,
-            trackEl:track, currentIdx:idx, tabCount:tabs.length, prefix
-        };
-        track.style.transition = 'none';
-    }, {passive:true});
+        _swipeStartX = e.touches[0].clientX;
+        _swipeStartY = e.touches[0].clientY;
+        _swipeStartTarget = e.target;
+    }, { passive: true });
 
     portal.addEventListener('touchmove', (e) => {
-        if (!_swSt.active) return;
-        const dx = e.touches[0].clientX - _swSt.startX;
-        const dy = e.touches[0].clientY - _swSt.startY;
-        if (!_swSt.dirLocked) {
-            if (Math.abs(dx)>6||Math.abs(dy)>6) {
-                _swSt.dirLocked = true;
-                _swSt.isHoriz = Math.abs(dx) > Math.abs(dy)*0.75;
-            }
-            return;
-        }
-        if (!_swSt.isHoriz) return;
-        _swSt.lastX = e.touches[0].clientX;
-        const W = window.innerWidth;
-        const base = -_swSt.currentIdx * W;
-        let offset = base + dx;
-        // rubber-band at edges
-        if (_swSt.currentIdx===0 && dx>0) offset = dx*0.18;
-        if (_swSt.currentIdx===_swSt.tabCount-1 && dx<0)
-            offset = base + dx*0.18;
-        _swSt.trackEl.style.transform = 'translateX('+offset+'px)';
-        // move fb bar live
-        const frac = _swSt.currentIdx + (-dx/W);
-        _moveFbBarFrac(_swSt.prefix, Math.max(0,Math.min(_swSt.tabCount-1,frac)));
-    }, {passive:true});
+        // Only block swipe if touching an input/textarea directly
+        if (_swipeStartTarget && (
+            _swipeStartTarget.closest('input') ||
+            _swipeStartTarget.closest('textarea') ||
+            _swipeStartTarget.closest('.full-screen-overlay')
+        )) return;
+        const dx = e.touches[0].clientX - _swipeStartX;
+        const dy = e.touches[0].clientY - _swipeStartY;
+        if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
+        const progress = Math.min(Math.abs(dx) / (window.innerWidth * 0.5), 1) * 100;
+        const bar = document.getElementById('swipe-progress-bar');
+        if (bar) { bar.classList.add('active'); bar.style.width = progress + '%'; }
+    }, { passive: true });
 
     portal.addEventListener('touchend', (e) => {
-        if (!_swSt.active) return;
-        _swSt.active = false;
-        if (!_swSt.isHoriz) return;
-        const dx = e.changedTouches[0].clientX - _swSt.startX;
-        let newIdx = _swSt.currentIdx;
-        if (dx < -45 && newIdx < _swSt.tabCount-1) newIdx++;
-        else if (dx > 45 && newIdx > 0) newIdx--;
-        _snapTrack(_swSt.prefix, newIdx);
-    }, {passive:true});
-
-    portal.addEventListener('touchcancel', () => {
-        if (_swSt.active) _snapTrack(_swSt.prefix, _swSt.currentIdx);
-        _swSt.active = false;
-    }, {passive:true});
+        const bar = document.getElementById('swipe-progress-bar');
+        if (bar) {
+            bar.style.width = '100%';
+            setTimeout(() => { bar.classList.remove('active'); bar.style.width = '0%'; }, 200);
+        }
+        // Only block if touching input/textarea or overlay
+        if (_swipeStartTarget && (
+            _swipeStartTarget.closest('input') ||
+            _swipeStartTarget.closest('textarea') ||
+            _swipeStartTarget.closest('.full-screen-overlay')
+        )) return;
+        const dx = e.changedTouches[0].clientX - _swipeStartX;
+        const dy = e.changedTouches[0].clientY - _swipeStartY;
+        if (Math.abs(dx) < 70 || Math.abs(dx) <= Math.abs(dy) * 1.5) return;
+        const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+        const currentHash = window.location.hash.replace('#', '');
+        let idx = tabs.indexOf(currentHash);
+        if (idx === -1) idx = 0;
+        const newIdx = dx > 0 ? idx + 1 : idx - 1;
+        if (newIdx >= 0 && newIdx < tabs.length) {
+            const navBtns = document.querySelectorAll(`#${portalId} .nav-btn`);
+            const direction = dx > 0 ? 'left' : 'right';
+            switchTabWithDirection(tabs[newIdx], navBtns[newIdx], direction);
+        }
+    }, { passive: true });
 }
 
-function _buildSwipeTrack(prefix) {
-    const portalId = prefix==='t'?'teacher-app':'student-app';
-    const tabs = prefix==='t'?TEACHER_TABS:STUDENT_TABS;
-    const container = document.querySelector('#'+portalId+' .portal-container');
-    if (!container) return;
-    // Check if track already built
-    if (document.getElementById(prefix+'-swipe-track')) return;
+function switchTabWithDirection(tabId, btn, direction) {
+    const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
+    const newSection = document.getElementById(tabId);
+    if (!newSection) return;
 
-    const W = window.innerWidth;
+    // Get current visible section
+    const currentSection = document.querySelector(`#${portal} .app-section:not(.hidden)`);
 
-    // Create the track wrapper
-    const track = document.createElement('div');
-    track.id = prefix+'-swipe-track';
-    track.className = 'swipe-track';
-    track.style.cssText = 'display:flex;width:'+(tabs.length*W)+'px;will-change:transform;touch-action:pan-y;';
+    // Determine animation classes based on direction
+    // direction: 'right' means swiping right (going to previous tab = slide in from left)
+    // direction: 'left' means swiping left (going to next tab = slide in from right)
+    const outClass = direction === 'left' ? 'sliding-out-left' : 'sliding-out-right';
+    const inClass  = direction === 'left' ? 'sliding-in-left'  : 'sliding-in-right';
 
-    // Move each tab section into its own page div
-    tabs.forEach((tabId, i) => {
-        const section = document.getElementById(tabId);
-        if (!section) return;
-        const page = document.createElement('div');
-        page.className = 'swipe-page';
-        page.id = 'swp-'+tabId;
-        page.style.cssText = 'width:'+W+'px;min-height:100vh;flex-shrink:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;box-sizing:border-box;';
-        // Move section into page
-        section.classList.remove('hidden');
-        page.appendChild(section);
-        track.appendChild(page);
-    });
-
-    // Set initial page position from hash
-    const hash = window.location.hash.replace('#','');
-    let startIdx = tabs.indexOf(hash); if(startIdx<0) startIdx=0;
-    track.style.transform = 'translateX('+(-startIdx*W)+'px)';
-
-    // Show only active section content
-    tabs.forEach((tabId,i) => {
-        const page = document.getElementById('swp-'+tabId);
-        if (page) page.style.visibility = i===startIdx ? '' : '';
-    });
-
-    container.appendChild(track);
-    _swSt.currentIdx = startIdx;
-}
-
-function _snapTrack(prefix, idx) {
-    const track = document.getElementById(prefix+'-swipe-track');
-    if (!track) return;
-    const W = window.innerWidth;
-    track.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
-    track.style.transform = 'translateX('+(-idx*W)+'px)';
-
-    const tabs = prefix==='t'?TEACHER_TABS:STUDENT_TABS;
-    const portalId = prefix==='t'?'teacher-app':'student-app';
-    const navBtns = document.querySelectorAll('#'+portalId+' .nav-btn');
-    navBtns.forEach((b,i) => b.classList.toggle('active', i===idx));
-    _moveFbBarFrac(prefix, idx);
-
-    _suppressHistoryPush = true;
-    window.history.replaceState({tab:tabs[idx]},'','#'+tabs[idx]);
-    setTimeout(()=>{ _suppressHistoryPush=false; }, 100);
-
-    // scroll active page to top if switching
-    if (_swSt.currentIdx !== idx) {
-        const page = document.getElementById('swp-'+tabs[idx]);
-        if (page) page.scrollTop = 0;
+    if (currentSection && currentSection !== newSection) {
+        currentSection.classList.add(outClass);
+        setTimeout(() => {
+            currentSection.classList.remove(outClass);
+        }, 320);
     }
-    _swSt.currentIdx = idx;
 
-    // run side effects
-    const tabId = tabs[idx];
-    if(tabId==='s-grades') loadStudentGrades();
-    if(tabId==='s-exams') { loadStudentExams(); startTypewriter('student-type-text','تحليل المستوى الدراسي'); }
-    if(tabId==='t-library') { loadTeacherTests(); startTypewriter('cta-type-text','اضغط هنا لكتابة الامتحان'); }
-    if(tabId==='t-reese'||tabId==='s-reese') { const p=prefix; loadReesePosts(p); }
+    // Switch the tab normally (hides current, shows new)
+    switchTab(tabId, btn);
+
+    // Apply slide-in to the new section
+    newSection.classList.add(inClass);
+    setTimeout(() => {
+        newSection.classList.remove(inClass);
+    }, 320);
 }
 
-function _doSwitchTab(tabId, btn, dir) {
-    const prefix = selectedRole==='teacher'?'t':'s';
-    const tabs = prefix==='t'?TEACHER_TABS:STUDENT_TABS;
-    const idx = tabs.indexOf(tabId);
-    if(idx>=0) _snapTrack(prefix, idx);
-}
-
-function switchTabWithDirection(tabId, btn, direction) { _doSwitchTab(tabId, btn, direction); }
-function _updateTabIndicator() {}
-function _updateTabIndicatorFrac() {}
 let _tabDotsTimer = null;
-function showTabDotsTemporarily() {}
-function hideTabDots() {}
-function updateTabDots() {}
+
+function updateTabDots(activeTabId) {
+    const dotsContainer = document.getElementById('tab-dots');
+    if (!dotsContainer) return;
+    const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+    dotsContainer.innerHTML = '';
+    tabs.forEach((tab) => {
+        const dot = document.createElement('div');
+        dot.className = 'tab-dot' + (tab === activeTabId ? ' active' : '');
+        dotsContainer.appendChild(dot);
+    });
+}
+
+function showTabDotsTemporarily() {
+    const dotsContainer = document.getElementById('tab-dots');
+    if (!dotsContainer) return;
+    dotsContainer.classList.remove('hidden');
+    dotsContainer.classList.add('swipe-visible');
+    if (_tabDotsTimer) clearTimeout(_tabDotsTimer);
+    _tabDotsTimer = setTimeout(() => {
+        dotsContainer.classList.remove('swipe-visible');
+    }, 2500);
+}
+
+function showTabDots() {
+    // Only used internally - don't show permanently, only on swipe
+}
+// ════ FACEBOOK SLIDING TAB BAR ════
+function _moveFbBar(pfx, activeBtn) {
+    const bar = document.getElementById(pfx + '-fb-bar');
+    const nav = document.getElementById(pfx + '-nav');
+    if (!bar || !nav) return;
+    const btn = activeBtn || nav.querySelector('.nav-btn.active');
+    if (!btn) return;
+    const navR = nav.getBoundingClientRect();
+    const btnR = btn.getBoundingClientRect();
+    bar.style.width     = btnR.width + 'px';
+    bar.style.transform = 'translateX(' + (btnR.left - navR.left) + 'px)';
+}
+
+function _initFbBar(pfx) {
+    // slight delay to ensure layout is ready
+    setTimeout(() => _moveFbBar(pfx, null), 350);
+}
+function hideTabDots() {
+    const dotsContainer = document.getElementById('tab-dots');
+    if (dotsContainer) {
+        dotsContainer.classList.remove('swipe-visible');
+    }
+}
 
 window.addEventListener('click', function(e) {
     const searchModal = document.getElementById('user-search-modal');
@@ -566,27 +520,14 @@ async function recognizeImageText(imageBase64) {
     }
 }
 
-async function callPollinationsAI(prompt, systemPrompt = '') {
+async function callPollinationsAI(prompt) {
+    const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
     try {
-        // Use Pollinations messages API for better system prompt support
-        const body = systemPrompt
-            ? JSON.stringify({ messages: [{ role:'system', content: systemPrompt }, { role:'user', content: prompt }], model:'openai', seed:-1, jsonMode:false })
-            : null;
-        if (body) {
-            const r = await fetch('https://text.pollinations.ai/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body
-            });
-            if (r.ok) return await r.text();
-        }
-        // Fallback to GET
-        const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('API Error');
         return await response.text();
     } catch (error) {
-        console.error('AI Error:', error);
+        console.error("AI Error:", error);
         throw error;
     }
 }
@@ -676,13 +617,15 @@ function loginSuccess(name, icon, uid) {
     if (selectedRole === 'teacher') {
         document.getElementById('teacher-app').classList.remove('hidden');
         initTeacherApp();
-        setTimeout(() => { initSwipeNavigation('teacher-app'); _initFbBar('t'); }, 400);
+        setTimeout(() => initSwipeNavigation('teacher-app'), 500);
+        setTimeout(() => _initFbBar('t'), 600);
     } else {
         document.getElementById('student-app').classList.remove('hidden');
         loadStudentExams(); loadStudentGrades(); initStudentReese();
         updateStreakOnLogin();
         // XP HUD removed
-        setTimeout(() => { initSwipeNavigation('student-app'); _initFbBar('s'); }, 400);
+        setTimeout(() => initSwipeNavigation('student-app'), 500);
+        setTimeout(() => _initFbBar('s'), 600);
     }
     initDardasha();
     initVoiceModule(db, currentUser, myUid);
@@ -990,80 +933,18 @@ function startTypewriter(elementId, text) {
 }
 if(document.getElementById('landing-type-text')) { startTypewriter("landing-type-text", "منصة تعليمية ذكية تنقلك إلى آفاق المستقبل"); }
 
-// ── FACEBOOK-STYLE TAB BAR ──────────────────────────────
-function _initFbBar(prefix) {
-    setTimeout(() => _moveFbBar(prefix, null), 300);
-}
-
-function _moveFbBar(prefix, activeBtn) {
-    const bar = document.getElementById(prefix+'-fb-bar');
-    const nav = document.getElementById(prefix+'-nav-container');
-    if (!bar||!nav) return;
-    const btn = activeBtn||nav.querySelector('.nav-btn.active');
-    if (!btn) { bar.style.opacity='0'; return; }
-    const navRect = nav.getBoundingClientRect();
-    const btnRect = btn.getBoundingClientRect();
-    bar.style.opacity = '1';
-    bar.style.width = btnRect.width+'px';
-    bar.style.transform = 'translateX('+(btnRect.left-navRect.left)+'px)';
-}
-
-// Live fb bar movement during swipe (fraction between tabs)
-function _moveFbBarFrac(prefix, frac) {
-    const bar = document.getElementById(prefix+'-fb-bar');
-    const nav = document.getElementById(prefix+'-nav-container');
-    if (!bar||!nav) return;
-    const tabs = prefix==='t'?TEACHER_TABS:STUDENT_TABS;
-    const btns = Array.from(nav.querySelectorAll('.nav-btn'));
-    const lo = Math.floor(frac);
-    const hi = Math.min(lo+1, tabs.length-1);
-    const t  = frac - lo;
-    const bLo = btns[lo], bHi = btns[hi];
-    if (!bLo||!bHi) return;
-    const navRect = nav.getBoundingClientRect();
-    const rLo = bLo.getBoundingClientRect();
-    const rHi = bHi.getBoundingClientRect();
-    const left  = (rLo.left-navRect.left)+(rHi.left-rLo.left)*t;
-    const width = rLo.width+(rHi.width-rLo.width)*t;
-    bar.style.transition = 'none';
-    bar.style.opacity = '1';
-    bar.style.width  = width+'px';
-    bar.style.transform = 'translateX('+left+'px)';
-    // Also update active state live
-    btns.forEach((b,i) => b.classList.toggle('active', i===Math.round(frac)));
-}
-
-
 window.switchTab = (tabId, btn) => {
     playSound('click');
     const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
-    const prefix = selectedRole === 'teacher' ? 't' : 's';
-
-    // If swipe track exists, use it (Facebook-style)
-    const track = document.getElementById(prefix + '-swipe-track');
-    if (track) {
-        const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
-        const idx = tabs.indexOf(tabId);
-        if (idx >= 0) {
-            const W = window.innerWidth;
-            track.style.transition = 'transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94)';
-            track.style.transform = 'translateX(' + (-idx * W) + 'px)';
-            _swSt.currentIdx = idx;
-        }
-    } else {
-        // Fallback: hide/show
-        document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
-        const sec = document.getElementById(tabId);
-        if (sec) sec.classList.remove('hidden');
-    }
-
+    document.querySelectorAll(`#${portal} .app-section`).forEach(s => s.classList.add('hidden'));
+    document.getElementById(tabId).classList.remove('hidden');
     if(btn) { 
         document.querySelectorAll(`#${portal} .nav-btn`).forEach(b => b.classList.remove('active')); 
         btn.classList.add('active'); 
     }
-    // Move Facebook bar
-    const _pfxBar = prefix;
-    _moveFbBar(_pfxBar, btn || null);
+    // move facebook bar
+    const _fbPfx = selectedRole === 'teacher' ? 't' : 's';
+    _moveFbBar(_fbPfx, btn);
     
     if (!_suppressHistoryPush) {
         const allTabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
@@ -1071,6 +952,8 @@ window.switchTab = (tabId, btn) => {
             window.history.pushState({ tab: tabId }, '', '#' + tabId);
         }
     }
+    
+    updateTabDots(tabId);
     
     if(tabId === 's-grades') loadStudentGrades();
     if(tabId === 's-exams') {
@@ -2919,95 +2802,73 @@ window.sendAiMsg = async (prefix) => {
         // Correct Arabic spelling before sending
         const correctedTxt = correctArabicSpelling(txt);
 
-        // ── DEEP USER PROFILE FOR AI PERSONALITY ──────────────
-        const userName  = currentUser || 'الطالب';
-        const userRole  = selectedRole === 'student' ? 'طالب' : 'معلم';
-
+        // ── DEEP USER PROFILE ──
+        const userName = currentUser || 'الطالب';
+        const userRole = selectedRole === 'student' ? 'طالب' : 'معلم';
+        let gradesContext = '';
         let deepProfile = '';
         try {
             if (selectedRole === 'student') {
-                // Parallel fetch: user data + tests + all results
                 const [stuSnap, testsSnap, resultsSnap] = await Promise.all([
                     get(ref(db, 'users/students/' + currentUser)),
                     get(ref(db, 'tests')),
                     get(ref(db, 'results')),
                 ]);
-                const stuData    = stuSnap.val()    || {};
-                const testsData  = testsSnap.val()  || {};
-                const resultsAll = resultsSnap.val() || {};
-
-                // Grades & analytics
-                const examLines = [];
-                let totalScore=0, totalMax=0, examCount=0;
-                let subjectMap = {};
-                for (const [tid, td] of Object.entries(testsData)) {
-                    const myRes = resultsAll[tid]?.[currentUser];
-                    if (myRes) {
-                        examLines.push(`  • ${td.title} (${td.subject||'—'}): ${myRes.percentage}% (${myRes.score}/${myRes.total}) — ${new Date(myRes.timestamp||0).toLocaleDateString('ar-EG')}`);
-                        totalScore += myRes.score || 0;
-                        totalMax   += myRes.total || 0;
+                const stuData = stuSnap.val() || {};
+                const tests   = testsSnap.val()  || {};
+                const allRes  = resultsSnap.val() || {};
+                let totalS=0, totalM=0, examCount=0;
+                const examLines=[], subjectMap={};
+                for (const [tid, td] of Object.entries(tests)) {
+                    const r = allRes[tid]?.[currentUser];
+                    if (r) {
                         examCount++;
-                        const subj = td.subject || 'أخرى';
-                        if (!subjectMap[subj]) subjectMap[subj] = [];
-                        subjectMap[subj].push(myRes.percentage);
+                        totalS += r.score||0; totalM += r.total||0;
+                        examLines.push('  • '+td.title+' ('+(td.subject||'—')+'): '+r.percentage+'% ('+r.score+'/'+r.total+')');
+                        const subj = td.subject||'أخرى';
+                        if (!subjectMap[subj]) subjectMap[subj]=[];
+                        subjectMap[subj].push(r.percentage);
                     }
                 }
-                const avgPct = totalMax>0 ? Math.round(totalScore/totalMax*100) : null;
-                const level  = avgPct===null ? 'لم يؤدِ اختبارات بعد'
-                             : avgPct>=90 ? 'ممتاز 🌟' : avgPct>=75 ? 'جيد جداً 👍'
-                             : avgPct>=60 ? 'جيد' : avgPct>=50 ? 'مقبول' : 'يحتاج دعم ❤️';
-
-                // Subject strengths
-                const subjLines = Object.entries(subjectMap).map(([s,arr]) => {
-                    const avg = Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
-                    return `  • ${s}: متوسط ${avg}%`;
-                });
-
-                // Personality signals
-                const active = examCount >= 5 ? 'نشيط ومنتظم في الاختبارات'
-                             : examCount >= 2 ? 'يؤدي بعض الاختبارات'
-                             : 'في بداية رحلته';
-
+                const avg = totalM>0 ? Math.round(totalS/totalM*100) : null;
+                const lvl = avg===null?'لم يؤدِ اختبارات':avg>=90?'ممتاز':avg>=75?'جيد جداً':avg>=60?'جيد':avg>=50?'مقبول':'يحتاج دعم';
+                const subjLines = Object.entries(subjectMap).map(([s,arr])=>'  • '+s+': متوسط '+Math.round(arr.reduce((a,b)=>a+b,0)/arr.length)+'%');
                 deepProfile = [
-                    '═══ ملف المستخدم الشامل ═══',
-                    'الاسم: ' + userName,
-                    'الصف/السنة: ' + (stuData.grade || stuData.school || '—'),
-                    'المدرسة: ' + (stuData.school || '—'),
-                    'رقم التواصل: ' + (stuData.phone || '—'),
-                    'عدد الاختبارات: ' + examCount,
-                    'المتوسط العام: ' + (avgPct!==null ? avgPct+'%' : '—'),
-                    'المستوى: ' + level,
-                    'النشاط: ' + active,
-                    examLines.length ? 'سجل الاختبارات:\n'+examLines.join('\n') : '',
-                    subjLines.length ? 'أداء حسب المادة:\n'+subjLines.join('\n') : '',
-                    '════════════════════════════',
+                    '=== ملف الطالب ===',
+                    'الاسم: '+userName,
+                    'الصف: '+(stuData.grade||'—'),
+                    'المدرسة: '+(stuData.school||'—'),
+                    'عدد الاختبارات: '+examCount,
+                    avg!==null?'المتوسط: '+avg+'% — '+lvl:'',
+                    examLines.length?'الاختبارات:\n'+examLines.join('\n'):'',
+                    subjLines.length?'الأداء بالمادة:\n'+subjLines.join('\n'):'',
+                    '==================',
                 ].filter(Boolean).join('\n');
-
+                gradesContext = deepProfile;
             } else {
-                // Teacher profile
-                const [teaSnap, testsSnap, resultsSnap] = await Promise.all([
-                    get(ref(db, 'users/teachers/' + currentUser)),
+                const [testsSnap, resultsSnap] = await Promise.all([
                     get(ref(db, 'tests')),
                     get(ref(db, 'results')),
                 ]);
-                const teaData    = teaSnap.val()    || {};
-                const testsData  = testsSnap.val()  || {};
-                const resultsAll = resultsSnap.val() || {};
-                const myExams = Object.entries(testsData).filter(([,e])=>e.teacher===currentUser);
-                let totalStudents=0;
-                myExams.forEach(([tid])=>{ totalStudents+=Object.keys(resultsAll[tid]||{}).length; });
+                const tests  = testsSnap.val()  || {};
+                const allRes = resultsSnap.val() || {};
+                const myExams = Object.entries(tests).filter(([,e])=>e.teacher===currentUser);
+                let totalStud=0;
+                myExams.forEach(([tid])=>{ totalStud+=Object.keys(allRes[tid]||{}).length; });
                 deepProfile = [
-                    '═══ ملف المعلم ═══',
+                    '=== ملف المعلم ===',
                     'الاسم: '+userName,
-                    'عدد الاختبارات: '+myExams.length,
-                    'إجمالي الطلاب: '+totalStudents,
-                    myExams.map(([,e])=>'  • '+e.title+' ('+e.subject+')').join('\n'),
-                    '════════════════════',
+                    'عدد اختباراته: '+myExams.length,
+                    'إجمالي الطلاب: '+totalStud,
+                    myExams.map(([,e])=>'  • '+e.title+' ('+(e.subject||'—')+')').join('\n'),
+                    '==================',
                 ].filter(Boolean).join('\n');
+                gradesContext = deepProfile;
             }
-        } catch(e) { deepProfile = 'الاسم: '+userName+'. الدور: '+userRole+'.'; }
-
-        const gradesContext = deepProfile;
+        } catch(e2) {
+            deepProfile = 'الاسم: '+userName+'. الدور: '+userRole+'.';
+            gradesContext = deepProfile;
+        }
         const userContext = deepProfile;
 
         // Check repeated question cache
@@ -3024,61 +2885,33 @@ window.sendAiMsg = async (prefix) => {
             return;
         }
 
-        // Classify query intent for smarter response
-        const queryLower = correctedTxt.toLowerCase();
-        const isGreeting = /^(مرحبا|هلا|هاي|سلام|اهلا|صباح|مساء|كيفك|عامل|ازيك|ايه الاخبار|هي|hi|hello)/.test(queryLower.trim());
-        const isMath = /(\d+[\+\-\×\÷\*\/]\d+|معادل|حل.*مسأل|احسب|انتج|اشتق|تكامل|sqrt|log|sin|cos|جبر|هندس|رياضيات)/.test(queryLower);
-        const isExam = /(واجب|امتحان|اختبار|سؤال|أسئلة|اعمل اختبار|اكتب اختبار|انشئ اختبار)/.test(queryLower);
-        const isShort = correctedTxt.length < 40 || isGreeting;
-        const needsDetail = isMath || isExam || correctedTxt.length > 80;
-        
-        const responseStyle = isShort 
-            ? 'رد بجملة أو اثنتين فقط، مختصر جداً.'
-            : needsDetail 
-                ? 'رد بتفصيل كامل، خطوة بخطوة إذا لزم، بدون اختصار.'
-                : 'رد بشكل مناسب لطول السؤال، لا قصير جداً ولا طويل.';
-
-        let systemPrompt = '';
-        let userMessage = '';
+        // Smart intent detection
+        const qLow = correctedTxt.toLowerCase();
+        const isGreet  = /^(مرحبا|هلا|هاي|سلام|اهلا|صباح|مساء|ازيك|ايه|hi|hello)/.test(qLow.trim());
+        const isMath   = /\d[+\-*/]\d|معادل|احسب|اشتق|تكامل|رياضيات/.test(qLow);
+        const isShort  = correctedTxt.length < 35 || isGreet;
+        const style    = isShort ? 'رد بجملتين فقط.' : isMath ? 'اشرح خطوة بخطوة.' : 'رد بشكل مناسب لطول السؤال.';
 
         if (selectedRole === 'student') {
-            systemPrompt = `أنت SA AI — مساعد دراسي ذكي ومتفوق لطلاب منصة SA EDU التعليمية.
-اسم الطالب: ${userName}
-${gradesContext ? 'نتائجه: ' + gradesContext : ''}
-
-قواعد الرد:
-- ${responseStyle}
-- افهم العامية المصرية والخليجية والأخطاء الإملائية تلقائياً ولا تعلق عليها أبداً
-- الرياضيات والمعادلات: اشرح خطوة بخطوة مع النتيجة النهائية
-- الواجبات: احلها كاملاً مع الشرح
-- لا تقل أبداً "لاحظت خطأً في كتابتك"
-- الأسئلة البسيطة: رد خفيف وسريع
-- إذا سألك عن شيء خارج المنهج، ساعده بذكاء
-- أجب دائماً بالعربية الفصحى مع لمسة ودية`;
-            userMessage = ocrText ? `[صورة: ${ocrText}]
-${correctedTxt}` : correctedTxt;
+            finalPrompt += 'أنت SA AI مساعد دراسي ذكي.\n'
+                + deepProfile + '\n'
+                + 'قواعد: افهم العامية والأخطاء الإملائية بدون تعليق. ' + style
+                + ' أجب بالعربية فقط.\n';
         } else {
-            systemPrompt = `أنت SA AI — مساعد معلمين احترافي على منصة SA EDU.
-اسم المعلم: ${userName}
-
-قواعد الرد:
-- ${responseStyle}
-- لإنشاء الاختبارات: أنشئها بصيغة واضحة ومنظمة مع الإجابات
-- لتحضير الدروس: قدم خطة متكاملة وعملية
-- افهم الأخطاء الإملائية تلقائياً بدون تعليق
-- إذا طلب تقييماً: كن موضوعياً ومفيداً
-- أجب بالعربية الفصحى`;
-            userMessage = ocrText ? `[صورة: ${ocrText}]
-${correctedTxt}` : correctedTxt;
+            finalPrompt += 'أنت SA AI مساعد معلمين ذكي.\n'
+                + deepProfile + '\n'
+                + 'قواعد: افهم الأخطاء الإملائية بدون تعليق. ' + style
+                + ' أجب بالعربية فقط.\n';
         }
 
-        // Add conversation history for context
-        const historyStr = currentChatMessages.slice(-6).map(m => 
-            `${m.role==='user'?'المستخدم':'SA AI'}: ${(m.content||'').substring(0,200)}`
-        ).join('\n');
-        if (historyStr) userMessage = '[سياق المحادثة]\n' + historyStr + '\n\n[السؤال الجديد]\n' + userMessage;
+        finalPrompt += `معلومات المستخدم: ${userContext}`;
 
-        const reply = await callPollinationsAI(userMessage, systemPrompt);
+        if (ocrText) {
+            finalPrompt += `Context from image: "${ocrText}". `;
+        }
+        finalPrompt += correctedTxt;
+        
+        const reply = await callPollinationsAI(finalPrompt);
 
         // Cache this answer for repeated questions (max 200 chars questions)
         if (correctedTxt.length < 200) {
