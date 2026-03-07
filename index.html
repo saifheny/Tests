@@ -74,101 +74,41 @@
     </div>
 
     <div id="landing-layer">
-        <!-- Animated particle canvas -->
-        <canvas id="landing-canvas" style="position:absolute;inset:0;z-index:0;pointer-events:none;"></canvas>
-        
         <div class="landing-wrap">
-            <!-- Logo & Brand -->
-            <div class="landing-logo-row">
-                <img src="https://i.postimg.cc/BQQb5YDn/MOWU-DESIGN.png" class="landing-logo-img" alt="SA EDU Logo">
-                <div class="landing-brand-text">
-                    <h1 class="landing-title">SA <span class="landing-title-accent">EDU</span></h1>
-                    <p class="landing-subtitle">Smart Academic Platform</p>
-                </div>
-            </div>
-
-            <!-- Typewriter tagline -->
-            <div class="landing-tagline-row">
+            <h1 style="font-size: 3.5rem; background: linear-gradient(to right, #fff, #3b82f6); -webkit-background-clip: text; color: transparent; margin: 0; text-shadow: 0 0 30px rgba(59, 130, 246, 0.5);">SA EDU</h1>
+            <div style="min-height: 40px; margin-top: 10px; display:flex; justify-content:center; align-items:center; gap:5px;">
                 <span id="landing-type-text" class="landing-text"></span><span class="typewriter-cursor"></span>
             </div>
-
-            <!-- Live stats -->
-            <div class="landing-stats-row" id="landing-stats">
-                <div class="landing-stat-item">
-                    <span class="landing-stat-num" id="stat-students">—</span>
-                    <span class="landing-stat-label">طالب</span>
-                </div>
-                <div class="landing-stat-divider"></div>
-                <div class="landing-stat-item">
-                    <span class="landing-stat-num" id="stat-exams">—</span>
-                    <span class="landing-stat-label">اختبار</span>
-                </div>
-                <div class="landing-stat-divider"></div>
-                <div class="landing-stat-item">
-                    <span class="landing-stat-num" id="stat-teachers">—</span>
-                    <span class="landing-stat-label">معلم</span>
-                </div>
+            <div style="margin-top: 30px;">
+                <img src="https://i.postimg.cc/BQQb5YDn/MOWU-DESIGN.png" class="landing-avatar-img" alt="Logo">
             </div>
-
-            <!-- Feature chips -->
-            <div class="landing-features">
-                <div class="landing-feat"><i class="fas fa-brain"></i> ذكاء اصطناعي</div>
-                <div class="landing-feat"><i class="fas fa-bolt"></i> تصحيح فوري</div>
-                <div class="landing-feat"><i class="fas fa-chart-line"></i> تحليل مستوى</div>
-                <div class="landing-feat"><i class="fas fa-comments"></i> تواصل مباشر</div>
-            </div>
-
-            <!-- CTA -->
-            <button onclick="goToAuth()" class="landing-cta-btn">
-                <span>ابدأ الآن</span>
-                <i class="fas fa-arrow-left"></i>
+            <button onclick="goToAuth()" class="modern-btn" style="margin-top: 50px; font-size: 1.1rem; background: #ffffff; color: #000000; border: none; box-shadow: 0 0 30px rgba(255, 255, 255, 0.2); font-weight: 800; font-family: 'Outfit', sans-serif;">
+                ENTER THE REALM <i class="fas fa-dungeon" style="margin-left: 8px;"></i>
             </button>
-            <p class="landing-fine-print">مجاني تماماً • بدون إعلانات</p>
         </div>
     </div>
 
     <div id="auth-layer" class="hidden">
-        <div class="auth-container">
-            <button onclick="backToLanding()" class="auth-back-btn"><i class="fas fa-arrow-right"></i></button>
-            
-            <div class="auth-header">
-                <h2 class="auth-title">مرحباً بك</h2>
-                <p class="auth-sub">أنت من؟</p>
+        <div class="flex-center" style="height: 100%; flex-direction: column; padding: 30px;">
+            <div onclick="backToLanding()" style="position: absolute; top: 40px; right: 30px; cursor: pointer; padding: 10px;"><i class="fas fa-arrow-right fa-xl"></i></div>
+            <h2 style="margin: 0 0 30px;">بوابة الدخول</h2>
+            <div class="role-toggle-container">
+                <button class="role-toggle-btn active" id="btn-role-student" onclick="setAuthRole('student')">طالب</button>
+                <button class="role-toggle-btn" id="btn-role-teacher" onclick="setAuthRole('teacher')">معلم</button>
             </div>
-
-            <!-- Role cards -->
-            <div class="auth-role-cards">
-                <div class="auth-role-card active" id="card-role-student" onclick="setAuthRole('student')">
-                    <div class="auth-role-icon student-role-icon"><i class="fas fa-user-graduate"></i></div>
-                    <span class="auth-role-name">طالب</span>
-                    <div class="auth-role-check" id="check-student"><i class="fas fa-check"></i></div>
-                </div>
-                <div class="auth-role-card" id="card-role-teacher" onclick="setAuthRole('teacher')">
-                    <div class="auth-role-icon teacher-role-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                    <span class="auth-role-name">معلم</span>
-                    <div class="auth-role-check hidden" id="check-teacher"><i class="fas fa-check"></i></div>
-                </div>
-            </div>
-
-            <div id="auth-avatar-display" class="avatar-frame avatar-student auth-avatar-display">
+            <div id="auth-avatar-display" class="avatar-frame avatar-student" style="margin-bottom: 30px;">
                 <i class="fas fa-user-astronaut"></i>
             </div>
-
-            <div class="auth-form">
-                <div class="names-row">
-                    <input type="text" id="auth-name-1" class="smart-input" placeholder="الاسم الأول" style="text-align:center;">
-                    <input type="text" id="auth-name-2" class="smart-input" placeholder="الاسم الثاني" style="text-align:center;">
-                </div>
-                <input type="text" id="auth-name-3" class="smart-input" placeholder="الاسم الثالث" style="text-align:center;">
-                <div class="auth-pass-row">
-                    <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري (6 خانات)" maxlength="6" style="text-align:center;">
-                </div>
+            <div class="names-row">
+                <input type="text" id="auth-name-1" class="smart-input" placeholder="الاسم الأول" style="text-align: center;">
+                <input type="text" id="auth-name-2" class="smart-input" placeholder="الاسم الثاني" style="text-align: center;">
             </div>
-
-            <button onclick="handleSmartAuth()" class="landing-cta-btn" style="margin-top:24px;width:100%;justify-content:center;">
-                <span>دخول</span> <i class="fas fa-sign-in-alt"></i>
+            <input type="text" id="auth-name-3" class="smart-input" placeholder="الاسم الثالث" style="text-align: center;">
+            <input type="password" id="auth-pass" class="smart-input" placeholder="الرمز السري (6 خانات)" maxlength="6" style="text-align: center;">
+            <button onclick="handleSmartAuth()" class="modern-btn" style="margin-top: 50px;">
+                تسجيل الدخول <i class="fas fa-sign-in-alt"></i>
             </button>
-            <div id="auth-status" style="margin-top:16px;color:var(--warning);font-size:0.9rem;text-align:center;"></div>
+            <div id="auth-status" style="margin-top: 20px; color: var(--warning); font-size: 0.9rem;"></div>
         </div>
     </div>
 
@@ -389,12 +329,6 @@
                         </div>
                     </div>
                     <div class="ai-messages" id="t-ai-msgs"></div>
-                    <div class="ai-quick-prompts" id="t-quick-prompts">
-                        <button class="ai-qprompt" onclick="useQuickPrompt('t','ولّد لي 10 أسئلة رياضيات للصف الثالث الإعدادي')"><i class="fas fa-wand-magic-sparkles"></i> توليد أسئلة</button>
-                        <button class="ai-qprompt" onclick="useQuickPrompt('t','اشرح لي نتائج طلابي وكيف أحسّن أداءهم')"><i class="fas fa-chart-bar"></i> تحليل الطلاب</button>
-                        <button class="ai-qprompt" onclick="useQuickPrompt('t','اكتب لي خطة درس احترافية')"><i class="fas fa-chalkboard"></i> خطة درس</button>
-                        <button class="ai-qprompt" onclick="useQuickPrompt('t','ساعدني أصمم اختبار متوازن')"><i class="fas fa-balance-scale"></i> تصميم اختبار</button>
-                    </div>
                     
                     <div class="gemini-input-wrapper">
                         <div class="gemini-input-container">
@@ -469,16 +403,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- Quick Stats Bar -->
-                <div class="quick-stats-bar" id="s-quick-stats">
-                    <div class="qs-item" id="qs-total"><i class="fas fa-clipboard-list"></i><span id="qs-total-num">—</span><span class="qs-label">اختبار</span></div>
-                    <div class="qs-sep"></div>
-                    <div class="qs-item" id="qs-done"><i class="fas fa-check-circle" style="color:#34d399"></i><span id="qs-done-num">—</span><span class="qs-label">أديت</span></div>
-                    <div class="qs-sep"></div>
-                    <div class="qs-item" id="qs-avg"><i class="fas fa-star" style="color:#fbbf24"></i><span id="qs-avg-num">—</span><span class="qs-label">متوسطك</span></div>
-                    <div class="qs-sep"></div>
-                    <div class="qs-item" id="qs-rank" onclick="openLeaderboard()"><i class="fas fa-trophy" style="color:#a78bfa"></i><span id="qs-rank-num">—</span><span class="qs-label">ترتيبك</span></div>
                 </div>
                 <div id="s-exams-list"></div>
             </section>
@@ -561,12 +485,6 @@
                         </div>
                     </div>
                     <div class="ai-messages" id="s-ai-msgs"></div>
-                    <div class="ai-quick-prompts" id="s-quick-prompts">
-                        <button class="ai-qprompt" onclick="useQuickPrompt('s','شرح لي آخر اختبار رسبت فيه وكيف أتحسن')"><i class="fas fa-chart-line"></i> تحليل أدائي</button>
-                        <button class="ai-qprompt" onclick="useQuickPrompt('s','ساعدني أذاكر بطريقة صح')"><i class="fas fa-book"></i> طريقة مذاكرة</button>
-                        <button class="ai-qprompt" onclick="useQuickPrompt('s','اعمل لي ملخص في أهم المواضيع')"><i class="fas fa-file-alt"></i> ملخص سريع</button>
-                        <button class="ai-qprompt" onclick="useQuickPrompt('s','حل لي مثال رياضيات')"><i class="fas fa-calculator"></i> حل مسألة</button>
-                    </div>
                     
                     <div class="gemini-input-wrapper">
                         <div class="gemini-input-container">
