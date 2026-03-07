@@ -4660,3 +4660,441 @@ animation: shakeField 0.4s ease;
 .sa-link.ai-link   { color: #f0abfc; border-color: rgba(240,171,252,.3); }
 .sa-link.reese-link{ color: #6ee7b7; border-color: rgba(110,231,183,.3); }
 .sa-link.chat-link { color: #7dd3fc; border-color: rgba(125,211,252,.3); }
+
+
+/* ══════════════════════════════════════════════════════════
+   SA EDU WORLD-CLASS UPGRADE
+   ══════════════════════════════════════════════════════════ */
+
+/* ── SUBJECT COLOR CODING ── */
+:root {
+  --subj-math:    #3b82f6;
+  --subj-physics: #f59e0b;
+  --subj-chem:    #8b5cf6;
+  --subj-bio:     #10b981;
+  --subj-arabic:  #ef4444;
+  --subj-english: #06b6d4;
+  --subj-history: #d97706;
+  --subj-geo:     #84cc16;
+  --subj-cs:      #6366f1;
+  --subj-default: #64748b;
+}
+
+/* ── LANDING PAGE ── */
+#landing-layer {
+    background: #000 !important;
+    overflow: hidden;
+}
+#landing-layer::before {
+    background: none !important;
+}
+.landing-logo-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.landing-logo-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    box-shadow: 0 0 30px rgba(59,130,246,.4);
+    object-fit: cover;
+}
+.landing-brand-text { text-align: right; }
+.landing-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin: 0;
+    color: #fff;
+    letter-spacing: -1px;
+}
+.landing-title-accent {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.landing-subtitle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    color: #666;
+    margin: 2px 0 0;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.landing-tagline-row {
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+}
+.landing-stats-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px;
+    padding: 12px 24px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+}
+.landing-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+.landing-stat-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+}
+.landing-stat-label {
+    font-size: 0.7rem;
+    color: #666;
+    margin-top: 3px;
+}
+.landing-stat-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,.08);
+    flex-shrink: 0;
+}
+.landing-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+.landing-feat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(59,130,246,.1);
+    border: 1px solid rgba(59,130,246,.2);
+    color: #93c5fd;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.landing-feat i { font-size: 0.75rem; }
+.landing-cta-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #3b82f6, #6d28d9);
+    color: #fff;
+    border: none;
+    border-radius: 18px;
+    padding: 16px 36px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'Cairo', sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(59,130,246,.4), 0 0 0 0 rgba(59,130,246,.3);
+    animation: ctaPulse 2.5s ease-in-out infinite;
+    transition: transform .15s, box-shadow .15s;
+}
+.landing-cta-btn:active { transform: scale(0.96); }
+@keyframes ctaPulse {
+    0%,100% { box-shadow: 0 4px 20px rgba(59,130,246,.4), 0 0 0 0 rgba(59,130,246,.3); }
+    50%      { box-shadow: 0 4px 30px rgba(59,130,246,.6), 0 0 0 12px rgba(59,130,246,0); }
+}
+.landing-fine-print { font-size: 0.72rem; color: #444; margin-top: 12px; }
+
+/* ── AUTH PAGE ── */
+.auth-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 60px 30px 40px;
+    max-width: 420px;
+    margin: 0 auto;
+}
+.auth-back-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.08);
+    color: #fff;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.auth-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    color: #fff;
+}
+.auth-sub { color: #666; font-size: 0.9rem; margin: 4px 0 24px; }
+.auth-role-cards {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 28px;
+    width: 100%;
+}
+.auth-role-card {
+    flex: 1;
+    background: rgba(255,255,255,.04);
+    border: 2px solid rgba(255,255,255,.08);
+    border-radius: 20px;
+    padding: 20px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    transition: border-color .2s, background .2s, transform .2s;
+}
+.auth-role-card.active {
+    border-color: #3b82f6;
+    background: rgba(59,130,246,.1);
+    transform: scale(1.02);
+}
+.auth-role-icon {
+    width: 56px; height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+.student-role-icon { background: linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; }
+.teacher-role-icon { background: linear-gradient(135deg,#8b5cf6,#6d28d9); color:#fff; }
+.auth-role-name { font-weight: 700; font-size: 1rem; color: #fff; }
+.auth-role-check {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 22px; height: 22px;
+    background: #3b82f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: #fff;
+}
+.auth-avatar-display { margin-bottom: 20px !important; }
+.auth-form { width: 100%; }
+.auth-pass-row { position: relative; }
+
+/* ── QUICK STATS BAR ── */
+.quick-stats-bar {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 18px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    gap: 0;
+}
+.qs-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: opacity .2s;
+}
+.qs-item:hover { opacity: .8; }
+.qs-item i { font-size: .85rem; color: #3b82f6; }
+.qs-item span:nth-child(2) { font-family:'Outfit',sans-serif; font-size: 1.2rem; font-weight: 700; color:#fff; line-height:1; }
+.qs-label { font-size: .62rem; color: #555; }
+.qs-sep { width:1px; height:32px; background:rgba(255,255,255,.05); flex-shrink:0; }
+
+/* ── EXAM CARD — SUBJECT COLOR ACCENT ── */
+.mini-card { position: relative; overflow: hidden; }
+.mini-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: 0 18px 18px 0;
+    background: var(--subj-default);
+}
+.mini-card[data-subject="رياضيات"]::before  { background: var(--subj-math); }
+.mini-card[data-subject="فيزياء"]::before   { background: var(--subj-physics); }
+.mini-card[data-subject="كيمياء"]::before   { background: var(--subj-chem); }
+.mini-card[data-subject="أحياء"]::before    { background: var(--subj-bio); }
+.mini-card[data-subject="لغة عربية"]::before{ background: var(--subj-arabic); }
+.mini-card[data-subject="لغة إنجليزية"]::before { background: var(--subj-english); }
+.mini-card[data-subject="تاريخ"]::before    { background: var(--subj-history); }
+.mini-card[data-subject="جغرافيا"]::before  { background: var(--subj-geo); }
+.mini-card[data-subject="حاسب آلي"]::before { background: var(--subj-cs); }
+
+/* Exam card score ring */
+.score-ring {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.8rem;
+    font-family: 'Outfit', sans-serif;
+    flex-shrink: 0;
+    border: 2px solid;
+}
+.score-ring.excellent { color: #fbbf24; border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); }
+.score-ring.good      { color: #34d399; border-color: rgba(52,211,153,.4); background: rgba(52,211,153,.1); }
+.score-ring.fail      { color: #f87171; border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.1); }
+.score-ring.pending   { color: #60a5fa; border-color: rgba(96,165,250,.4); background: rgba(96,165,250,.1); }
+
+/* New exam badge */
+.new-badge {
+    background: linear-gradient(135deg,#ef4444,#dc2626);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    animation: badgePulse 1.5s ease-in-out infinite;
+}
+@keyframes badgePulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+
+/* ── AI QUICK PROMPTS ── */
+.ai-quick-prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 16px 12px;
+}
+.ai-qprompt {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(59,130,246,.08);
+    border: 1px solid rgba(59,130,246,.2);
+    color: #93c5fd;
+    padding: 8px 14px;
+    border-radius: 50px;
+    font-size: 0.78rem;
+    font-family: 'Cairo', sans-serif;
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+    white-space: nowrap;
+}
+.ai-qprompt:hover { background: rgba(59,130,246,.15); transform: translateY(-1px); }
+.ai-qprompt:active { transform: scale(.95); }
+.ai-qprompt i { font-size: .75rem; }
+/* Hide prompts when chat has messages */
+.ai-messages:not(:empty) ~ .ai-quick-prompts { display: none; }
+
+/* ── NOTIFICATION DOT ON NAV ICON ── */
+.nav-btn { position: relative; }
+.nav-notif-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px; height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    border: 2px solid #000;
+    animation: dotPop .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes dotPop { from{transform:scale(0)} to{transform:scale(1)} }
+
+/* ── CANVAS PARTICLES ── */
+#landing-canvas { opacity: .5; }
+
+/* ── PAGE TRANSITION ── */
+.app-section {
+    animation: sectionFadeIn .25s ease;
+}
+@keyframes sectionFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.app-section.hidden { animation: none; }
+
+/* ── BETTER EMPTY STATE ── */
+.empty-state-modern {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    gap: 12px;
+}
+.empty-state-modern .es-icon {
+    width: 72px; height: 72px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: #333;
+}
+.empty-state-modern h3 { margin:0; font-size:.95rem; color:#666; }
+.empty-state-modern p  { margin:0; font-size:.8rem; color:#444; text-align:center; }
+
+/* ── LEADERBOARD RANK COLORS ── */
+.rank-1 { color: #ffd700 !important; }
+.rank-2 { color: #c0c0c0 !important; }
+.rank-3 { color: #cd7f32 !important; }
+
+/* ── IMPROVED SUBJECT BADGES ── */
+.subject-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    background: rgba(59,130,246,.12);
+    color: #93c5fd;
+    border: 1px solid rgba(59,130,246,.2);
+}
+
+/* ── GRADE LABEL PILL ── */
+.grade-pill {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.08);
+    color: #999;
+    font-size: .68rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+/* ── TEACHER BADGE IMPROVED ── */
+.teacher-badge {
+    background: linear-gradient(135deg,rgba(16,185,129,.2),rgba(5,150,105,.1));
+    border: 1px solid rgba(16,185,129,.3);
+    color: #34d399;
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* ── AUTH ROLE CARD active state for teacher ── */
+#card-role-teacher.active {
+    border-color: #8b5cf6;
+    background: rgba(139,92,246,.1);
+}
+#card-role-teacher .auth-role-check { background: #8b5cf6; }
