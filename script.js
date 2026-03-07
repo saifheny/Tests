@@ -474,7 +474,7 @@ function getEmptyStateHTML(type) {
     if(type === 'posts') {
         return `<div class="empty-state-container"><div class="empty-avatar"><i class="fas fa-box-open" style="color:#666;"></i></div><h3 style="color:#888;">لا توجد منشورات حالياً</h3><p style="color:#555; font-size:0.9rem;">كن أول من يشارك أفكاره!</p></div>`;
     } else if (type === 'exams') {
-        return `<div class="empty-state-modern"><div class="es-icon"><i class="fas fa-clipboard-list"></i></div><h3>لا توجد اختبارات</h3><p>استمتع بوقتك، لا يوجد ضغط الآن.</p></div>`;
+        return `<div class="empty-state-container"><div class="empty-avatar"><i class="fas fa-folder-open" style="color:#666;"></i></div><h3 style="color:#888;">لا توجد اختبارات</h3><p style="color:#555; font-size:0.9rem;">استمتع بوقتك، لا يوجد ضغط الآن.</p></div>`;
     } else if (type === 'chats') {
         return `<div class="empty-state-container"><div class="empty-avatar"><i class="fab fa-telegram-plane" style="color:#666;"></i></div><h3 style="color:#888;">لا توجد محادثات</h3><p style="color:#555; font-size:0.9rem;">ابحث عن أصدقاء لبدء الدردشة.</p></div>`;
     }
@@ -560,68 +560,6 @@ async function callPollinationsAI(prompt) {
     }
 }
 
-// ════ LANDING CANVAS PARTICLES ════
-function initLandingCanvas() {
-    const canvas = document.getElementById('landing-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const particles = Array.from({length: 60}, () => ({
-        x: Math.random()*canvas.width,
-        y: Math.random()*canvas.height,
-        r: Math.random()*1.5+.5,
-        dx: (Math.random()-.5)*.4,
-        dy: (Math.random()-.5)*.4,
-        a: Math.random()*.6+.1,
-    }));
-    function draw() {
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        particles.forEach(p => {
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-            ctx.fillStyle = `rgba(59,130,246,${p.a})`;
-            ctx.fill();
-            p.x += p.dx; p.y += p.dy;
-            if (p.x<0||p.x>canvas.width)  p.dx*=-1;
-            if (p.y<0||p.y>canvas.height) p.dy*=-1;
-        });
-        requestAnimationFrame(draw);
-    }
-    draw();
-    window.addEventListener('resize', () => {
-        canvas.width=window.innerWidth; canvas.height=window.innerHeight;
-    });
-}
-
-// ════ LIVE LANDING STATS ════
-async function loadLandingStats() {
-    try {
-        const [stuSnap, teaSnap, testSnap] = await Promise.all([
-            get(ref(db, 'users/students')),
-            get(ref(db, 'users/teachers')),
-            get(ref(db, 'tests')),
-        ]);
-        const stu  = stuSnap.val()  ? Object.keys(stuSnap.val()).length  : 0;
-        const tea  = teaSnap.val()  ? Object.keys(teaSnap.val()).length  : 0;
-        const test = testSnap.val() ? Object.keys(testSnap.val()).length : 0;
-        function countUp(elId, target) {
-            const el = document.getElementById(elId);
-            if (!el) return;
-            let cur = 0;
-            const step = Math.ceil(target/40);
-            const t = setInterval(() => {
-                cur = Math.min(cur+step, target);
-                el.textContent = cur.toLocaleString('ar-EG');
-                if (cur>=target) clearInterval(t);
-            }, 40);
-        }
-        countUp('stat-students', stu);
-        countUp('stat-exams',    test);
-        countUp('stat-teachers', tea);
-    } catch(e) {}
-}
-
 window.goToAuth = () => {
         playSound('click');
         document.getElementById('landing-layer').classList.add('hidden');
@@ -632,27 +570,14 @@ window.goToAuth = () => {
 window.setAuthRole = (role) => {
     playSound('click');
     selectedRole = role;
-    const icon  = role === 'student' ? 'fa-user-astronaut' : 'fa-chalkboard-teacher';
-    const color = role === 'student' ? 'var(--accent-primary)' : '#8b5cf6';
-    // new role cards
-    ['student','teacher'].forEach(r => {
-        const card  = document.getElementById('card-role-'+r);
-        const check = document.getElementById('check-'+r);
-        if (card)  card.classList.toggle('active', r===role);
-        if (check) { if(r===role) check.classList.remove('hidden'); else check.classList.add('hidden'); }
-    });
-    // old fallback buttons
-    const btnS = document.getElementById('btn-role-student');
-    const btnT = document.getElementById('btn-role-teacher');
-    if (btnS) btnS.classList.toggle('active', role==='student');
-    if (btnT) btnT.classList.toggle('active', role==='teacher');
+    const icon = role === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
+    const color = role === 'student' ? 'var(--accent-primary)' : 'var(--accent-gold)';
+    document.getElementById('btn-role-student').classList.toggle('active', role === 'student');
+    document.getElementById('btn-role-teacher').classList.toggle('active', role === 'teacher');
     const display = document.getElementById('auth-avatar-display');
-    if (display) {
-        display.innerHTML = `<i class="fas ${icon}"></i>`;
-        display.style.color = color;
-        display.style.borderColor = color;
-        display.className = `avatar-frame avatar-${role} auth-avatar-display`;
-    }
+    display.innerHTML = `<i class="fas ${icon}"></i>`;
+    display.style.color = color; display.style.borderColor = color;
+    display.className = `avatar-frame avatar-${role}`;
 };
 
 window.backToLanding = () => {
@@ -724,7 +649,7 @@ function loginSuccess(name, icon, uid) {
         setTimeout(() => _initFbBar('t'), 600);
     } else {
         document.getElementById('student-app').classList.remove('hidden');
-        loadStudentExams(); loadStudentGrades(); initStudentReese(); loadQuickStats(); checkNewExamsNotif();
+        loadStudentExams(); loadStudentGrades(); initStudentReese();
         updateStreakOnLogin();
         // XP HUD removed
         setTimeout(() => initSwipeNavigation('student-app'), 500);
@@ -1034,11 +959,7 @@ function startTypewriter(elementId, text) {
     function type() { if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(type, 80); } }
     type();
 }
-if(document.getElementById('landing-type-text')) {
-    startTypewriter("landing-type-text", "منصة تعليمية ذكية تنقلك إلى آفاق المستقبل");
-    initLandingCanvas();
-    loadLandingStats();
-}
+if(document.getElementById('landing-type-text')) { startTypewriter("landing-type-text", "منصة تعليمية ذكية تنقلك إلى آفاق المستقبل"); }
 
 
 // ════ AUTO DEEP LINKS ════
@@ -1072,101 +993,6 @@ window.goToAI   = () => goToTab(selectedRole==='teacher'?'t-ai':'s-ai');
 window.goToChat = () => goToTab(selectedRole==='teacher'?'t-dardasha':'s-dardasha');
 window.goToReese= () => goToTab(selectedRole==='teacher'?'t-reese':'s-reese');
 
-
-
-// ════ AI QUICK PROMPTS ════
-window.useQuickPrompt = (prefix, text) => {
-    const inp = document.getElementById(prefix + '-ai-input');
-    if (!inp) return;
-    inp.value = text;
-    // hide prompts
-    const prompts = document.getElementById(prefix + '-quick-prompts');
-    if (prompts) { prompts.style.display = 'none'; }
-    // focus and send
-    inp.focus();
-    setTimeout(() => sendAiMsg(prefix), 100);
-};
-
-// ════ QUICK STATS BAR ════
-async function loadQuickStats() {
-    if (selectedRole !== 'student') return;
-    try {
-        const [testsSnap, resultsSnap] = await Promise.all([
-            get(ref(db, 'tests')),
-            get(ref(db, 'results')),
-        ]);
-        const tests  = testsSnap.val()  || {};
-        const allRes = resultsSnap.val() || {};
-        
-        let totalExams=0, doneExams=0, totalPct=0;
-        for (const [tid] of Object.entries(tests)) {
-            if (tests[tid].isHidden) continue;
-            totalExams++;
-            const myR = allRes[tid]?.[currentUser];
-            if (myR) { doneExams++; totalPct += myR.percentage||0; }
-        }
-        const avg = doneExams>0 ? Math.round(totalPct/doneExams) : null;
-        
-        // Calculate rank
-        let rank = null;
-        try {
-            const stuSnap = await get(ref(db,'users/students'));
-            const students = Object.keys(stuSnap.val()||{});
-            const scores = [];
-            for (const sid of students) {
-                let sp=0, sc=0;
-                Object.entries(allRes).forEach(([,res])=>{ if(res[sid]){sp+=res[sid].percentage||0;sc++;} });
-                scores.push({ sid, avg: sc>0?sp/sc:0 });
-            }
-            scores.sort((a,b)=>b.avg-a.avg);
-            rank = scores.findIndex(s=>s.sid===currentUser)+1 || null;
-        } catch(e){}
-        
-        const qTotal = document.getElementById('qs-total-num');
-        const qDone  = document.getElementById('qs-done-num');
-        const qAvg   = document.getElementById('qs-avg-num');
-        const qRank  = document.getElementById('qs-rank-num');
-        if (qTotal) qTotal.textContent = totalExams;
-        if (qDone)  qDone.textContent  = doneExams;
-        if (qAvg)   qAvg.textContent   = avg!==null ? avg+'%' : '—';
-        if (qRank)  qRank.textContent  = rank ? '#'+rank : '—';
-    } catch(e) {}
-}
-
-// ════ NOTIFICATION DOT — new exams ════
-async function checkNewExamsNotif() {
-    if (selectedRole !== 'student') return;
-    try {
-        const [testsSnap, resultsSnap] = await Promise.all([
-            get(ref(db,'tests')),
-            get(ref(db,'results')),
-        ]);
-        const tests  = testsSnap.val()  || {};
-        const allRes = resultsSnap.val() || {};
-        let hasNew = false;
-        for (const [tid, td] of Object.entries(tests)) {
-            if (td.isHidden) continue;
-            if (!allRes[tid]?.[currentUser]) { hasNew=true; break; }
-        }
-        if (hasNew) {
-            // Add dot to exams nav btn (first btn)
-            const portal = document.getElementById('student-app');
-            if (!portal) return;
-            const examsBtn = portal.querySelector('.nav-btn:nth-child(2)'); // after fb-bar div
-            if (examsBtn && !examsBtn.querySelector('.nav-notif-dot')) {
-                const dot = document.createElement('span');
-                dot.className = 'nav-notif-dot';
-                examsBtn.appendChild(dot);
-            }
-        }
-    } catch(e) {}
-}
-
-// ════ SUBJECT COLOR CARD ════
-function setCardSubjectColor(cardEl, subject) {
-    if (!cardEl || !subject) return;
-    cardEl.setAttribute('data-subject', subject);
-}
 
 window.switchTab = (tabId, btn) => {
     playSound('click');
@@ -2308,11 +2134,10 @@ function loadTeacherTests() {
                 cardWrapper.setAttribute('data-exam-id', key);
                 const subjectBadge = val.subject ? `<span class="subject-badge">${val.subject}</span>` : '';
                 cardWrapper.innerHTML = `
-                    <div class="mini-card" data-subject="${val.subject||''}" style="${hiddenStyle}">
+                    <div class="mini-card" style="${hiddenStyle}">
                         <div class="card-header">
-                            <div style="flex:1;min-width:0;"><h3 class="card-title">${val.title}</h3>
-                            <div class="card-meta">${subjectBadge}<span class="grade-pill">${getGradeLabel(val.grade)}</span> <span style="color:#444">•</span> <i class="fas fa-clock" style="font-size:.65rem;color:#555"></i> ${val.duration} د</div></div>
-                            <div class="teacher-badge">${val.isHidden?'<i class="fas fa-eye-slash" style="margin-left:4px"></i>مخفي':'<i class="fas fa-circle" style="font-size:.4rem;margin-left:5px;color:#34d399"></i>نشط'}</div>
+                            <div><h3 class="card-title">${val.title}</h3><div class="card-meta">${subjectBadge}<span>${getGradeLabel(val.grade)}</span> • <span>${val.duration} دقيقة</span></div></div>
+                            <div class="teacher-badge">نشط</div>
                         </div>
                         <div class="icon-actions">
                             <button class="action-icon edit" onclick="editTest('${key}')" title="تعديل"><i class="fas fa-pen"></i></button>
@@ -2609,22 +2434,11 @@ function loadStudentExams() {
                     <button class="action-icon gold" onclick="reviewTest('${key}')" title="مراجعة"><i class="fas fa-file-alt"></i></button>` :
                 `<button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
                     <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white; justify-content:center;" onclick="checkPhoneAndStart('${key}')"><i class="fas fa-rocket"></i> ابدأ الآن</button>`;
-            const scoreClass = score>=90?'excellent':score>=50?'good':'fail';
-            const scoreRing  = hasTaken
-                ? `<div class="score-ring ${scoreClass}">${score}%</div>`
-                : `<div class="score-ring pending"><i class="fas fa-play" style="font-size:.65rem"></i></div>`;
-            const isNew = !hasTaken;
             cardWrapper.innerHTML = `
-                <div class="mini-card" data-subject="${val.subject||''}">
+                <div class="mini-card">
                     <div class="card-header">
-                        <div style="flex:1;min-width:0;">
-                            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
-                                <h3 class="card-title" style="flex:1;min-width:0;">${val.title}</h3>
-                                ${isNew?'<span class="new-badge">جديد</span>':''}
-                            </div>
-                            <div class="card-meta">${subjectBadge}<span class="grade-pill">${val.teacher}</span> <span style="color:#444">•</span> <i class="fas fa-clock" style="font-size:.65rem;color:#555"></i> ${val.duration} د</div>
-                        </div>
-                        ${scoreRing}
+                        <div><h3 class="card-title">${val.title}</h3><div class="card-meta">${subjectBadge}<span>${val.teacher}</span> • ${val.duration} دقيقة</div></div>
+                        ${hasTaken ? `<span style="color:var(--success); font-weight:bold;">${score}%</span>` : ''}
                     </div>
                     <div class="icon-actions">${buttonsHtml}</div>
                 </div>`;
