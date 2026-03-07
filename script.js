@@ -207,8 +207,8 @@ function initSwipeNavigation(portalId) {
         _swipeStartTarget = e.target;
     }, { passive: true });
 
+    let _swMoving = false, _swCurDx = 0;
     portal.addEventListener('touchmove', (e) => {
-        // Only block swipe if touching an input/textarea directly
         if (_swipeStartTarget && (
             _swipeStartTarget.closest('input') ||
             _swipeStartTarget.closest('textarea') ||
@@ -217,18 +217,17 @@ function initSwipeNavigation(portalId) {
         const dx = e.touches[0].clientX - _swipeStartX;
         const dy = e.touches[0].clientY - _swipeStartY;
         if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
-        const progress = Math.min(Math.abs(dx) / (window.innerWidth * 0.5), 1) * 100;
-        const bar = document.getElementById('swipe-progress-bar');
-        if (bar) { bar.classList.add('active'); bar.style.width = progress + '%'; }
+        _swMoving = true; _swCurDx = dx;
+        // move fb-bar live with finger
+        const pfx = selectedRole === 'teacher' ? 't' : 's';
+        const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+        const hash = window.location.hash.replace('#','');
+        let curIdx = tabs.indexOf(hash); if(curIdx<0) curIdx=0;
+        const frac = Math.max(0, Math.min(tabs.length-1, curIdx + (-dx / window.innerWidth)));
+        _moveFbBarLive(pfx, frac);
     }, { passive: true });
 
     portal.addEventListener('touchend', (e) => {
-        const bar = document.getElementById('swipe-progress-bar');
-        if (bar) {
-            bar.style.width = '100%';
-            setTimeout(() => { bar.classList.remove('active'); bar.style.width = '0%'; }, 200);
-        }
-        // Only block if touching input/textarea or overlay
         if (_swipeStartTarget && (
             _swipeStartTarget.closest('input') ||
             _swipeStartTarget.closest('textarea') ||
@@ -236,11 +235,17 @@ function initSwipeNavigation(portalId) {
         )) return;
         const dx = e.changedTouches[0].clientX - _swipeStartX;
         const dy = e.changedTouches[0].clientY - _swipeStartY;
-        if (Math.abs(dx) < 70 || Math.abs(dx) <= Math.abs(dy) * 1.5) return;
+        const pfx = selectedRole === 'teacher' ? 't' : 's';
         const tabs = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
-        const currentHash = window.location.hash.replace('#', '');
-        let idx = tabs.indexOf(currentHash);
-        if (idx === -1) idx = 0;
+        const hash = window.location.hash.replace('#', '');
+        let idx = tabs.indexOf(hash); if(idx<0) idx=0;
+        // re-enable transition for snap
+        const bar = document.getElementById(pfx+'-fb-bar');
+        if (bar) { bar.classList.add('snap'); setTimeout(()=>bar.classList.remove('snap'),350); }
+        if (Math.abs(dx) < 70 || Math.abs(dx) <= Math.abs(dy) * 1.5) {
+            _moveFbBar(pfx, null); // snap back to current
+            return;
+        }
         const newIdx = dx > 0 ? idx + 1 : idx - 1;
         if (newIdx >= 0 && newIdx < tabs.length) {
             const navBtns = document.querySelectorAll(`#${portalId} .nav-btn`);
@@ -316,10 +321,33 @@ function _moveFbBar(pfx, activeBtn) {
     if (!bar || !nav) return;
     const btn = activeBtn || nav.querySelector('.nav-btn.active');
     if (!btn) return;
+    bar.classList.add('snap');
     const navR = nav.getBoundingClientRect();
     const btnR = btn.getBoundingClientRect();
     bar.style.width     = btnR.width + 'px';
     bar.style.transform = 'translateX(' + (btnR.left - navR.left) + 'px)';
+    setTimeout(() => bar.classList.remove('snap'), 350);
+}
+
+// Live interpolation during swipe (no transition — follows finger exactly)
+function _moveFbBarLive(pfx, frac) {
+    const bar = document.getElementById(pfx + '-fb-bar');
+    const nav = document.getElementById(pfx + '-nav');
+    if (!bar || !nav) return;
+    const btns = Array.from(nav.querySelectorAll('.nav-btn'));
+    const tabs = pfx==='t' ? TEACHER_TABS : STUDENT_TABS;
+    const lo = Math.floor(frac);
+    const hi = Math.min(lo + 1, tabs.length - 1);
+    const t  = frac - lo;
+    const bLo = btns[lo], bHi = btns[hi];
+    if (!bLo || !bHi) return;
+    const navR = nav.getBoundingClientRect();
+    const rLo  = bLo.getBoundingClientRect();
+    const rHi  = bHi.getBoundingClientRect();
+    const left  = (rLo.left - navR.left) + (rHi.left - rLo.left) * t;
+    const width = rLo.width + (rHi.width - rLo.width) * t;
+    bar.style.width     = width + 'px';
+    bar.style.transform = 'translateX(' + left + 'px)';
 }
 
 function _initFbBar(pfx) {
@@ -932,6 +960,39 @@ function startTypewriter(elementId, text) {
     type();
 }
 if(document.getElementById('landing-type-text')) { startTypewriter("landing-type-text", "منصة تعليمية ذكية تنقلك إلى آفاق المستقبل"); }
+
+
+// ════ AUTO DEEP LINKS ════
+// Converts SA EDU mentions in text to clickable links
+function formatDeepLinks(text) {
+    if (!text) return text;
+    // Exam links: "اختبار: XXXX" or share links with examId
+        text = text.replace(/examId=([a-zA-Z0-9_-]+)/g, (m, id) =>
+        '<span class="sa-link exam-link" onclick="checkPhoneAndStart(\'' + id + '\')">📝 ابدأ الاختبار</span>');
+    text = text.replace(/SA AI|الذكاء الاصطناعي/g,
+        '<span class="sa-link ai-link" onclick="goToAI()">$&</span>');
+    text = text.replace(/Reese SA|منصة ريس/g,
+        '<span class="sa-link reese-link" onclick="goToReese()">$&</span>');
+    text = text.replace(/الدردشه|الدردشة/g,
+        '<span class="sa-link chat-link" onclick="goToChat()">$&</span>');
+        // Regular URLs
+    text = text.replace(/(https?:\/\/[^\s<>"]+)/g, '<a class="sa-link" href="$1" target="_blank" rel="noopener">$1</a>');
+    return text;
+}
+
+window.goToTab = (tabId) => {
+    const portal = selectedRole === 'teacher' ? 'teacher-app' : 'student-app';
+    const tabs   = selectedRole === 'teacher' ? TEACHER_TABS : STUDENT_TABS;
+    const idx    = tabs.indexOf(tabId);
+    if (idx < 0) return;
+    const btn = document.querySelectorAll('#'+portal+' .nav-btn')[idx];
+    switchTab(tabId, btn);
+};
+
+window.goToAI   = () => goToTab(selectedRole==='teacher'?'t-ai':'s-ai');
+window.goToChat = () => goToTab(selectedRole==='teacher'?'t-dardasha':'s-dardasha');
+window.goToReese= () => goToTab(selectedRole==='teacher'?'t-reese':'s-reese');
+
 
 window.switchTab = (tabId, btn) => {
     playSound('click');
@@ -2004,7 +2065,7 @@ function renderMessageUI(prefix, role, text, imgB64) {
 
         const content = document.createElement('div');
         content.className = 'ai-full-content';
-        if (text) content.innerHTML = formatAiResponseText(text);
+        if (text) content.innerHTML = formatDeepLinks(formatAiResponseText(text));
 
         if (imgB64) {
             const img = document.createElement('img');
@@ -2384,7 +2445,32 @@ function loadStudentExams() {
             list.appendChild(cardWrapper); { const _ad = createAdBanner(); if (_ad) list.appendChild(_ad); }
         });
         if(!foundExam) list.innerHTML = getEmptyStateHTML('exams');
+        // Update ticker with live stats
+        _updateStudentTicker();
     });
+}
+
+function _updateStudentTicker() {
+    const ticker = document.getElementById('student-ticker');
+    if (!ticker) return;
+    get(ref(db, 'results')).then(snap => {
+        const all = snap.val() || {};
+        let examCount=0, totalPct=0;
+        Object.values(all).forEach(exRes => {
+            if (exRes[currentUser]) { examCount++; totalPct += exRes[currentUser].percentage||0; }
+        });
+        const avg = examCount>0 ? Math.round(totalPct/examCount) : null;
+        const lvl = avg===null?'ابدأ أول اختبار الآن':avg>=90?'مستواك ممتاز 🌟':avg>=75?'مستواك جيد جداً 👍':avg>=50?'مستواك جيد، واصل':'تحتاج مراجعة ❤️';
+        const items = [
+            avg!==null ? `<span><span class="ticker-dot"></span> ${examCount} اختبار أديته</span>` : '',
+            avg!==null ? `<span><span class="ticker-dot" style="background:#34d399"></span> متوسطك ${avg}%</span>` : '',
+            `<span><span class="ticker-dot" style="background:#a78bfa"></span> ${lvl}</span>`,
+            `<span><span class="ticker-dot" style="background:#fbbf24"></span> اضغط لعرض التحليل الكامل</span>`,
+        ].filter(Boolean);
+        // duplicate for infinite scroll
+        const all2 = [...items, ...items];
+        ticker.innerHTML = all2.join('');
+    }).catch(()=>{});
 }
 
 window.loadStudentGrades = () => {
