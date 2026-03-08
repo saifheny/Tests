@@ -2882,15 +2882,8 @@ window.sendAiMsg = async (prefix) => {
     
     const loadId = 'loading-' + Date.now();
     const loaderDiv = document.createElement('div');
-    loaderDiv.className = 'chat-msg-wrap ai';
-    loaderDiv.id = loadId;
-    
-    const isComplex = isComplexQuestion(txt);
-    const thinkingLabel = isComplex ? 
-        '<span class="thinking-label deep"><i class="fas fa-brain" style="color:#d946ef;font-size:0.75rem;"></i> يفكر بعمق...</span>' :
-        '<span class="thinking-label">يفكر...</span>';
-    
     loaderDiv.className = 'ai-thinking-row';
+    loaderDiv.id = loadId;
     loaderDiv.innerHTML = '<div class="ai-dot-trio"><span></span><span></span><span></span></div>';
     msgs.appendChild(loaderDiv);
     msgs.scrollTo({ top: msgs.scrollHeight, behavior: 'smooth' });
