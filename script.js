@@ -2114,7 +2114,7 @@ function renderMessageUI(prefix, role, text, imgB64) {
         msgs.appendChild(wrap);
     }
 
-    msgs.scrollTop = msgs.scrollHeight;
+    msgs.scrollTo({ top: msgs.scrollHeight, behavior: 'smooth' });
 }
 
 function loadTeacherTests() {
@@ -2134,10 +2134,13 @@ function loadTeacherTests() {
                 cardWrapper.setAttribute('data-exam-id', key);
                 const subjectBadge = val.subject ? `<span class="subject-badge">${val.subject}</span>` : '';
                 cardWrapper.innerHTML = `
-                    <div class="mini-card" style="${hiddenStyle}">
+                    <div class="mini-card" data-subj="${val.subject||''}" style="${hiddenStyle}">
                         <div class="card-header">
-                            <div><h3 class="card-title">${val.title}</h3><div class="card-meta">${subjectBadge}<span>${getGradeLabel(val.grade)}</span> • <span>${val.duration} دقيقة</span></div></div>
-                            <div class="teacher-badge">نشط</div>
+                            <div style="flex:1;min-width:0;"><h3 class="card-title">${val.title}</h3>
+                            <div class="card-meta">${subjectBadge}<span style="color:#555">${getGradeLabel(val.grade)}</span><span style="color:#333">•</span><i class="fas fa-clock" style="font-size:.6rem;color:#444"></i>${val.duration}د</div></div>
+                            <div class="teacher-badge" style="${val.isHidden?'background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.2)':''}">
+                                ${val.isHidden?'<i class="fas fa-eye-slash" style="font-size:.7rem"></i> مخفي':'<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#34d399;margin-left:5px"></span>نشط'}
+                            </div>
                         </div>
                         <div class="icon-actions">
                             <button class="action-icon edit" onclick="editTest('${key}')" title="تعديل"><i class="fas fa-pen"></i></button>
@@ -2434,11 +2437,21 @@ function loadStudentExams() {
                     <button class="action-icon gold" onclick="reviewTest('${key}')" title="مراجعة"><i class="fas fa-file-alt"></i></button>` :
                 `<button class="action-icon share" onclick="shareTest('${val.title}', '${key}')" title="مشاركة"><i class="fas fa-share-alt"></i></button>
                     <button class="action-icon edit" style="width:100%; border-radius:15px; background:var(--accent-primary); color:white; justify-content:center;" onclick="checkPhoneAndStart('${key}')"><i class="fas fa-rocket"></i> ابدأ الآن</button>`;
+            const sc = score>=90?'gold':score>=50?'green':'red';
+            const scoreBadge = hasTaken
+                ? `<div class="score-circle ${sc}">${score}%</div>`
+                : `<div class="score-circle blue"><i class="fas fa-play" style="font-size:.65rem"></i></div>`;
+            const newBadge = !hasTaken ? '<span class="exam-new-badge">جديد</span>' : '';
             cardWrapper.innerHTML = `
-                <div class="mini-card">
+                <div class="mini-card" data-subj="${val.subject||''}">
                     <div class="card-header">
-                        <div><h3 class="card-title">${val.title}</h3><div class="card-meta">${subjectBadge}<span>${val.teacher}</span> • ${val.duration} دقيقة</div></div>
-                        ${hasTaken ? `<span style="color:var(--success); font-weight:bold;">${score}%</span>` : ''}
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                <h3 class="card-title" style="flex:1">${val.title}</h3>${newBadge}
+                            </div>
+                            <div class="card-meta">${subjectBadge}<span style="color:#555">${val.teacher}</span><span style="color:#333">•</span><i class="fas fa-clock" style="font-size:.6rem;color:#444"></i>${val.duration}د</div>
+                        </div>
+                        ${scoreBadge}
                     </div>
                     <div class="icon-actions">${buttonsHtml}</div>
                 </div>`;
@@ -2728,15 +2741,30 @@ window.clearChatImg = (prefix) => {
 };
 
 window.toggleAiSendMic = (role, value) => {
-    const micBtn = document.getElementById(role + '-mic-btn');
+    const micBtn  = document.getElementById(role + '-mic-btn');
     const sendBtn = document.getElementById(role + '-send-btn');
     if (!micBtn || !sendBtn) return;
-    if (value && value.trim()) {
-        micBtn.style.display = 'none';
-        sendBtn.style.display = 'flex';
-    } else {
-        micBtn.style.display = 'flex';
-        sendBtn.style.display = 'none';
+    const hasText = !!(value && value.trim());
+    micBtn.style.display  = hasText ? 'none' : 'flex';
+    sendBtn.style.display = hasText ? 'flex' : 'none';
+    // char counter
+    var counterEl = document.getElementById(role + '-ai-charcnt');
+    if (!counterEl) {
+        counterEl = document.createElement('div');
+        counterEl.id = role + '-ai-charcnt';
+        counterEl.className = 'ai-char-counter';
+        var wrapper = document.getElementById(role + '-ai-input');
+        if (wrapper) wrapper.closest('.gemini-input-wrapper').appendChild(counterEl);
+    }
+    if (counterEl) {
+        var len = (value||'').length;
+        if (len > 0) {
+            counterEl.textContent = len + ' / 2000';
+            counterEl.className = 'ai-char-counter' + (len>2000?' over':len>1700?' warn':'');
+            counterEl.style.display = 'block';
+        } else {
+            counterEl.style.display = 'none';
+        }
     }
 };
 
@@ -2862,25 +2890,10 @@ window.sendAiMsg = async (prefix) => {
         '<span class="thinking-label deep"><i class="fas fa-brain" style="color:#d946ef;font-size:0.75rem;"></i> يفكر بعمق...</span>' :
         '<span class="thinking-label">يفكر...</span>';
     
-    loaderDiv.innerHTML = `
-        <div class="ai-msg-avatar" style="margin-bottom:2px;"><i class="fas fa-wand-magic-sparkles" style="font-size:0.75rem;"></i></div>
-        <div class="gemini-thinking">
-            <div class="thinking-orbit">
-                <div class="thinking-orbit-ring"></div>
-                <div class="thinking-orbit-ring2"></div>
-                <div class="thinking-center-dot"></div>
-            </div>
-            <div class="thinking-dots">
-                ${thinkingLabel}
-                <div class="thinking-pulse-dots">
-                    <span></span><span></span><span></span>
-                    <div class="thinking-caret"></div>
-                </div>
-            </div>
-        </div>
-    `;
-    msgs.appendChild(loaderDiv); 
-    msgs.scrollTop = msgs.scrollHeight;
+    loaderDiv.className = 'ai-thinking-row';
+    loaderDiv.innerHTML = '<div class="ai-dot-trio"><span></span><span></span><span></span></div>';
+    msgs.appendChild(loaderDiv);
+    msgs.scrollTo({ top: msgs.scrollHeight, behavior: 'smooth' });
     
     try {
         let finalPrompt = "";
