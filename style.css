@@ -4666,178 +4666,6 @@ animation: shakeField 0.4s ease;
    MEGA UPGRADE v7 — SIDEBAR + AI CHAT + TICKER + VISUALS
    ════════════════════════════════════════════════════════════ */
 
-/* ─── DESKTOP SIDEBAR (≥1025px) ────────────────────────────── */
-@media (min-width: 1025px) {
-  :root {
-    --sidebar-w: 72px;
-    --sidebar-expanded: 230px;
-    --nav-height: 0px;
-  }
-
-  /* sidebar: fixed right column (RTL) */
-  .top-nav {
-    position: fixed !important;
-    top: 0 !important; bottom: 0 !important;
-    right: 0 !important; left: auto !important;
-    width: var(--sidebar-w) !important;
-    height: 100vh !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-    align-items: stretch !important;
-    border-bottom: none !important;
-    border-left: 1px solid rgba(255,255,255,0.07) !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    transition: width 0.28s cubic-bezier(0.4,0,0.2,1) !important;
-    transform: none !important;
-    opacity: 1 !important;
-    z-index: 3000 !important;
-    background: rgba(0,0,0,0.95) !important;
-    backdrop-filter: blur(24px) !important;
-  }
-  .top-nav:hover {
-    width: var(--sidebar-expanded) !important;
-    box-shadow: -4px 0 32px rgba(0,0,0,0.5) !important;
-  }
-
-  /* brand logo at top */
-  .top-nav::before {
-    content: '';
-    display: block;
-    height: 64px;
-    width: 100%;
-    flex-shrink: 0;
-    background: url('https://i.postimg.cc/BQQb5YDn/MOWU-DESIGN.png') center/36px no-repeat;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-
-  /* nav container = vertical list */
-  .top-nav .nav-container {
-    display: flex !important;
-    flex-direction: column !important;
-    width: 100% !important;
-    max-width: none !important;
-    padding: 10px 0 0 !important;
-    gap: 2px !important;
-    height: calc(100% - 64px) !important;
-    overflow: hidden !important;
-    position: static !important;
-  }
-
-  /* fb-bar becomes a left edge accent on active */
-  .fb-tab-bar { display: none !important; }
-
-  /* each button = row */
-  .nav-btn {
-    flex-direction: row !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-    width: 100% !important;
-    flex: none !important;
-    padding: 14px 22px !important;
-    gap: 16px !important;
-    border-radius: 0 !important;
-    min-height: 52px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    border-right: 3px solid transparent !important;
-    transition: background 0.2s, border-color 0.2s !important;
-  }
-  .nav-btn i {
-    font-size: 1.2rem !important;
-    flex-shrink: 0 !important;
-    width: 22px !important;
-    text-align: center !important;
-    transition: transform 0.2s, color 0.2s !important;
-  }
-  .nav-btn:hover {
-    background: rgba(255,255,255,0.04) !important;
-  }
-  .nav-btn:hover i { transform: scale(1.15) !important; }
-
-  .nav-btn.active {
-    background: rgba(59,130,246,0.1) !important;
-    border-right-color: var(--accent-primary) !important;
-  }
-  .magic-btn.active {
-    background: rgba(217,70,239,0.08) !important;
-    border-right-color: #d946ef !important;
-  }
-
-  /* labels: hidden when collapsed, fade in on expand */
-  .nav-btn span {
-    display: block !important;
-    font-size: 0.87rem !important;
-    font-weight: 600 !important;
-    color: rgba(255,255,255,0.45) !important;
-    opacity: 0 !important;
-    transform: translateX(-6px) !important;
-    transition: opacity 0.18s, transform 0.18s !important;
-    pointer-events: none !important;
-  }
-  .top-nav:hover .nav-btn span {
-    opacity: 1 !important;
-    transform: translateX(0) !important;
-  }
-  .nav-btn.active span { color: #fff !important; }
-
-  /* last btn (menu) → push to bottom */
-  .nav-btn:last-child {
-    margin-top: auto !important;
-    border-top: 1px solid rgba(255,255,255,0.05) !important;
-  }
-
-  /* portal shifts right to leave space for sidebar */
-  .portal-container {
-    margin-right: var(--sidebar-w) !important;
-    margin-left: 0 !important;
-    max-width: calc(100vw - var(--sidebar-w)) !important;
-    padding-top: 28px !important;
-    padding-right: 36px !important;
-    padding-left: 36px !important;
-    transition: margin-right 0.28s cubic-bezier(0.4,0,0.2,1) !important;
-  }
-
-  /* AI layout & input adjust for sidebar */
-  .ai-layout {
-    right: var(--sidebar-w) !important;
-    left: 0 !important;
-    top: 0 !important;
-    transition: right 0.28s cubic-bezier(0.4,0,0.2,1) !important;
-  }
-  .gemini-input-wrapper {
-    right: var(--sidebar-w) !important;
-    left: 0 !important;
-    transition: right 0.28s cubic-bezier(0.4,0,0.2,1) !important;
-  }
-
-  /* chat layout on desktop */
-  .chat-layout { display: flex !important; height: 100vh; }
-  .chat-sidebar { width: 300px; flex-shrink: 0; border-left: 1px solid #1a1a1a; }
-  .chat-window  { position: static !important; flex: 1; transform: none !important; display: flex !important; }
-
-  /* exam grid */
-  #s-exams-list, #t-tests-list {
-    display: grid !important;
-    grid-template-columns: repeat(2,1fr) !important;
-    gap: 16px !important;
-  }
-
-  /* no need for mobile spacer */
-  .mobile-spacer { height: 16px !important; }
-
-  /* nav never hides on desktop */
-  .top-nav.nav-hidden { transform: none !important; opacity: 1 !important; }
-}
-
-/* Always-expanded sidebar on very wide screens */
-@media (min-width: 1440px) {
-  :root { --sidebar-w: 220px; }
-  .nav-btn span { opacity: 1 !important; transform: translateX(0) !important; }
-  #s-exams-list, #t-tests-list { grid-template-columns: repeat(3,1fr) !important; }
-  .portal-container { max-width: calc(100vw - 220px) !important; }
-  .ai-layout, .gemini-input-wrapper { right: 220px !important; }
-}
 
 /* ─── TICKER — TRUE INFINITE (both mobile & desktop) ────────── */
 .analysis-ticker {
@@ -4860,12 +4688,12 @@ animation: shakeField 0.4s ease;
 
 /* AI message — full-width like ChatGPT */
 .ai-full-msg {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  padding: 14px 4px;
+  display: flex !important;
+  gap: 14px !important;
+  align-items: flex-start !important;
+  padding: 14px 4px !important;
   animation: aiMsgSlide 0.3s cubic-bezier(0.34,1.4,0.64,1) both;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.03) !important;
 }
 @keyframes aiMsgSlide {
   from { opacity:0; transform:translateY(12px); }
