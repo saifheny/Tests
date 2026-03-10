@@ -220,6 +220,24 @@
                 </div>
             </section>
 
+
+            <!-- ═══ TEACHER DASHBOARD ═══ -->
+            <section id="t-dashboard" class="app-section hidden">
+                <div class="mobile-spacer"></div>
+                <div class="section-header-row">
+                    <button class="back-btn-header" onclick="switchTab('t-library')"><i class="fas fa-arrow-right"></i></button>
+                    <h2 style="margin:0">📊 لوحة التحكم</h2>
+                    <button class="icon-btn-small" onclick="loadTeacherDashboard()" style="background:rgba(16,185,129,.1);color:#34d399"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                <div id="t-dashboard-content">
+                    <div class="dash-stats-grid" id="dash-stats-grid"></div>
+                    <div class="dash-section-title">أداء الاختبارات</div>
+                    <div id="dash-exams-chart"></div>
+                    <div class="dash-section-title">آخر نشاط الطلاب</div>
+                    <div id="dash-recent-activity"></div>
+                </div>
+            </section>
+
             <section id="t-results" class="app-section hidden">
                 <div class="mobile-spacer"></div>
                 <div class="back-btn-header" onclick="switchTab('t-library')"><i class="fas fa-arrow-right"></i> الرئيسية</div>
@@ -347,6 +365,40 @@
                     </div>
                 </div>
             </section>
+        
+            <!-- ───── تحليلات المعلم ───── -->
+            <section id="t-analytics" class="app-section hidden">
+                <div class="mobile-spacer"></div>
+                <div style="margin-bottom:18px;">
+                    <h2 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;"><i class="fas fa-chart-bar" style="color:#60a5fa;margin-left:8px;"></i>تحليلات الأداء</h2>
+                    <p style="font-size:0.8rem;color:#666;">نظرة عامة على أداء طلابك</p>
+                </div>
+                <!-- Stats row -->
+                <div class="analytics-grid">
+                    <div class="analytics-card" style="--a-color:#60a5fa;">
+                        <span class="a-num" id="t-stat-total-exams">--</span>
+                        <span class="a-label">اختبارات نشطة</span>
+                    </div>
+                    <div class="analytics-card" style="--a-color:#34d399;">
+                        <span class="a-num" id="t-stat-total-students">--</span>
+                        <span class="a-label">طالب سجّل</span>
+                    </div>
+                    <div class="analytics-card" style="--a-color:#f59e0b;">
+                        <span class="a-num" id="t-stat-avg-score">--</span>
+                        <span class="a-label">متوسط الدرجات</span>
+                    </div>
+                </div>
+                <!-- Recent activity -->
+                <div class="subject-breakdown">
+                    <h3><i class="fas fa-clock" style="margin-left:6px;color:#888;"></i>آخر النشاطات</h3>
+                    <div class="analytics-recent-list" id="t-recent-activity">
+                        <div style="text-align:center;color:#444;padding:30px;font-size:0.85rem;">
+                            <i class="fas fa-chart-line" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>
+                            ستظهر هنا آخر نتائج طلابك
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -358,6 +410,7 @@
                 <button class="nav-btn" onclick="switchTab('s-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
                 <button class="nav-btn" onclick="switchTab('s-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
                 <button class="nav-btn magic-btn" onclick="switchTab('s-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
+                <button class="nav-btn" onclick="switchTab('s-progress', this)"><i class="fas fa-trophy"></i><span>تقدمي</span></button>
                 <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
@@ -504,6 +557,79 @@
                 </div>
             </section>
 
+
+            <!-- ═══ SECTION: جدول المذاكرة ═══ -->
+            <section id="s-schedule" class="app-section hidden">
+                <div class="mobile-spacer"></div>
+                <div class="section-header-row">
+                    <button class="back-btn-header" onclick="switchTab('s-exams')"><i class="fas fa-arrow-right"></i></button>
+                    <h2 style="margin:0">📅 جدول المذاكرة</h2>
+                    <button class="icon-btn-small" onclick="openAddSchedule()" style="background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.25)"><i class="fas fa-plus"></i></button>
+                </div>
+                <div class="schedule-days-strip" id="sched-days-strip"></div>
+                <div id="sched-sessions-list" style="margin-top:16px"></div>
+                <div id="sched-add-modal" class="bottom-card hidden">
+                    <div class="bottom-card-handle"></div>
+                    <h3 style="margin:0 0 16px;text-align:center">جلسة مذاكرة جديدة</h3>
+                    <input id="sched-subject" class="smart-input" placeholder="المادة (مثال: رياضيات)">
+                    <div style="display:flex;gap:10px">
+                        <input id="sched-time-from" class="smart-input" type="time" style="flex:1">
+                        <input id="sched-time-to"   class="smart-input" type="time" style="flex:1">
+                    </div>
+                    <select id="sched-day" class="smart-input">
+                        <option value="0">الأحد</option><option value="1">الاثنين</option>
+                        <option value="2">الثلاثاء</option><option value="3">الأربعاء</option>
+                        <option value="4">الخميس</option><option value="5">الجمعة</option>
+                        <option value="6">السبت</option>
+                    </select>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="sched-color-picker">
+                        <div class="sched-color active" data-c="#3b82f6" style="background:#3b82f6"></div>
+                        <div class="sched-color" data-c="#8b5cf6" style="background:#8b5cf6"></div>
+                        <div class="sched-color" data-c="#10b981" style="background:#10b981"></div>
+                        <div class="sched-color" data-c="#f59e0b" style="background:#f59e0b"></div>
+                        <div class="sched-color" data-c="#ef4444" style="background:#ef4444"></div>
+                        <div class="sched-color" data-c="#06b6d4" style="background:#06b6d4"></div>
+                    </div>
+                    <button class="modern-btn" onclick="saveScheduleSession()" style="background:var(--accent-primary)"><i class="fas fa-check"></i> حفظ الجلسة</button>
+                </div>
+            </section>
+
+            <!-- ═══ SECTION: الواجبات ═══ -->
+            <section id="s-tasks" class="app-section hidden">
+                <div class="mobile-spacer"></div>
+                <div class="section-header-row">
+                    <button class="back-btn-header" onclick="switchTab('s-exams')"><i class="fas fa-arrow-right"></i></button>
+                    <h2 style="margin:0">📝 الواجبات</h2>
+                    <button class="icon-btn-small" onclick="openAddTask()" style="background:rgba(139,92,246,.15);color:#a78bfa;border:1px solid rgba(139,92,246,.25)"><i class="fas fa-plus"></i></button>
+                </div>
+                <div class="tasks-tabs">
+                    <button class="tasks-tab active" onclick="filterTasks('all', this)">الكل</button>
+                    <button class="tasks-tab" onclick="filterTasks('pending', this)">قيد التنفيذ</button>
+                    <button class="tasks-tab" onclick="filterTasks('done', this)">مكتملة</button>
+                </div>
+                <div id="s-tasks-list" style="margin-top:8px"></div>
+                <div id="task-add-modal" class="bottom-card hidden">
+                    <div class="bottom-card-handle"></div>
+                    <h3 style="margin:0 0 16px;text-align:center">واجب جديد</h3>
+                    <input id="task-title" class="smart-input" placeholder="عنوان الواجب">
+                    <input id="task-subject" class="smart-input" placeholder="المادة">
+                    <input id="task-due" class="smart-input" type="date">
+                    <textarea id="task-notes" class="smart-input" rows="2" placeholder="ملاحظات (اختياري)"></textarea>
+                    <button class="modern-btn" onclick="saveTask()" style="background:#8b5cf6"><i class="fas fa-plus"></i> إضافة واجب</button>
+                </div>
+            </section>
+
+            <!-- ═══ SECTION: إشعاراتي ═══ -->
+            <section id="s-notifs" class="app-section hidden">
+                <div class="mobile-spacer"></div>
+                <div class="section-header-row">
+                    <button class="back-btn-header" onclick="switchTab('s-exams')"><i class="fas fa-arrow-right"></i></button>
+                    <h2 style="margin:0">🔔 إشعاراتي</h2>
+                    <button class="icon-btn-small" onclick="clearAllNotifs()" style="background:rgba(239,68,68,.1);color:#f87171"><i class="fas fa-trash-alt"></i></button>
+                </div>
+                <div id="s-notifs-list" style="margin-top:8px"></div>
+            </section>
+
             <section id="s-taking-test" class="app-section hidden" style="position: fixed; inset: 0; background: #000; z-index: 3000; padding: 20px; overflow-y: auto;">
                 <div style="max-width: 800px; margin: auto;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -521,6 +647,52 @@
                     <div class="back-btn-header" onclick="document.getElementById('s-review-test').classList.add('hidden')"><i class="fas fa-arrow-right"></i> إغلاق المراجعة</div>
                     <h2 style="color: var(--accent-primary);">مراجعة الإجابات</h2>
                     <div id="review-content"></div>
+                </div>
+            </section>
+            <!-- ───── تقدم الطالب ───── -->
+            <section id="s-progress" class="app-section hidden">
+                <div class="mobile-spacer"></div>
+                <div style="margin-bottom:18px;">
+                    <h2 style="font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:4px;"><i class="fas fa-trophy" style="color:#fbbf24;margin-left:8px;"></i>تقدمي الدراسي</h2>
+                    <p style="font-size:0.8rem;color:#666;">تابع أداءك وقارن نفسك بزملائك</p>
+                </div>
+                <div class="progress-board">
+                    <div class="progress-stat-card" style="--stat-color:#60a5fa;">
+                        <i class="fas fa-book-open stat-icon" style="color:#60a5fa;"></i>
+                        <div class="stat-value" id="s-prog-exams">0</div>
+                        <div class="stat-label">اختبارات أديتها</div>
+                        <div class="stat-trend">↑ هذا الأسبوع</div>
+                    </div>
+                    <div class="progress-stat-card" style="--stat-color:#34d399;">
+                        <i class="fas fa-percent stat-icon" style="color:#34d399;"></i>
+                        <div class="stat-value" id="s-prog-avg">--</div>
+                        <div class="stat-label">متوسط درجاتي</div>
+                        <div class="stat-trend" id="s-prog-avg-trend">--</div>
+                    </div>
+                    <div class="progress-stat-card" style="--stat-color:#fbbf24; grid-column: 1 / -1;">
+                        <i class="fas fa-fire stat-icon" style="color:#f59e0b;"></i>
+                        <div class="stat-value" id="s-prog-xp">0 XP</div>
+                        <div class="stat-label">نقاط الخبرة المكتسبة</div>
+                        <div class="stat-trend">كلما أديت اختبارات كسبت نقاطاً أكثر ✨</div>
+                    </div>
+                </div>
+                <div class="subject-breakdown">
+                    <h3><i class="fas fa-layer-group" style="margin-left:6px;color:#888;"></i>أداؤك في كل مادة</h3>
+                    <div id="s-subj-breakdown-content">
+                        <div style="text-align:center;color:#444;padding:30px;font-size:0.85rem;">
+                            <i class="fas fa-chart-pie" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>
+                            أدِّ بعض الاختبارات لترى تحليل مواد دراستك
+                        </div>
+                    </div>
+                </div>
+                <div class="subject-breakdown">
+                    <h3><i class="fas fa-ranking-star" style="margin-left:6px;color:#888;"></i>المتصدرون</h3>
+                    <div class="leaderboard-list" id="s-leaderboard-list">
+                        <div style="text-align:center;color:#444;padding:30px;font-size:0.85rem;">
+                            <i class="fas fa-users" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>
+                            جاري تحميل المتصدرين...
+                        </div>
+                    </div>
                 </div>
             </section>
         </div>
@@ -597,6 +769,25 @@
             <div class="menu-item" onclick="toggleAvatarSelect()">
                 <i class="fas fa-theater-masks" style="color: #d946ef; font-size: 1.2rem;"></i>
                 <span style="font-size: 1rem;">تغيير الأفاتار</span>
+            </div>
+            <div class="menu-item" id="menu-item-schedule" onclick="toggleMenu();switchTab('s-schedule')" style="display:none">
+                <i class="fas fa-calendar-alt" style="color:#60a5fa; font-size: 1.2rem;"></i>
+                <span style="font-size: 1rem;">جدول المذاكرة</span>
+                <span class="menu-badge" style="background:#3b82f6">جديد</span>
+            </div>
+            <div class="menu-item" id="menu-item-tasks" onclick="toggleMenu();switchTab('s-tasks')" style="display:none">
+                <i class="fas fa-tasks" style="color:#a78bfa; font-size: 1.2rem;"></i>
+                <span style="font-size: 1rem;">الواجبات</span>
+                <span id="tasks-pending-count" class="menu-badge" style="background:#8b5cf6;display:none"></span>
+            </div>
+            <div class="menu-item" id="menu-item-notifs" onclick="toggleMenu();switchTab('s-notifs')" style="display:none">
+                <i class="fas fa-bell" style="color:#fbbf24; font-size: 1.2rem;"></i>
+                <span style="font-size: 1rem;">الإشعارات</span>
+                <span id="notifs-count-badge" class="menu-badge" style="background:#f59e0b;display:none"></span>
+            </div>
+            <div class="menu-item" id="menu-item-dashboard" onclick="toggleMenu();switchTab('t-dashboard');loadTeacherDashboard()" style="display:none">
+                <i class="fas fa-chart-bar" style="color:#34d399; font-size: 1.2rem;"></i>
+                <span style="font-size: 1rem;">لوحة التحكم</span>
             </div>
             <div class="menu-item" onclick="shareApp()">
                 <i class="fas fa-share-alt" style="color: var(--success); font-size: 1.2rem;"></i>
