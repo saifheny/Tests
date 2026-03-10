@@ -214,8 +214,9 @@ min-height: 100vh;
 .mobile-spacer { height: 85px; }
 .portal-container {
 padding-top: calc(var(--nav-height) + 15px);
-padding-left: 18px;
-padding-right: 18px;
+padding-left: 14px;
+padding-right: 14px;
+padding-bottom: calc(var(--nav-height) + 20px);
 }
 }
 .mini-card {
@@ -364,10 +365,13 @@ flex-direction: column;
 @media (max-width: 768px) {
 .chat-layout {
 position: fixed;
-inset: 0;
+top: 0;
+left: 0;
+right: 0;
+bottom: var(--nav-height);
 z-index: 2000;
 background: #000;
-height: 100%;
+height: calc(100% - var(--nav-height));
 width: 100%;
 margin: 0;
 border: none;
@@ -391,7 +395,7 @@ display: flex;
 flex-direction: column;
 height: 100%;
 width: 100%;
-transform: translateX(-100%);
+transform: translateX(100%);
 transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .chat-window:not(.hidden) {
@@ -413,9 +417,9 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 border-bottom: 1px solid #1a1a1a;
-padding-top: calc(var(--nav-height) + 10px);
+padding-top: calc(env(safe-area-inset-top, 0px) + 15px);
 }
-@media (min-width: 768px) {
+@media (min-width: 769px) {
 .chat-sidebar-header { padding-top: 15px; }
 }
 .my-chat-info {
@@ -1144,9 +1148,18 @@ bottom: 0;
 left: 0;
 right: 0;
 background: linear-gradient(to top, #000 80%, transparent);
-padding: 10px 15px 15px;
+padding: 10px 15px calc(15px + env(safe-area-inset-bottom));
 z-index: 200;
 transition: bottom 0.1s ease;
+}
+@media (max-width: 768px) {
+  .gemini-input-wrapper {
+    bottom: var(--nav-height);
+    padding-bottom: 12px;
+  }
+  .ai-messages {
+    padding-bottom: calc(var(--nav-height) + 130px) !important;
+  }
 }
 .gemini-input-container {
 background: #0a0a0a;
@@ -1862,15 +1875,15 @@ animation: none;
 animation: sectionFadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 @keyframes sectionFadeIn {
-from { opacity: 0; transform: translateX(30px); }
-to { opacity: 1; transform: translateX(0); }
+from { opacity: 0; }
+to { opacity: 1; }
 }
 .app-section.section-enter-left {
 animation: sectionFadeInLeft 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 @keyframes sectionFadeInLeft {
-from { opacity: 0; transform: translateX(-30px); }
-to { opacity: 1; transform: translateX(0); }
+from { opacity: 0; }
+to { opacity: 1; }
 }
 .search-user-btn {
 background: linear-gradient(135deg, var(--accent-primary), #2563eb);
@@ -3220,12 +3233,12 @@ animation: shakeField 0.4s ease;
     to   { transform: translateX(-40%); opacity: 0; }
 }
 @keyframes slideInRight {
-    from { transform: translateX(-40%); opacity: 0; }
-    to   { transform: translateX(0); opacity: 1; }
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 @keyframes slideInLeft {
-    from { transform: translateX(40%); opacity: 0; }
-    to   { transform: translateX(0); opacity: 1; }
+    from { opacity: 0; }
+    to   { opacity: 1; }
 }
 
 .app-section.sliding-out-right,
@@ -4075,12 +4088,12 @@ animation: shakeField 0.4s ease;
 
 /* ---- SECTION TRANSITIONS ENHANCED ---- */
 @keyframes sectionFadeIn {
-    from { opacity: 0; transform: translateX(40px) scale(0.98); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 @keyframes sectionFadeInLeft {
-    from { opacity: 0; transform: translateX(-40px) scale(0.98); }
-    to { opacity: 1; transform: translateX(0) scale(1); }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* nav labels hidden */
@@ -4667,6 +4680,48 @@ animation: shakeField 0.4s ease;
    ════════════════════════════════════════════════════════════ */
 
 
+
+/* ── AI SCREEN MOBILE FIX ── */
+@media (max-width: 768px) {
+  .ai-layout {
+    top: 0 !important;
+    bottom: var(--nav-height) !important;
+    z-index: 50 !important;
+  }
+  .ai-top-bar {
+    padding-top: env(safe-area-inset-top, 10px) !important;
+  }
+  .ai-messages {
+    padding-top: 70px !important;
+  }
+}
+
+
+/* ── CHAT ROOM MOBILE FIX ── */
+@media (max-width: 768px) {
+  .chat-msgs-area {
+    padding-bottom: 80px !important;
+  }
+  .chat-input-area {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 2100 !important;
+    background: #0a0a0a !important;
+    border-top: 1px solid #1a1a1a !important;
+    padding: 8px 12px !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+  }
+  .voice-recording-bar {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 2200 !important;
+  }
+}
+
 /* ─── TICKER — TRUE INFINITE (both mobile & desktop) ────────── */
 .analysis-ticker {
   -webkit-mask-image: linear-gradient(to left, transparent 0, #000 8%, #000 92%, transparent 100%) !important;
@@ -4963,11 +5018,278 @@ animation: shakeField 0.4s ease;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
 }
 
-/* Section transition */
-.app-section:not(.hidden) {
-  animation: sectionIn 0.22s ease both;
+/* Section transition — opacity only, NO transform (transform breaks position:fixed children) */
+/* sectionIn removed intentionally */
+
+/* ── GLOBAL MOBILE SCROLL FIX ── */
+@media (max-width: 768px) {
+  .modal-body, .overlay-content, .sheet-content {
+    -webkit-overflow-scrolling: touch !important;
+    overflow-y: auto !important;
+  }
+  /* Prevent double-tap zoom */
+  button, a, label {
+    touch-action: manipulation;
+  }
+  /* Fix viewport on iOS keyboard open */
+  .app-section {
+    min-height: -webkit-fill-available;
+  }
 }
-@keyframes sectionIn {
-  from { opacity:0; transform:translateY(5px); }
-  to   { opacity:1; transform:translateY(0); }
+
+/* ════════════════════════════════════════════════════════════
+   NEW SECTIONS — PROGRESS BOARD + LEADERBOARD + STORE
+   ════════════════════════════════════════════════════════════ */
+
+/* ─── PROGRESS BOARD (لوحة التقدم) ────────── */
+.progress-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
 }
+.progress-stat-card {
+  background: #0a0a0a;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.progress-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.progress-stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--stat-color, var(--blue));
+  border-radius: 3px 3px 0 0;
+}
+.progress-stat-card .stat-icon {
+  font-size: 1.4rem;
+  opacity: 0.8;
+}
+.progress-stat-card .stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--stat-color, #fff);
+  line-height: 1;
+}
+.progress-stat-card .stat-label {
+  font-size: 0.75rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.progress-stat-card .stat-trend {
+  font-size: 0.72rem;
+  color: #34d399;
+}
+.progress-stat-card .stat-trend.down { color: #f87171; }
+
+/* Subject breakdown bars */
+.subject-breakdown {
+  background: #0a0a0a;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.subject-breakdown h3 {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+.subj-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.subj-bar-name {
+  font-size: 0.8rem;
+  color: #aaa;
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.subj-bar-track {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.subj-bar-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: var(--bar-color, var(--blue));
+  transition: width 0.8s cubic-bezier(0.34,1.4,0.64,1);
+}
+.subj-bar-pct {
+  font-size: 0.75rem;
+  color: #666;
+  width: 36px;
+  text-align: left;
+}
+
+/* ─── LEADERBOARD (المتصدرين) ────────────────── */
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0a0a0a;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 12px 16px;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+.leaderboard-item:hover { transform: translateX(-3px); }
+.leaderboard-item.rank-1 { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05); }
+.leaderboard-item.rank-2 { border-color: rgba(156,163,175,0.3); }
+.leaderboard-item.rank-3 { border-color: rgba(180,83,9,0.3); background: rgba(180,83,9,0.04); }
+.leaderboard-rank {
+  font-size: 1rem;
+  font-weight: 800;
+  width: 28px;
+  text-align: center;
+  color: #555;
+}
+.leaderboard-item.rank-1 .leaderboard-rank { color: #fbbf24; }
+.leaderboard-item.rank-2 .leaderboard-rank { color: #9ca3af; }
+.leaderboard-item.rank-3 .leaderboard-rank { color: #b45309; }
+.leaderboard-name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.leaderboard-xp {
+  font-size: 0.8rem;
+  color: #fbbf24;
+  font-weight: 700;
+}
+.leaderboard-crown {
+  font-size: 1.1rem;
+  opacity: 0;
+}
+.leaderboard-item.rank-1 .leaderboard-crown { opacity: 1; }
+
+/* ─── STORE (المتجر) ─────────────────────────── */
+.store-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.store-item {
+  background: #0a0a0a;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 20px 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.store-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top, rgba(99,102,241,0.08), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.store-item:hover { transform: scale(1.03); }
+.store-item:hover::before { opacity: 1; }
+.store-item-icon { font-size: 2.4rem; line-height: 1; }
+.store-item-name { font-size: 0.85rem; font-weight: 700; }
+.store-item-desc { font-size: 0.72rem; color: #666; line-height: 1.4; }
+.store-item-price {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(251,191,36,0.1);
+  border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+.store-item.owned {
+  border-color: rgba(52,211,153,0.3);
+  background: rgba(52,211,153,0.04);
+}
+.store-item.owned .store-item-price {
+  color: #34d399;
+  background: rgba(52,211,153,0.1);
+  border-color: rgba(52,211,153,0.2);
+}
+
+/* ─── TEACHER ANALYTICS (تحليلات المعلم) ─────── */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+@media (max-width: 480px) {
+  .analytics-grid { grid-template-columns: 1fr 1fr; }
+  .progress-board { grid-template-columns: 1fr 1fr; }
+  .store-grid { grid-template-columns: 1fr 1fr; }
+}
+.analytics-card {
+  background: #0a0a0a;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  padding: 14px;
+  text-align: center;
+  position: relative;
+}
+.analytics-card .a-num {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--a-color, var(--blue));
+  display: block;
+}
+.analytics-card .a-label {
+  font-size: 0.7rem;
+  color: #555;
+  margin-top: 4px;
+  display: block;
+}
+.analytics-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.analytics-recent-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0a0a0a;
+  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.85rem;
+}
+.analytics-recent-item .item-name { color: #ddd; font-weight: 600; }
+.analytics-recent-item .item-score { color: #60a5fa; font-weight: 700; }
