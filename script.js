@@ -124,8 +124,8 @@ window.filterStudentExams = (subject) => {
     if(input) { input.value = subject; input.dispatchEvent(new Event('input')); }
 };
 
-const TEACHER_TABS = ['t-library', 't-reese', 't-dardasha', 't-ai'];
-const STUDENT_TABS = ['s-exams', 's-reese', 's-dardasha', 's-ai'];
+const TEACHER_TABS = ['t-library', 't-reese', 't-dardasha', 't-ai', 't-analytics'];
+const STUDENT_TABS = ['s-exams', 's-reese', 's-dardasha', 's-ai', 's-progress'];
 let _suppressHistoryPush = false;
 
 let _swipeStartX = 0;
@@ -549,11 +549,33 @@ async function recognizeImageText(imageBase64) {
 }
 
 async function callPollinationsAI(prompt) {
-    const url = `https://text.pollinations.ai/${encodeURIComponent(prompt)}`;
+    // Use POST for long prompts (avoids URL length limits on mobile)
     try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('API Error');
-        return await response.text();
+        const usePost = prompt.length > 400;
+        let response;
+        if (usePost) {
+            response = await fetch('https://text.pollinations.ai/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    messages: [{ role: 'user', content: prompt }],
+                    model: 'openai',
+                    stream: false
+                })
+            });
+        } else {
+            response = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt));
+        }
+        if (!response.ok) throw new Error('API ' + response.status);
+        const txt = await response.text();
+        // POST returns JSON with choices, GET returns plain text
+        if (usePost) {
+            try {
+                const j = JSON.parse(txt);
+                return j?.choices?.[0]?.message?.content || txt;
+            } catch(e) { return txt; }
+        }
+        return txt;
     } catch (error) {
         console.error("AI Error:", error);
         throw error;
@@ -1032,6 +1054,8 @@ window.switchTab = (tabId, btn) => {
     }
     if(tabId === 't-ai' && !currentChatId) startNewChat('t');
     if(tabId === 's-ai' && !currentChatId) startNewChat('s');
+    if(tabId === 't-analytics') loadTeacherAnalytics();
+    if(tabId === 's-progress') loadStudentProgress();
     
     setTimeout(() => {
         const aiInput = document.getElementById(`${tabId.charAt(0)}-ai-input`);
@@ -1477,9 +1501,12 @@ window.sendChatImages = async (input, chatId, otherUid) => {
 
 window.closeChatWindow = (prefix) => {
     playSound('click');
-    document.getElementById(`${prefix}-chat-window`).classList.add('hidden');
-    document.getElementById(`${prefix}-chat-sidebar`).classList.remove('hidden');
+    const win = document.getElementById(`${prefix}-chat-window`);
+    if (win) { win.classList.add('hidden'); win.innerHTML = ''; }
+    const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
+    if (sidebar) sidebar.classList.remove('hidden');
     activeChatRoomId = null;
+    _activeChatMsgKeys = {};
 };
 
 window.handleChatInputFocus = (input) => {
@@ -3817,3 +3844,149 @@ function updateTeacherExamCount(count) {
     const el = document.getElementById('teacher-exam-count');
     if (el) el.textContent = count;
 }
+
+
+// ══════════════════════════════════════════════════════
+//  TEACHER ANALYTICS
+// ══════════════════════════════════════════════════════
+window.loadTeacherAnalytics = async function() {
+    try {
+        const testsSnap = await get(ref(db, `tests`));
+        let totalExams = 0, totalStudents = 0, scores = [], recentActivity = [];
+        
+        if (testsSnap.exists()) {
+            testsSnap.forEach(testNode => {
+                const t = testNode.val();
+                if (t.uid === myUid) {
+                    totalExams++;
+                    // Count attempts
+                    if (t.attempts) {
+                        const attList = Object.values(t.attempts);
+                        attList.forEach(a => {
+                            scores.push(Math.round((a.score / (t.questions?.length || 1)) * 100));
+                            recentActivity.push({
+                                name: t.title,
+                                student: a.name || 'طالب',
+                                score: Math.round((a.score / (t.questions?.length || 1)) * 100),
+                                time: a.time || 0
+                            });
+                        });
+                    }
+                }
+            });
+        }
+        
+        const avgScore = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+        totalStudents = scores.length;
+        
+        const el = (id) => document.getElementById(id);
+        if(el('t-stat-total-exams')) el('t-stat-total-exams').textContent = totalExams;
+        if(el('t-stat-total-students')) el('t-stat-total-students').textContent = totalStudents;
+        if(el('t-stat-avg-score')) el('t-stat-avg-score').textContent = avgScore + '%';
+        
+        const actList = el('t-recent-activity');
+        if (actList) {
+            recentActivity.sort((a,b)=>b.time-a.time);
+            if (recentActivity.length === 0) {
+                actList.innerHTML = '<div style="text-align:center;color:#444;padding:30px;font-size:0.85rem;"><i class="fas fa-chart-line" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>ستظهر هنا آخر نتائج طلابك</div>';
+            } else {
+                actList.innerHTML = recentActivity.slice(0,10).map(a => `
+                    <div class="analytics-recent-item">
+                        <div>
+                            <div class="item-name">${a.name}</div>
+                            <div style="font-size:0.72rem;color:#555;">${a.student}</div>
+                        </div>
+                        <div class="item-score">${a.score}%</div>
+                    </div>`).join('');
+            }
+        }
+    } catch(e) { console.error('Analytics error:', e); }
+};
+
+// ══════════════════════════════════════════════════════
+//  STUDENT PROGRESS
+// ══════════════════════════════════════════════════════
+window.loadStudentProgress = async function() {
+    try {
+        const testsSnap = await get(ref(db, `tests`));
+        let takenCount = 0, scores = [], subjScores = {};
+        
+        if (testsSnap.exists()) {
+            testsSnap.forEach(testNode => {
+                const t = testNode.val();
+                if (t.attempts && t.attempts[myUid]) {
+                    const att = t.attempts[myUid];
+                    const pct = Math.round((att.score / (t.questions?.length || 1)) * 100);
+                    scores.push(pct);
+                    takenCount++;
+                    const subj = t.subject || 'عام';
+                    if (!subjScores[subj]) subjScores[subj] = [];
+                    subjScores[subj].push(pct);
+                }
+            });
+        }
+        
+        const avgScore = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+        const xpEl = document.getElementById('xp-total-count');
+        const xp = xpEl ? xpEl.textContent : '0';
+        
+        const el = (id) => document.getElementById(id);
+        if(el('s-prog-exams')) el('s-prog-exams').textContent = takenCount;
+        if(el('s-prog-avg')) el('s-prog-avg').textContent = avgScore + '%';
+        if(el('s-prog-xp')) el('s-prog-xp').textContent = xp + ' XP';
+        
+        const trendEl = el('s-prog-avg-trend');
+        if (trendEl) {
+            if (avgScore >= 80) { trendEl.textContent = '🌟 ممتاز!'; trendEl.className = 'stat-trend'; }
+            else if (avgScore >= 60) { trendEl.textContent = '👍 جيد'; trendEl.className = 'stat-trend'; }
+            else if (avgScore > 0) { trendEl.textContent = '💪 استمر في المحاولة'; trendEl.className = 'stat-trend down'; }
+            else { trendEl.textContent = '--'; }
+        }
+        
+        // Subject breakdown
+        const breakdownEl = el('s-subj-breakdown-content');
+        if (breakdownEl && Object.keys(subjScores).length > 0) {
+            const subjColors = {
+                'رياضيات':'#3b82f6','فيزياء':'#f59e0b','كيمياء':'#8b5cf6',
+                'أحياء':'#10b981','عربية':'#ef4444','إنجليزية':'#06b6d4',
+                'تاريخ':'#d97706','علوم':'#84cc16','حاسب':'#6366f1'
+            };
+            breakdownEl.innerHTML = Object.entries(subjScores).map(([subj, arr]) => {
+                const avg = Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
+                const color = subjColors[subj] || '#6366f1';
+                return `<div class="subj-bar-row">
+                    <div class="subj-bar-name">${subj}</div>
+                    <div class="subj-bar-track">
+                        <div class="subj-bar-fill" style="width:${avg}%;--bar-color:${color};background:${color};"></div>
+                    </div>
+                    <div class="subj-bar-pct">${avg}%</div>
+                </div>`;
+            }).join('');
+        }
+        
+        // Leaderboard - load top students by XP
+        const lbEl = el('s-leaderboard-list');
+        if (lbEl) {
+            const usersSnap = await get(ref(db, 'users'));
+            if (usersSnap.exists()) {
+                const users = [];
+                usersSnap.forEach(u => {
+                    const d = u.val();
+                    if (d.role === 'student' && d.xp) users.push({ name: d.name, xp: d.xp, icon: d.icon || 'fa-user' });
+                });
+                users.sort((a,b) => b.xp - a.xp);
+                const medals = ['🥇','🥈','🥉'];
+                lbEl.innerHTML = users.slice(0,10).map((u,i) => `
+                    <div class="leaderboard-item ${i<3?'rank-'+(i+1):''}">
+                        <div class="leaderboard-rank">${medals[i]||('#'+(i+1))}</div>
+                        <div class="leaderboard-crown">👑</div>
+                        <div style="width:30px;height:30px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;font-size:0.9rem;border:1px solid #222;">
+                            <i class="fas ${u.icon}"></i>
+                        </div>
+                        <div class="leaderboard-name">${u.name}</div>
+                        <div class="leaderboard-xp">⚡ ${u.xp}</div>
+                    </div>`).join('');
+            }
+        }
+    } catch(e) { console.error('Progress error:', e); }
+};
