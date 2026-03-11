@@ -5743,6 +5743,49 @@ animation: shakeField 0.4s ease;
     }
 }
 
+/* ─── MOBILE: Group header & chat header must clear the top nav ───
+   The chat-window starts at top:0 on mobile, but the top nav is
+   position:fixed at top:0 with z-index:3000 — it overlaps the header.
+   Add padding equal to nav-height so buttons are not hidden behind the nav. */
+@media (max-width: 768px) {
+    .group-header {
+        padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 8px) !important;
+    }
+    .chat-header {
+        padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 8px) !important;
+    }
+    .group-header-actions {
+        display: flex !important;
+        flex-shrink: 0;
+        gap: 8px;
+        margin-right: auto;  /* push to far left in RTL */
+    }
+    .group-header-actions .icon-btn-small {
+        display: flex !important;
+        visibility: visible !important;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+    }
+    /* Ensure the close/back button in group header is always visible */
+    .group-header > button:first-child {
+        display: flex !important;
+        flex-shrink: 0;
+        visibility: visible !important;
+    }
+    /* Ensure msgs area scrolls to bottom properly */
+    .chat-msgs-area {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .chat-input-area {
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+    }
+}
+
 /* Fix: AI message avatar row */
 .ai-msg-avatar-row {
     display: flex;
@@ -5781,24 +5824,4 @@ animation: shakeField 0.4s ease;
     overflow-y: auto;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-}
-
-/* Fix: Ensure the chat window on mobile fills properly */
-@media (max-width: 768px) {
-    .chat-window {
-        position: fixed !important;
-        inset: 0 !important;
-        z-index: 400 !important;
-        display: flex;
-        flex-direction: column;
-    }
-    .chat-msgs-area {
-        flex: 1;
-        overflow-y: auto;
-    }
-    .chat-input-area {
-        flex-shrink: 0;
-        position: sticky;
-        bottom: 0;
-    }
 }
