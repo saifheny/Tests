@@ -955,11 +955,14 @@ background: #000;
 z-index: 100;
 overflow: hidden;
 }
-/* Mobile: nav is at bottom, so ai-layout fills top-to-bottom excluding nav */
+/* Mobile: nav is at TOP — ai-layout starts below nav, fills down to bottom */
 @media (max-width: 768px) {
   .ai-layout {
-    top: 0 !important;
-    bottom: var(--nav-height) !important;
+    top: var(--nav-height) !important;
+    bottom: 0 !important;
+  }
+  .ai-top-bar {
+    padding-top: 10px;
   }
 }
 .ai-top-bar {
@@ -5469,7 +5472,12 @@ animation: shakeField 0.4s ease;
 }
 .group-ai-trigger:hover { opacity: 0.8; }
 
-/* ─── Create group modal ─── */
+/* Share group invite button */
+.group-invite-btn {
+  background: rgba(52,211,153,0.12) !important;
+  border: 1px solid rgba(52,211,153,0.25) !important;
+  color: #34d399 !important;
+}
 .create-group-overlay {
   position: fixed;
   inset: 0;
@@ -5654,11 +5662,72 @@ animation: shakeField 0.4s ease;
   margin-bottom: 6px;
 }
 
-/* Image grid container */
+/* Image grid container — WhatsApp-style */
+.group-img-grid {
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 260px;
+}
 .group-img-grid img {
   transition: opacity 0.15s;
+  display: block;
+  width: 100%;
+  object-fit: cover;
 }
-.group-img-grid img:hover { opacity: 0.85; }
+.group-img-grid img:hover { opacity: 0.85; cursor: pointer; }
+
+/* Single image — larger */
+.group-img-grid.single img {
+  max-height: 320px;
+  width: 220px;
+  border-radius: 12px;
+}
+/* 2-image side by side */
+.group-img-grid.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  max-width: 220px;
+}
+.group-img-grid.grid-2 img { height: 110px; }
+/* 3 images */
+.group-img-grid.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2px;
+  max-width: 220px;
+}
+.group-img-grid.grid-3 img:first-child {
+  grid-column: 1 / -1;
+  height: 140px;
+}
+.group-img-grid.grid-3 img:not(:first-child) { height: 90px; }
+/* 4+ images */
+.group-img-grid.grid-many {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  max-width: 240px;
+}
+.group-img-grid.grid-many img { height: 78px; }
+/* More-count overlay for 4+ */
+.grid-more-overlay {
+  position: relative;
+  display: block;
+}
+.grid-more-overlay::after {
+  content: attr(data-count);
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* Group msg-wrap spacing */
 .group-msg-wrap {
@@ -5708,120 +5777,4 @@ animation: shakeField 0.4s ease;
   .group-header {
     padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
   }
-}
-
-/* ══════════════════════════════════════
-   BUG FIXES - Chat & Mobile & AI Avatar
-   ══════════════════════════════════════ */
-
-/* Fix: Chat header always shows all buttons on mobile */
-.chat-header {
-    flex-wrap: nowrap;
-    overflow: visible !important;
-    min-height: 56px;
-}
-.chat-header .icon-btn-small,
-.chat-header button {
-    flex-shrink: 0;
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-@media (max-width: 600px) {
-    .chat-header {
-        padding: 8px 10px;
-        gap: 8px;
-    }
-    .chat-header .icon-btn-small {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
-    }
-    .chat-header div[style*="margin-right:auto"] {
-        margin-right: auto !important;
-        display: flex !important;
-    }
-}
-
-/* ─── MOBILE: Group header & chat header must clear the top nav ───
-   The chat-window starts at top:0 on mobile, but the top nav is
-   position:fixed at top:0 with z-index:3000 — it overlaps the header.
-   Add padding equal to nav-height so buttons are not hidden behind the nav. */
-@media (max-width: 768px) {
-    .group-header {
-        padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 8px) !important;
-    }
-    .chat-header {
-        padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 8px) !important;
-    }
-    .group-header-actions {
-        display: flex !important;
-        flex-shrink: 0;
-        gap: 8px;
-        margin-right: auto;  /* push to far left in RTL */
-    }
-    .group-header-actions .icon-btn-small {
-        display: flex !important;
-        visibility: visible !important;
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
-    }
-    /* Ensure the close/back button in group header is always visible */
-    .group-header > button:first-child {
-        display: flex !important;
-        flex-shrink: 0;
-        visibility: visible !important;
-    }
-    /* Ensure msgs area scrolls to bottom properly */
-    .chat-msgs-area {
-        flex: 1;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .chat-input-area {
-        flex-shrink: 0;
-        position: sticky;
-        bottom: 0;
-    }
-}
-
-/* Fix: AI message avatar row */
-.ai-msg-avatar-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-    padding: 0 2px;
-}
-.ai-msg-logo-avatar {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 1px solid rgba(59,130,246,0.3);
-    background: #111;
-    flex-shrink: 0;
-}
-.ai-sender-label {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--accent-primary, #3b82f6);
-    letter-spacing: 0.03em;
-}
-
-/* Fix: Ensure AI full-msg has proper spacing */
-.ai-full-msg {
-    padding: 12px 16px 4px;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-}
-.ai-full-msg:last-child {
-    border-bottom: none;
-}
-
-/* Fix: Scroll chat messages area properly */
-.ai-messages {
-    overflow-y: auto;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
 }
