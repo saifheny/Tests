@@ -1525,22 +1525,35 @@ window.handleChatEnter = (e, chatId, otherUid) => {
 
 window.sendChatMessage = async (chatId, otherUid) => {
     const input = document.getElementById(`chat-input-${chatId}`);
+    if (!input) return;
     const text = input.value.trim();
-    if(!text) return;
-    
-    playSound('sent');
-    
-    await push(ref(db, `chats/${chatId}`), {
-        sender: myUid,
-        text: text,
-        type: 'text',
-        timestamp: Date.now()
-    });
-    
-    await update(ref(db, `user_chats/${myUid}/${chatId}`), { lastMsg: text, lastMsgTime: Date.now() });
-    await update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: text, lastMsgTime: Date.now() });
-    
+    if (!text) return;
+
+    // Clear & disable immediately for snappy feel
     input.value = '';
+    toggleChatMicSend(chatId);
+    playSound('sent');
+
+    const ts = Date.now();
+    try {
+        await push(ref(db, `chats/${chatId}`), {
+            sender: myUid,
+            senderName: currentUser,
+            text: text,
+            type: 'text',
+            timestamp: ts
+        });
+        const shortMsg = text.substring(0, 60);
+        await Promise.all([
+            update(ref(db, `user_chats/${myUid}/${chatId}`),    { lastMsg: shortMsg, lastMsgTime: ts }),
+            update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: shortMsg, lastMsgTime: ts })
+        ]);
+    } catch(e) {
+        console.error('Send failed:', e);
+        input.value = text; // restore on error
+        toggleChatMicSend(chatId);
+        saAlert('فشل إرسال الرسالة، تحقق من الاتصال', 'error');
+    }
 };
 
 window.sendChatImage = async (input, chatId, otherUid) => {
