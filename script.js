@@ -1625,19 +1625,7 @@ window.openReeseCompose = () => {
     
     const container = document.getElementById('ai-reese-suggestions');
     container.innerHTML = '';
-    container.classList.remove('hidden');
-    
-    const placeholders = ['✨ جاري التوليد...', '🧠 ...', '💡 ...'];
-    placeholders.forEach(ph => {
-        const chip = document.createElement('div');
-        chip.className = 'suggestion-chip';
-        chip.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ${ph}`;
-        chip.style.opacity = '0.4';
-        chip.style.pointerEvents = 'none';
-        container.appendChild(chip);
-    });
-    
-    loadReeseAiSuggestionsAuto();
+    container.classList.add('hidden');
 };
 
 let _lastReeseSuggestions = [];
@@ -3056,10 +3044,9 @@ window.generateAiQuestions = async () => {
     const topic = document.getElementById('ai-gen-text').value;
     const mcqCount = document.getElementById('ai-mcq-count').value || 0;
     const essayCount = document.getElementById('ai-essay-count').value || 0;
-    const total = parseInt(mcqCount) + parseInt(essayCount);
     
     if (!topic && !aiGenImgBase64) return saAlert("أدخل الموضوع أو ارفع صورة", "error");
-    if (total === 0) return saAlert("يجب تحديد عدد الأسئلة", "error");
+    if ((parseInt(mcqCount)+parseInt(essayCount)) === 0) return saAlert("يجب تحديد عدد الأسئلة", "error");
 
     toggleConstructionOverlay(true);
     toggleAiGenerator(); 
@@ -3075,11 +3062,17 @@ window.generateAiQuestions = async () => {
         }
     }
     
-    const prompt = `Create a strict JSON array of ${total} questions based on: "${contextData}". 
-    Language: Arabic. 
-    Requirements: Exactly ${mcqCount} MCQ questions and ${essayCount} Essay questions.
-    Structure: [{"type":"mcq", "text":"Question?", "options":["A","B"], "correct":"A", "points":1}, {"type":"essay", "text":"Question?", "correct":"Model Answer for Teacher", "points":1}].
-    Return ONLY raw JSON.`;
+    const totalNeeded = parseInt(mcqCount) + parseInt(essayCount);
+    const prompt = `You are an Arabic exam generator. Create EXACTLY ${totalNeeded} questions in JSON format.
+IMPORTANT: Output ONLY a raw JSON array. No markdown, no explanation, no extra text.
+Topic: "${contextData}"
+Requirements:
+- EXACTLY ${mcqCount} questions of type "mcq" (each with 4 options in Arabic)
+- EXACTLY ${essayCount} questions of type "essay"
+- All questions and answers in Arabic
+- mcq structure: {"type":"mcq","text":"السؤال؟","options":["أ)","ب)","ج)","د)"],"correct":"أ)","points":1}
+- essay structure: {"type":"essay","text":"السؤال؟","correct":"نموذج الإجابة","points":5}
+Return ONLY the JSON array starting with [ and ending with ]`;
     
     try {
         let jsonStr = await callPollinationsAI(prompt);
@@ -3102,7 +3095,7 @@ window.generateAiQuestions = async () => {
             renderAddedQuestions();
             
             toggleConstructionOverlay(false);
-            saAlert(`تم بناء ${questions.length} سؤال بنجاح!`, "success");
+            saAlert(`✅ تم توليد ${questions.length} سؤال بنجاح!`, "success");
             switchTab('t-create'); 
         } else {
             throw new Error("Invalid format");
@@ -3907,86 +3900,661 @@ window.loadTeacherAnalytics = async function() {
 //  STUDENT PROGRESS
 // ══════════════════════════════════════════════════════
 window.loadStudentProgress = async function() {
+    const el = (id) => document.getElementById(id);
+    // Show loading state
+    if(el('s-prog-exams')) el('s-prog-exams').textContent = '...';
+    if(el('s-prog-avg')) el('s-prog-avg').textContent = '...';
+    if(el('s-subj-breakdown-content')) el('s-subj-breakdown-content').innerHTML = '<div style="text-align:center;padding:20px;color:#555;"><i class="fas fa-circle-notch fa-spin"></i></div>';
+
     try {
-        const testsSnap = await get(ref(db, `tests`));
+        // ── Fetch all tests meta ──
+        const testsSnap = await get(ref(db, 'tests'));
+        const allTests = testsSnap.exists() ? testsSnap.val() : {};
+        
         let takenCount = 0, scores = [], subjScores = {};
-        
-        if (testsSnap.exists()) {
-            testsSnap.forEach(testNode => {
-                const t = testNode.val();
-                if (t.attempts && t.attempts[myUid]) {
-                    const att = t.attempts[myUid];
-                    const pct = Math.round((att.score / (t.questions?.length || 1)) * 100);
-                    scores.push(pct);
-                    takenCount++;
-                    const subj = t.subject || 'عام';
-                    if (!subjScores[subj]) subjScores[subj] = [];
-                    subjScores[subj].push(pct);
+        const SUBJ_COLORS = {
+            'رياضيات':'#3b82f6','فيزياء':'#f59e0b','كيمياء':'#8b5cf6',
+            'أحياء':'#10b981','عربية':'#ef4444','إنجليزية':'#06b6d4',
+            'تاريخ':'#d97706','علوم':'#84cc16','حاسب':'#6366f1','عام':'#6366f1'
+        };
+
+        // ── Loop each test and check if this student has a result ──
+        const promises = Object.entries(allTests).map(async ([testId, testData]) => {
+            const resSnap = await get(ref(db, `results/${testId}/${currentUser}`));
+            if (resSnap.exists()) {
+                const res = resSnap.val();
+                const pct = res.percentage !== undefined ? Math.round(res.percentage) : Math.round((res.score / (res.total || 1)) * 100);
+                scores.push(pct);
+                takenCount++;
+                
+                let subj = testData.subject || 'عام';
+                // Auto-detect from title if no subject
+                if (!testData.subject && testData.title) {
+                    const t = testData.title;
+                    if (t.includes('فيزياء')) subj = 'فيزياء';
+                    else if (t.includes('كيمياء')) subj = 'كيمياء';
+                    else if (t.includes('أحياء') || t.includes('احياء')) subj = 'أحياء';
+                    else if (t.includes('رياضيات') || t.includes('رياضه')) subj = 'رياضيات';
+                    else if (t.includes('عربي')) subj = 'عربية';
+                    else if (t.includes('نجليز') || t.includes('انجليز')) subj = 'إنجليزية';
+                    else if (t.includes('حاسب') || t.includes('كمبيوتر')) subj = 'حاسب';
                 }
-            });
-        }
-        
+                if (!subjScores[subj]) subjScores[subj] = [];
+                subjScores[subj].push(pct);
+            }
+        });
+        await Promise.all(promises);
+
         const avgScore = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
         const xpEl = document.getElementById('xp-total-count');
         const xp = xpEl ? xpEl.textContent : '0';
-        
-        const el = (id) => document.getElementById(id);
+
+        // ── Update stat cards ──
         if(el('s-prog-exams')) el('s-prog-exams').textContent = takenCount;
-        if(el('s-prog-avg')) el('s-prog-avg').textContent = avgScore + '%';
+        if(el('s-prog-avg')) el('s-prog-avg').textContent = avgScore ? avgScore + '%' : '--';
         if(el('s-prog-xp')) el('s-prog-xp').textContent = xp + ' XP';
-        
+
         const trendEl = el('s-prog-avg-trend');
         if (trendEl) {
-            if (avgScore >= 80) { trendEl.textContent = '🌟 ممتاز!'; trendEl.className = 'stat-trend'; }
-            else if (avgScore >= 60) { trendEl.textContent = '👍 جيد'; trendEl.className = 'stat-trend'; }
-            else if (avgScore > 0) { trendEl.textContent = '💪 استمر في المحاولة'; trendEl.className = 'stat-trend down'; }
-            else { trendEl.textContent = '--'; }
+            if (avgScore >= 90)      { trendEl.textContent = '🌟 ممتاز!'; trendEl.className = 'stat-trend'; }
+            else if (avgScore >= 75) { trendEl.textContent = '👍 جيد جداً'; trendEl.className = 'stat-trend'; }
+            else if (avgScore >= 60) { trendEl.textContent = '✔ جيد'; trendEl.className = 'stat-trend'; }
+            else if (avgScore > 0)   { trendEl.textContent = '💪 تحتاج تحسين'; trendEl.className = 'stat-trend down'; }
+            else                     { trendEl.textContent = 'لم تؤدِ اختبارات بعد'; }
         }
-        
-        // Subject breakdown
+
+        // ── Subject breakdown bars ──
         const breakdownEl = el('s-subj-breakdown-content');
-        if (breakdownEl && Object.keys(subjScores).length > 0) {
-            const subjColors = {
-                'رياضيات':'#3b82f6','فيزياء':'#f59e0b','كيمياء':'#8b5cf6',
-                'أحياء':'#10b981','عربية':'#ef4444','إنجليزية':'#06b6d4',
-                'تاريخ':'#d97706','علوم':'#84cc16','حاسب':'#6366f1'
-            };
-            breakdownEl.innerHTML = Object.entries(subjScores).map(([subj, arr]) => {
-                const avg = Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
-                const color = subjColors[subj] || '#6366f1';
-                return `<div class="subj-bar-row">
-                    <div class="subj-bar-name">${subj}</div>
-                    <div class="subj-bar-track">
-                        <div class="subj-bar-fill" style="width:${avg}%;--bar-color:${color};background:${color};"></div>
-                    </div>
-                    <div class="subj-bar-pct">${avg}%</div>
-                </div>`;
-            }).join('');
+        if (breakdownEl) {
+            if (Object.keys(subjScores).length === 0) {
+                breakdownEl.innerHTML = '<div style="text-align:center;color:#444;padding:24px;font-size:0.85rem;"><i class="fas fa-chart-pie" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>أدِّ بعض الاختبارات لترى تحليل مواد دراستك</div>';
+            } else {
+                const sorted = Object.entries(subjScores).sort((a,b) => {
+                    const avgA = a[1].reduce((x,y)=>x+y,0)/a[1].length;
+                    const avgB = b[1].reduce((x,y)=>x+y,0)/b[1].length;
+                    return avgB - avgA;
+                });
+                breakdownEl.innerHTML = sorted.map(([subj, arr]) => {
+                    const avg = Math.round(arr.reduce((a,b)=>a+b,0)/arr.length);
+                    const color = SUBJ_COLORS[subj] || '#6366f1';
+                    const html = '<div class="subj-bar-row">' +
+                        '<div class="subj-bar-name">' + subj + '</div>' +
+                        '<div class="subj-bar-track">' +
+                            '<div class="subj-bar-fill" style="width:' + avg + '%;background:' + color + ';"></div>' +
+                        '</div>' +
+                        '<div class="subj-bar-pct" style="color:' + color + ';">' + avg + '%</div>' +
+                    '</div>';
+                    return html;
+                }).join('');
+            }
         }
-        
-        // Leaderboard - load top students by XP
+
+        // ── Leaderboard from xp_scores ──
         const lbEl = el('s-leaderboard-list');
         if (lbEl) {
-            const usersSnap = await get(ref(db, 'users'));
-            if (usersSnap.exists()) {
+            const xpSnap = await get(ref(db, 'xp_scores'));
+            if (xpSnap.exists()) {
                 const users = [];
-                usersSnap.forEach(u => {
+                xpSnap.forEach(u => {
                     const d = u.val();
-                    if (d.role === 'student' && d.xp) users.push({ name: d.name, xp: d.xp, icon: d.icon || 'fa-user' });
+                    users.push({ name: d.name || u.key, xp: d.xp || 0 });
                 });
                 users.sort((a,b) => b.xp - a.xp);
                 const medals = ['🥇','🥈','🥉'];
                 lbEl.innerHTML = users.slice(0,10).map((u,i) => `
                     <div class="leaderboard-item ${i<3?'rank-'+(i+1):''}">
-                        <div class="leaderboard-rank">${medals[i]||('#'+(i+1))}</div>
+                        <div class="leaderboard-rank">${medals[i]||(i+1+'.')}</div>
                         <div class="leaderboard-crown">👑</div>
-                        <div style="width:30px;height:30px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;font-size:0.9rem;border:1px solid #222;">
-                            <i class="fas ${u.icon}"></i>
+                        <div style="width:32px;height:32px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;font-size:0.85rem;border:1px solid #222;flex-shrink:0;">
+                            <i class="fas fa-user-graduate" style="color:#888;"></i>
                         </div>
-                        <div class="leaderboard-name">${u.name}</div>
+                        <div class="leaderboard-name">${u.name}${u.name===currentUser?'<span style="color:#60a5fa;font-size:0.7rem;margin-right:5px;">أنت</span>':''}</div>
                         <div class="leaderboard-xp">⚡ ${u.xp}</div>
                     </div>`).join('');
+            } else {
+                lbEl.innerHTML = '<div style="text-align:center;color:#444;padding:24px;"><i class="fas fa-users" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>لا توجد بيانات بعد</div>';
             }
         }
-    } catch(e) { console.error('Progress error:', e); }
+    } catch(e) {
+        console.error('Progress error:', e);
+        const el2 = (id) => document.getElementById(id);
+        if(el2('s-prog-exams')) el2('s-prog-exams').textContent = '!';
+    }
+};
+
+// ══════════════════════════════════════════════════════════════════
+//  CHAT UPGRADE v8: GROUPS + AI IN CHAT + REACTIONS + REPLY
+// ══════════════════════════════════════════════════════════════════
+
+let _currentChatTab = {}; // { 't': 'chats'|'groups', 's': 'chats'|'groups' }
+let _selectedGroupEmoji = '📚';
+let _createGroupMembers = [];
+
+// ── Switch between "المحادثات" and "الجروبات" tabs ──
+window.switchChatTab = (prefix, type, btn) => {
+    _currentChatTab[prefix] = type;
+    document.querySelectorAll(`#${prefix}-chat-type-tabs .chat-type-tab`).forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    
+    const list = document.getElementById(`${prefix}-chat-list`);
+    list.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:30px;color:#444;"><i class="fas fa-circle-notch fa-spin" style="margin-left:8px;"></i></div>';
+    
+    if (type === 'chats') {
+        initDardasha_real(prefix);
+    } else {
+        loadGroupsList(prefix);
+    }
+};
+
+// ── Plus menu (new chat / new group) ──
+window.showChatPlusMenu = (prefix) => {
+    const existing = document.getElementById('chat-plus-menu-popup');
+    if (existing) { existing.remove(); return; }
+    
+    const menu = document.createElement('div');
+    menu.id = 'chat-plus-menu-popup';
+    menu.className = 'chat-plus-menu';
+    menu.style.cssText = 'bottom:80px;left:16px;';
+    menu.innerHTML = `
+        <button onclick="toggleUserSearchModal();document.getElementById('chat-plus-menu-popup')?.remove()">
+            <i class="fas fa-user-plus" style="color:#60a5fa;"></i> محادثة جديدة
+        </button>
+        <button onclick="openCreateGroupSheet('${prefix}');document.getElementById('chat-plus-menu-popup')?.remove()">
+            <i class="fas fa-users" style="color:#34d399;"></i> إنشاء جروب
+        </button>
+        <hr style="border:none;border-top:1px solid #1f1f1f;margin:4px 0;">
+        <button onclick="window.switchChatTab('${prefix}','groups');document.getElementById('chat-plus-menu-popup')?.remove()">
+            <i class="fas fa-list" style="color:#f59e0b;"></i> عرض الجروبات
+        </button>
+    `;
+    document.body.appendChild(menu);
+    
+    setTimeout(() => {
+        document.addEventListener('click', function handler(e) {
+            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', handler); }
+        });
+    }, 100);
+};
+
+// ── Create Group Sheet ──
+window.openCreateGroupSheet = async (prefix) => {
+    const existing = document.getElementById('create-group-overlay');
+    if (existing) existing.remove();
+    
+    // Load users for member selection
+    const usersSnap = await get(ref(db, 'users'));
+    const users = [];
+    if (usersSnap.exists()) {
+        usersSnap.forEach(u => {
+            const d = u.val();
+            if (u.key !== myUid) users.push({ uid: u.key, name: d.name, role: d.role, icon: d.icon || 'fa-user' });
+        });
+    }
+    
+    _createGroupMembers = [];
+    const emojis = ['📚','🎓','⚡','🔥','🌟','💡','🎯','🏆','🧠','🌍','🎨','🚀'];
+    
+    const overlay = document.createElement('div');
+    overlay.id = 'create-group-overlay';
+    overlay.className = 'create-group-overlay';
+    overlay.innerHTML = `
+        <div class="create-group-sheet">
+            <h3><i class="fas fa-users" style="color:#60a5fa;"></i> إنشاء جروب جديد</h3>
+            
+            <label style="font-size:0.8rem;color:#888;margin-bottom:6px;display:block;">اسم الجروب</label>
+            <input id="new-group-name" class="smart-input" placeholder="مثال: مجموعة الرياضيات" style="margin-bottom:14px;">
+            
+            <label style="font-size:0.8rem;color:#888;margin-bottom:6px;display:block;">وصف الجروب (اختياري)</label>
+            <input id="new-group-desc" class="smart-input" placeholder="موضوع الجروب..." style="margin-bottom:14px;">
+            
+            <label style="font-size:0.8rem;color:#888;margin-bottom:6px;display:block;">أيقونة الجروب</label>
+            <div class="emoji-picker-row">
+                ${emojis.map(e => `<div class="emoji-option${e==='📚'?' selected':''}" onclick="selectGroupEmoji(this,'${e}')">${e}</div>`).join('')}
+            </div>
+            
+            <label style="font-size:0.8rem;color:#888;margin-bottom:6px;display:block;">إضافة أعضاء</label>
+            <div class="member-select-list">
+                ${users.map(u => `
+                    <div class="member-select-item" onclick="toggleGroupMember('${u.uid}','${u.name}',this)">
+                        <div style="width:34px;height:34px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;border:1px solid #222;flex-shrink:0;">
+                            <i class="fas ${u.icon}" style="font-size:0.8rem;color:#888;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.85rem;font-weight:600;">${u.name}</div>
+                            <div style="font-size:0.7rem;color:#555;">${u.role === 'teacher' ? 'معلم' : 'طالب'}</div>
+                        </div>
+                        <div class="checkmark"><i class="fas fa-check" style="font-size:0.55rem;color:#fff;opacity:0;"></i></div>
+                    </div>`).join('')}
+            </div>
+            
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button onclick="document.getElementById('create-group-overlay').remove()" style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;color:#888;padding:12px;border-radius:12px;cursor:pointer;">إلغاء</button>
+                <button onclick="createNewGroup('${prefix}')" style="flex:2;background:linear-gradient(135deg,#1d4ed8,#7c3aed);border:none;color:#fff;padding:12px;border-radius:12px;cursor:pointer;font-weight:700;"><i class="fas fa-check"></i> إنشاء الجروب</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+};
+
+window.selectGroupEmoji = (el, emoji) => {
+    _selectedGroupEmoji = emoji;
+    document.querySelectorAll('.emoji-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+};
+
+window.toggleGroupMember = (uid, name, el) => {
+    const idx = _createGroupMembers.findIndex(m => m.uid === uid);
+    if (idx === -1) {
+        _createGroupMembers.push({ uid, name });
+        el.classList.add('selected');
+        el.querySelector('.checkmark i').style.opacity = '1';
+    } else {
+        _createGroupMembers.splice(idx, 1);
+        el.classList.remove('selected');
+        el.querySelector('.checkmark i').style.opacity = '0';
+    }
+};
+
+window.createNewGroup = async (prefix) => {
+    const name = document.getElementById('new-group-name').value.trim();
+    const desc = document.getElementById('new-group-desc').value.trim();
+    if (!name) return saAlert('أدخل اسم الجروب', 'error');
+    
+    const groupId = 'grp_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+    const members = { [myUid]: { name: currentUser, role: selectedRole, joinedAt: Date.now(), isAdmin: true } };
+    _createGroupMembers.forEach(m => { members[m.uid] = { name: m.name, joinedAt: Date.now(), isAdmin: false }; });
+    
+    const groupData = {
+        name,
+        desc: desc || '',
+        emoji: _selectedGroupEmoji,
+        createdBy: myUid,
+        createdAt: Date.now(),
+        members,
+        lastMsg: '🎉 تم إنشاء الجروب',
+        lastMsgTime: Date.now(),
+        enableAI: true  // AI assistant enabled by default
+    };
+    
+    await set(ref(db, `groups/${groupId}`), groupData);
+    
+    // Add group to each member's group list
+    const notifyPromises = Object.keys(members).map(uid => 
+        update(ref(db, `user_groups/${uid}/${groupId}`), { name, emoji: _selectedGroupEmoji, lastMsg: groupData.lastMsg, lastMsgTime: Date.now() })
+    );
+    await Promise.all(notifyPromises);
+    
+    document.getElementById('create-group-overlay').remove();
+    saAlert(`✅ تم إنشاء "${name}" بنجاح!`, 'success');
+    window.switchChatTab(prefix, 'groups');
+    openGroupRoom(groupId, prefix);
+};
+
+// ── Load groups list ──
+window.loadGroupsList = (prefix) => {
+    const list = document.getElementById(`${prefix}-chat-list`);
+    
+    onValue(ref(db, `user_groups/${myUid}`), async (snap) => {
+        list.innerHTML = '';
+        if (!snap.exists()) {
+            list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#444;">
+                <i class="fas fa-users" style="font-size:2.5rem;margin-bottom:12px;display:block;opacity:0.25;"></i>
+                <p style="font-size:0.85rem;margin-bottom:16px;">لا توجد جروبات بعد</p>
+                <button onclick="openCreateGroupSheet('${prefix}')" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:0.82rem;">
+                    <i class="fas fa-plus"></i> إنشاء جروب
+                </button>
+            </div>`;
+            return;
+        }
+        
+        const entries = [];
+        snap.forEach(g => entries.push({ id: g.key, ...g.val() }));
+        entries.sort((a,b) => (b.lastMsgTime||0) - (a.lastMsgTime||0));
+        
+        entries.forEach(g => {
+            const item = document.createElement('div');
+            item.className = 'group-list-item';
+            const timeStr = g.lastMsgTime ? new Date(g.lastMsgTime).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }) : '';
+            item.innerHTML = `
+                <div class="group-avatar">
+                    ${g.emoji || '👥'}
+                    <div class="group-type-badge">👥</div>
+                </div>
+                <div class="group-info">
+                    <div class="group-name">${g.name}</div>
+                    <div class="group-last-msg">${g.lastMsg || '...'}</div>
+                </div>
+                <div class="group-meta">
+                    <div class="group-time">${timeStr}</div>
+                </div>
+            `;
+            item.onclick = () => openGroupRoom(g.id, prefix);
+            list.appendChild(item);
+        });
+    });
+};
+
+// ── Open group chat room ──
+window.openGroupRoom = async (groupId, prefix) => {
+    playSound('click');
+    const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
+    const win = document.getElementById(`${prefix}-chat-window`);
+    
+    if (window.innerWidth < 768) {
+        sidebar.classList.add('hidden');
+    }
+    win.classList.remove('hidden');
+    
+    // Fetch group data
+    const groupSnap = await get(ref(db, `groups/${groupId}`));
+    if (!groupSnap.exists()) return;
+    const group = groupSnap.val();
+    const membersCount = Object.keys(group.members || {}).length;
+    const isAdmin = group.members?.[myUid]?.isAdmin;
+    
+    win.innerHTML = `
+        <div class="group-header">
+            <button class="icon-btn-small" onclick="closeGroupRoom('${prefix}')"><i class="ph-bold ph-arrow-right"></i></button>
+            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">${group.emoji || '👥'}</div>
+            <div class="group-header-info">
+                <div class="group-header-name">${group.name}</div>
+                <div class="group-header-members">${membersCount} عضو${group.enableAI ? ' · 🤖 AI مفعّل' : ''}</div>
+            </div>
+            <div class="group-header-actions">
+                <button class="icon-btn-small" onclick="showGroupInfo('${groupId}','${prefix}')" title="معلومات"><i class="fas fa-info-circle"></i></button>
+                ${isAdmin ? `<button class="icon-btn-small" onclick="toggleGroupAI('${groupId}')" title="AI" style="color:#c4b5fd;"><i class="fas fa-robot"></i></button>` : ''}
+            </div>
+        </div>
+        ${group.pinnedMsg ? `<div class="pinned-msg-bar"><i class="fas fa-thumbtack" style="color:#60a5fa;"></i><span>مثبّت:</span> ${group.pinnedMsg}</div>` : ''}
+        <div class="chat-msgs-area" id="group-msgs-${groupId}" style="padding-bottom:70px;"></div>
+        <div class="chat-input-area" id="group-input-${groupId}">
+            <label class="chat-img-attach-btn" title="إرسال صور">
+                <i class="ph-bold ph-camera"></i>
+                <input type="file" hidden accept="image/*" onchange="sendGroupImage(this,'${groupId}','${prefix}')">
+            </label>
+            ${group.enableAI ? `<button class="icon-btn-small" style="color:#c4b5fd;background:rgba(109,40,217,0.15);" onclick="askGroupAI('${groupId}','${prefix}')" title="اسأل AI"><i class="fas fa-robot"></i></button>` : ''}
+            <input type="text" id="group-chat-input-${groupId}" placeholder="رسالة..." 
+                onkeypress="if(event.key==='Enter') sendGroupMessage('${groupId}','${prefix}')"
+                oninput="toggleGroupMicSend('${groupId}')">
+            <button id="group-send-btn-${groupId}" class="send-btn" style="display:none;" onclick="sendGroupMessage('${groupId}','${prefix}')"><i class="ph-bold ph-paper-plane-tilt"></i></button>
+            <button id="group-mic-btn-${groupId}" class="send-btn" style="background:rgba(255,255,255,0.06);color:#666;" onclick="startGroupVoice('${groupId}','${prefix}')"><i class="ph-bold ph-microphone"></i></button>
+        </div>
+    `;
+    
+    // Listen for messages
+    const msgsContainer = document.getElementById(`group-msgs-${groupId}`);
+    const MEMBER_COLORS = ['#60a5fa','#34d399','#f59e0b','#f87171','#a78bfa','#fb923c','#22d3ee'];
+    const colorMap = {};
+    let memberIdx = 0;
+    
+    onValue(ref(db, `group_messages/${groupId}`), (snap) => {
+        msgsContainer.innerHTML = '';
+        if (!snap.exists()) {
+            msgsContainer.innerHTML = `<div style="text-align:center;color:#333;padding:40px;font-size:0.85rem;"><div style="font-size:2.5rem;margin-bottom:10px;">${group.emoji}</div><p>ابدأ المحادثة في ${group.name}</p></div>`;
+            return;
+        }
+        
+        let prevDate = '';
+        snap.forEach(msgNode => {
+            const msg = msgNode.val();
+            const key = msgNode.key;
+            const isMe = msg.senderUid === myUid;
+            const isAI = msg.isAI;
+            const msgDate = new Date(msg.time || msg.timestamp).toLocaleDateString('ar-EG');
+            
+            if (msgDate !== prevDate) {
+                const divider = document.createElement('div');
+                divider.style.cssText = 'text-align:center;color:#333;font-size:0.68rem;padding:6px 0;';
+                divider.textContent = msgDate;
+                msgsContainer.appendChild(divider);
+                prevDate = msgDate;
+            }
+            
+            if (!colorMap[msg.senderUid]) {
+                colorMap[msg.senderUid] = MEMBER_COLORS[memberIdx % MEMBER_COLORS.length];
+                memberIdx++;
+            }
+            const senderColor = colorMap[msg.senderUid] || '#888';
+            
+            const wrap = document.createElement('div');
+            wrap.className = `group-msg-wrap${isMe ? ' me' : ''}`;
+            wrap.dataset.key = key;
+            
+            const timeStr = new Date(msg.time || msg.timestamp).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
+            
+            // Reply context
+            const replyHTML = msg.replyTo ? `<div style="background:rgba(255,255,255,0.06);border-right:3px solid ${senderColor};padding:4px 8px;border-radius:4px 8px 0 0;font-size:0.7rem;color:#888;margin-bottom:4px;"><strong style="color:${senderColor};">${msg.replyTo.sender}</strong><br>${(msg.replyTo.text||'').substring(0,60)}</div>` : '';
+            
+            wrap.innerHTML = `
+                ${!isMe && !isAI ? `<div class="group-sender-name" style="--sender-color:${senderColor};">${msg.senderName || 'مجهول'}</div>` : ''}
+                <div class="group-msg-bubble${isAI ? ' ai-group-msg' : ''}" data-key="${key}" oncontextmenu="showGroupMsgMenu(event,'${key}','${groupId}','${prefix}',\`${(msg.text||'').replace(/`/g,"'")}\`,${isMe})">
+                    ${replyHTML}
+                    ${isAI ? '<div style="font-size:0.68rem;color:#c4b5fd;margin-bottom:4px;"><i class="fas fa-robot"></i> SA AI</div>' : ''}
+                    ${msg.imageUrl ? `<img src="${msg.imageUrl}" style="max-width:100%;border-radius:8px;margin-bottom:4px;display:block;">` : ''}
+                    <div>${msg.text || ''}</div>
+                    <div class="group-msg-meta">
+                        <span>${timeStr}</span>
+                        ${isMe ? '<span class="msg-read-ticks"><i class="fas fa-check-double"></i></span>' : ''}
+                    </div>
+                </div>
+                <div class="msg-reactions" id="reactions-${key}"></div>
+            `;
+            
+            // Load reactions
+            if (msg.reactions) {
+                const reactEl = wrap.querySelector(`#reactions-${key}`);
+                const grouped = {};
+                Object.entries(msg.reactions).forEach(([uid, emoji]) => {
+                    grouped[emoji] = (grouped[emoji] || 0) + 1;
+                });
+                Object.entries(grouped).forEach(([emoji, count]) => {
+                    const pill = document.createElement('div');
+                    pill.className = `reaction-pill${msg.reactions[myUid]===emoji?' mine':''}`;
+                    pill.innerHTML = `${emoji} ${count}`;
+                    pill.onclick = () => addGroupReaction(groupId, key, emoji);
+                    reactEl.appendChild(pill);
+                });
+            }
+            
+            msgsContainer.appendChild(wrap);
+        });
+        
+        msgsContainer.scrollTop = msgsContainer.scrollHeight;
+    });
+    
+    // Update group last seen
+    update(ref(db, `groups/${groupId}/members/${myUid}`), { lastSeen: Date.now() });
+};
+
+window.toggleGroupMicSend = (groupId) => {
+    const input = document.getElementById(`group-chat-input-${groupId}`);
+    const send = document.getElementById(`group-send-btn-${groupId}`);
+    const mic = document.getElementById(`group-mic-btn-${groupId}`);
+    const has = input && input.value.trim().length > 0;
+    if (send) send.style.display = has ? 'flex' : 'none';
+    if (mic) mic.style.display = has ? 'none' : 'flex';
+};
+
+window.sendGroupMessage = async (groupId, prefix, textOverride) => {
+    const input = document.getElementById(`group-chat-input-${groupId}`);
+    const txt = textOverride || (input ? input.value.trim() : '');
+    if (!txt) return;
+    if (input) { input.value = ''; toggleGroupMicSend(groupId); }
+    
+    const msgData = {
+        text: txt,
+        senderUid: myUid,
+        senderName: currentUser,
+        time: Date.now(),
+        type: 'text'
+    };
+    
+    await push(ref(db, `group_messages/${groupId}`), msgData);
+    await update(ref(db, `groups/${groupId}`), { lastMsg: `${currentUser}: ${txt.substring(0,40)}`, lastMsgTime: Date.now() });
+    await update(ref(db, `user_groups/${myUid}/${groupId}`), { lastMsg: msgData.lastMsg||txt, lastMsgTime: Date.now() });
+    
+    // Update for all members
+    const groupSnap = await get(ref(db, `groups/${groupId}/members`));
+    if (groupSnap.exists()) {
+        const updatePromises = [];
+        groupSnap.forEach(m => {
+            if (m.key !== myUid) {
+                updatePromises.push(update(ref(db, `user_groups/${m.key}/${groupId}`), { lastMsg: `${currentUser}: ${txt.substring(0,40)}`, lastMsgTime: Date.now() }));
+            }
+        });
+        await Promise.all(updatePromises);
+    }
+    
+    playSound('sent');
+};
+
+window.askGroupAI = async (groupId, prefix) => {
+    const input = document.getElementById(`group-chat-input-${groupId}`);
+    const question = input ? input.value.trim() : '';
+    
+    if (!question) {
+        // Show AI prompt hint
+        if (input) { input.placeholder = 'اكتب سؤالك هنا...'; input.focus(); }
+        return;
+    }
+    
+    if (input) { input.value = ''; toggleGroupMicSend(groupId); }
+    
+    // Post user message first
+    await push(ref(db, `group_messages/${groupId}`), {
+        text: question, senderUid: myUid, senderName: currentUser, time: Date.now(), type: 'text'
+    });
+    
+    // Typing indicator
+    const typingId = 'typing_' + Date.now();
+    await set(ref(db, `group_messages/${groupId}/${typingId}`), {
+        text: '...', senderUid: 'ai', senderName: 'SA AI', isAI: true, isTyping: true, time: Date.now()
+    });
+    
+    try {
+        const response = await callPollinationsAI(`أنت مساعد تعليمي ذكي. أجب بالعربية بشكل مختصر ومفيد. السؤال: ${question}`);
+        await remove(ref(db, `group_messages/${groupId}/${typingId}`));
+        await push(ref(db, `group_messages/${groupId}`), {
+            text: response, senderUid: 'ai', senderName: 'SA AI', isAI: true, time: Date.now(), type: 'ai'
+        });
+        await update(ref(db, `groups/${groupId}`), { lastMsg: '🤖 SA AI رد على سؤال', lastMsgTime: Date.now() });
+    } catch(e) {
+        await remove(ref(db, `group_messages/${groupId}/${typingId}`));
+    }
+};
+
+window.addGroupReaction = async (groupId, msgKey, emoji) => {
+    const current = await get(ref(db, `group_messages/${groupId}/${msgKey}/reactions/${myUid}`));
+    if (current.exists() && current.val() === emoji) {
+        await remove(ref(db, `group_messages/${groupId}/${msgKey}/reactions/${myUid}`));
+    } else {
+        await set(ref(db, `group_messages/${groupId}/${msgKey}/reactions/${myUid}`), emoji);
+    }
+};
+
+window.showGroupMsgMenu = (e, key, groupId, prefix, text, isMe) => {
+    e.preventDefault();
+    const existing = document.getElementById('group-msg-ctx');
+    if (existing) existing.remove();
+    
+    const EMOJIS = ['👍','❤️','😂','😮','🔥','✅'];
+    const menu = document.createElement('div');
+    menu.id = 'group-msg-ctx';
+    menu.className = 'chat-plus-menu';
+    menu.style.cssText = `position:fixed;top:${e.clientY}px;right:${Math.max(10,window.innerWidth-e.clientX-200)}px;z-index:9999;`;
+    menu.innerHTML = `
+        <div style="display:flex;gap:6px;padding:6px;justify-content:center;">
+            ${EMOJIS.map(em => `<button onclick="addGroupReaction('${groupId}','${key}','${em}');document.getElementById('group-msg-ctx')?.remove()" style="font-size:1.3rem;background:none;border:none;cursor:pointer;padding:4px;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">${em}</button>`).join('')}
+        </div>
+        <hr style="border:none;border-top:1px solid #1f1f1f;margin:4px 0;">
+        <button onclick="replyToGroupMsg('${groupId}','${key}','${text}');document.getElementById('group-msg-ctx')?.remove()">
+            <i class="fas fa-reply" style="color:#60a5fa;"></i> رد
+        </button>
+        <button onclick="navigator.clipboard?.writeText(\`${text}\`).then(()=>showToast('تم النسخ','','success',1500));document.getElementById('group-msg-ctx')?.remove()">
+            <i class="fas fa-copy" style="color:#888;"></i> نسخ
+        </button>
+        ${isMe ? `<button onclick="remove(window._fbRef('group_messages/${groupId}/${key}'));document.getElementById('group-msg-ctx')?.remove()" style="color:#f87171;">
+            <i class="fas fa-trash"></i> حذف
+        </button>` : ''}
+    `;
+    document.body.appendChild(menu);
+    setTimeout(() => {
+        document.addEventListener('click', function h(e) {
+            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', h); }
+        });
+    }, 100);
+};
+
+// Expose firebase ref helper for inline delete
+window._fbRef = (path) => ref(db, path);
+
+window.replyToGroupMsg = (groupId, key, text) => {
+    const input = document.getElementById(`group-chat-input-${groupId}`);
+    if (!input) return;
+    input.dataset.replyKey = key;
+    input.dataset.replyText = text.substring(0,60);
+    input.dataset.replySender = currentUser;
+    input.placeholder = `رد على: ${text.substring(0,40)}...`;
+    input.focus();
+};
+
+window.closeGroupRoom = (prefix) => {
+    const win = document.getElementById(`${prefix}-chat-window`);
+    if (win) { win.classList.add('hidden'); win.innerHTML = ''; }
+    const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
+    if (sidebar) sidebar.classList.remove('hidden');
+};
+
+window.showGroupInfo = async (groupId, prefix) => {
+    const groupSnap = await get(ref(db, `groups/${groupId}`));
+    if (!groupSnap.exists()) return;
+    const group = groupSnap.val();
+    const members = group.members || {};
+    
+    const memberList = Object.entries(members).map(([uid, m]) => 
+        `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1a1a1a;">
+            <div style="width:32px;height:32px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;border:1px solid #222;">
+                <i class="fas fa-user" style="font-size:0.75rem;color:#888;"></i>
+            </div>
+            <div style="flex:1;font-size:0.85rem;">${m.name || uid}</div>
+            ${m.isAdmin ? '<span style="font-size:0.65rem;color:#f59e0b;background:rgba(245,158,11,0.1);padding:2px 8px;border-radius:20px;">أدمن</span>' : ''}
+        </div>`
+    ).join('');
+    
+    saAlert(`<div style="text-align:right;">
+        <div style="text-align:center;margin-bottom:14px;font-size:2rem;">${group.emoji}</div>
+        <strong>${group.name}</strong><br>
+        <span style="font-size:0.75rem;color:#666;">${group.desc || ''}</span>
+        <div style="margin-top:12px;font-size:0.8rem;color:#888;">الأعضاء (${Object.keys(members).length}):</div>
+        ${memberList}
+    </div>`, 'info');
+};
+
+window.toggleGroupAI = async (groupId) => {
+    const snap = await get(ref(db, `groups/${groupId}/enableAI`));
+    const current = snap.exists() ? snap.val() : true;
+    await set(ref(db, `groups/${groupId}/enableAI`), !current);
+    saAlert(!current ? '🤖 AI مفعّل في الجروب' : 'AI معطّل', 'success');
+};
+
+// ── Wrap original initDardasha to support tabs ──
+const _origInitDardasha = window.initDardasha || function(){};
+window.initDardasha_real = (prefix) => {
+    _origInitDardasha.call(window);
+};
+
+window.startGroupVoice = (groupId) => {
+    saAlert('الرسائل الصوتية في الجروبات ستتوفر قريباً 🎙️', 'info');
+};
+
+window.sendGroupImage = async (input, groupId, prefix) => {
+    if (!input.files[0]) return;
+    try {
+        const b64 = await getBase64(input.files[0]);
+        await push(ref(db, `group_messages/${groupId}`), {
+            text: '', imageUrl: b64, senderUid: myUid, senderName: currentUser, time: Date.now(), type: 'image'
+        });
+        await update(ref(db, `groups/${groupId}`), { lastMsg: `${currentUser}: 📷 صورة`, lastMsgTime: Date.now() });
+        playSound('sent');
+    } catch(e) { saAlert('فشل إرسال الصورة', 'error'); }
 };
