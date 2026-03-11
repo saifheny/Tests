@@ -363,7 +363,7 @@
                             <label for="t-ai-file" class="gemini-img-btn" title="إرفاق صورة"><i class="fas fa-camera"></i></label>
                             <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
                             
-                            <input type="text" id="t-ai-input" class="gemini-text-input" placeholder="اكتب، تخيل، أنشئ..." oninput="toggleAiSendMic('t', this.value)">
+                            <input type="text" id="t-ai-input" class="gemini-text-input" placeholder="اكتب، تخيل، أنشئ..." oninput="toggleAiSendMic('t', this.value)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMsg('t');}">
                             
                             <button id="t-mic-btn" class="gemini-mic-btn" onclick="startVoiceInput('t')" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
                             <button id="t-send-btn" onclick="sendAiMsg('t')" class="gemini-send-btn" style="display:none"><i class="fas fa-paper-plane"></i></button>
@@ -531,7 +531,7 @@
                             <label for="s-ai-file" class="gemini-img-btn" title="إرفاق صورة"><i class="fas fa-camera"></i></label>
                             <input type="file" id="s-ai-file" hidden accept="image/*" onchange="previewChatImg('s')">
                             
-                            <input type="text" id="s-ai-input" class="gemini-text-input" placeholder="اسألني عن أي شيء..." oninput="toggleAiSendMic('s', this.value)">
+                            <input type="text" id="s-ai-input" class="gemini-text-input" placeholder="اسألني عن أي شيء..." oninput="toggleAiSendMic('s', this.value)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMsg('s');}">
                             
                             <button id="s-mic-btn" class="gemini-mic-btn" onclick="startVoiceInput('s')" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
                             <button id="s-send-btn" onclick="sendAiMsg('s')" class="gemini-send-btn" style="display:none"><i class="fas fa-paper-plane"></i></button>
@@ -925,18 +925,23 @@
     <!-- ============ END DIRECT VOICE CALL ============ -->
 
     <script>
-    function toggleAiSendMic(role, value) {
-        const micBtn = document.getElementById(role + '-mic-btn');
-        const sendBtn = document.getElementById(role + '-send-btn');
-        if (!micBtn || !sendBtn) return;
-        if (value && value.trim()) {
-            micBtn.style.display = 'none';
-            sendBtn.style.display = 'flex';
-        } else {
-            micBtn.style.display = 'flex';
-            sendBtn.style.display = 'none';
-        }
-    }
+    // toggleAiSendMic is defined in script.js module — do not duplicate here
+
+    // Enter key support for AI chat inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        ['t-ai-input', 's-ai-input'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        var prefix = id.charAt(0); // 't' or 's'
+                        if (window.sendAiMsg) window.sendAiMsg(prefix);
+                    }
+                });
+            }
+        });
+    });
 
     let mediaRecorder = null;
     let isRecording = false;
