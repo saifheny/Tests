@@ -200,23 +200,33 @@
                         <div class="chat-sidebar-header">
                             <div class="my-chat-info" onclick="openMyProfileModal()">
                                 <div class="avatar-frame mini-frame" id="t-chat-my-avatar"></div>
-                                <span>دردشة</span>
+                                <span style="font-weight:700;">دردشة</span>
                             </div>
                             <div style="display:flex;gap:6px;align-items:center;">
                                 <button class="icon-btn-small voice-room-entry-btn" onclick="openVoiceRooms()" title="غرف الصوت">
                                     <i class="ph-bold ph-microphone"></i>
                                 </button>
-                                <button class="icon-btn-small" onclick="toggleUserSearchModal()"><i class="fas fa-plus"></i></button>
+                                <button class="icon-btn-small" onclick="showChatPlusMenu('t')" title="جديد" style="background:rgba(59,130,246,0.15);color:#60a5fa;border-color:rgba(59,130,246,0.3);">
+                                    <i class="fas fa-plus"></i>
+                                </button>
                             </div>
+                        </div>
+                        <!-- Chat type tabs -->
+                        <div class="chat-type-tabs" id="t-chat-type-tabs">
+                            <button class="chat-type-tab active" onclick="switchChatTab('t','chats',this)">
+                                <i class="fas fa-comment-dots"></i> المحادثات
+                            </button>
+                            <button class="chat-type-tab" onclick="switchChatTab('t','groups',this)">
+                                <i class="fas fa-users"></i> الجروبات
+                            </button>
                         </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="بحث في المحادثات..." onkeyup="filterChats('t', this.value)">
+                            <input type="text" placeholder="بحث..." onkeyup="filterChats('t', this.value)">
                         </div>
                         <div class="chat-list" id="t-chat-list"></div>
                     </div>
-                    <div class="chat-window hidden" id="t-chat-window">
-                    </div>
+                    <div class="chat-window hidden" id="t-chat-window"></div>
                 </div>
             </section>
 
@@ -495,18 +505,28 @@
                         <div class="chat-sidebar-header">
                             <div class="my-chat-info" onclick="openMyProfileModal()">
                                 <div class="avatar-frame mini-frame" id="s-chat-my-avatar"></div>
-                                <span>دردشة</span>
+                                <span style="font-weight:700;">دردشة</span>
                             </div>
                             <div style="display:flex;gap:6px;align-items:center;">
                                 <button class="icon-btn-small voice-room-entry-btn" onclick="openVoiceRooms()" title="غرف الصوت">
                                     <i class="ph-bold ph-microphone"></i>
                                 </button>
-                                <button class="icon-btn-small" onclick="toggleUserSearchModal()"><i class="fas fa-plus"></i></button>
+                                <button class="icon-btn-small" onclick="showChatPlusMenu('s')" title="جديد" style="background:rgba(59,130,246,0.15);color:#60a5fa;border-color:rgba(59,130,246,0.3);">
+                                    <i class="fas fa-plus"></i>
+                                </button>
                             </div>
+                        </div>
+                        <div class="chat-type-tabs" id="s-chat-type-tabs">
+                            <button class="chat-type-tab active" onclick="switchChatTab('s','chats',this)">
+                                <i class="fas fa-comment-dots"></i> المحادثات
+                            </button>
+                            <button class="chat-type-tab" onclick="switchChatTab('s','groups',this)">
+                                <i class="fas fa-users"></i> الجروبات
+                            </button>
                         </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="بحث في المحادثات..." onkeyup="filterChats('s', this.value)">
+                            <input type="text" placeholder="بحث..." onkeyup="filterChats('s', this.value)">
                         </div>
                         <div class="chat-list" id="s-chat-list"></div>
                     </div>
