@@ -5709,3 +5709,96 @@ animation: shakeField 0.4s ease;
     padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
   }
 }
+
+/* ══════════════════════════════════════
+   BUG FIXES - Chat & Mobile & AI Avatar
+   ══════════════════════════════════════ */
+
+/* Fix: Chat header always shows all buttons on mobile */
+.chat-header {
+    flex-wrap: nowrap;
+    overflow: visible !important;
+    min-height: 56px;
+}
+.chat-header .icon-btn-small,
+.chat-header button {
+    flex-shrink: 0;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+@media (max-width: 600px) {
+    .chat-header {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+    .chat-header .icon-btn-small {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+    }
+    .chat-header div[style*="margin-right:auto"] {
+        margin-right: auto !important;
+        display: flex !important;
+    }
+}
+
+/* Fix: AI message avatar row */
+.ai-msg-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding: 0 2px;
+}
+.ai-msg-logo-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(59,130,246,0.3);
+    background: #111;
+    flex-shrink: 0;
+}
+.ai-sender-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-primary, #3b82f6);
+    letter-spacing: 0.03em;
+}
+
+/* Fix: Ensure AI full-msg has proper spacing */
+.ai-full-msg {
+    padding: 12px 16px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.ai-full-msg:last-child {
+    border-bottom: none;
+}
+
+/* Fix: Scroll chat messages area properly */
+.ai-messages {
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fix: Ensure the chat window on mobile fills properly */
+@media (max-width: 768px) {
+    .chat-window {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 400 !important;
+        display: flex;
+        flex-direction: column;
+    }
+    .chat-msgs-area {
+        flex: 1;
+        overflow-y: auto;
+    }
+    .chat-input-area {
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+    }
+}
