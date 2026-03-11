@@ -4329,12 +4329,14 @@ window.openGroupRoom = async (groupId, prefix) => {
     `;
 
     // ── Listen for messages ──
-    const msgsContainer = document.getElementById(`group-msgs-${groupId}`);
     const MEMBER_COLORS = ['#60a5fa','#34d399','#f59e0b','#f87171','#a78bfa','#fb923c','#22d3ee','#4ade80'];
     const colorMap = {};
     let memberColorIdx = 0;
 
     const listener = onValue(ref(db, `group_messages/${groupId}`), (snap) => {
+        // Always re-fetch the container — avoids stale DOM reference after re-renders
+        const msgsContainer = document.getElementById(`group-msgs-${groupId}`);
+        if (!msgsContainer) return; // container was removed (room closed), abort safely
         msgsContainer.innerHTML = '';
 
         if (!snap.exists()) {
@@ -4600,24 +4602,55 @@ window.sendGroupMessage = async (groupId, prefix, textOverride) => {
 
     if (input) { input.value = ''; toggleGroupMicSend(groupId); }
 
+    // ── Optimistic UI: show the message immediately without waiting for Firebase ──
+    const msgsNow = document.getElementById(`group-msgs-${groupId}`);
+    if (msgsNow) {
+        // Remove empty-state placeholder if present
+        const placeholder = msgsNow.querySelector('div[style*="text-align:center"]');
+        if (placeholder) placeholder.remove();
+
+        const optWrap = document.createElement('div');
+        optWrap.className = 'group-msg-wrap me';
+        optWrap.id = `opt-msg-${Date.now()}`;
+        optWrap.innerHTML = `
+            <div class="group-msg-bubble">
+                <div style="word-break:break-word;">${txt}</div>
+                <div class="group-msg-meta" style="justify-content:flex-end;">
+                    <span>${new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</span>
+                    <span class="msg-read-ticks"><i class="fas fa-clock" style="font-size:0.55rem;opacity:0.5;"></i></span>
+                </div>
+            </div>
+            <div class="msg-reactions"></div>
+        `;
+        msgsNow.appendChild(optWrap);
+        msgsNow.scrollTop = msgsNow.scrollHeight;
+        playSound('sent');
+    }
+
     const msgData = {
         text: txt, senderUid: myUid, senderName: currentUser,
         time: Date.now(), type: 'text',
         ...(replyData ? { replyTo: replyData } : {})
     };
 
-    const msgRef = await push(ref(db, `group_messages/${groupId}`), msgData);
-    const shortMsg = `${currentUser}: ${txt.substring(0,40)}`;
-    await update(ref(db, `groups/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() });
+    try {
+        const msgRef = await push(ref(db, `group_messages/${groupId}`), msgData);
+        const shortMsg = `${currentUser}: ${txt.substring(0,40)}`;
+        await update(ref(db, `groups/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() });
 
-    // Notify all members
-    const membersSnap = await get(ref(db, `groups/${groupId}/members`));
-    if (membersSnap.exists()) {
-        const ups = [];
-        membersSnap.forEach(m => ups.push(update(ref(db, `user_groups/${m.key}/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() })));
-        await Promise.all(ups);
+        // Notify all members
+        const membersSnap = await get(ref(db, `groups/${groupId}/members`));
+        if (membersSnap.exists()) {
+            const ups = [];
+            membersSnap.forEach(m => ups.push(update(ref(db, `user_groups/${m.key}/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() })));
+            await Promise.all(ups);
+        }
+    } catch (firebaseErr) {
+        console.error('Group message send error:', firebaseErr);
+        // Remove optimistic message on failure
+        const optEl = document.getElementById(`opt-msg-${Date.now()}`);
+        if (optEl) optEl.remove();
     }
-    playSound('sent');
 
     // ── AI auto-response: if group has AI enabled and message mentions @AI or starts with /ai ──
     const groupInfoSnap = await get(ref(db, `groups/${groupId}/enableAI`));
@@ -4764,6 +4797,13 @@ window.cancelReply = (groupId) => {
 };
 
 window.closeGroupRoom = (prefix) => {
+    // Unsubscribe the Firebase listener BEFORE clearing innerHTML
+    // to prevent the callback from firing on a detached/orphaned msgsContainer
+    if (window._activeGroupListener) {
+        window._activeGroupListener();
+        window._activeGroupListener = null;
+    }
+    window._activeGroupId = null;
     const win = document.getElementById(`${prefix}-chat-window`);
     if (win) { win.classList.add('hidden'); win.innerHTML = ''; }
     const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
