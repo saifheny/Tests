@@ -2084,11 +2084,18 @@ function formatAiResponseText(text) {
 
 function renderMessageUI(prefix, role, text, imgB64) {
     const msgs = document.getElementById(`${prefix}-ai-msgs`);
+    if (!msgs) return;
 
     if (role === 'ai') {
-        // AI: no bubble - full width like ChatGPT
+        // AI: full width like ChatGPT with platform logo avatar
         const wrap = document.createElement('div');
         wrap.className = 'ai-full-msg';
+
+        // Avatar row
+        const avatarRow = document.createElement('div');
+        avatarRow.className = 'ai-msg-avatar-row';
+        avatarRow.innerHTML = `<img src="https://i.postimg.cc/BQQb5YDn/MOWU-DESIGN.png" class="ai-msg-logo-avatar" alt="SA AI" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ai-avatar-gemini" style="display:none"><div class="ai-avatar-gemini-inner"><i class="fas fa-wand-magic-sparkles"></i></div></div><span class="ai-sender-label">SA AI</span>`;
+        wrap.appendChild(avatarRow);
 
         const content = document.createElement('div');
         content.className = 'ai-full-content';
@@ -2851,13 +2858,15 @@ window.sendAiMsg = async (prefix) => {
     const input = document.getElementById(`${prefix}-ai-input`); 
     const fileInput = document.getElementById(`${prefix}-ai-file`);
     const msgs = document.getElementById(`${prefix}-ai-msgs`); 
+    if (!input || !msgs) return;
     let txt = input.value.trim();
     
-    if(!txt && !fileInput.files[0]) return;
+    const hasFile = fileInput && fileInput.files && fileInput.files[0];
+    if(!txt && !hasFile) return;
     
     playSound('sent');
 
-    if (!fileInput.files[0]) {
+    if (!fileInput || !fileInput.files[0]) {
         if (txt.includes("أنشئ اختبار") || txt.includes("create exam") || txt.includes("امتحان")) {
             if(selectedRole !== 'teacher') {
                 return saAlert("عذراً، هذه الميزة للمعلمين فقط.", "error");
@@ -2881,7 +2890,7 @@ window.sendAiMsg = async (prefix) => {
     let imgB64 = null;
     let ocrText = "";
 
-    if(fileInput.files[0]) {
+    if(hasFile) {
         const ocrLoadId = 'ocr-loading-' + Date.now();
         const ocrLoader = document.createElement('div');
         ocrLoader.className = 'chat-msg ai';
@@ -2997,7 +3006,8 @@ window.sendAiMsg = async (prefix) => {
 
         if (_cached && !_forceNew) {
             playSound('recv');
-            document.getElementById(loadId).remove();
+            const loaderElCached = document.getElementById(loadId);
+            if (loaderElCached) loaderElCached.remove();
             currentChatMessages.push({ role: 'ai', content: _cached, image: null });
             renderMessageUI(prefix, 'ai', _cached, null);
             saveChatToLocal();
@@ -3038,14 +3048,16 @@ window.sendAiMsg = async (prefix) => {
         }
         
         playSound('recv');
-        document.getElementById(loadId).remove();
+        const loaderEl = document.getElementById(loadId);
+        if (loaderEl) loaderEl.remove();
         currentChatMessages.push({ role: 'ai', content: reply, image: null });
         renderMessageUI(prefix, 'ai', reply, null); 
         saveChatToLocal();
     } catch (e) { 
-        document.getElementById(loadId).innerHTML = `
+        const loaderEl = document.getElementById(loadId);
+        if (loaderEl) loaderEl.innerHTML = `
             <div class="ai-msg-avatar"><i class="fas fa-exclamation" style="font-size:0.7rem;color:#ef4444;"></i></div>
-            <div class="chat-msg ai" style="color:#ef4444;">حدث خطأ في الاتصال بالذكاء الاصطناعي.</div>
+            <div class="chat-msg ai" style="color:#ef4444;">حدث خطأ في الاتصال بالذكاء الاصطناعي. تأكد من اتصالك بالإنترنت وحاول مجدداً.</div>
         `; 
         console.error(e);
     }
