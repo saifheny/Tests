@@ -4131,21 +4131,7 @@ animation: shakeField 0.4s ease;
    PATCH v5.0 — AI full-width + 3D buttons
    ══════════════════════════════════════════ */
 
-/* ── AI MESSAGES: ChatGPT style, no bubble ── */
-.ai-full-msg {
-    width: 100%;
-    padding: 18px 0 8px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    animation: msgFade 0.3s ease;
-}
-.ai-full-content {
-    font-size: 0.97rem;
-    line-height: 1.75;
-    color: #e0e0e0;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    width: 100%;
-}
+/* ── AI MESSAGES: legacy overridden by newer block below ── */
 .ai-full-content strong { color: #fff; font-weight: 700; }
 .ai-full-content ul  { padding-right: 20px; margin: 8px 0; }
 .ai-full-content li  { margin-bottom: 5px; }
@@ -4688,24 +4674,25 @@ animation: shakeField 0.4s ease;
 
 /* ─── AI CHAT MAJOR UPGRADE ─────────────────────────────────── */
 
-/* AI message — full-width like ChatGPT */
+/* AI message row */
 .ai-full-msg {
   display: flex !important;
-  gap: 14px !important;
+  gap: 12px !important;
   align-items: flex-start !important;
-  padding: 14px 4px !important;
+  padding: 6px 4px !important;
   animation: aiMsgSlide 0.3s cubic-bezier(0.34,1.4,0.64,1) both;
-  border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+  border-bottom: none !important;
+  margin-bottom: 6px;
 }
 @keyframes aiMsgSlide {
   from { opacity:0; transform:translateY(12px); }
   to   { opacity:1; transform:translateY(0); }
 }
 
-/* AI avatar chip */
-.ai-full-msg::before {
-  content: '✦';
-  min-width: 30px; height: 30px;
+/* AI avatar icon - explicit element now */
+.ai-msg-avatar {
+  min-width: 30px;
+  height: 30px;
   border-radius: 8px;
   background: linear-gradient(135deg,#6d28d9,#d946ef);
   display: flex;
@@ -4714,13 +4701,25 @@ animation: shakeField 0.4s ease;
   font-size: 0.72rem;
   color: #fff;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 4px;
   box-shadow: 0 2px 10px rgba(217,70,239,0.25);
 }
 
+/* AI message card/container */
+.ai-msg-card {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 4px 16px 16px 16px;
+  padding: 12px 16px;
+  min-width: 0;
+}
+
+/* Remove old ::before pseudo-element */
+.ai-full-msg::before { display: none !important; content: none !important; }
+
 /* AI text content */
 .ai-full-content {
-  flex: 1;
   font-size: 0.96rem;
   line-height: 1.78;
   color: #dde4f0;
@@ -4777,7 +4776,8 @@ animation: shakeField 0.4s ease;
   opacity: 0;
   transition: opacity 0.18s;
 }
-.ai-full-msg:hover .ai-full-actions { opacity: 1; }
+.ai-full-msg:hover .ai-full-actions,
+.ai-msg-card:hover .ai-full-actions { opacity: 1; }
 .ai-act-btn {
   background: none;
   border: none;
