@@ -1876,81 +1876,14 @@ window.startNewChat = (prefix) => {
 window.renderAiWelcome = (prefix) => {
     const msgs = document.getElementById(`${prefix}-ai-msgs`);
     const firstName = currentUser.split(' ')[0];
-
-    const teacherChipSets = [
-        [
-            { icon: 'fa-flask', label: 'إنشاء اختبار', prompt: 'أنشئ اختبار عن الكيمياء العضوية' },
-            { icon: 'fa-book', label: 'تحضير درس', prompt: 'اكتب خطة درس متكاملة عن التاريخ الحديث' },
-            { icon: 'fa-users', label: 'تفاعل الطلاب', prompt: 'كيف أجعل الحصة تفاعلية أكثر؟' },
-            { icon: 'fa-chart-bar', label: 'أساليب تقييم', prompt: 'اقترح لي أساليب تقييم مبتكرة' },
-        ],
-        [
-            { icon: 'fa-pen', label: 'تصحيح إجابات', prompt: 'كيف أصحح إجابات الطلاب بعدالة؟' },
-            { icon: 'fa-bullhorn', label: 'تحفيز الطلاب', prompt: 'أعطني أفكاراً لتحفيز الطلاب على المشاركة' },
-            { icon: 'fa-calendar', label: 'جدول مراجعة', prompt: 'صمم لي جدول مراجعة شهري للمادة' },
-            { icon: 'fa-lightbulb', label: 'فكرة نشاط', prompt: 'اقترح نشاطاً تعليمياً مميزاً للفصل' },
-        ],
-        [
-            { icon: 'fa-comments', label: 'أسئلة نقاش', prompt: 'اكتب أسئلة نقاش مثيرة للتفكير عن البيئة' },
-            { icon: 'fa-star', label: 'أفضل الممارسات', prompt: 'ما أفضل ممارسات التعليم الحديث؟' },
-            { icon: 'fa-file-alt', label: 'ملخص للطلاب', prompt: 'لخص درس الضوء والبصريات بأسلوب بسيط' },
-            { icon: 'fa-brain', label: 'خرائط ذهنية', prompt: 'ساعدني في إنشاء خريطة ذهنية عن العلوم' },
-        ],
-    ];
-
-    const studentChipSets = [
-        [
-            { icon: 'fa-atom', label: 'شرح درس', prompt: 'اشرح لي قانون نيوتن الثاني ببساطة' },
-            { icon: 'fa-history', label: 'تلخيص', prompt: 'لخص لي أحداث الحرب العالمية الأولى' },
-            { icon: 'fa-clock', label: 'تنظيم الوقت', prompt: 'ساعدني في تنظيم وقت المذاكرة' },
-            { icon: 'fa-dna', label: 'مقارنة علمية', prompt: 'ما الفرق بين الخلية الحيوانية والنباتية؟' },
-        ],
-        [
-            { icon: 'fa-calculator', label: 'حل رياضيات', prompt: 'اشرح لي حل المعادلات التربيعية خطوة بخطوة' },
-            { icon: 'fa-book-open', label: 'فهم النص', prompt: 'ساعدني في تحليل نص أدبي' },
-            { icon: 'fa-flask', label: 'تجربة علمية', prompt: 'اشرح لي كيف تعمل عملية التمثيل الضوئي' },
-            { icon: 'fa-globe', label: 'جغرافيا', prompt: 'أخبرني عن أهم الأنهار في العالم' },
-        ],
-        [
-            { icon: 'fa-pencil-alt', label: 'تدريب كتابة', prompt: 'ساعدني في كتابة مقال عن التكنولوجيا' },
-            { icon: 'fa-question-circle', label: 'أسئلة اختبار', prompt: 'اصنع لي أسئلة تدريبية على درس الكيمياء' },
-            { icon: 'fa-lightbulb', label: 'نصائح مذاكرة', prompt: 'أعطني أفضل النصائح لتذكر المعلومات' },
-            { icon: 'fa-chart-line', label: 'تحسين نتائج', prompt: 'كيف أحسن نتائجي في الامتحانات؟' },
-        ],
-    ];
-
-    const chipSets = selectedRole === 'teacher' ? teacherChipSets : studentChipSets;
-    const roleDesc = selectedRole === 'teacher'
-        ? 'إنشاء اختبارات، تحضير دروس، وإدارة طلابك بذكاء.'
-        : 'شرح دروس، حل مسائل، وتلخيص المواد الدراسية.';
-
-    let currentSetIdx = Math.floor(Math.random() * chipSets.length);
-
-    function buildChips(setIdx) {
-        return chipSets[setIdx].map(c =>
-            `<div class="ai-chip-v2" onclick="window._selectAiChip('${prefix}', '${c.prompt.replace(/'/g,"\\'")}', this)">
-                <i class="fas ${c.icon}"></i><span>${c.label}</span>
-            </div>`
-        ).join('');
-    }
-
     msgs.innerHTML = `
         <div class="ai-welcome-screen">
             <div class="ai-avatar-gemini">
                 <div class="ai-avatar-gemini-inner"><i class="fas fa-wand-magic-sparkles"></i></div>
             </div>
             <h3 class="ai-welcome-title">مرحباً ${firstName} 👋</h3>
-            <p class="ai-welcome-text">أنا <strong>SA AI</strong> — مساعدك الذكي.<br>${roleDesc}</p>
-            <div class="ai-welcome-chips-grid" id="${prefix}-chips-grid">
-                ${buildChips(currentSetIdx)}
-            </div>
+            <p class="ai-welcome-text">أنا <strong>SA AI</strong> — اسألني أي شيء</p>
         </div>`;
-
-    // Store state on grid element for chip rotation
-    const grid = document.getElementById(`${prefix}-chips-grid`);
-    grid._setIdx = currentSetIdx;
-    grid._chipSets = chipSets;
-    grid._prefix = prefix;
 };
 
 window._selectAiChip = (prefix, prompt, chipEl) => {
@@ -2111,9 +2044,18 @@ function renderMessageUI(prefix, role, text, imgB64) {
     const msgs = document.getElementById(`${prefix}-ai-msgs`);
 
     if (role === 'ai') {
-        // AI: no bubble - full width like ChatGPT
         const wrap = document.createElement('div');
         wrap.className = 'ai-full-msg';
+
+        // Avatar icon
+        const avatar = document.createElement('div');
+        avatar.className = 'ai-msg-avatar';
+        avatar.innerHTML = '✦';
+        wrap.appendChild(avatar);
+
+        // Content card
+        const card = document.createElement('div');
+        card.className = 'ai-msg-card';
 
         const content = document.createElement('div');
         content.className = 'ai-full-content';
@@ -2126,7 +2068,7 @@ function renderMessageUI(prefix, role, text, imgB64) {
             content.appendChild(img);
         }
 
-        wrap.appendChild(content);
+        card.appendChild(content);
 
         if (text) {
             const actions = document.createElement('div');
@@ -2143,9 +2085,10 @@ function renderMessageUI(prefix, role, text, imgB64) {
                     <i class="ph-bold ph-share-network"></i>
                 </button>
             `;
-            wrap.appendChild(actions);
+            card.appendChild(actions);
         }
 
+        wrap.appendChild(card);
         msgs.appendChild(wrap);
     } else {
         // User: bubble on right
@@ -3039,12 +2982,12 @@ window.sendAiMsg = async (prefix) => {
         if (selectedRole === 'student') {
             finalPrompt += 'أنت SA AI مساعد دراسي ذكي.\n'
                 + deepProfile + '\n'
-                + 'قواعد: افهم العامية والأخطاء الإملائية بدون تعليق. ' + style
+                + 'قواعد صارمة: أجب فقط على ما يُسأل منك. لا تقترح أشياء أخرى. لا تقل "هل تريد مني أن...". لا تذكر قدراتك أو خدماتك. افهم العامية والأخطاء الإملائية بدون تعليق. ' + style
                 + ' أجب بالعربية فقط.\n';
         } else {
             finalPrompt += 'أنت SA AI مساعد معلمين ذكي.\n'
                 + deepProfile + '\n'
-                + 'قواعد: افهم الأخطاء الإملائية بدون تعليق. ' + style
+                + 'قواعد صارمة: أجب فقط على ما يُسأل منك. لا تقترح أشياء أخرى. لا تقل "هل تريد مني أن...". لا تذكر قدراتك أو خدماتك. افهم الأخطاء الإملائية بدون تعليق. ' + style
                 + ' أجب بالعربية فقط.\n';
         }
 
@@ -4134,9 +4077,11 @@ window.loadGroupsList = (prefix) => {
         try { _chatTabListeners[listenerKey](); } catch(e) {}
     }
     
-    const unsub = onValue(ref(db, `user_groups/${myUid}`), async (snap) => {
+    list.innerHTML = getMultipleSkeletons(3);
+    
+    const unsub = onValue(ref(db, `user_groups/${myUid}`), (snap) => {
         const currentList = document.getElementById(`${prefix}-chat-list`);
-        if (!currentList) return; // DOM removed
+        if (!currentList) return;
         currentList.innerHTML = '';
         if (!snap.exists()) {
             currentList.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#444;">
@@ -4153,26 +4098,15 @@ window.loadGroupsList = (prefix) => {
         snap.forEach(g => entries.push({ id: g.key, ...g.val() }));
         entries.sort((a,b) => (b.lastMsgTime||0) - (a.lastMsgTime||0));
         
-        // Fetch full group data for photos
-        for (const g of entries) {
+        // Render immediately without sequential async calls
+        entries.forEach(g => {
             const item = document.createElement('div');
             item.className = 'group-list-item';
             const timeStr = g.lastMsgTime ? new Date(g.lastMsgTime).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }) : '';
-            
-            // Try to get group photo from Firebase
-            let avatarHTML = '';
-            try {
-                const gSnap = await get(ref(db, `groups/${g.id}/photoBase64`));
-                const photo = gSnap.exists() ? gSnap.val() : null;
-                if (photo) {
-                    avatarHTML = `<div class="group-avatar" style="overflow:hidden;padding:0;"><img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;"><div class="group-type-badge">👥</div></div>`;
-                } else {
-                    avatarHTML = `<div class="group-avatar">${g.emoji || '👥'}<div class="group-type-badge">👥</div></div>`;
-                }
-            } catch(e) {
-                avatarHTML = `<div class="group-avatar">${g.emoji || '👥'}<div class="group-type-badge">👥</div></div>`;
-            }
-            
+            // Use photo if cached in user_groups node, else emoji
+            const avatarHTML = g.photoBase64
+                ? `<div class="group-avatar" style="overflow:hidden;padding:0;"><img src="${g.photoBase64}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;"><div class="group-type-badge">👥</div></div>`
+                : `<div class="group-avatar">${g.emoji || '👥'}<div class="group-type-badge">👥</div></div>`;
             item.innerHTML = `
                 ${avatarHTML}
                 <div class="group-info">
@@ -4185,7 +4119,7 @@ window.loadGroupsList = (prefix) => {
             `;
             item.onclick = () => openGroupRoom(g.id, prefix);
             currentList.appendChild(item);
-        }
+        });
     });
     _chatTabListeners[listenerKey] = unsub;
     _chatTabListeners[prefix] = unsub;
@@ -4749,7 +4683,9 @@ window.toggleGroupAI = async (groupId) => {
 window.initDardasha_real = (prefix) => {
     const list = document.getElementById(`${prefix}-chat-list`);
     if (!list) return;
-    list.innerHTML = '';
+    
+    // Show skeleton immediately
+    list.innerHTML = getMultipleSkeletons(3);
     
     // Cleanup any existing listener for this prefix
     const listenerKey = `chats_${prefix}`;
@@ -4759,7 +4695,7 @@ window.initDardasha_real = (prefix) => {
     
     const unsub = onValue(ref(db, `user_chats/${myUid}`), (snap) => {
         const currentList = document.getElementById(`${prefix}-chat-list`);
-        if (!currentList) return; // DOM was removed, stop processing
+        if (!currentList) return;
         currentList.innerHTML = '';
         if (!snap.exists()) {
             currentList.innerHTML = getEmptyStateHTML('chats');
@@ -4787,7 +4723,7 @@ window.initDardasha_real = (prefix) => {
         });
     });
     _chatTabListeners[listenerKey] = unsub;
-    _chatTabListeners[prefix] = unsub; // also track by prefix key
+    _chatTabListeners[prefix] = unsub;
 };
 
 window.startGroupVoice = (groupId) => {
