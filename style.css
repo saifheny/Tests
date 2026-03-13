@@ -490,13 +490,24 @@ background-color: #000;
 -webkit-overflow-scrolling: touch;
 }
 .chat-input-area {
-padding: 10px 12px;
-background: #0a0a0a;
+padding: 10px 14px;
+background: #111;
 display: flex;
 align-items: center;
 gap: 8px;
-border-top: 1px solid rgba(255,255,255,0.06);
+border-top: 1px solid #222;
 flex-shrink: 0;
+width: 100%;
+min-height: 62px;
+position: relative;
+}
+@media (min-width: 769px) {
+  .chat-input-area {
+    padding: 12px 20px;
+    background: #0f0f0f;
+    border-top: 1px solid #1e1e1e;
+    gap: 10px;
+  }
 }
 .chat-input-area input {
 flex: 1;
@@ -5824,4 +5835,266 @@ animation: shakeField 0.4s ease;
     overflow-y: auto;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
+}
+
+/* ══════════════════════════════════════════════════════════
+   DESKTOP WHATSAPP WEB STYLE — FULL WIDTH CHAT INPUT
+   ══════════════════════════════════════════════════════════ */
+
+@media (min-width: 769px) {
+  /* Chat layout fills full available space */
+  .chat-layout {
+    height: calc(100vh - var(--nav-height)) !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    border: 1px solid #1e1e1e !important;
+  }
+
+  /* Sidebar fixed width */
+  .chat-sidebar {
+    width: 320px !important;
+    min-width: 320px !important;
+    flex-shrink: 0 !important;
+    border-left: 1px solid #1a1a1a !important;
+  }
+
+  /* Chat window takes remaining space */
+  .chat-window {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    position: static !important;
+    transform: none !important;
+    min-width: 0 !important;
+  }
+
+  /* Messages area stretches */
+  .chat-msgs-area {
+    flex: 1 !important;
+    overflow-y: auto !important;
+  }
+
+  /* Input area full width at bottom — like WhatsApp Web */
+  .chat-input-area {
+    position: sticky !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    z-index: 10 !important;
+    background: #111 !important;
+    border-top: 1px solid #1e1e1e !important;
+    padding: 12px 20px !important;
+  }
+
+  /* Input field fills available space */
+  .chat-input-area input {
+    flex: 1 !important;
+    min-width: 0 !important;
+    background: #1a1a1a !important;
+    border-radius: 24px !important;
+    padding: 12px 18px !important;
+  }
+
+  /* Portal container for dardasha section */
+  #t-dardasha.app-section,
+  #s-dardasha.app-section {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   CHAT MESSAGES — TELEGRAM / WHATSAPP STYLE
+   ══════════════════════════════════════════════════════════ */
+
+/* WhatsApp-style sent bubble */
+.wapp-msg-wrap.me .wapp-msg {
+  background: #005c4b !important;
+  color: #e9edef !important;
+  border-radius: 12px 4px 12px 12px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+/* WhatsApp-style received bubble */
+.wapp-msg-wrap.them .wapp-msg {
+  background: #1e2a30 !important;
+  color: #e9edef !important;
+  border-radius: 4px 12px 12px 12px !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+}
+
+/* Message tail for sent */
+.wapp-msg-wrap.me .wapp-msg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  border: 8px solid transparent;
+  border-top-color: #005c4b;
+  border-right-color: #005c4b;
+}
+
+/* Message tail for received */
+.wapp-msg-wrap.them .wapp-msg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -8px;
+  border: 8px solid transparent;
+  border-top-color: #1e2a30;
+  border-left-color: #1e2a30;
+}
+
+.wapp-msg {
+  position: relative;
+  max-width: 80%;
+  padding: 8px 12px 6px;
+  margin-bottom: 2px;
+  border-radius: 12px;
+  font-size: 0.93rem;
+  line-height: 1.45;
+  word-wrap: break-word;
+}
+
+.wapp-msg-wrap {
+  display: flex;
+  flex-direction: column;
+  padding: 1px 14px;
+}
+.wapp-msg-wrap.me { align-items: flex-end; }
+.wapp-msg-wrap.them { align-items: flex-start; }
+
+/* Message time row */
+.msg-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+  margin-top: 2px;
+}
+.msg-time-wapp {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.45);
+}
+
+/* Telegram-style voice message */
+.wapp-voice-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  min-width: 180px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   AI CHAT — CHATGPT / GEMINI STYLE
+   ══════════════════════════════════════════════════════════ */
+
+.ai-messages {
+  padding: 12px 0 !important;
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 769px) {
+  .ai-messages {
+    padding: 20px 24px !important;
+  }
+  .gemini-input-wrapper {
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+/* AI message — left side, full width */
+.ai-full-msg {
+  display: flex !important;
+  gap: 14px !important;
+  align-items: flex-start !important;
+  padding: 16px 16px 8px !important;
+  width: 100% !important;
+  border-bottom: 1px solid rgba(255,255,255,0.03) !important;
+}
+
+/* User message — right side bubble */
+.chat-msg-wrap.user {
+  display: flex !important;
+  justify-content: flex-end !important;
+  padding: 4px 16px !important;
+}
+
+.chat-msg.user {
+  background: linear-gradient(135deg, #1e40af, #2563eb) !important;
+  max-width: 75% !important;
+  border-radius: 18px 4px 18px 18px !important;
+  padding: 11px 16px !important;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.3) !important;
+  font-size: 0.94rem !important;
+  line-height: 1.6 !important;
+  word-wrap: break-word !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   HIDE GROUPS-RELATED ELEMENTS
+   ══════════════════════════════════════════════════════════ */
+.chat-type-tabs,
+.group-list-item,
+.group-avatar,
+.group-info,
+.group-msg-wrap,
+.create-group-overlay,
+#create-group-overlay {
+  display: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   VOICE RECORDING INDICATOR IN AI
+   ══════════════════════════════════════════════════════════ */
+.gemini-mic-btn.recording {
+  background: rgba(239,68,68,0.25) !important;
+  color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  animation: micPulse 1s infinite !important;
+  position: relative;
+}
+.gemini-mic-btn.recording::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(239,68,68,0.3);
+  animation: micRing 1s ease-out infinite;
+}
+@keyframes micRing {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* Voice recording status bar in AI */
+.ai-voice-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(239,68,68,0.1);
+  border-top: 1px solid rgba(239,68,68,0.2);
+  font-size: 0.82rem;
+  color: #f87171;
+}
+.ai-voice-status .voice-wave-anim {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.ai-voice-status .voice-wave-anim span {
+  display: block;
+  width: 3px;
+  background: #ef4444;
+  border-radius: 2px;
+  animation: waveAnim 0.8s ease-in-out infinite alternate;
 }
