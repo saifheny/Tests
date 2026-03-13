@@ -1083,27 +1083,26 @@ function initDardasha() {
         }
         
         const chats = snap.val();
-        
-        const chatEntries = Object.entries(chats);
-        chatEntries.forEach(([chatId, chatInfo], index) => {
+        const chatEntries = Object.entries(chats).sort((a,b) => (b[1].lastMsgTime||0) - (a[1].lastMsgTime||0));
+        chatEntries.forEach(([chatId, chatInfo]) => {
             const el = document.createElement('div');
             el.className = 'chat-item';
             el.onclick = () => openChatRoom(chatId, chatInfo.otherName, chatInfo.otherIcon, chatInfo.otherUid);
+            const timeStr = chatInfo.lastMsgTime ? new Date(chatInfo.lastMsgTime).toLocaleTimeString('ar-EG', {hour: '2-digit', minute:'2-digit'}) : '';
+            const lastMsg = chatInfo.lastMsg ? (chatInfo.lastMsg.includes('data:image') ? '📷 صورة' : chatInfo.lastMsg) : 'ابدأ المحادثة...';
             el.innerHTML = `
-                <div class="avatar-frame mini-frame" style="border-color: #666; color: #ccc;"><i class="fas ${chatInfo.otherIcon}"></i></div>
-                <div style="flex:1;">
-                    <div style="font-weight:bold; color:#fff; display:flex; justify-content:space-between;">
-                        <span>${chatInfo.otherName}</span>
-                        <span style="font-size:0.7rem; color:#666;">${chatInfo.lastMsgTime ? new Date(chatInfo.lastMsgTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</span>
+                <div class="avatar-frame mini-frame" style="border-color:#444; color:#ccc; flex-shrink:0;"><i class="fas ${chatInfo.otherIcon||'fa-user'}"></i></div>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-weight:700; color:#fff; display:flex; justify-content:space-between; align-items:center; gap:6px;">
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${chatInfo.otherName}</span>
+                        <span style="font-size:0.65rem; color:#555; flex-shrink:0;">${timeStr}</span>
                     </div>
-                    <div style="font-size:0.8rem; color:#aaa; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;">
-                        ${chatInfo.lastMsg ? (chatInfo.lastMsg.includes('data:image') ? '📷 صورة' : chatInfo.lastMsg) : 'ابدأ المحادثة...'}
+                    <div style="font-size:0.78rem; color:#666; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; margin-top:2px;">
+                        ${lastMsg}
                     </div>
                 </div>
             `;
             list.appendChild(el);
-            
-            { const _ad = createAdBanner(); if (_ad) list.appendChild(_ad); }
         });
         
         chatEntries.forEach(([chatId, chatInfo]) => {
@@ -1636,8 +1635,27 @@ window.openReeseCompose = () => {
     reeseImages = []; renderReeseMediaPreview();
     
     const container = document.getElementById('ai-reese-suggestions');
-    container.innerHTML = '';
-    container.classList.add('hidden');
+    // Show cached suggestions immediately if available (non-blocking)
+    if (_lastReeseSuggestions.length > 0) {
+        container.classList.remove('hidden');
+        container.innerHTML = '';
+        const catIcons = ['✨', '💡', '🔥', '🎯'];
+        _lastReeseSuggestions.slice(0, 4).forEach((sug, i) => {
+            const chip = document.createElement('div');
+            chip.className = 'suggestion-chip';
+            chip.innerHTML = `<span style="font-size:1rem;">${catIcons[i] || '✨'}</span> ${sug}`;
+            chip.onclick = () => {
+                document.getElementById('reese-text-input').value = sug;
+                document.getElementById('reese-text-input').focus();
+            };
+            container.appendChild(chip);
+        });
+    } else {
+        container.innerHTML = '<div class="suggestion-chip" style="opacity:0.4;pointer-events:none;"><i class="fas fa-circle-notch fa-spin"></i> جاري التحميل...</div>';
+        container.classList.remove('hidden');
+    }
+    // Load new suggestions in background without blocking the UI
+    setTimeout(() => loadReeseAiSuggestionsAuto(), 0);
 };
 
 let _lastReeseSuggestions = [];
@@ -1668,6 +1686,7 @@ async function loadReeseAiSuggestionsAuto() {
         _lastReeseSuggestions = suggestions.slice(0, 4);
 
         container.innerHTML = '';
+        container.classList.remove('hidden');
         const catIcons = ['✨', '💡', '🔥', '🎯'];
         suggestions.slice(0, 4).forEach((sug, i) => {
             const chip = document.createElement('div');
@@ -1681,6 +1700,7 @@ async function loadReeseAiSuggestionsAuto() {
         });
     } catch(e) {
         container.innerHTML = '<div class="suggestion-chip" style="opacity:0.5; pointer-events:none;"><i class="fas fa-wifi-slash"></i> تعذر تحميل الاقتراحات</div>';
+        container.classList.remove('hidden');
     }
 }
 
@@ -2835,8 +2855,14 @@ window.startVoiceInput = (role) => {
     recog.onresult = (e) => {
         const text = e.results[0][0].transcript;
         if (input) {
-            input.value = (input.value + ' ' + text).trim();
+            input.value = text.trim();
             window.toggleAiSendMic(role, input.value);
+            // Auto-send after voice input
+            setTimeout(() => {
+                if (input.value.trim()) {
+                    window.sendAiMsg(role);
+                }
+            }, 300);
         }
     };
 
@@ -4046,35 +4072,15 @@ window.loadStudentProgress = async function() {
     }
 };
 
+
 // ══════════════════════════════════════════════════════════════════
-//  CHAT UPGRADE v8: GROUPS + AI IN CHAT + REACTIONS + REPLY
+//  CHAT — DIRECT MESSAGES ONLY (Groups removed)
 // ══════════════════════════════════════════════════════════════════
 
-let _currentChatTab = {}; // { 't': 'chats'|'groups', 's': 'chats'|'groups' }
-let _selectedGroupEmoji = '📚';
-let _createGroupMembers = [];
-
-// ── Switch between "المحادثات" and "الجروبات" tabs ──
-window.switchChatTab = (prefix, type, btn) => {
-    _currentChatTab[prefix] = type;
-    document.querySelectorAll(`#${prefix}-chat-type-tabs .chat-type-tab`).forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    
-    const list = document.getElementById(`${prefix}-chat-list`);
-    list.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:30px;color:#444;"><i class="fas fa-circle-notch fa-spin" style="margin-left:8px;"></i></div>';
-    
-    if (type === 'chats') {
-        initDardasha_real(prefix);
-    } else {
-        loadGroupsList(prefix);
-    }
-};
-
-// ── Plus menu (new chat / new group) ──
+// ── Plus menu (new chat only) ──
 window.showChatPlusMenu = (prefix) => {
     const existing = document.getElementById('chat-plus-menu-popup');
     if (existing) { existing.remove(); return; }
-    
     const menu = document.createElement('div');
     menu.id = 'chat-plus-menu-popup';
     menu.className = 'chat-plus-menu';
@@ -4083,16 +4089,8 @@ window.showChatPlusMenu = (prefix) => {
         <button onclick="toggleUserSearchModal();document.getElementById('chat-plus-menu-popup')?.remove()">
             <i class="fas fa-user-plus" style="color:#60a5fa;"></i> محادثة جديدة
         </button>
-        <button onclick="openCreateGroupSheet('${prefix}');document.getElementById('chat-plus-menu-popup')?.remove()">
-            <i class="fas fa-users" style="color:#34d399;"></i> إنشاء جروب
-        </button>
-        <hr style="border:none;border-top:1px solid #1f1f1f;margin:4px 0;">
-        <button onclick="window.switchChatTab('${prefix}','groups');document.getElementById('chat-plus-menu-popup')?.remove()">
-            <i class="fas fa-list" style="color:#f59e0b;"></i> عرض الجروبات
-        </button>
     `;
     document.body.appendChild(menu);
-    
     setTimeout(() => {
         document.addEventListener('click', function handler(e) {
             if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', handler); }
@@ -4100,755 +4098,11 @@ window.showChatPlusMenu = (prefix) => {
     }, 100);
 };
 
-// ── Create Group Sheet ──
-window.openCreateGroupSheet = async (prefix) => {
-    const existing = document.getElementById('create-group-overlay');
-    if (existing) existing.remove();
-    
-    // Load users for member selection
-    const usersSnap = await get(ref(db, 'users'));
-    const users = [];
-    if (usersSnap.exists()) {
-        usersSnap.forEach(u => {
-            const d = u.val();
-            if (u.key !== myUid) users.push({ uid: u.key, name: d.name, role: d.role, icon: d.icon || 'fa-user' });
-        });
-    }
-    
-    _createGroupMembers = [];
-    const emojis = ['📚','🎓','⚡','🔥','🌟','💡','🎯','🏆','🧠','🌍','🎨','🚀'];
-    
-    const overlay = document.createElement('div');
-    overlay.id = 'create-group-overlay';
-    overlay.className = 'create-group-overlay';
-    overlay.innerHTML = `
-        <div class="create-group-sheet">
-            <h3><i class="fas fa-users" style="color:#60a5fa;"></i> إنشاء جروب جديد</h3>
-            
-            <!-- Group photo -->
-            <div style="text-align:center;margin-bottom:16px;">
-                <div id="new-group-photo-preview" style="width:70px;height:70px;border-radius:18px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 8px;cursor:pointer;position:relative;border:2px solid #2a2a2a;" onclick="document.getElementById('new-group-photo-input').click()">
-                    📚
-                    <div style="position:absolute;bottom:-4px;right:-4px;width:22px;height:22px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #111;"><i class="fas fa-camera" style="font-size:0.6rem;color:#fff;"></i></div>
-                </div>
-                <input id="new-group-photo-input" type="file" hidden accept="image/*" onchange="previewNewGroupPhoto(this)">
-                <p style="font-size:0.7rem;color:#555;">اضغط لإضافة صورة للجروب</p>
-            </div>
-            <label style="font-size:0.8rem;color:#888;margin-bottom:6px;display:block;">اسم الجروب</label>
-            <input id="new-group-name" class="smart-input" placeholder="مثال: مجموعة الرياضيات" style="margin-bottom:14px;">
-            
-            <label style="font-size:0.8rem;color:#888;margin-bottom:6px;display:block;">وصف الجروب (اختياري)</label>
-            <input id="new-group-desc" class="smart-input" placeholder="موضوع الجروب..." style="margin-bottom:14px;">
-            
-            <label style="font-size:0.8rem;color:#888;margin-bottom:6px;display:block;">أيقونة الجروب</label>
-            <div class="emoji-picker-row">
-                ${emojis.map(e => `<div class="emoji-option${e==='📚'?' selected':''}" onclick="selectGroupEmoji(this,'${e}')">${e}</div>`).join('')}
-            </div>
-            
-            <label style="font-size:0.8rem;color:#888;margin-bottom:6px;display:block;">إضافة أعضاء</label>
-            <div class="member-select-list">
-                ${users.map(u => `
-                    <div class="member-select-item" onclick="toggleGroupMember('${u.uid}','${u.name}',this)">
-                        <div style="width:34px;height:34px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;border:1px solid #222;flex-shrink:0;">
-                            <i class="fas ${u.icon}" style="font-size:0.8rem;color:#888;"></i>
-                        </div>
-                        <div>
-                            <div style="font-size:0.85rem;font-weight:600;">${u.name}</div>
-                            <div style="font-size:0.7rem;color:#555;">${u.role === 'teacher' ? 'معلم' : 'طالب'}</div>
-                        </div>
-                        <div class="checkmark"><i class="fas fa-check" style="font-size:0.55rem;color:#fff;opacity:0;"></i></div>
-                    </div>`).join('')}
-            </div>
-            
-            <div style="display:flex;gap:10px;margin-top:20px;">
-                <button onclick="document.getElementById('create-group-overlay').remove()" style="flex:1;background:#1a1a1a;border:1px solid #2a2a2a;color:#888;padding:12px;border-radius:12px;cursor:pointer;">إلغاء</button>
-                <button onclick="createNewGroup('${prefix}')" style="flex:2;background:linear-gradient(135deg,#1d4ed8,#7c3aed);border:none;color:#fff;padding:12px;border-radius:12px;cursor:pointer;font-weight:700;"><i class="fas fa-check"></i> إنشاء الجروب</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-};
-
-window.selectGroupEmoji = (el, emoji) => {
-    _selectedGroupEmoji = emoji;
-    document.querySelectorAll('.emoji-option').forEach(e => e.classList.remove('selected'));
-    el.classList.add('selected');
-};
-
-window.toggleGroupMember = (uid, name, el) => {
-    const idx = _createGroupMembers.findIndex(m => m.uid === uid);
-    if (idx === -1) {
-        _createGroupMembers.push({ uid, name });
-        el.classList.add('selected');
-        el.querySelector('.checkmark i').style.opacity = '1';
-    } else {
-        _createGroupMembers.splice(idx, 1);
-        el.classList.remove('selected');
-        el.querySelector('.checkmark i').style.opacity = '0';
-    }
-};
-
-window.createNewGroup = async (prefix) => {
-    const name = document.getElementById('new-group-name').value.trim();
-    const desc = document.getElementById('new-group-desc').value.trim();
-    if (!name) return saAlert('أدخل اسم الجروب', 'error');
-    
-    const groupId = 'grp_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
-    const members = { [myUid]: { name: currentUser, role: selectedRole, joinedAt: Date.now(), isAdmin: true } };
-    _createGroupMembers.forEach(m => { members[m.uid] = { name: m.name, joinedAt: Date.now(), isAdmin: false }; });
-    
-    const photoPreview = document.getElementById('new-group-photo-preview');
-    const groupPhoto = photoPreview?.dataset?.photo || null;
-    
-    const groupData = {
-        name,
-        desc: desc || '',
-        emoji: _selectedGroupEmoji,
-        photoBase64: groupPhoto,
-        createdBy: myUid,
-        createdAt: Date.now(),
-        members,
-        lastMsg: '🎉 تم إنشاء الجروب',
-        lastMsgTime: Date.now(),
-        enableAI: true
-    };
-    
-    await set(ref(db, `groups/${groupId}`), groupData);
-    
-    // Add group to each member's group list
-    const notifyPromises = Object.keys(members).map(uid => 
-        update(ref(db, `user_groups/${uid}/${groupId}`), { name, emoji: _selectedGroupEmoji, lastMsg: groupData.lastMsg, lastMsgTime: Date.now() })
-    );
-    await Promise.all(notifyPromises);
-    
-    document.getElementById('create-group-overlay').remove();
-    saAlert(`✅ تم إنشاء "${name}" بنجاح!`, 'success');
-    window.switchChatTab(prefix, 'groups');
-    openGroupRoom(groupId, prefix);
-};
-
-// ── Load groups list ──
-window.loadGroupsList = (prefix) => {
-    const list = document.getElementById(`${prefix}-chat-list`);
-    
-    onValue(ref(db, `user_groups/${myUid}`), async (snap) => {
-        list.innerHTML = '';
-        if (!snap.exists()) {
-            list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#444;">
-                <i class="fas fa-users" style="font-size:2.5rem;margin-bottom:12px;display:block;opacity:0.25;"></i>
-                <p style="font-size:0.85rem;margin-bottom:16px;">لا توجد جروبات بعد</p>
-                <button onclick="openCreateGroupSheet('${prefix}')" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:0.82rem;">
-                    <i class="fas fa-plus"></i> إنشاء جروب
-                </button>
-            </div>`;
-            return;
-        }
-        
-        const entries = [];
-        snap.forEach(g => entries.push({ id: g.key, ...g.val() }));
-        entries.sort((a,b) => (b.lastMsgTime||0) - (a.lastMsgTime||0));
-        
-        entries.forEach(g => {
-            const item = document.createElement('div');
-            item.className = 'group-list-item';
-            const timeStr = g.lastMsgTime ? new Date(g.lastMsgTime).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' }) : '';
-            item.innerHTML = `
-                <div class="group-avatar">
-                    ${g.emoji || '👥'}
-                    <div class="group-type-badge">👥</div>
-                </div>
-                <div class="group-info">
-                    <div class="group-name">${g.name}</div>
-                    <div class="group-last-msg">${g.lastMsg || '...'}</div>
-                </div>
-                <div class="group-meta">
-                    <div class="group-time">${timeStr}</div>
-                </div>
-            `;
-            item.onclick = () => openGroupRoom(g.id, prefix);
-            list.appendChild(item);
-        });
-    });
-};
-
-// ── Open group chat room ──
-window.openGroupRoom = async (groupId, prefix) => {
-    playSound('click');
-    // Detach any existing listener
-    if (window._activeGroupListener) {
-        window._activeGroupListener();
-        window._activeGroupListener = null;
-    }
-    window._activeGroupId = groupId;
-    window._activeGroupPrefix = prefix;
-
-    const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
-    const win = document.getElementById(`${prefix}-chat-window`);
-    if (window.innerWidth < 768) sidebar.classList.add('hidden');
-    win.classList.remove('hidden');
-
-    // Fetch group data
-    const groupSnap = await get(ref(db, `groups/${groupId}`));
-    if (!groupSnap.exists()) return;
-    const group = groupSnap.val();
-    const membersCount = Object.keys(group.members || {}).length;
-    const isAdmin = group.members?.[myUid]?.isAdmin;
-
-    // Group avatar: photo or emoji
-    const avatarHTML = group.photoBase64
-        ? `<img src="${group.photoBase64}" style="width:40px;height:40px;border-radius:12px;object-fit:cover;flex-shrink:0;">`
-        : `<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">${group.emoji || '👥'}</div>`;
-
-    win.innerHTML = `
-        <div class="group-header">
-            <button class="icon-btn-small" onclick="closeGroupRoom('${prefix}')"><i class="ph-bold ph-arrow-right"></i></button>
-            ${avatarHTML}
-            <div class="group-header-info" onclick="showGroupInfo('${groupId}','${prefix}')" style="cursor:pointer;">
-                <div class="group-header-name">${group.name}</div>
-                <div class="group-header-members" id="gm-count-${groupId}">${membersCount} عضو</div>
-            </div>
-            <div class="group-header-actions">
-                <button class="icon-btn-small" onclick="showGroupMoreMenu('${groupId}','${prefix}',${isAdmin})" title="خيارات"><i class="fas fa-ellipsis-v"></i></button>
-            </div>
-        </div>
-        ${group.pinnedMsg ? `<div class="pinned-msg-bar"><i class="fas fa-thumbtack" style="color:#60a5fa;margin-left:6px;"></i><span>${group.pinnedMsg.substring(0,60)}</span></div>` : ''}
-        <div class="chat-msgs-area" id="group-msgs-${groupId}"></div>
-        <div id="group-reply-bar-${groupId}" style="display:none;"></div>
-        ${group.enableAI ? `<div class="group-ai-hint"><i class="fas fa-robot" style="color:#7c3aed;margin-left:4px;"></i> اكتب <strong>@AI</strong> ثم رسالتك للحصول على رد من SA AI</div>` : ""}
-        <div class="chat-input-area" id="group-input-${groupId}">
-            <label class="chat-img-attach-btn" title="إرسال صورة">
-                <i class="ph-bold ph-image"></i>
-                <input type="file" hidden accept="image/*" multiple onchange="sendGroupImages(this,'${groupId}','${prefix}')">
-            </label>
-            <input type="text" id="group-chat-input-${groupId}" placeholder="رسالة..."
-                onkeypress="if(event.key==='Enter')sendGroupMessage('${groupId}','${prefix}')"
-                oninput="toggleGroupMicSend('${groupId}')">
-            <button id="group-send-btn-${groupId}" class="send-btn" style="display:none;" onclick="sendGroupMessage('${groupId}','${prefix}')"><i class="ph-bold ph-paper-plane-tilt"></i></button>
-            <button id="group-mic-btn-${groupId}" class="send-btn" style="background:rgba(255,255,255,0.06);color:#666;" onclick="startGroupVoice('${groupId}','${prefix}')"><i class="ph-bold ph-microphone"></i></button>
-        </div>
-    `;
-
-    // ── Listen for messages ──
-    const MEMBER_COLORS = ['#60a5fa','#34d399','#f59e0b','#f87171','#a78bfa','#fb923c','#22d3ee','#4ade80'];
-    const colorMap = {};
-    let memberColorIdx = 0;
-
-    const listener = onValue(ref(db, `group_messages/${groupId}`), (snap) => {
-        // Always re-fetch the container — avoids stale DOM reference after re-renders
-        const msgsContainer = document.getElementById(`group-msgs-${groupId}`);
-        if (!msgsContainer) return; // container was removed (room closed), abort safely
-        msgsContainer.innerHTML = '';
-
-        if (!snap.exists()) {
-            const avatarBig = group.photoBase64
-                ? `<img src="${group.photoBase64}" style="width:64px;height:64px;border-radius:16px;object-fit:cover;margin-bottom:12px;">`
-                : `<div style="font-size:3rem;margin-bottom:10px;">${group.emoji || '👥'}</div>`;
-            msgsContainer.innerHTML = `<div style="text-align:center;color:#333;padding:50px 20px;font-size:0.85rem;">${avatarBig}<p style="font-weight:700;color:#555;">${group.name}</p><p style="margin-top:4px;font-size:0.78rem;">${membersCount} أعضاء</p><p style="margin-top:12px;color:#444;">ابدأ المحادثة الآن 🎉</p></div>`;
-            return;
-        }
-
-        // Group consecutive images for grid display
-        const messages = [];
-        snap.forEach(msgNode => messages.push({ key: msgNode.key, ...msgNode.val() }));
-
-        let i = 0;
-        let prevDate = '';
-        while (i < messages.length) {
-            const msg = messages[i];
-
-            // Date separator
-            const msgDate = new Date(msg.time).toLocaleDateString('ar-EG', {weekday:'short', day:'numeric', month:'long'});
-            if (msgDate !== prevDate) {
-                const sep = document.createElement('div');
-                sep.className = 'date-sep';
-                sep.innerHTML = `<span>${msgDate}</span>`;
-                msgsContainer.appendChild(sep);
-                prevDate = msgDate;
-            }
-
-            const isMe = msg.senderUid === myUid;
-            const isAI = msg.isAI;
-
-            // ── Image grid grouping (WhatsApp style) ──
-            if (msg.type === 'image' || msg.imageUrl) {
-                // Collect consecutive images from same sender
-                let imgGroup = [msg];
-                while (
-                    i + imgGroup.length < messages.length &&
-                    (messages[i + imgGroup.length].type === 'image' || messages[i + imgGroup.length].imageUrl) &&
-                    messages[i + imgGroup.length].senderUid === msg.senderUid &&
-                    imgGroup.length < 9
-                ) {
-                    imgGroup.push(messages[i + imgGroup.length]);
-                }
-
-                const wrap = document.createElement('div');
-                wrap.className = `group-msg-wrap${isMe ? ' me' : ''}`;
-                if (!colorMap[msg.senderUid]) { colorMap[msg.senderUid] = MEMBER_COLORS[memberColorIdx++ % MEMBER_COLORS.length]; }
-                const sc = colorMap[msg.senderUid];
-
-                const gridCols = imgGroup.length === 1 ? 1 : imgGroup.length <= 4 ? 2 : 3;
-                const gridStyle = `display:grid;grid-template-columns:repeat(${gridCols},1fr);gap:2px;border-radius:12px;overflow:hidden;max-width:220px;`;
-
-                const imgsHTML = imgGroup.map((m,idx) => {
-                    const sz = imgGroup.length === 1 ? '220px' : '100%';
-                    const h = imgGroup.length === 1 ? 'max-height:280px;' : 'height:80px;';
-                    return `<img src="${m.imageUrl}" style="width:${sz};${h}object-fit:cover;cursor:pointer;" onclick="viewGroupImage('${m.imageUrl}')">`;
-                }).join('');
-
-                wrap.innerHTML = `
-                    ${!isMe ? `<div class="group-sender-name" style="--sender-color:${sc};">${msg.senderName}</div>` : ''}
-                    <div class="group-img-grid" style="${gridStyle}" oncontextmenu="showGroupMsgMenu(event,'${msg.key}','${groupId}','${prefix}','📷 صورة',${isMe})">
-                        ${imgsHTML}
-                    </div>
-                    <div class="group-msg-meta" style="${isMe?'justify-content:flex-end;':''}">
-                        <span>${new Date(msg.time).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</span>
-                        ${isMe ? '<span class="msg-read-ticks"><i class="fas fa-check-double"></i></span>' : ''}
-                    </div>
-                `;
-                msgsContainer.appendChild(wrap);
-                i += imgGroup.length;
-                continue;
-            }
-
-            // ── Text message ──
-            if (!colorMap[msg.senderUid]) { colorMap[msg.senderUid] = MEMBER_COLORS[memberColorIdx++ % MEMBER_COLORS.length]; }
-            const senderColor = colorMap[msg.senderUid];
-            const timeStr = new Date(msg.time).toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'});
-
-            const wrap = document.createElement('div');
-            wrap.className = `group-msg-wrap${isMe ? ' me' : ''}`;
-
-            const replyHTML = msg.replyTo
-                ? `<div class="group-reply-preview" style="border-right:3px solid ${senderColor};"><strong style="color:${senderColor};font-size:0.68rem;">${msg.replyTo.sender}</strong><div style="font-size:0.72rem;color:#888;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${(msg.replyTo.text||'').substring(0,50)}</div></div>`
-                : '';
-
-            wrap.innerHTML = `
-                ${!isMe && !isAI ? `<div class="group-sender-name" style="--sender-color:${senderColor};">${msg.senderName || 'مجهول'}</div>` : ''}
-                <div class="group-msg-bubble${isAI ? ' ai-group-msg' : ''}"
-                     oncontextmenu="showGroupMsgMenu(event,'${msg.key}','${groupId}','${prefix}','${(msg.text||'').substring(0,80).replace(/'/g,"\'")}',${isMe})"
-                     ontouchstart="startLongPress('${msg.key}','${groupId}','${prefix}','${(msg.text||'').substring(0,80).replace(/'/g,"\'")}',${isMe})"
-                     ontouchend="clearLongPress()">
-                    ${replyHTML}
-                    ${isAI ? '<div class="ai-group-label"><i class="fas fa-robot"></i> SA AI</div>' : ''}
-                    <div style="word-break:break-word;">${msg.text || ''}</div>
-                    <div class="group-msg-meta">
-                        <span>${timeStr}</span>
-                        ${isMe ? '<span class="msg-read-ticks"><i class="fas fa-check-double"></i></span>' : ''}
-                    </div>
-                </div>
-                <div class="msg-reactions" id="rxn-${msg.key}"></div>
-            `;
-
-            // Reactions
-            if (msg.reactions) {
-                const rxnEl = wrap.querySelector(`#rxn-${msg.key}`);
-                const grouped = {};
-                Object.entries(msg.reactions).forEach(([uid, em]) => { grouped[em] = (grouped[em]||0)+1; });
-                Object.entries(grouped).forEach(([em, cnt]) => {
-                    const pill = document.createElement('div');
-                    pill.className = `reaction-pill${msg.reactions[myUid]===em?' mine':''}`;
-                    pill.innerHTML = `${em} ${cnt>1?cnt:''}`;
-                    pill.onclick = () => addGroupReaction(groupId, msg.key, em);
-                    rxnEl.appendChild(pill);
-                });
-            }
-
-            msgsContainer.appendChild(wrap);
-            i++;
-        }
-
-        msgsContainer.scrollTop = msgsContainer.scrollHeight;
-    });
-
-    window._activeGroupListener = listener;
-    update(ref(db, `groups/${groupId}/members/${myUid}`), { lastSeen: Date.now() });
-};
-
-// ── Long press for mobile context menu ──
-let _lpTimer = null;
-window.startLongPress = (key, groupId, prefix, text, isMe) => {
-    _lpTimer = setTimeout(() => showGroupMsgMenu({ clientX: window.innerWidth/2, clientY: window.innerHeight/2, preventDefault:()=>{} }, key, groupId, prefix, text, isMe), 600);
-};
-window.clearLongPress = () => { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } };
-
-// ── View full image ──
-window.viewGroupImage = (src) => {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;';
-    overlay.innerHTML = `<img src="${src}" style="max-width:95vw;max-height:90vh;object-fit:contain;border-radius:8px;"><button onclick="this.parentElement.remove()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;"><i class="fas fa-times"></i></button>`;
-    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-    document.body.appendChild(overlay);
-};
-
-// ── Send multiple images ──
-window.sendGroupImages = async (input, groupId, prefix) => {
-    if (!input.files.length) return;
-    const files = Array.from(input.files);
-    for (const file of files) {
-        try {
-            const b64 = await getBase64(file);
-            await push(ref(db, `group_messages/${groupId}`), {
-                type: 'image', imageUrl: b64, senderUid: myUid, senderName: currentUser, time: Date.now()
-            });
-        } catch(e) { console.error(e); }
-    }
-    await update(ref(db, `groups/${groupId}`), { lastMsg: `${currentUser}: 📷 ${files.length > 1 ? files.length + ' صور' : 'صورة'}`, lastMsgTime: Date.now() });
-    // Notify members
-    const membersSnap = await get(ref(db, `groups/${groupId}/members`));
-    if (membersSnap.exists()) {
-        const updates = [];
-        membersSnap.forEach(m => updates.push(update(ref(db, `user_groups/${m.key}/${groupId}`), { lastMsg: `📷 صورة`, lastMsgTime: Date.now() })));
-        await Promise.all(updates);
-    }
-    playSound('sent');
-};
-
-// ── Group more menu ──
-window.showGroupMoreMenu = (groupId, prefix, isAdmin) => {
-    const existing = document.getElementById('group-more-menu');
-    if (existing) { existing.remove(); return; }
-    const menu = document.createElement('div');
-    menu.id = 'group-more-menu';
-    menu.className = 'chat-plus-menu';
-    menu.style.cssText = 'top:60px;left:10px;min-width:180px;';
-    menu.innerHTML = `
-        <button onclick="showGroupInfo('${groupId}','${prefix}');document.getElementById('group-more-menu')?.remove()">
-            <i class="fas fa-info-circle" style="color:#60a5fa;"></i> معلومات الجروب
-        </button>
-        <button onclick="shareGroupLink('${groupId}');document.getElementById('group-more-menu')?.remove()">
-            <i class="fas fa-share-alt" style="color:#34d399;"></i> مشاركة رابط الجروب
-        </button>
-        ${isAdmin ? `
-        <button onclick="toggleGroupAI('${groupId}');document.getElementById('group-more-menu')?.remove()">
-            <i class="fas fa-robot" style="color:#c4b5fd;"></i> تفعيل/إيقاف AI
-        </button>
-        <button onclick="changeGroupPhoto('${groupId}');document.getElementById('group-more-menu')?.remove()">
-            <i class="fas fa-camera" style="color:#f59e0b;"></i> تغيير صورة الجروب
-        </button>` : ''}
-        <hr style="border:none;border-top:1px solid #1f1f1f;margin:4px 0;">
-        <button onclick="leaveGroup('${groupId}','${prefix}');document.getElementById('group-more-menu')?.remove()" style="color:#f87171;">
-            <i class="fas fa-sign-out-alt"></i> مغادرة الجروب
-        </button>
-    `;
-    document.body.appendChild(menu);
-    setTimeout(() => {
-        document.addEventListener('click', function h(e) {
-            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', h); }
-        });
-    }, 100);
-};
-
-// ── Share group link ──
-window.shareGroupLink = (groupId) => {
-    const link = `${window.location.origin}${window.location.pathname}#group:${groupId}`;
-    if (navigator.share) {
-        navigator.share({ title: 'انضم للجروب على SA EDU', url: link });
-    } else {
-        navigator.clipboard?.writeText(link).then(() => showToast('✅ تم نسخ رابط الجروب','','success',2500));
-    }
-};
-
-// ── Change group photo ──
-window.changeGroupPhoto = (groupId) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = async () => {
-        if (!input.files[0]) return;
-        try {
-            const b64 = await getBase64(input.files[0]);
-            await update(ref(db, `groups/${groupId}`), { photoBase64: b64 });
-            showToast('✅ تم تغيير صورة الجروب','','success',2000);
-            // Refresh the room
-            openGroupRoom(groupId, window._activeGroupPrefix || 's');
-        } catch(e) { saAlert('فشل تغيير الصورة','error'); }
-    };
-    input.click();
-};
-
-// ── Leave group ──
-window.leaveGroup = async (groupId, prefix) => {
-    saConfirm('هل تريد مغادرة الجروب؟', async () => {
-        await remove(ref(db, `groups/${groupId}/members/${myUid}`));
-        await remove(ref(db, `user_groups/${myUid}/${groupId}`));
-        closeGroupRoom(prefix);
-        saAlert('تم مغادرة الجروب','success');
-    });
-};
-window.toggleGroupMicSend = (groupId) => {
-    const input = document.getElementById(`group-chat-input-${groupId}`);
-    const send = document.getElementById(`group-send-btn-${groupId}`);
-    const mic = document.getElementById(`group-mic-btn-${groupId}`);
-    const has = input && input.value.trim().length > 0;
-    if (send) send.style.display = has ? 'flex' : 'none';
-    if (mic) mic.style.display = has ? 'none' : 'flex';
-};
-
-window.sendGroupMessage = async (groupId, prefix, textOverride) => {
-    const input = document.getElementById(`group-chat-input-${groupId}`);
-    const txt = textOverride || (input ? input.value.trim() : '');
-    if (!txt) return;
-
-    // Clear reply state
-    const replyBar = document.getElementById(`group-reply-bar-${groupId}`);
-    let replyData = null;
-    if (input && input.dataset.replyKey) {
-        replyData = { key: input.dataset.replyKey, text: input.dataset.replyText, sender: input.dataset.replySender };
-        delete input.dataset.replyKey; delete input.dataset.replyText; delete input.dataset.replySender;
-        input.placeholder = 'رسالة...';
-        if (replyBar) replyBar.style.display = 'none';
-    }
-
-    if (input) { input.value = ''; toggleGroupMicSend(groupId); }
-
-    // ── Optimistic UI: show the message immediately without waiting for Firebase ──
-    const msgsNow = document.getElementById(`group-msgs-${groupId}`);
-    if (msgsNow) {
-        // Remove empty-state placeholder if present
-        const placeholder = msgsNow.querySelector('div[style*="text-align:center"]');
-        if (placeholder) placeholder.remove();
-
-        const optWrap = document.createElement('div');
-        optWrap.className = 'group-msg-wrap me';
-        optWrap.id = `opt-msg-${Date.now()}`;
-        optWrap.innerHTML = `
-            <div class="group-msg-bubble">
-                <div style="word-break:break-word;">${txt}</div>
-                <div class="group-msg-meta" style="justify-content:flex-end;">
-                    <span>${new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</span>
-                    <span class="msg-read-ticks"><i class="fas fa-clock" style="font-size:0.55rem;opacity:0.5;"></i></span>
-                </div>
-            </div>
-            <div class="msg-reactions"></div>
-        `;
-        msgsNow.appendChild(optWrap);
-        msgsNow.scrollTop = msgsNow.scrollHeight;
-        playSound('sent');
-    }
-
-    const msgData = {
-        text: txt, senderUid: myUid, senderName: currentUser,
-        time: Date.now(), type: 'text',
-        ...(replyData ? { replyTo: replyData } : {})
-    };
-
-    try {
-        const msgRef = await push(ref(db, `group_messages/${groupId}`), msgData);
-        const shortMsg = `${currentUser}: ${txt.substring(0,40)}`;
-        await update(ref(db, `groups/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() });
-
-        // Notify all members
-        const membersSnap = await get(ref(db, `groups/${groupId}/members`));
-        if (membersSnap.exists()) {
-            const ups = [];
-            membersSnap.forEach(m => ups.push(update(ref(db, `user_groups/${m.key}/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() })));
-            await Promise.all(ups);
-        }
-    } catch (firebaseErr) {
-        console.error('Group message send error:', firebaseErr);
-        // Remove optimistic message on failure
-        const optEl = document.getElementById(`opt-msg-${Date.now()}`);
-        if (optEl) optEl.remove();
-    }
-
-    // ── AI auto-response: if group has AI enabled and message mentions @AI or starts with /ai ──
-    const groupInfoSnap = await get(ref(db, `groups/${groupId}/enableAI`));
-    const aiEnabled = groupInfoSnap.exists() ? groupInfoSnap.val() : false;
-    const wantsAI = txt.includes('@AI') || txt.includes('@ai') || txt.startsWith('/ai') || txt.startsWith('يا AI') || txt.startsWith('يا ai');
-    
-    if (aiEnabled && wantsAI) {
-        const question = txt.replace(/@[Aa][Ii]/g,'').replace(/^\/ai\s*/,'').replace(/^يا ai\s*/i,'').trim();
-        if (!question) return;
-        try {
-            const aiSnap = await get(ref(db, `groups/${groupId}`));
-            const grpName = aiSnap.exists() ? aiSnap.val().name : 'الجروب';
-            const ctxSnap = await get(ref(db, `group_messages/${groupId}`));
-            let context = '';
-            if (ctxSnap.exists()) {
-                const recent = [];
-                ctxSnap.forEach(m => { const v = m.val(); if (v.text && !v.isAI) recent.push(v.senderName + ': ' + v.text); });
-                context = recent.slice(-5).join('\n');
-            }
-            const aiPrompt = `أنت SA AI مساعد ذكي في جروب "${grpName}" على منصة SA EDU التعليمية. أجب بالعربية بشكل مختصر ومفيد وودود.
-السياق الأخير:
-${context}
-السؤال/الطلب: ${question}`;
-            
-            const typingKey = `typing_${Date.now()}`;
-            await set(ref(db, `group_messages/${groupId}/${typingKey}`), {
-                text: '...يكتب', senderUid: 'ai_sa', senderName: 'SA AI',
-                isAI: true, isTyping: true, time: Date.now() + 1
-            });
-
-            const reply = await callPollinationsAI(aiPrompt);
-            await remove(ref(db, `group_messages/${groupId}/${typingKey}`));
-            await push(ref(db, `group_messages/${groupId}`), {
-                text: reply, senderUid: 'ai_sa', senderName: 'SA AI',
-                isAI: true, time: Date.now(), type: 'ai'
-            });
-            await update(ref(db, `groups/${groupId}`), { lastMsg: '🤖 SA AI: ' + reply.substring(0,35), lastMsgTime: Date.now() });
-        } catch(e) { console.error('AI group error:', e); }
-    }
-};
-
-window.askGroupAI = async (groupId, prefix) => {
-    const input = document.getElementById(`group-chat-input-${groupId}`);
-    const question = input ? input.value.trim() : '';
-    
-    if (!question) {
-        // Show AI prompt hint
-        if (input) { input.placeholder = 'اكتب سؤالك هنا...'; input.focus(); }
-        return;
-    }
-    
-    if (input) { input.value = ''; toggleGroupMicSend(groupId); }
-    
-    // Post user message first
-    await push(ref(db, `group_messages/${groupId}`), {
-        text: question, senderUid: myUid, senderName: currentUser, time: Date.now(), type: 'text'
-    });
-    
-    // Typing indicator
-    const typingId = 'typing_' + Date.now();
-    await set(ref(db, `group_messages/${groupId}/${typingId}`), {
-        text: '...', senderUid: 'ai', senderName: 'SA AI', isAI: true, isTyping: true, time: Date.now()
-    });
-    
-    try {
-        const response = await callPollinationsAI(`أنت مساعد تعليمي ذكي. أجب بالعربية بشكل مختصر ومفيد. السؤال: ${question}`);
-        await remove(ref(db, `group_messages/${groupId}/${typingId}`));
-        await push(ref(db, `group_messages/${groupId}`), {
-            text: response, senderUid: 'ai', senderName: 'SA AI', isAI: true, time: Date.now(), type: 'ai'
-        });
-        await update(ref(db, `groups/${groupId}`), { lastMsg: '🤖 SA AI رد على سؤال', lastMsgTime: Date.now() });
-    } catch(e) {
-        await remove(ref(db, `group_messages/${groupId}/${typingId}`));
-    }
-};
-
-window.addGroupReaction = async (groupId, msgKey, emoji) => {
-    const current = await get(ref(db, `group_messages/${groupId}/${msgKey}/reactions/${myUid}`));
-    if (current.exists() && current.val() === emoji) {
-        await remove(ref(db, `group_messages/${groupId}/${msgKey}/reactions/${myUid}`));
-    } else {
-        await set(ref(db, `group_messages/${groupId}/${msgKey}/reactions/${myUid}`), emoji);
-    }
-};
-
-window.showGroupMsgMenu = (e, key, groupId, prefix, text, isMe) => {
-    e.preventDefault();
-    const existing = document.getElementById('group-msg-ctx');
-    if (existing) existing.remove();
-    
-    const EMOJIS = ['👍','❤️','😂','😮','🔥','✅'];
-    const menu = document.createElement('div');
-    menu.id = 'group-msg-ctx';
-    menu.className = 'chat-plus-menu';
-    menu.style.cssText = `position:fixed;top:${e.clientY}px;right:${Math.max(10,window.innerWidth-e.clientX-200)}px;z-index:9999;`;
-    menu.innerHTML = `
-        <div style="display:flex;gap:6px;padding:6px;justify-content:center;">
-            ${EMOJIS.map(em => `<button onclick="addGroupReaction('${groupId}','${key}','${em}');document.getElementById('group-msg-ctx')?.remove()" style="font-size:1.3rem;background:none;border:none;cursor:pointer;padding:4px;border-radius:8px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">${em}</button>`).join('')}
-        </div>
-        <hr style="border:none;border-top:1px solid #1f1f1f;margin:4px 0;">
-        <button onclick="replyToGroupMsg('${groupId}','${key}','${text}');document.getElementById('group-msg-ctx')?.remove()">
-            <i class="fas fa-reply" style="color:#60a5fa;"></i> رد
-        </button>
-        <button onclick="navigator.clipboard?.writeText(\`${text}\`).then(()=>showToast('تم النسخ','','success',1500));document.getElementById('group-msg-ctx')?.remove()">
-            <i class="fas fa-copy" style="color:#888;"></i> نسخ
-        </button>
-        ${isMe ? `<button onclick="remove(window._fbRef('group_messages/${groupId}/${key}'));document.getElementById('group-msg-ctx')?.remove()" style="color:#f87171;">
-            <i class="fas fa-trash"></i> حذف
-        </button>` : ''}
-    `;
-    document.body.appendChild(menu);
-    setTimeout(() => {
-        document.addEventListener('click', function h(e) {
-            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', h); }
-        });
-    }, 100);
-};
-
-// Expose firebase ref helper for inline delete
-window._fbRef = (path) => ref(db, path);
-
-window.replyToGroupMsg = (groupId, key, text, sender) => {
-    const input = document.getElementById(`group-chat-input-${groupId}`);
-    const replyBar = document.getElementById(`group-reply-bar-${groupId}`);
-    if (!input) return;
-    input.dataset.replyKey = key;
-    input.dataset.replyText = (text||'').substring(0,60);
-    input.dataset.replySender = sender || 'مجهول';
-    if (replyBar) {
-        replyBar.style.display = 'block';
-        replyBar.innerHTML = `<div class="reply-preview-bar">
-            <div><strong style="color:#60a5fa;font-size:0.7rem;">${sender || 'مجهول'}</strong><div style="font-size:0.78rem;color:#888;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;max-width:220px;">${(text||'').substring(0,50)}</div></div>
-            <button onclick="cancelReply('${groupId}')" style="background:none;border:none;color:#555;cursor:pointer;font-size:0.9rem;"><i class="fas fa-times"></i></button>
-        </div>`;
-    }
-    input.placeholder = 'رسالتك...';
-    input.focus();
-};
-window.cancelReply = (groupId) => {
-    const input = document.getElementById(`group-chat-input-${groupId}`);
-    const replyBar = document.getElementById(`group-reply-bar-${groupId}`);
-    if (input) { delete input.dataset.replyKey; delete input.dataset.replyText; delete input.dataset.replySender; input.placeholder = 'رسالة...'; }
-    if (replyBar) replyBar.style.display = 'none';
-};
-
-window.closeGroupRoom = (prefix) => {
-    // Unsubscribe the Firebase listener BEFORE clearing innerHTML
-    // to prevent the callback from firing on a detached/orphaned msgsContainer
-    if (window._activeGroupListener) {
-        window._activeGroupListener();
-        window._activeGroupListener = null;
-    }
-    window._activeGroupId = null;
-    const win = document.getElementById(`${prefix}-chat-window`);
-    if (win) { win.classList.add('hidden'); win.innerHTML = ''; }
-    const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
-    if (sidebar) sidebar.classList.remove('hidden');
-};
-
-window.showGroupInfo = async (groupId, prefix) => {
-    const groupSnap = await get(ref(db, `groups/${groupId}`));
-    if (!groupSnap.exists()) return;
-    const group = groupSnap.val();
-    const members = group.members || {};
-    
-    const memberList = Object.entries(members).map(([uid, m]) => 
-        `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1a1a1a;">
-            <div style="width:32px;height:32px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;border:1px solid #222;">
-                <i class="fas fa-user" style="font-size:0.75rem;color:#888;"></i>
-            </div>
-            <div style="flex:1;font-size:0.85rem;">${m.name || uid}</div>
-            ${m.isAdmin ? '<span style="font-size:0.65rem;color:#f59e0b;background:rgba(245,158,11,0.1);padding:2px 8px;border-radius:20px;">أدمن</span>' : ''}
-        </div>`
-    ).join('');
-    
-    saAlert(`<div style="text-align:right;">
-        <div style="text-align:center;margin-bottom:14px;font-size:2rem;">${group.emoji}</div>
-        <strong>${group.name}</strong><br>
-        <span style="font-size:0.75rem;color:#666;">${group.desc || ''}</span>
-        <div style="margin-top:12px;font-size:0.8rem;color:#888;">الأعضاء (${Object.keys(members).length}):</div>
-        ${memberList}
-    </div>`, 'info');
-};
-
-window.toggleGroupAI = async (groupId) => {
-    const snap = await get(ref(db, `groups/${groupId}/enableAI`));
-    const current = snap.exists() ? snap.val() : true;
-    await set(ref(db, `groups/${groupId}/enableAI`), !current);
-    saAlert(!current ? '🤖 AI مفعّل في الجروب' : 'AI معطّل', 'success');
-};
-
-// ── initDardasha for tab switching ──
+// ── initDardasha_real (used for chat tab refresh) ──
 window.initDardasha_real = (prefix) => {
-    // Directly re-listen to user_chats to refresh the list
     const list = document.getElementById(`${prefix}-chat-list`);
     if (!list) return;
     list.innerHTML = '';
-    
     onValue(ref(db, `user_chats/${myUid}`), (snap) => {
         list.innerHTML = '';
         if (!snap.exists()) {
@@ -4878,31 +4132,11 @@ window.initDardasha_real = (prefix) => {
     });
 };
 
-window.startGroupVoice = (groupId) => {
-    saAlert('الرسائل الصوتية في الجروبات ستتوفر قريباً 🎙️', 'info');
-};
-
-window.sendGroupImage = async (input, groupId, prefix) => {
-    if (!input.files[0]) return;
-    try {
-        const b64 = await getBase64(input.files[0]);
-        await push(ref(db, `group_messages/${groupId}`), {
-            text: '', imageUrl: b64, senderUid: myUid, senderName: currentUser, time: Date.now(), type: 'image'
-        });
-        await update(ref(db, `groups/${groupId}`), { lastMsg: `${currentUser}: 📷 صورة`, lastMsgTime: Date.now() });
-        playSound('sent');
-    } catch(e) { saAlert('فشل إرسال الصورة', 'error'); }
-};
-
-window.previewNewGroupPhoto = (input) => {
-    if (!input.files[0]) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const preview = document.getElementById('new-group-photo-preview');
-        if (preview) {
-            preview.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:16px;"><div style="position:absolute;bottom:-4px;right:-4px;width:22px;height:22px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #111;"><i class="fas fa-camera" style="font-size:0.6rem;color:#fff;"></i></div>`;
-            preview.dataset.photo = e.target.result;
-        }
-    };
-    reader.readAsDataURL(input.files[0]);
+// ── switchChatTab — chats only now ──
+window.switchChatTab = (prefix, type, btn) => {
+    if (btn) {
+        document.querySelectorAll(`#${prefix}-chat-type-tabs .chat-type-tab`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+    window.initDardasha_real(prefix);
 };
