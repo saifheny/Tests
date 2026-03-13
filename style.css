@@ -955,14 +955,11 @@ background: #000;
 z-index: 100;
 overflow: hidden;
 }
-/* Mobile: nav is at TOP — ai-layout starts below nav, fills down to bottom */
+/* Mobile: nav is at bottom, so ai-layout fills top-to-bottom excluding nav */
 @media (max-width: 768px) {
   .ai-layout {
-    top: var(--nav-height) !important;
-    bottom: 0 !important;
-  }
-  .ai-top-bar {
-    padding-top: 10px;
+    top: 0 !important;
+    bottom: var(--nav-height) !important;
   }
 }
 .ai-top-bar {
@@ -4131,7 +4128,21 @@ animation: shakeField 0.4s ease;
    PATCH v5.0 — AI full-width + 3D buttons
    ══════════════════════════════════════════ */
 
-/* ── AI MESSAGES: legacy overridden by newer block below ── */
+/* ── AI MESSAGES: ChatGPT style, no bubble ── */
+.ai-full-msg {
+    width: 100%;
+    padding: 18px 0 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    animation: msgFade 0.3s ease;
+}
+.ai-full-content {
+    font-size: 0.97rem;
+    line-height: 1.75;
+    color: #e0e0e0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    width: 100%;
+}
 .ai-full-content strong { color: #fff; font-weight: 700; }
 .ai-full-content ul  { padding-right: 20px; margin: 8px 0; }
 .ai-full-content li  { margin-bottom: 5px; }
@@ -4674,25 +4685,24 @@ animation: shakeField 0.4s ease;
 
 /* ─── AI CHAT MAJOR UPGRADE ─────────────────────────────────── */
 
-/* AI message row */
+/* AI message — full-width like ChatGPT */
 .ai-full-msg {
   display: flex !important;
-  gap: 12px !important;
+  gap: 14px !important;
   align-items: flex-start !important;
-  padding: 6px 4px !important;
+  padding: 14px 4px !important;
   animation: aiMsgSlide 0.3s cubic-bezier(0.34,1.4,0.64,1) both;
-  border-bottom: none !important;
-  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.03) !important;
 }
 @keyframes aiMsgSlide {
   from { opacity:0; transform:translateY(12px); }
   to   { opacity:1; transform:translateY(0); }
 }
 
-/* AI avatar icon - explicit element now */
-.ai-msg-avatar {
-  min-width: 30px;
-  height: 30px;
+/* AI avatar chip */
+.ai-full-msg::before {
+  content: '✦';
+  min-width: 30px; height: 30px;
   border-radius: 8px;
   background: linear-gradient(135deg,#6d28d9,#d946ef);
   display: flex;
@@ -4701,25 +4711,13 @@ animation: shakeField 0.4s ease;
   font-size: 0.72rem;
   color: #fff;
   flex-shrink: 0;
-  margin-top: 4px;
+  margin-top: 2px;
   box-shadow: 0 2px 10px rgba(217,70,239,0.25);
 }
 
-/* AI message card/container */
-.ai-msg-card {
-  flex: 1;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 4px 16px 16px 16px;
-  padding: 12px 16px;
-  min-width: 0;
-}
-
-/* Remove old ::before pseudo-element */
-.ai-full-msg::before { display: none !important; content: none !important; }
-
 /* AI text content */
 .ai-full-content {
+  flex: 1;
   font-size: 0.96rem;
   line-height: 1.78;
   color: #dde4f0;
@@ -4776,8 +4774,7 @@ animation: shakeField 0.4s ease;
   opacity: 0;
   transition: opacity 0.18s;
 }
-.ai-full-msg:hover .ai-full-actions,
-.ai-msg-card:hover .ai-full-actions { opacity: 1; }
+.ai-full-msg:hover .ai-full-actions { opacity: 1; }
 .ai-act-btn {
   background: none;
   border: none;
@@ -5472,12 +5469,7 @@ animation: shakeField 0.4s ease;
 }
 .group-ai-trigger:hover { opacity: 0.8; }
 
-/* Share group invite button */
-.group-invite-btn {
-  background: rgba(52,211,153,0.12) !important;
-  border: 1px solid rgba(52,211,153,0.25) !important;
-  color: #34d399 !important;
-}
+/* ─── Create group modal ─── */
 .create-group-overlay {
   position: fixed;
   inset: 0;
@@ -5662,72 +5654,11 @@ animation: shakeField 0.4s ease;
   margin-bottom: 6px;
 }
 
-/* Image grid container — WhatsApp-style */
-.group-img-grid {
-  border-radius: 12px;
-  overflow: hidden;
-  max-width: 260px;
-}
+/* Image grid container */
 .group-img-grid img {
   transition: opacity 0.15s;
-  display: block;
-  width: 100%;
-  object-fit: cover;
 }
-.group-img-grid img:hover { opacity: 0.85; cursor: pointer; }
-
-/* Single image — larger */
-.group-img-grid.single img {
-  max-height: 320px;
-  width: 220px;
-  border-radius: 12px;
-}
-/* 2-image side by side */
-.group-img-grid.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2px;
-  max-width: 220px;
-}
-.group-img-grid.grid-2 img { height: 110px; }
-/* 3 images */
-.group-img-grid.grid-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
-  gap: 2px;
-  max-width: 220px;
-}
-.group-img-grid.grid-3 img:first-child {
-  grid-column: 1 / -1;
-  height: 140px;
-}
-.group-img-grid.grid-3 img:not(:first-child) { height: 90px; }
-/* 4+ images */
-.group-img-grid.grid-many {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  max-width: 240px;
-}
-.group-img-grid.grid-many img { height: 78px; }
-/* More-count overlay for 4+ */
-.grid-more-overlay {
-  position: relative;
-  display: block;
-}
-.grid-more-overlay::after {
-  content: attr(data-count);
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+.group-img-grid img:hover { opacity: 0.85; }
 
 /* Group msg-wrap spacing */
 .group-msg-wrap {
@@ -5777,4 +5708,323 @@ animation: shakeField 0.4s ease;
   .group-header {
     padding-top: calc(env(safe-area-inset-top, 0px) + 10px);
   }
+}
+
+/* ══════════════════════════════════════════════════════════
+   SESSION 9: PROGRESS SECTION + FIXES
+   ══════════════════════════════════════════════════════════ */
+
+/* Progress Stats Row */
+.progress-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (max-width: 480px) {
+  .progress-stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+}
+
+/* Progress Section Card */
+.progress-section-card {
+  background: #0a0a0a;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.progress-section-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ccc;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Section header row */
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Fix: AI section no empty space at bottom ── */
+.ai-layout {
+  padding-bottom: 0 !important;
+}
+.ai-messages {
+  padding-bottom: 8px !important;
+}
+#s-ai.app-section,
+#t-ai.app-section {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+/* ── Fix: Remove exam card glow / glowing buttons ── */
+.mini-card {
+  box-shadow: none !important;
+}
+.mini-card:hover {
+  box-shadow: none !important;
+}
+.create-exam-cta {
+  box-shadow: none !important;
+}
+.create-exam-cta:hover {
+  box-shadow: none !important;
+}
+.nav-btn.magic-btn {
+  box-shadow: none !important;
+}
+button.magic-btn:hover {
+  box-shadow: none !important;
+}
+
+/* ── Fix: Search bar clean (no Google color chips) ── */
+.search-wrap-enhanced {
+  margin-bottom: 16px;
+}
+.search-glow {
+  display: none !important;
+}
+.google-bar {
+  background: #111 !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 14px !important;
+  padding: 12px 16px 12px 40px !important;
+  width: 100% !important;
+  color: #fff !important;
+  font-size: 0.95rem !important;
+  font-family: var(--font-main) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s !important;
+}
+.google-bar:focus {
+  border-color: rgba(96,165,250,0.4) !important;
+  box-shadow: none !important;
+}
+.search-inner {
+  position: relative !important;
+}
+
+/* ── Fix: app-section fills available space ── */
+.app-section {
+  min-height: calc(100dvh - var(--nav-height) - 20px);
+}
+
+/* ── Fix: Portal container no extra bottom padding on desktop ── */
+@media (min-width: 769px) {
+  .portal-container {
+    padding-bottom: 20px;
+  }
+}
+
+/* ── Analytics Recent List ── */
+.analytics-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.analytics-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.85rem;
+}
+.analytics-recent-item:last-child { border-bottom: none; }
+.analytics-recent-item .a-icon {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  background: rgba(59,130,246,0.12);
+  display: flex; align-items: center; justify-content: center;
+  color: #60a5fa; font-size: 0.85rem; flex-shrink: 0;
+}
+.analytics-recent-item .a-info { flex: 1; }
+.analytics-recent-item .a-name { color: #ddd; font-weight: 600; }
+.analytics-recent-item .a-sub { color: #555; font-size: 0.75rem; }
+.analytics-recent-item .a-score {
+  font-weight: 700; font-size: 0.9rem;
+  color: #10b981;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SESSION 9: CHAT ENHANCEMENTS (WhatsApp + Telegram hybrid)
+   ══════════════════════════════════════════════════════════ */
+
+/* AI hint bar in private chat */
+.chat-ai-hint {
+  text-align: center;
+  font-size: 0.7rem;
+  color: #4a4a6a;
+  padding: 5px 12px;
+  background: rgba(109,40,217,0.06);
+  border-top: 1px solid rgba(109,40,217,0.1);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* Reply preview in chat bubble */
+.wapp-reply-preview {
+  background: rgba(255,255,255,0.06);
+  border-right: 3px solid #60a5fa;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  max-width: 100%;
+}
+
+/* AI message bubble in private chat */
+.wapp-ai-msg {
+  background: linear-gradient(135deg, rgba(109,40,217,0.15), rgba(217,70,239,0.08)) !important;
+  border: 1px solid rgba(109,40,217,0.2) !important;
+}
+.wapp-ai-label {
+  font-size: 0.68rem;
+  color: #a78bfa;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Reactions on messages */
+.wapp-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+.wapp-rxn-pill {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 1px 7px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* Context menu with reactions row */
+.ctx-reactions-row {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 1.3rem;
+}
+.ctx-rxn {
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.ctx-rxn:hover { background: rgba(255,255,255,0.1); }
+.ctx-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 0 8px;
+}
+
+/* Emoji panel */
+.emoji-panel {
+  background: #111;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.emoji-panel.hidden { display: none; }
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+}
+.emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+  line-height: 1;
+}
+.emoji-btn:hover { background: rgba(255,255,255,0.08); }
+
+/* Reply bar above input */
+#reply-bar-* {
+  background: #111;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 6px 12px;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+/* Chat input extra button */
+.chat-img-attach-btn {
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  color: #666; font-size: 1rem; cursor: pointer;
+  transition: background 0.15s;
+}
+.chat-img-attach-btn:hover { background: rgba(255,255,255,0.1); color: #aaa; }
+
+/* ── Fix: context menu position ── */
+.msg-ctx-menu {
+  position: fixed;
+  z-index: 9999;
+  background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  min-width: 190px;
+  padding: 6px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  color: #ddd;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.ctx-item:hover { background: rgba(255,255,255,0.06); }
+.ctx-item.danger { color: #f87171; }
+.ctx-item i { width: 16px; text-align: center; }
+
+/* ── Online status indicator ── */
+#chat-online-* { color: #25d366 !important; }
+
+/* ── Remove search glow ── */
+.search-wrap-enhanced { position: relative; }
+
+/* ── Leaderboard crown hidden (was incorrectly shown) ── */
+.leaderboard-crown { display: none; }
+
+/* ── Fix: AI chips in welcome screen should still show ── */
+.ai-chips { margin-top: 0; }
+
+/* ── Teacher/Student nav - fix 5 buttons layout ── */
+.nav-container { gap: 0; }
+.nav-btn { flex: 1; min-width: 0; }
+.nav-btn span { font-size: 0.62rem; }
+@media (max-width: 380px) {
+  .nav-btn span { font-size: 0.55rem; }
+  .nav-btn { padding: 6px 2px; }
 }
