@@ -124,8 +124,8 @@ window.filterStudentExams = (subject) => {
     if(input) { input.value = subject; input.dispatchEvent(new Event('input')); }
 };
 
-const TEACHER_TABS = ['t-library', 't-reese', 't-dardasha', 't-ai', 't-analytics'];
-const STUDENT_TABS = ['s-exams', 's-reese', 's-dardasha', 's-ai', 's-progress'];
+const TEACHER_TABS = ['t-library', 't-reese', 't-dardasha', 't-ai'];
+const STUDENT_TABS = ['s-exams', 's-reese', 's-dardasha', 's-ai'];
 let _suppressHistoryPush = false;
 
 let _swipeStartX = 0;
@@ -1054,8 +1054,6 @@ window.switchTab = (tabId, btn) => {
     }
     if(tabId === 't-ai' && !currentChatId) startNewChat('t');
     if(tabId === 's-ai' && !currentChatId) startNewChat('s');
-    if(tabId === 't-analytics') loadTeacherAnalytics();
-    if(tabId === 's-progress') loadStudentProgress();
 
     
     setTimeout(() => {
@@ -1233,24 +1231,18 @@ window.openChatRoom = (chatId, name, icon, uid) => {
             </div>
         </div>
         <div class="chat-msgs-area" id="chat-msgs-${chatId}"></div>
-        <div class="chat-ai-hint" id="chat-ai-hint-${chatId}">
-            <i class="fas fa-robot" style="color:#7c3aed;"></i> اكتب <strong>@AI</strong> ثم سؤالك للحصول على رد من SA AI
-        </div>
-        <div id="reply-bar-${chatId}" style="display:none;background:#111;border-top:1px solid #222;padding:8px 12px;display:none;align-items:center;gap:8px;"></div>
         <div class="chat-input-area" id="chat-input-area-${chatId}">
             <label class="chat-img-attach-btn" title="إرسال صور">
                 <i class="ph-bold ph-camera"></i>
                 <input type="file" hidden accept="image/*" multiple onchange="sendChatImages(this,'${chatId}','${uid}')">
             </label>
-            <button class="chat-img-attach-btn" onclick="toggleEmojiPanel('${chatId}')" title="إيموجي / ملصقات"><i class="ph-bold ph-smiley"></i></button>
-            <input type="text" id="chat-input-${chatId}" placeholder="اكتب رسالة أو @AI سؤال..."
+            <input type="text" id="chat-input-${chatId}" placeholder="اكتب رسالة..."
                 onkeypress="handleChatEnter(event,'${chatId}','${uid}')"
-                oninput="toggleChatMicSend('${chatId}');handleAIHint('${chatId}')"
+                oninput="toggleChatMicSend('${chatId}')"
                 onfocus="handleChatInputFocus(this)">
             <button id="chat-send-btn-${chatId}" class="send-btn" style="display:none" onclick="sendChatMessage('${chatId}','${uid}')"><i class="ph-bold ph-paper-plane-tilt"></i></button>
             <button id="chat-mic-btn-${chatId}" class="send-btn" style="background:rgba(255,255,255,0.08);color:#aaa;" onclick="toggleVoiceRecord('${chatId}','${uid}')"><i class="ph-bold ph-microphone"></i></button>
         </div>
-        <div id="emoji-panel-${chatId}" class="emoji-panel hidden"></div>
         <div id="voice-recording-bar-${chatId}" class="voice-recording-bar hidden">
             <div class="voice-wave-anim"><span></span><span></span><span></span><span></span><span></span></div>
             <span id="voice-timer-${chatId}" style="color:#ef4444;font-weight:bold;font-size:0.9rem;min-width:40px;">0:00</span>
@@ -1329,32 +1321,12 @@ function appendChatMsg(container, msg, chatId, otherUid, otherName) {
             ${buildMsgFooter(msg, isMe)}
         </div>`;
     } else {
-        const replyHTML = msg.replyTo
-            ? `<div class="wapp-reply-preview"><strong style="font-size:0.68rem;color:#60a5fa;">${msg.replyTo.sender||''}</strong><div style="font-size:0.72rem;color:#888;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${(msg.replyTo.text||'').substring(0,50)}</div></div>`
-            : '';
-        const isAI = msg.sender === 'AI_BOT' || msg.isAI;
-        const aiLabel = isAI ? '<div class="wapp-ai-label"><i class="fas fa-robot"></i> SA AI</div>' : '';
-        content = `<div class="wapp-msg${isAI?' wapp-ai-msg':''}">${aiLabel}${replyHTML}<div class="wapp-text">${makeLinksClickable(msg.text || '')}</div>${buildMsgFooter(msg, isMe)}</div>`;
+        content = `<div class="wapp-msg"><div class="wapp-text">${makeLinksClickable(msg.text || '')}</div>${buildMsgFooter(msg, isMe)}</div>`;
     }
 
     wrap.innerHTML = content;
 
-    // Show reactions
-    if (msg.reactions && !msg.deleted) {
-        const grouped = {};
-        Object.values(msg.reactions).forEach(em => { grouped[em] = (grouped[em]||0)+1; });
-        const rxnDiv = document.createElement('div');
-        rxnDiv.className = 'wapp-reactions';
-        Object.entries(grouped).forEach(([em, cnt]) => {
-            const pill = document.createElement('span');
-            pill.className = 'wapp-rxn-pill';
-            pill.textContent = em + (cnt > 1 ? cnt : '');
-            rxnDiv.appendChild(pill);
-        });
-        wrap.appendChild(rxnDiv);
-    }
-
-    if (!isDeleted) {
+    if (!isDeleted && isMe) {
         wrap.addEventListener('contextmenu', (e) => { e.preventDefault(); showMsgContextMenu(e, msg._key, chatId, otherUid, msg.text, isMe); });
         wrap.addEventListener('touchstart', touchHoldHandler(wrap, msg._key, chatId, otherUid, msg.text, isMe), { passive: true });
     }
@@ -1387,84 +1359,18 @@ function touchHoldHandler(wrap, key, chatId, otherUid, text, isMe) {
     };
 }
 
-
-// ── Emoji quick reactions ──
-const QUICK_REACTIONS = ['❤️','😂','👍','😮','😢','🔥','🎉','💯'];
-
-window.addPrivateChatReaction = async (chatId, msgKey, emoji) => {
-    await update(ref(db, `chats/${chatId}/${msgKey}/reactions/${myUid}`), emoji);
-    document.querySelectorAll('.msg-ctx-menu').forEach(el => el.remove());
-};
-
-window.handleAIHint = (chatId) => {
-    const input = document.getElementById(`chat-input-${chatId}`);
-    const hint = document.getElementById(`chat-ai-hint-${chatId}`);
-    if (!input || !hint) return;
-    const val = input.value;
-    const show = val.startsWith('@AI') || val.startsWith('@ai') || val.startsWith('@ذكاء');
-    hint.style.display = show ? 'flex' : 'none';
-};
-
-window.toggleEmojiPanel = (chatId) => {
-    const panel = document.getElementById(`emoji-panel-${chatId}`);
-    if (!panel) return;
-    if (panel.classList.contains('hidden')) {
-        const emojis = ['😀','😂','🥰','😍','🤩','😎','🥳','🤔','😅','😭','😤','🔥','❤️','💙','👍','👏','🎉','✅','💯','🙏','🌟','💪','🤝','😴','🤣','😊','😇','🫡','🫶','🎯','⚡','🌈','🦁','🐯','🌙','☀️','🍕','☕','📚','💻','🎵','🎮','⚽','🏆'];
-        panel.innerHTML = '<div class="emoji-grid">' + emojis.map(e => `<button class="emoji-btn" onclick="insertEmoji('${chatId}','${e}')">${e}</button>`).join('') + '</div>';
-        panel.classList.remove('hidden');
-    } else {
-        panel.classList.add('hidden');
-    }
-};
-
-window.insertEmoji = (chatId, emoji) => {
-    const input = document.getElementById(`chat-input-${chatId}`);
-    if (input) { input.value += emoji; toggleChatMicSend(chatId); input.focus(); }
-    const panel = document.getElementById(`emoji-panel-${chatId}`);
-    if (panel) panel.classList.add('hidden');
-};
-
-window.forwardChatMsg = (text) => {
-    navigator.clipboard?.writeText(text).catch(()=>{});
-    showToast('تم النسخ للمشاركة', '📤 يمكنك لصقها في أي محادثة', 'success', 2500);
-};
-
 function showMsgContextMenu(e, msgKey, chatId, otherUid, text, isMe) {
     document.querySelectorAll('.msg-ctx-menu').forEach(el => el.remove());
     const menu = document.createElement('div');
     menu.className = 'msg-ctx-menu';
-    const x = Math.min((e.clientX || e.pageX || 0), window.innerWidth - 210);
-    const y = Math.min((e.clientY || e.pageY || 0), window.innerHeight - 280);
-    menu.style.top = y + 'px';
-    menu.style.left = x + 'px';
-
-    const rxns = QUICK_REACTIONS.map(em =>
-        `<span class="ctx-rxn" onclick="addPrivateChatReaction('${chatId}','${msgKey}','${em}')">${em}</span>`
-    ).join('');
-
-    const safeSender = isMe ? (currentUser||'أنت') : 'المستخدم';
-    const safeText = (text||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").substring(0,120);
-
-    menu.innerHTML = `
-        <div class="ctx-reactions-row">${rxns}</div>
-        <div class="ctx-divider"></div>
-        <div class="ctx-item" onclick="setPrivateChatReply('${chatId}','${msgKey}','${safeText}','${safeSender}');document.querySelectorAll('.msg-ctx-menu').forEach(el=>el.remove())">
-            <i class="ph-bold ph-arrow-bend-up-left"></i> رد
-        </div>
-        <div class="ctx-item" onclick="navigator.clipboard.writeText('${safeText}').then(()=>showToast('تم النسخ','','success',1500));document.querySelectorAll('.msg-ctx-menu').forEach(el=>el.remove())">
-            <i class="ph-bold ph-copy"></i> نسخ
-        </div>
-        <div class="ctx-item" onclick="forwardChatMsg('${safeText}');document.querySelectorAll('.msg-ctx-menu').forEach(el=>el.remove())">
-            <i class="ph-bold ph-share-fat"></i> إعادة توجيه
-        </div>
-        ${isMe ? `<div class="ctx-item danger" onclick="deleteChatMsg('${chatId}','${msgKey}','${otherUid}');document.querySelectorAll('.msg-ctx-menu').forEach(el=>el.remove())">
-            <i class="ph-bold ph-trash"></i> حذف للجميع
-        </div>` : ''}
-    `;
+    menu.style.top = (e.clientY || e.pageY) + 'px';
+    menu.style.left = (e.clientX || e.pageX) + 'px';
+    const copyBtn = `<div class="ctx-item" onclick="navigator.clipboard.writeText('${(text||'').replace(/'/g,"\\'")}').then(()=>showToast('تم النسخ','','success',1500)); document.querySelector('.msg-ctx-menu').remove()"><i class="ph-bold ph-copy"></i> نسخ</div>`;
+    const deleteBtn = isMe ? `<div class="ctx-item danger" onclick="deleteChatMsg('${chatId}','${msgKey}','${otherUid}'); document.querySelector('.msg-ctx-menu').remove()"><i class="ph-bold ph-trash"></i> حذف للجميع</div>` : '';
+    menu.innerHTML = copyBtn + deleteBtn;
     document.body.appendChild(menu);
     setTimeout(() => { document.addEventListener('click', () => menu.remove(), { once: true }); }, 100);
 }
-
 
 window.deleteChatMsg = async (chatId, msgKey, otherUid) => {
     await update(ref(db, `chats/${chatId}/${msgKey}`), { deleted: true, text: '', type: 'text' });
@@ -1617,91 +1523,34 @@ window.handleChatEnter = (e, chatId, otherUid) => {
     if(e.key === 'Enter') sendChatMessage(chatId, otherUid);
 };
 
-// ── Reply state for private chats ──
-let _chatReplyTo = {}; // chatId -> { key, text, sender }
-
-window.setPrivateChatReply = (chatId, key, text, senderName) => {
-    _chatReplyTo[chatId] = { key, text, sender: senderName };
-    const bar = document.getElementById(`reply-bar-${chatId}`);
-    if (bar) {
-        bar.style.display = 'flex';
-        bar.innerHTML = `
-            <div style="flex:1;min-width:0;">
-                <div style="font-size:0.7rem;color:#60a5fa;font-weight:700;margin-bottom:2px;">${senderName}</div>
-                <div style="font-size:0.78rem;color:#888;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${(text||'').substring(0,60)}</div>
-            </div>
-            <button onclick="clearPrivateChatReply('${chatId}')" style="background:none;border:none;color:#555;font-size:1rem;cursor:pointer;padding:4px;"><i class="ph-bold ph-x"></i></button>
-        `;
-    }
-};
-
-window.clearPrivateChatReply = (chatId) => {
-    delete _chatReplyTo[chatId];
-    const bar = document.getElementById(`reply-bar-${chatId}`);
-    if (bar) bar.style.display = 'none';
-};
-
-window.forwardChatMsg = async (text) => {
-    const prefix = selectedRole === 'teacher' ? 't' : 's';
-    // Simple forward: open a contact picker
-    saAlert('📤 نسخ النص للمشاركة: ' + text.substring(0,80), 'info');
-    navigator.clipboard?.writeText(text).catch(()=>{});
-};
-
 window.sendChatMessage = async (chatId, otherUid) => {
     const input = document.getElementById(`chat-input-${chatId}`);
     if (!input) return;
     const text = input.value.trim();
     if (!text) return;
 
+    // Clear & disable immediately for snappy feel
     input.value = '';
     toggleChatMicSend(chatId);
     playSound('sent');
 
     const ts = Date.now();
-    const replyTo = _chatReplyTo[chatId] || null;
-    if (replyTo) clearPrivateChatReply(chatId);
-
-    // ── @AI detection ──
-    const isAIMsg = text.startsWith('@AI') || text.startsWith('@ai') || text.startsWith('@ذكاء');
-    const aiQuery = text.replace(/^@AI\s*/i,'').replace(/^@ذكاء\s*/,'').trim();
-
     try {
-        const msgData = {
+        await push(ref(db, `chats/${chatId}`), {
             sender: myUid,
             senderName: currentUser,
             text: text,
             type: 'text',
             timestamp: ts
-        };
-        if (replyTo) msgData.replyTo = replyTo;
-
-        await push(ref(db, `chats/${chatId}`), msgData);
+        });
         const shortMsg = text.substring(0, 60);
         await Promise.all([
             update(ref(db, `user_chats/${myUid}/${chatId}`),    { lastMsg: shortMsg, lastMsgTime: ts }),
             update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: shortMsg, lastMsgTime: ts })
         ]);
-
-        // ── If @AI, generate AI reply ──
-        if (isAIMsg && aiQuery) {
-            const aiTs = Date.now() + 100;
-            const loadingKey = await push(ref(db, `chats/${chatId}`), {
-                sender: 'AI_BOT', senderName: 'SA AI', isAI: true,
-                text: '⏳ جاري التفكير...', type: 'text', timestamp: aiTs
-            });
-            try {
-                const aiReply = await callPollinationsAI(aiQuery);
-                await update(ref(db, `chats/${chatId}/${loadingKey.key}`), { text: aiReply });
-                update(ref(db, `user_chats/${myUid}/${chatId}`), { lastMsg: '🤖 ' + aiReply.substring(0,40), lastMsgTime: Date.now() });
-                update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: '🤖 ' + aiReply.substring(0,40), lastMsgTime: Date.now() });
-            } catch(e) {
-                update(ref(db, `chats/${chatId}/${loadingKey.key}`), { text: 'عذراً، لم أتمكن من الرد الآن.' });
-            }
-        }
     } catch(e) {
         console.error('Send failed:', e);
-        input.value = text;
+        input.value = text; // restore on error
         toggleChatMicSend(chatId);
         saAlert('فشل إرسال الرسالة، تحقق من الاتصال', 'error');
     }
@@ -2235,11 +2084,18 @@ function formatAiResponseText(text) {
 
 function renderMessageUI(prefix, role, text, imgB64) {
     const msgs = document.getElementById(`${prefix}-ai-msgs`);
+    if (!msgs) return;
 
     if (role === 'ai') {
-        // AI: no bubble - full width like ChatGPT
+        // AI: full width like ChatGPT with platform logo avatar
         const wrap = document.createElement('div');
         wrap.className = 'ai-full-msg';
+
+        // Avatar row
+        const avatarRow = document.createElement('div');
+        avatarRow.className = 'ai-msg-avatar-row';
+        avatarRow.innerHTML = `<img src="https://i.postimg.cc/BQQb5YDn/MOWU-DESIGN.png" class="ai-msg-logo-avatar" alt="SA AI" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="ai-avatar-gemini" style="display:none"><div class="ai-avatar-gemini-inner"><i class="fas fa-wand-magic-sparkles"></i></div></div><span class="ai-sender-label">SA AI</span>`;
+        wrap.appendChild(avatarRow);
 
         const content = document.createElement('div');
         content.className = 'ai-full-content';
@@ -3002,13 +2858,15 @@ window.sendAiMsg = async (prefix) => {
     const input = document.getElementById(`${prefix}-ai-input`); 
     const fileInput = document.getElementById(`${prefix}-ai-file`);
     const msgs = document.getElementById(`${prefix}-ai-msgs`); 
+    if (!input || !msgs) return;
     let txt = input.value.trim();
     
-    if(!txt && !fileInput.files[0]) return;
+    const hasFile = fileInput && fileInput.files && fileInput.files[0];
+    if(!txt && !hasFile) return;
     
     playSound('sent');
 
-    if (!fileInput.files[0]) {
+    if (!fileInput || !fileInput.files[0]) {
         if (txt.includes("أنشئ اختبار") || txt.includes("create exam") || txt.includes("امتحان")) {
             if(selectedRole !== 'teacher') {
                 return saAlert("عذراً، هذه الميزة للمعلمين فقط.", "error");
@@ -3032,7 +2890,7 @@ window.sendAiMsg = async (prefix) => {
     let imgB64 = null;
     let ocrText = "";
 
-    if(fileInput.files[0]) {
+    if(hasFile) {
         const ocrLoadId = 'ocr-loading-' + Date.now();
         const ocrLoader = document.createElement('div');
         ocrLoader.className = 'chat-msg ai';
@@ -3148,7 +3006,8 @@ window.sendAiMsg = async (prefix) => {
 
         if (_cached && !_forceNew) {
             playSound('recv');
-            document.getElementById(loadId).remove();
+            const loaderElCached = document.getElementById(loadId);
+            if (loaderElCached) loaderElCached.remove();
             currentChatMessages.push({ role: 'ai', content: _cached, image: null });
             renderMessageUI(prefix, 'ai', _cached, null);
             saveChatToLocal();
@@ -3189,14 +3048,16 @@ window.sendAiMsg = async (prefix) => {
         }
         
         playSound('recv');
-        document.getElementById(loadId).remove();
+        const loaderEl = document.getElementById(loadId);
+        if (loaderEl) loaderEl.remove();
         currentChatMessages.push({ role: 'ai', content: reply, image: null });
         renderMessageUI(prefix, 'ai', reply, null); 
         saveChatToLocal();
     } catch (e) { 
-        document.getElementById(loadId).innerHTML = `
+        const loaderEl = document.getElementById(loadId);
+        if (loaderEl) loaderEl.innerHTML = `
             <div class="ai-msg-avatar"><i class="fas fa-exclamation" style="font-size:0.7rem;color:#ef4444;"></i></div>
-            <div class="chat-msg ai" style="color:#ef4444;">حدث خطأ في الاتصال بالذكاء الاصطناعي.</div>
+            <div class="chat-msg ai" style="color:#ef4444;">حدث خطأ في الاتصال بالذكاء الاصطناعي. تأكد من اتصالك بالإنترنت وحاول مجدداً.</div>
         `; 
         console.error(e);
     }
@@ -4007,41 +3868,40 @@ function updateTeacherExamCount(count) {
 // ══════════════════════════════════════════════════════
 window.loadTeacherAnalytics = async function() {
     try {
-        const testsSnap = await get(ref(db, 'tests'));
-        const resultsSnap = await get(ref(db, 'results'));
-        let totalExams = 0, totalStudents = new Set(), scores = [], recentActivity = [];
+        const testsSnap = await get(ref(db, `tests`));
+        let totalExams = 0, totalStudents = 0, scores = [], recentActivity = [];
         
         if (testsSnap.exists()) {
-            const testsData = testsSnap.val();
-            const resultsData = resultsSnap.exists() ? resultsSnap.val() : {};
-            
-            for (const [testId, t] of Object.entries(testsData)) {
-                if (t.uid !== myUid) continue;
-                totalExams++;
-                const testResults = resultsData[testId] || {};
-                for (const [uid, res] of Object.entries(testResults)) {
-                    const pct = res.percentage !== undefined ? Math.round(res.percentage) : Math.round((res.score/(res.total||1))*100);
-                    scores.push(pct);
-                    totalStudents.add(uid);
-                    recentActivity.push({
-                        name: t.title || 'اختبار',
-                        student: res.name || res.studentName || 'طالب',
-                        score: pct,
-                        time: res.time || res.submittedAt || 0
-                    });
+            testsSnap.forEach(testNode => {
+                const t = testNode.val();
+                if (t.uid === myUid) {
+                    totalExams++;
+                    // Count attempts
+                    if (t.attempts) {
+                        const attList = Object.values(t.attempts);
+                        attList.forEach(a => {
+                            scores.push(Math.round((a.score / (t.questions?.length || 1)) * 100));
+                            recentActivity.push({
+                                name: t.title,
+                                student: a.name || 'طالب',
+                                score: Math.round((a.score / (t.questions?.length || 1)) * 100),
+                                time: a.time || 0
+                            });
+                        });
+                    }
                 }
-            }
+            });
         }
         
         const avgScore = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
-        const totalStudentsCount = totalStudents.size;
+        totalStudents = scores.length;
         
         const el = (id) => document.getElementById(id);
-        if(el('t-anal-exams')) el('t-anal-exams').textContent = totalExams;
-        if(el('t-anal-students')) el('t-anal-students').textContent = totalStudentsCount;
-        if(el('t-anal-avg')) el('t-anal-avg').textContent = avgScore ? avgScore + '%' : '--';
+        if(el('t-stat-total-exams')) el('t-stat-total-exams').textContent = totalExams;
+        if(el('t-stat-total-students')) el('t-stat-total-students').textContent = totalStudents;
+        if(el('t-stat-avg-score')) el('t-stat-avg-score').textContent = avgScore + '%';
         
-        const actList = el('t-anal-recent');
+        const actList = el('t-recent-activity');
         if (actList) {
             recentActivity.sort((a,b)=>b.time-a.time);
             if (recentActivity.length === 0) {
@@ -4049,12 +3909,11 @@ window.loadTeacherAnalytics = async function() {
             } else {
                 actList.innerHTML = recentActivity.slice(0,10).map(a => `
                     <div class="analytics-recent-item">
-                        <div class="a-icon"><i class="fas fa-file-alt"></i></div>
-                        <div class="a-info">
-                            <div class="a-name">${a.name}</div>
-                            <div class="a-sub">${a.student}</div>
+                        <div>
+                            <div class="item-name">${a.name}</div>
+                            <div style="font-size:0.72rem;color:#555;">${a.student}</div>
                         </div>
-                        <div class="a-score">${a.score}%</div>
+                        <div class="item-score">${a.score}%</div>
                     </div>`).join('');
             }
         }
@@ -4461,8 +4320,7 @@ window.openGroupRoom = async (groupId, prefix) => {
                 <i class="ph-bold ph-image"></i>
                 <input type="file" hidden accept="image/*" multiple onchange="sendGroupImages(this,'${groupId}','${prefix}')">
             </label>
-            <button class="chat-img-attach-btn" onclick="toggleGroupEmojiPanel('${groupId}')" title="إيموجي"><i class="ph-bold ph-smiley"></i></button>
-            <input type="text" id="group-chat-input-${groupId}" placeholder="رسالة... أو @AI سؤال"
+            <input type="text" id="group-chat-input-${groupId}" placeholder="رسالة..."
                 onkeypress="if(event.key==='Enter')sendGroupMessage('${groupId}','${prefix}')"
                 oninput="toggleGroupMicSend('${groupId}')">
             <button id="group-send-btn-${groupId}" class="send-btn" style="display:none;" onclick="sendGroupMessage('${groupId}','${prefix}')"><i class="ph-bold ph-paper-plane-tilt"></i></button>
@@ -4471,12 +4329,14 @@ window.openGroupRoom = async (groupId, prefix) => {
     `;
 
     // ── Listen for messages ──
-    const msgsContainer = document.getElementById(`group-msgs-${groupId}`);
     const MEMBER_COLORS = ['#60a5fa','#34d399','#f59e0b','#f87171','#a78bfa','#fb923c','#22d3ee','#4ade80'];
     const colorMap = {};
     let memberColorIdx = 0;
 
     const listener = onValue(ref(db, `group_messages/${groupId}`), (snap) => {
+        // Always re-fetch the container — avoids stale DOM reference after re-renders
+        const msgsContainer = document.getElementById(`group-msgs-${groupId}`);
+        if (!msgsContainer) return; // container was removed (room closed), abort safely
         msgsContainer.innerHTML = '';
 
         if (!snap.exists()) {
@@ -4725,34 +4585,6 @@ window.toggleGroupMicSend = (groupId) => {
     if (mic) mic.style.display = has ? 'none' : 'flex';
 };
 
-window.toggleGroupEmojiPanel = (groupId) => {
-    const panelId = `group-emoji-panel-${groupId}`;
-    let panel = document.getElementById(panelId);
-    if (!panel) {
-        panel = document.createElement('div');
-        panel.id = panelId;
-        panel.className = 'emoji-panel';
-        const inputArea = document.getElementById(`group-input-${groupId}`);
-        if (inputArea && inputArea.parentNode) {
-            inputArea.parentNode.insertBefore(panel, inputArea);
-        } else { return; }
-    }
-    if (panel.classList.contains('hidden') || !panel.innerHTML) {
-        const emojis = ['😀','😂','🥰','😍','🤩','😎','🥳','🤔','😅','😭','😤','🔥','❤️','💙','👍','👏','🎉','✅','💯','🙏','🌟','💪','🤝','😴','🤣','😊','😇','🫡','🫶','🎯','⚡','🌈','🦁','🐯','🌙','☀️','🍕','☕','📚','💻','🎵','🎮','⚽','🏆'];
-        panel.innerHTML = '<div class="emoji-grid">' + emojis.map(e => `<button class="emoji-btn" onclick="insertGroupEmoji('${groupId}','${e}')">${e}</button>`).join('') + '</div>';
-        panel.classList.remove('hidden');
-    } else {
-        panel.classList.add('hidden');
-    }
-};
-
-window.insertGroupEmoji = (groupId, emoji) => {
-    const input = document.getElementById(`group-chat-input-${groupId}`);
-    if (input) { input.value += emoji; input.focus(); }
-    const panel = document.getElementById(`group-emoji-panel-${groupId}`);
-    if (panel) panel.classList.add('hidden');
-};
-
 window.sendGroupMessage = async (groupId, prefix, textOverride) => {
     const input = document.getElementById(`group-chat-input-${groupId}`);
     const txt = textOverride || (input ? input.value.trim() : '');
@@ -4770,24 +4602,55 @@ window.sendGroupMessage = async (groupId, prefix, textOverride) => {
 
     if (input) { input.value = ''; toggleGroupMicSend(groupId); }
 
+    // ── Optimistic UI: show the message immediately without waiting for Firebase ──
+    const msgsNow = document.getElementById(`group-msgs-${groupId}`);
+    if (msgsNow) {
+        // Remove empty-state placeholder if present
+        const placeholder = msgsNow.querySelector('div[style*="text-align:center"]');
+        if (placeholder) placeholder.remove();
+
+        const optWrap = document.createElement('div');
+        optWrap.className = 'group-msg-wrap me';
+        optWrap.id = `opt-msg-${Date.now()}`;
+        optWrap.innerHTML = `
+            <div class="group-msg-bubble">
+                <div style="word-break:break-word;">${txt}</div>
+                <div class="group-msg-meta" style="justify-content:flex-end;">
+                    <span>${new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</span>
+                    <span class="msg-read-ticks"><i class="fas fa-clock" style="font-size:0.55rem;opacity:0.5;"></i></span>
+                </div>
+            </div>
+            <div class="msg-reactions"></div>
+        `;
+        msgsNow.appendChild(optWrap);
+        msgsNow.scrollTop = msgsNow.scrollHeight;
+        playSound('sent');
+    }
+
     const msgData = {
         text: txt, senderUid: myUid, senderName: currentUser,
         time: Date.now(), type: 'text',
         ...(replyData ? { replyTo: replyData } : {})
     };
 
-    const msgRef = await push(ref(db, `group_messages/${groupId}`), msgData);
-    const shortMsg = `${currentUser}: ${txt.substring(0,40)}`;
-    await update(ref(db, `groups/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() });
+    try {
+        const msgRef = await push(ref(db, `group_messages/${groupId}`), msgData);
+        const shortMsg = `${currentUser}: ${txt.substring(0,40)}`;
+        await update(ref(db, `groups/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() });
 
-    // Notify all members
-    const membersSnap = await get(ref(db, `groups/${groupId}/members`));
-    if (membersSnap.exists()) {
-        const ups = [];
-        membersSnap.forEach(m => ups.push(update(ref(db, `user_groups/${m.key}/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() })));
-        await Promise.all(ups);
+        // Notify all members
+        const membersSnap = await get(ref(db, `groups/${groupId}/members`));
+        if (membersSnap.exists()) {
+            const ups = [];
+            membersSnap.forEach(m => ups.push(update(ref(db, `user_groups/${m.key}/${groupId}`), { lastMsg: shortMsg, lastMsgTime: Date.now() })));
+            await Promise.all(ups);
+        }
+    } catch (firebaseErr) {
+        console.error('Group message send error:', firebaseErr);
+        // Remove optimistic message on failure
+        const optEl = document.getElementById(`opt-msg-${Date.now()}`);
+        if (optEl) optEl.remove();
     }
-    playSound('sent');
 
     // ── AI auto-response: if group has AI enabled and message mentions @AI or starts with /ai ──
     const groupInfoSnap = await get(ref(db, `groups/${groupId}/enableAI`));
@@ -4934,6 +4797,13 @@ window.cancelReply = (groupId) => {
 };
 
 window.closeGroupRoom = (prefix) => {
+    // Unsubscribe the Firebase listener BEFORE clearing innerHTML
+    // to prevent the callback from firing on a detached/orphaned msgsContainer
+    if (window._activeGroupListener) {
+        window._activeGroupListener();
+        window._activeGroupListener = null;
+    }
+    window._activeGroupId = null;
     const win = document.getElementById(`${prefix}-chat-window`);
     if (win) { win.classList.add('hidden'); win.innerHTML = ''; }
     const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
