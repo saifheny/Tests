@@ -4074,69 +4074,989 @@ window.loadStudentProgress = async function() {
 
 
 // ══════════════════════════════════════════════════════════════════
-//  CHAT — DIRECT MESSAGES ONLY (Groups removed)
+//  TELEGRAM-STYLE GROUPS SYSTEM — FULL
 // ══════════════════════════════════════════════════════════════════
 
-// ── Plus menu (new chat only) ──
+let _tgCurrentTab = {}; // { 't': 'chats'|'groups', 's': 'chats'|'groups' }
+let _tgCreatePhoto = null;
+let _tgCreateEmoji = '📚';
+let _tgCreateMembers = [];
+let _tgActiveGroupId = null;
+let _tgActiveGroupListener = null;
+let _tgReplyData = null;
+let _tgLpTimer = null;
+
+// ── Plus menu ──
 window.showChatPlusMenu = (prefix) => {
-    const existing = document.getElementById('chat-plus-menu-popup');
+    const existing = document.getElementById('tg-plus-popup');
     if (existing) { existing.remove(); return; }
     const menu = document.createElement('div');
-    menu.id = 'chat-plus-menu-popup';
-    menu.className = 'chat-plus-menu';
-    menu.style.cssText = 'bottom:80px;left:16px;';
+    menu.id = 'tg-plus-popup';
+    menu.className = 'tg-ctx-menu';
+    menu.style.cssText = 'bottom:70px;left:12px;min-width:190px;';
     menu.innerHTML = `
-        <button onclick="toggleUserSearchModal();document.getElementById('chat-plus-menu-popup')?.remove()">
-            <i class="fas fa-user-plus" style="color:#60a5fa;"></i> محادثة جديدة
-        </button>
+        <div class="tg-ctx-item" onclick="toggleUserSearchModal();document.getElementById('tg-plus-popup')?.remove()">
+            <i class="fas fa-user-plus" style="color:#2AABEE;"></i> محادثة جديدة
+        </div>
+        <div class="tg-ctx-item" onclick="tgOpenCreateGroup('${prefix}');document.getElementById('tg-plus-popup')?.remove()">
+            <i class="fas fa-users" style="color:#34d399;"></i> إنشاء جروب جديد
+        </div>
     `;
     document.body.appendChild(menu);
     setTimeout(() => {
-        document.addEventListener('click', function handler(e) {
-            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', handler); }
+        document.addEventListener('click', function h(e) {
+            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', h); }
         });
-    }, 100);
+    }, 80);
 };
 
-// ── initDardasha_real (used for chat tab refresh) ──
+// ── Switch tab (chats / groups) ──
+window.switchChatTab = (prefix, type, btn) => {
+    _tgCurrentTab[prefix] = type;
+    document.querySelectorAll(`#${prefix}-tg-tabs .tg-tab`).forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const list = document.getElementById(`${prefix}-chat-list`);
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:#333;"><i class="fas fa-circle-notch fa-spin"></i></div>';
+    if (type === 'chats') {
+        window.initDardasha_real(prefix);
+    } else {
+        tgLoadGroupsList(prefix);
+    }
+};
+
+// ── Filter chat list ──
+window.filterChatList = (prefix, term) => {
+    const items = document.querySelectorAll(`#${prefix}-chat-list .chat-item, #${prefix}-chat-list .tg-group-item`);
+    items.forEach(item => {
+        const nameEl = item.querySelector('.tg-group-name, span[style*="text-overflow"]');
+        const name = (nameEl ? nameEl.textContent : item.textContent).toLowerCase();
+        item.style.display = name.includes(term.toLowerCase()) ? '' : 'none';
+    });
+};
+
+// ── initDardasha_real ──
 window.initDardasha_real = (prefix) => {
     const list = document.getElementById(`${prefix}-chat-list`);
     if (!list) return;
     list.innerHTML = '';
     onValue(ref(db, `user_chats/${myUid}`), (snap) => {
         list.innerHTML = '';
-        if (!snap.exists()) {
-            list.innerHTML = getEmptyStateHTML('chats');
-            return;
-        }
+        if (!snap.exists()) { list.innerHTML = getEmptyStateHTML('chats'); return; }
         const chats = snap.val();
-        const chatEntries = Object.entries(chats).sort((a,b) => (b[1].lastMsgTime||0)-(a[1].lastMsgTime||0));
-        chatEntries.forEach(([chatId, chatInfo]) => {
+        const entries = Object.entries(chats).sort((a,b) => (b[1].lastMsgTime||0)-(a[1].lastMsgTime||0));
+        entries.forEach(([chatId, info]) => {
             const el = document.createElement('div');
             el.className = 'chat-item';
-            el.onclick = () => openChatRoom(chatId, chatInfo.otherName, chatInfo.otherIcon, chatInfo.otherUid);
-            const timeStr = chatInfo.lastMsgTime ? new Date(chatInfo.lastMsgTime).toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'}) : '';
-            const lastMsg = chatInfo.lastMsg ? (chatInfo.lastMsg.includes('data:image') ? '📷 صورة' : chatInfo.lastMsg) : 'ابدأ المحادثة...';
+            el.onclick = () => openChatRoom(chatId, info.otherName, info.otherIcon, info.otherUid);
+            const t = info.lastMsgTime ? new Date(info.lastMsgTime).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '';
+            const last = info.lastMsg ? (info.lastMsg.includes('data:image') ? '📷 صورة' : info.lastMsg) : 'ابدأ المحادثة...';
             el.innerHTML = `
-                <div class="avatar-frame mini-frame" style="border-color:#444;color:#ccc;flex-shrink:0;"><i class="fas ${chatInfo.otherIcon||'fa-user'}"></i></div>
-                <div style="flex:1;min-width:0;">
-                    <div style="font-weight:700;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:6px;">
-                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${chatInfo.otherName}</span>
-                        <span style="font-size:0.65rem;color:#555;flex-shrink:0;">${timeStr}</span>
-                    </div>
-                    <div style="font-size:0.78rem;color:#666;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:2px;">${lastMsg}</div>
+                <div class="avatar-frame mini-frame" style="border-color:#333;color:#aaa;flex-shrink:0;width:46px;height:46px;">
+                    <i class="fas ${info.otherIcon||'fa-user'}"></i>
                 </div>
-            `;
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:700;color:#eee;display:flex;justify-content:space-between;align-items:center;gap:6px;">
+                        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${info.otherName}</span>
+                        <span style="font-size:0.63rem;color:#444;flex-shrink:0;">${t}</span>
+                    </div>
+                    <div style="font-size:0.76rem;color:#555;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:2px;">${last}</div>
+                </div>`;
             list.appendChild(el);
         });
     });
 };
 
-// ── switchChatTab — chats only now ──
-window.switchChatTab = (prefix, type, btn) => {
-    if (btn) {
-        document.querySelectorAll(`#${prefix}-chat-type-tabs .chat-type-tab`).forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
-    window.initDardasha_real(prefix);
+// ══════════════════════════════════════════════════════════════════
+//  CREATE GROUP
+// ══════════════════════════════════════════════════════════════════
+
+window.tgOpenCreateGroup = async (prefix) => {
+    document.getElementById('tg-create-overlay')?.remove();
+    _tgCreatePhoto = null; _tgCreateEmoji = '📚'; _tgCreateMembers = [];
+
+    // Load all platform users
+    let usersHTML = '';
+    try {
+        const [sSnap, tSnap] = await Promise.all([get(ref(db,'users/students')), get(ref(db,'users/teachers'))]);
+        const all = [];
+        if (sSnap.exists()) Object.entries(sSnap.val()).forEach(([n,d]) => { if (d.uid && d.uid !== myUid) all.push({uid:d.uid,name:n,role:'student',icon:d.icon||'fa-user'}); });
+        if (tSnap.exists()) Object.entries(tSnap.val()).forEach(([n,d]) => { if (d.uid && d.uid !== myUid) all.push({uid:d.uid,name:n,role:'teacher',icon:d.icon||'fa-user'}); });
+        usersHTML = all.map(u => `
+            <div class="tg-user-select-item" id="tgu-${u.uid}" onclick="tgToggleMember('${u.uid}','${u.name.replace(/'/g,"\\'")}','${u.icon}')">
+                <div class="tg-member-avatar" style="width:36px;height:36px;font-size:0.9rem;"><i class="fas ${u.icon}" style="color:${u.role==='teacher'?'var(--accent-gold)':'var(--accent-primary)'};"></i></div>
+                <div><div style="font-size:0.85rem;font-weight:600;">${u.name}</div><div style="font-size:0.7rem;color:#555;">${u.role==='teacher'?'معلم':'طالب'}</div></div>
+                <div class="tg-user-select-check"><i class="fas fa-check" style="font-size:0.6rem;color:#fff;opacity:0;"></i></div>
+            </div>`).join('');
+    } catch(e) { usersHTML = '<p style="color:#555;text-align:center;padding:20px;">تعذر تحميل المستخدمين</p>'; }
+
+    const emojis = ['📚','🎓','⚡','🔥','🌟','💡','🎯','🏆','🧠','🌍','🎨','🚀','🔬','💻','📐'];
+    const overlay = document.createElement('div');
+    overlay.id = 'tg-create-overlay';
+    overlay.className = 'tg-create-overlay';
+    overlay.innerHTML = `
+        <div class="tg-create-sheet">
+            <div class="tg-create-header">
+                <button class="icon-btn-small" onclick="document.getElementById('tg-create-overlay').remove()" style="background:rgba(255,255,255,0.06);"><i class="fas fa-times"></i></button>
+                <h3>إنشاء جروب جديد</h3>
+                <button class="modern-btn" onclick="tgCreateGroup('${prefix}')" style="width:auto;min-width:80px;padding:8px 16px;font-size:0.82rem;background:#2AABEE;color:#000;">
+                    <i class="fas fa-check"></i> إنشاء
+                </button>
+            </div>
+            <div class="tg-create-photo-row">
+                <div class="tg-create-photo-btn" id="tg-photo-btn" onclick="document.getElementById('tg-photo-input').click()">
+                    <span id="tg-photo-emoji" style="position:relative;z-index:1;font-size:1.8rem;">📚</span>
+                    <img id="tg-photo-img" src="" style="display:none;">
+                    <div class="tg-create-photo-overlay"><i class="fas fa-camera"></i></div>
+                    <input type="file" id="tg-photo-input" hidden accept="image/*" onchange="tgPreviewGroupPhoto(this)">
+                </div>
+                <input class="tg-create-name-input" id="tg-group-name" placeholder="اسم الجروب..." maxlength="50">
+            </div>
+            <div class="tg-create-body">
+                <div class="tg-create-label">وصف الجروب (اختياري)</div>
+                <textarea class="tg-create-desc-input" id="tg-group-desc" rows="2" placeholder="موضوع الجروب..."></textarea>
+                <div class="tg-create-label">أيقونة الجروب</div>
+                <div class="tg-emoji-row">
+                    ${emojis.map(e => `<div class="tg-emoji-opt${e==='📚'?' active':''}" onclick="tgSelectEmoji(this,'${e}')">${e}</div>`).join('')}
+                </div>
+                <div class="tg-create-label">أضف أعضاء</div>
+                <div class="tg-user-select-list">${usersHTML}</div>
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
 };
+
+window.tgPreviewGroupPhoto = (input) => {
+    if (!input.files[0]) return;
+    const r = new FileReader();
+    r.onload = (e) => {
+        _tgCreatePhoto = e.target.result;
+        const img = document.getElementById('tg-photo-img');
+        const emoji = document.getElementById('tg-photo-emoji');
+        if (img) { img.src = e.target.result; img.style.display = 'block'; }
+        if (emoji) emoji.style.display = 'none';
+    };
+    r.readAsDataURL(input.files[0]);
+};
+
+window.tgSelectEmoji = (el, emoji) => {
+    _tgCreateEmoji = emoji;
+    document.querySelectorAll('.tg-emoji-opt').forEach(e => e.classList.remove('active'));
+    el.classList.add('active');
+    const emojiEl = document.getElementById('tg-photo-emoji');
+    if (emojiEl && !_tgCreatePhoto) emojiEl.textContent = emoji;
+};
+
+window.tgToggleMember = (uid, name, icon) => {
+    const el = document.getElementById(`tgu-${uid}`);
+    const check = el?.querySelector('.tg-user-select-check i');
+    const idx = _tgCreateMembers.findIndex(m => m.uid === uid);
+    if (idx === -1) {
+        _tgCreateMembers.push({uid, name, icon});
+        el?.classList.add('selected');
+        if (check) check.style.opacity = '1';
+    } else {
+        _tgCreateMembers.splice(idx, 1);
+        el?.classList.remove('selected');
+        if (check) check.style.opacity = '0';
+    }
+};
+
+window.tgCreateGroup = async (prefix) => {
+    const name = document.getElementById('tg-group-name')?.value.trim();
+    const desc = document.getElementById('tg-group-desc')?.value.trim();
+    if (!name) return saAlert('أدخل اسم الجروب', 'error');
+
+    const groupId = 'grp_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+    const members = { [myUid]: {name:currentUser, role:selectedRole, icon:localStorage.getItem('sa_icon')||'fa-user', joinedAt:Date.now(), isAdmin:true, isOwner:true} };
+    _tgCreateMembers.forEach(m => { members[m.uid] = {name:m.name, icon:m.icon, joinedAt:Date.now(), isAdmin:false, isOwner:false}; });
+
+    const groupData = {
+        name, desc: desc||'', emoji: _tgCreateEmoji,
+        photoBase64: _tgCreatePhoto||null,
+        createdBy: myUid, createdAt: Date.now(),
+        members, lastMsg: '🎉 تم إنشاء الجروب', lastMsgTime: Date.now(),
+        enableAI: true, type: 'group'
+    };
+
+    await set(ref(db, `tg_groups/${groupId}`), groupData);
+    await push(ref(db, `tg_group_msgs/${groupId}`), {
+        type:'system', text:`أنشأ ${currentUser} هذا الجروب 🎉`,
+        time: Date.now(), senderUid:'system', senderName:'النظام'
+    });
+
+    const notifies = Object.keys(members).map(uid =>
+        update(ref(db, `user_tg_groups/${uid}/${groupId}`), {name, emoji:_tgCreateEmoji, photoBase64:_tgCreatePhoto||null, lastMsg:'🎉 تم إنشاء الجروب', lastMsgTime:Date.now()})
+    );
+    await Promise.all(notifies);
+
+    document.getElementById('tg-create-overlay')?.remove();
+    saAlert(`✅ تم إنشاء "${name}"`, 'success');
+    window.switchChatTab(prefix, 'groups', document.getElementById(`${prefix}-tab-groups`));
+    setTimeout(() => tgOpenGroup(groupId, prefix), 400);
+};
+
+// ══════════════════════════════════════════════════════════════════
+//  LOAD GROUPS LIST
+// ══════════════════════════════════════════════════════════════════
+
+window.tgLoadGroupsList = (prefix) => {
+    const list = document.getElementById(`${prefix}-chat-list`);
+    onValue(ref(db, `user_tg_groups/${myUid}`), async (snap) => {
+        list.innerHTML = '';
+        if (!snap.exists()) {
+            list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#333;">
+                <i class="fas fa-users" style="font-size:2.5rem;margin-bottom:12px;display:block;opacity:0.2;"></i>
+                <p style="font-size:0.85rem;margin-bottom:16px;color:#444;">لا توجد جروبات بعد</p>
+                <button onclick="tgOpenCreateGroup('${prefix}')" style="background:rgba(42,171,238,0.15);border:1px solid rgba(42,171,238,0.3);color:#2AABEE;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:0.82rem;font-family:var(--font-main);">
+                    <i class="fas fa-plus"></i> إنشاء جروب
+                </button>
+            </div>`;
+            return;
+        }
+        const entries = [];
+        snap.forEach(g => entries.push({id:g.key,...g.val()}));
+        entries.sort((a,b) => (b.lastMsgTime||0)-(a.lastMsgTime||0));
+        entries.forEach(g => {
+            const item = document.createElement('div');
+            item.className = 'tg-group-item';
+            const t = g.lastMsgTime ? new Date(g.lastMsgTime).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '';
+            const avatarInner = g.photoBase64
+                ? `<img src="${g.photoBase64}" style="width:100%;height:100%;object-fit:cover;">`
+                : (g.emoji||'👥');
+            item.innerHTML = `
+                <div class="tg-group-avatar">${avatarInner}</div>
+                <div class="tg-group-info">
+                    <div class="tg-group-name">${g.name}</div>
+                    <div class="tg-group-last">${g.lastMsg||'...'}</div>
+                </div>
+                <div class="tg-group-meta">
+                    <div class="tg-group-time">${t}</div>
+                </div>`;
+            item.onclick = () => tgOpenGroup(g.id, prefix);
+            list.appendChild(item);
+        });
+    });
+};
+
+// ══════════════════════════════════════════════════════════════════
+//  OPEN GROUP ROOM
+// ══════════════════════════════════════════════════════════════════
+
+window.tgOpenGroup = async (groupId, prefix) => {
+    playSound('click');
+    if (_tgActiveGroupListener) { _tgActiveGroupListener(); _tgActiveGroupListener = null; }
+    _tgActiveGroupId = groupId;
+    _tgReplyData = null;
+
+    const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
+    const win = document.getElementById(`${prefix}-chat-window`);
+    if (window.innerWidth < 768) sidebar.classList.add('hidden');
+    win.classList.remove('hidden');
+
+    const snap = await get(ref(db, `tg_groups/${groupId}`));
+    if (!snap.exists()) return;
+    const g = snap.val();
+    const members = g.members||{};
+    const memberCount = Object.keys(members).length;
+    const isAdmin = members[myUid]?.isAdmin;
+    const isOwner = members[myUid]?.isOwner;
+
+    const avatarHTML = g.photoBase64
+        ? `<div style="width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0;"><img src="${g.photoBase64}" style="width:100%;height:100%;object-fit:cover;"></div>`
+        : `<div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">${g.emoji||'👥'}</div>`;
+
+    win.innerHTML = `
+        <div class="tg-group-header" id="tg-hdr-${groupId}">
+            <button class="icon-btn-small" onclick="tgCloseGroup('${prefix}')" style="background:rgba(255,255,255,0.06);flex-shrink:0;"><i class="ph-bold ph-arrow-right"></i></button>
+            ${avatarHTML}
+            <div class="tg-group-header-info" onclick="tgOpenInfo('${groupId}','${prefix}')">
+                <div class="tg-group-header-name">${g.name}</div>
+                <div class="tg-group-header-sub" id="tg-sub-${groupId}">${memberCount} عضو</div>
+            </div>
+            <div class="tg-header-actions">
+                ${g.enableAI ? `<button class="tg-ai-btn" onclick="tgAIPrompt('${groupId}','${prefix}')" title="SA AI"><i class="fas fa-wand-magic-sparkles"></i></button>` : ''}
+                <button class="icon-btn-small" onclick="tgGroupMenu('${groupId}','${prefix}',${isAdmin||isOwner})" style="background:rgba(255,255,255,0.06);"><i class="fas fa-ellipsis-v"></i></button>
+            </div>
+        </div>
+        ${g.pinnedMsg ? `<div class="tg-pinned-bar" onclick=""><i class="fas fa-thumbtack"></i><div class="pb-text"><span>📌 مثبت: </span>${g.pinnedMsg.substring(0,60)}</div></div>` : ''}
+        <div class="tg-msgs-area" id="tg-msgs-${groupId}"></div>
+        <div id="tg-reply-bar-${groupId}" style="display:none;"></div>
+        <div class="tg-input-area" id="tg-inp-${groupId}">
+            <label class="tg-attach-btn" title="صورة">
+                <i class="ph-bold ph-image"></i>
+                <input type="file" hidden accept="image/*" multiple onchange="tgSendImages(this,'${groupId}','${prefix}')">
+            </label>
+            <div class="tg-input-wrap">
+                <textarea id="tg-text-${groupId}" placeholder="رسالة..." rows="1"
+                    oninput="tgAutoResize(this);tgToggleSendBtn('${groupId}')"
+                    onkeydown="tgKeyDown(event,'${groupId}','${prefix}')"></textarea>
+            </div>
+            <button class="tg-send-btn mic-mode" id="tg-send-${groupId}" onclick="tgSendOrMic('${groupId}','${prefix}')">
+                <i class="ph-bold ph-paper-plane-tilt" id="tg-send-icon-${groupId}"></i>
+            </button>
+        </div>`;
+
+    // ── Load messages ──
+    const COLORS = ['#60a5fa','#34d399','#f59e0b','#f87171','#a78bfa','#fb923c','#22d3ee','#4ade80','#e879f9'];
+    const colorMap = {};
+    let colorIdx = 0;
+
+    const listener = onValue(ref(db, `tg_group_msgs/${groupId}`), (msnap) => {
+        const area = document.getElementById(`tg-msgs-${groupId}`);
+        if (!area) return;
+        area.innerHTML = '';
+        if (!msnap.exists()) {
+            area.innerHTML = `<div style="text-align:center;color:#333;padding:50px 20px;font-size:0.85rem;">
+                <div style="font-size:3rem;margin-bottom:10px;">${g.emoji||'👥'}</div>
+                <p style="font-weight:700;color:#444;">${g.name}</p>
+                <p style="color:#333;margin-top:8px;">ابدأ المحادثة الآن 🎉</p>
+            </div>`;
+            return;
+        }
+
+        const msgs = [];
+        msnap.forEach(n => msgs.push({key:n.key,...n.val()}));
+        let prevDate = '';
+        let i = 0;
+
+        while (i < msgs.length) {
+            const msg = msgs[i];
+            // Date separator
+            const dateStr = new Date(msg.time).toLocaleDateString('ar-EG',{weekday:'short',day:'numeric',month:'long'});
+            if (dateStr !== prevDate) {
+                const sep = document.createElement('div');
+                sep.className = 'tg-date-sep';
+                sep.innerHTML = `<span>${dateStr}</span>`;
+                area.appendChild(sep);
+                prevDate = dateStr;
+            }
+
+            // System message
+            if (msg.type === 'system') {
+                const sys = document.createElement('div');
+                sys.style.cssText = 'text-align:center;padding:4px 0;';
+                sys.innerHTML = `<span style="background:#111;border:1px solid #1a1a1a;border-radius:20px;padding:3px 12px;font-size:0.68rem;color:#555;">${msg.text}</span>`;
+                area.appendChild(sys);
+                i++; continue;
+            }
+
+            const isMe = msg.senderUid === myUid;
+            const isAI = msg.isAI;
+
+            // Image grid grouping
+            if (msg.type === 'images' && msg.images) {
+                if (!colorMap[msg.senderUid]) colorMap[msg.senderUid] = COLORS[colorIdx++ % COLORS.length];
+                const wrap = document.createElement('div');
+                wrap.className = `tg-msg-wrap${isMe?' me':' them'}`;
+                const n = msg.images.length;
+                const gridCls = n===1?'g1':n===2?'g2':n===3?'g3':'g4';
+                const imgsH = msg.images.map(src => `<img src="${src}" onclick="tgViewImg('${src}')" style="cursor:pointer;">`).join('');
+                wrap.innerHTML = `
+                    ${!isMe ? `<div class="tg-sender-name" style="color:${colorMap[msg.senderUid]};">${msg.senderName}</div>` : ''}
+                    <div class="tg-img-grid ${gridCls}" oncontextmenu="tgMsgMenu(event,'${msg.key}','${groupId}','${prefix}','📷 صورة',${isMe});return false;">${imgsH}</div>
+                    <div class="tg-reactions" id="rxn-${msg.key}"></div>`;
+                tgRenderReactions(wrap, msg, groupId);
+                area.appendChild(wrap);
+                i++; continue;
+            }
+
+            // Voice message
+            if (msg.type === 'voice') {
+                if (!colorMap[msg.senderUid]) colorMap[msg.senderUid] = COLORS[colorIdx++ % COLORS.length];
+                const wrap = document.createElement('div');
+                wrap.className = `tg-msg-wrap${isMe?' me':' them'}`;
+                wrap.innerHTML = `
+                    ${!isMe ? `<div class="tg-sender-name" style="color:${colorMap[msg.senderUid]};">${msg.senderName}</div>` : ''}
+                    <div class="tg-bubble">
+                        <div class="tg-voice-bubble">
+                            <button class="tg-voice-play" onclick="tgPlayVoice(this,'${msg.key}')"><i class="ph-bold ph-play"></i></button>
+                            <div class="tg-voice-wave">${tgWave()}</div>
+                            <span class="tg-voice-dur">${msg.duration||'0:00'}</span>
+                            <audio id="tgaud-${msg.key}" src="${msg.audioData}" preload="metadata" onended="tgVoiceEnd('${msg.key}')"></audio>
+                        </div>
+                        ${tgBubbleFooter(msg, isMe)}
+                    </div>
+                    <div class="tg-reactions" id="rxn-${msg.key}"></div>`;
+                tgRenderReactions(wrap, msg, groupId);
+                area.appendChild(wrap);
+                i++; continue;
+            }
+
+            // Text / AI message
+            if (!colorMap[msg.senderUid]) colorMap[msg.senderUid] = COLORS[colorIdx++ % COLORS.length];
+            const sc = colorMap[msg.senderUid];
+            const wrap = document.createElement('div');
+            wrap.className = `tg-msg-wrap${isMe?' me':isAI?' ai-msg':' them'}`;
+
+            const replyH = msg.replyTo
+                ? `<div class="tg-reply-preview"><div class="rp-sender">${msg.replyTo.sender}</div><div class="rp-text">${(msg.replyTo.text||'').substring(0,60)}</div></div>`
+                : '';
+
+            const safeText = (msg.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+            wrap.innerHTML = `
+                ${!isMe && !isAI ? `<div class="tg-sender-name" style="color:${sc};">${msg.senderName||'مجهول'}</div>` : ''}
+                ${isAI ? `<div class="tg-sender-name" style="color:#c4b5fd;"><i class="fas fa-robot" style="margin-left:4px;"></i> SA AI</div>` : ''}
+                <div class="tg-bubble${msg.deleted?' deleted':''}"
+                    oncontextmenu="tgMsgMenu(event,'${msg.key}','${groupId}','${prefix}','${safeText.replace(/'/g,"\\'").substring(0,80)}',${isMe});return false;"
+                    ontouchstart="tgLpStart('${msg.key}','${groupId}','${prefix}','${safeText.replace(/'/g,"\\'").substring(0,80)}',${isMe})"
+                    ontouchend="tgLpEnd()">
+                    ${replyH}
+                    ${msg.deleted ? '<i class="ph-bold ph-prohibit"></i> تم حذف هذه الرسالة' : `<div style="word-break:break-word;white-space:pre-wrap;">${makeLinksClickable(safeText)}</div>`}
+                    ${!msg.deleted ? tgBubbleFooter(msg, isMe) : ''}
+                </div>
+                <div class="tg-reactions" id="rxn-${msg.key}"></div>`;
+
+            tgRenderReactions(wrap, msg, groupId);
+            area.appendChild(wrap);
+            i++;
+        }
+        area.scrollTop = area.scrollHeight;
+    });
+    _tgActiveGroupListener = listener;
+    update(ref(db, `tg_groups/${groupId}/members/${myUid}`), {lastSeen:Date.now()});
+};
+
+// Helpers
+function tgBubbleFooter(msg, isMe) {
+    const t = new Date(msg.time).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'});
+    const tick = isMe ? `<span class="tg-read-check"><i class="fas fa-check-double"></i></span>` : '';
+    return `<div class="tg-bubble-footer"><span class="tg-bubble-time">${t}</span>${tick}</div>`;
+}
+
+function tgWave() {
+    let h=''; for(let i=0;i<18;i++) h+=`<span style="height:${Math.random()*20+4}px;"></span>`; return h;
+}
+
+function tgRenderReactions(wrap, msg, groupId) {
+    if (!msg.reactions) return;
+    const el = wrap.querySelector(`#rxn-${msg.key}`);
+    if (!el) return;
+    const grouped = {};
+    Object.entries(msg.reactions).forEach(([uid,em]) => { grouped[em] = (grouped[em]||0)+1; });
+    Object.entries(grouped).forEach(([em,cnt]) => {
+        const p = document.createElement('div');
+        p.className = `tg-reaction-pill${msg.reactions[myUid]===em?' mine':''}`;
+        p.innerHTML = `${em} ${cnt>1?`<span style="font-size:0.7rem;">${cnt}</span>`:''}`;
+        p.onclick = () => tgReact(groupId, msg.key, em);
+        el.appendChild(p);
+    });
+}
+
+// ── Send message ──
+window.tgSendOrMic = (groupId, prefix) => {
+    const inp = document.getElementById(`tg-text-${groupId}`);
+    if (inp && inp.value.trim()) {
+        tgSendText(groupId, prefix);
+    } else {
+        tgVoiceRecord(groupId, prefix);
+    }
+};
+
+window.tgKeyDown = (e, groupId, prefix) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); tgSendOrMic(groupId, prefix); }
+};
+
+window.tgAutoResize = (el) => {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+};
+
+window.tgToggleSendBtn = (groupId) => {
+    const inp = document.getElementById(`tg-text-${groupId}`);
+    const btn = document.getElementById(`tg-send-${groupId}`);
+    const icon = document.getElementById(`tg-send-icon-${groupId}`);
+    if (!btn || !icon) return;
+    const hasText = inp && inp.value.trim().length > 0;
+    btn.classList.toggle('mic-mode', !hasText);
+    icon.className = hasText ? 'ph-bold ph-paper-plane-tilt' : 'ph-bold ph-microphone';
+};
+
+window.tgSendText = async (groupId, prefix) => {
+    const inp = document.getElementById(`tg-text-${groupId}`);
+    const txt = inp ? inp.value.trim() : '';
+    if (!txt) return;
+    inp.value = ''; inp.style.height = 'auto';
+    tgToggleSendBtn(groupId);
+    playSound('sent');
+
+    const msgData = {
+        type:'text', text:txt, senderUid:myUid, senderName:currentUser,
+        time:Date.now(), senderRole:selectedRole,
+        ..._tgReplyData ? {replyTo:_tgReplyData} : {}
+    };
+    _tgReplyData = null;
+    const rbar = document.getElementById(`tg-reply-bar-${groupId}`);
+    if (rbar) rbar.style.display = 'none';
+
+    const msgRef = await push(ref(db, `tg_group_msgs/${groupId}`), msgData);
+    const short = `${currentUser}: ${txt.substring(0,40)}`;
+    await update(ref(db, `tg_groups/${groupId}`), {lastMsg:short, lastMsgTime:Date.now()});
+    const memSnap = await get(ref(db, `tg_groups/${groupId}/members`));
+    if (memSnap.exists()) {
+        const ups = [];
+        memSnap.forEach(m => ups.push(update(ref(db,`user_tg_groups/${m.key}/${groupId}`),{lastMsg:short,lastMsgTime:Date.now()})));
+        await Promise.all(ups);
+    }
+
+    // @AI trigger
+    if (txt.includes('@AI') || txt.includes('@ai') || txt.startsWith('/ai ')) {
+        const q = txt.replace(/@[Aa][Ii]/g,'').replace(/^\/ai\s*/,'').trim();
+        if (q) tgAIReply(groupId, q);
+    }
+};
+
+// ── AI Reply ──
+window.tgAIPrompt = (groupId, prefix) => {
+    const inp = document.getElementById(`tg-text-${groupId}`);
+    if (inp) { inp.value = '@AI '; inp.focus(); tgToggleSendBtn(groupId); }
+};
+
+async function tgAIReply(groupId, question) {
+    const typingKey = 'typing_' + Date.now();
+    await set(ref(db,`tg_group_msgs/${groupId}/${typingKey}`), {
+        type:'typing', text:'...', senderUid:'sa_ai', senderName:'SA AI', isAI:true, time:Date.now()+1
+    });
+    try {
+        const grpSnap = await get(ref(db,`tg_groups/${groupId}/name`));
+        const grpName = grpSnap.val()||'الجروب';
+        const prompt = `أنت SA AI مساعد ذكي في جروب "${grpName}" على منصة SA EDU التعليمية.\nأجب بالعربية بشكل مختصر ومفيد.\nالسؤال: ${question}`;
+        const reply = await callPollinationsAI(prompt);
+        await remove(ref(db,`tg_group_msgs/${groupId}/${typingKey}`));
+        await push(ref(db,`tg_group_msgs/${groupId}`), {
+            type:'text', text:reply, senderUid:'sa_ai', senderName:'SA AI',
+            isAI:true, time:Date.now()
+        });
+        await update(ref(db,`tg_groups/${groupId}`), {lastMsg:`🤖 SA AI: ${reply.substring(0,35)}`, lastMsgTime:Date.now()});
+    } catch(e) {
+        await remove(ref(db,`tg_group_msgs/${groupId}/${typingKey}`));
+    }
+}
+
+// ── Send images ──
+window.tgSendImages = async (input, groupId, prefix) => {
+    if (!input.files.length) return;
+    const images = [];
+    for (const f of Array.from(input.files).slice(0,9)) images.push(await getBase64(f));
+    await push(ref(db,`tg_group_msgs/${groupId}`), {
+        type:'images', images, senderUid:myUid, senderName:currentUser, time:Date.now()
+    });
+    const short = `${currentUser}: 📷 ${images.length} صور`;
+    await update(ref(db,`tg_groups/${groupId}`), {lastMsg:short, lastMsgTime:Date.now()});
+    const memSnap = await get(ref(db,`tg_groups/${groupId}/members`));
+    if (memSnap.exists()) { const ups=[]; memSnap.forEach(m=>ups.push(update(ref(db,`user_tg_groups/${m.key}/${groupId}`),{lastMsg:short,lastMsgTime:Date.now()}))); await Promise.all(ups); }
+    playSound('sent'); input.value='';
+};
+
+// ── Voice recording ──
+let _tgVoiceRec = null, _tgVoiceChunks = [], _tgVoiceTimer = null, _tgVoiceSecs = 0, _tgVoiceGroupId = null, _tgVoicePrefix = null, _tgVoiceActive = false;
+
+window.tgVoiceRecord = async (groupId, prefix) => {
+    if (_tgVoiceActive) { tgStopVoice(groupId, prefix); return; }
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+        _tgVoiceRec = new MediaRecorder(stream);
+        _tgVoiceChunks = []; _tgVoiceGroupId = groupId; _tgVoicePrefix = prefix;
+        _tgVoiceActive = true;
+        const btn = document.getElementById(`tg-send-${groupId}`);
+        if (btn) btn.classList.add('recording');
+        _tgVoiceSecs = 0;
+        _tgVoiceTimer = setInterval(() => {
+            _tgVoiceSecs++;
+            const btn2 = document.getElementById(`tg-send-${groupId}`);
+            if (btn2) btn2.title = `${Math.floor(_tgVoiceSecs/60)}:${String(_tgVoiceSecs%60).padStart(2,'0')}`;
+        }, 1000);
+        _tgVoiceRec.ondataavailable = e => { if(e.data.size>0) _tgVoiceChunks.push(e.data); };
+        _tgVoiceRec.start(100);
+        showToast('تسجيل صوتي...','اضغط مرة أخرى للإرسال','info',30000);
+    } catch(e) { saAlert('يرجى السماح بالمايكروفون','error'); }
+};
+
+async function tgStopVoice(groupId, prefix) {
+    if (!_tgVoiceRec) return;
+    clearInterval(_tgVoiceTimer);
+    const secs = _tgVoiceSecs;
+    _tgVoiceActive = false;
+    const btn = document.getElementById(`tg-send-${groupId}`);
+    if (btn) { btn.classList.remove('recording'); btn.title=''; }
+    return new Promise(resolve => {
+        _tgVoiceRec.onstop = async () => {
+            const blob = new Blob(_tgVoiceChunks,{type:'audio/webm'});
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const dur = `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`;
+                await push(ref(db,`tg_group_msgs/${groupId}`), {
+                    type:'voice', audioData:reader.result, duration:dur,
+                    senderUid:myUid, senderName:currentUser, time:Date.now()
+                });
+                const short = `${currentUser}: 🎤 رسالة صوتية`;
+                await update(ref(db,`tg_groups/${groupId}`), {lastMsg:short, lastMsgTime:Date.now()});
+                const memSnap = await get(ref(db,`tg_groups/${groupId}/members`));
+                if (memSnap.exists()) { const ups=[]; memSnap.forEach(m=>ups.push(update(ref(db,`user_tg_groups/${m.key}/${groupId}`),{lastMsg:short,lastMsgTime:Date.now()}))); await Promise.all(ups); }
+                playSound('sent'); resolve();
+            };
+            reader.readAsDataURL(blob);
+        };
+        _tgVoiceRec.stop(); _tgVoiceRec.stream?.getTracks().forEach(t=>t.stop());
+        _tgVoiceChunks=[]; _tgVoiceRec=null;
+    });
+}
+
+window.tgPlayVoice = (btn, key) => {
+    const audio = document.getElementById(`tgaud-${key}`);
+    if (!audio) return;
+    if (audio.paused) {
+        document.querySelectorAll('[id^="tgaud-"]').forEach(a => { a.pause(); a.currentTime=0; });
+        document.querySelectorAll('.tg-voice-play').forEach(b => b.innerHTML='<i class="ph-bold ph-play"></i>');
+        audio.play();
+        btn.innerHTML = '<i class="ph-bold ph-pause"></i>';
+    } else { audio.pause(); btn.innerHTML='<i class="ph-bold ph-play"></i>'; }
+};
+window.tgVoiceEnd = (key) => {
+    const btn = document.querySelector(`#tgaud-${key}`)?.closest('.tg-voice-bubble')?.querySelector('.tg-voice-play');
+    if (btn) btn.innerHTML='<i class="ph-bold ph-play"></i>';
+};
+
+// ── Context menu ──
+window.tgMsgMenu = (e, key, groupId, prefix, text, isMe) => {
+    e.preventDefault && e.preventDefault();
+    document.getElementById('tg-ctx-popup')?.remove();
+    const menu = document.createElement('div');
+    menu.id = 'tg-ctx-popup';
+    menu.className = 'tg-ctx-menu';
+    const x = Math.min((e.clientX||window.innerWidth/2), window.innerWidth-200);
+    const y = Math.min((e.clientY||window.innerHeight/2), window.innerHeight-250);
+    menu.style.cssText = `top:${y}px;left:${Math.max(8,x)}px;`;
+    const EMOJIS = ['👍','❤️','😂','🔥','😮','✅'];
+    menu.innerHTML = `
+        <div class="tg-ctx-emojis">
+            ${EMOJIS.map(em=>`<button class="tg-ctx-emoji" onclick="tgReact('${groupId}','${key}','${em}');document.getElementById('tg-ctx-popup')?.remove()">${em}</button>`).join('')}
+        </div>
+        <div class="tg-ctx-item" onclick="tgReply('${groupId}','${key}','${text.replace(/'/g,"\\'")}');document.getElementById('tg-ctx-popup')?.remove()">
+            <i class="fas fa-reply" style="color:#2AABEE;"></i> رد
+        </div>
+        <div class="tg-ctx-item" onclick="navigator.clipboard?.writeText(\`${text}\`).then(()=>showToast('تم النسخ','','success',1500));document.getElementById('tg-ctx-popup')?.remove()">
+            <i class="fas fa-copy" style="color:#888;"></i> نسخ
+        </div>
+        ${isMe ? `<div class="tg-ctx-item danger" onclick="tgDeleteMsg('${groupId}','${key}');document.getElementById('tg-ctx-popup')?.remove()">
+            <i class="fas fa-trash"></i> حذف للجميع
+        </div>` : ''}
+        <div class="tg-ctx-item" onclick="tgPinMsg('${groupId}','${text.replace(/'/g,"\\'")}');document.getElementById('tg-ctx-popup')?.remove()">
+            <i class="fas fa-thumbtack" style="color:#f59e0b;"></i> تثبيت
+        </div>`;
+    document.body.appendChild(menu);
+    setTimeout(() => { document.addEventListener('click', function h(e) { if(!menu.contains(e.target)){menu.remove();document.removeEventListener('click',h);} }); }, 80);
+};
+
+window.tgLpStart = (key, groupId, prefix, text, isMe) => {
+    _tgLpTimer = setTimeout(() => tgMsgMenu({clientX:window.innerWidth/2,clientY:window.innerHeight/2}, key, groupId, prefix, text, isMe), 600);
+};
+window.tgLpEnd = () => { if(_tgLpTimer){clearTimeout(_tgLpTimer);_tgLpTimer=null;} };
+
+window.tgReact = async (groupId, key, emoji) => {
+    const cur = await get(ref(db,`tg_group_msgs/${groupId}/${key}/reactions/${myUid}`));
+    if (cur.exists() && cur.val()===emoji) await remove(ref(db,`tg_group_msgs/${groupId}/${key}/reactions/${myUid}`));
+    else await set(ref(db,`tg_group_msgs/${groupId}/${key}/reactions/${myUid}`), emoji);
+};
+
+window.tgReply = (groupId, key, text) => {
+    _tgReplyData = {key, text, sender:currentUser};
+    const rbar = document.getElementById(`tg-reply-bar-${groupId}`);
+    if (rbar) {
+        rbar.style.display='flex';
+        rbar.innerHTML = `
+            <div class="tg-reply-bar" style="display:flex;align-items:center;gap:10px;width:100%;">
+                <i class="fas fa-reply" style="color:#2AABEE;"></i>
+                <div style="flex:1;min-width:0;">
+                    <div class="rb-sender">أنت</div>
+                    <div style="font-size:0.78rem;color:#888;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${text.substring(0,50)}</div>
+                </div>
+                <button onclick="_tgReplyData=null;document.getElementById('tg-reply-bar-${groupId}').style.display='none'" style="background:none;border:none;color:#555;cursor:pointer;font-size:1rem;"><i class="fas fa-times"></i></button>
+            </div>`;
+    }
+    document.getElementById(`tg-text-${groupId}`)?.focus();
+};
+
+window.tgDeleteMsg = async (groupId, key) => {
+    await update(ref(db,`tg_group_msgs/${groupId}/${key}`), {deleted:true, text:'', type:'text'});
+    showToast('تم حذف الرسالة','','success',1800);
+};
+
+window.tgPinMsg = async (groupId, text) => {
+    await update(ref(db,`tg_groups/${groupId}`), {pinnedMsg:text});
+    showToast('تم تثبيت الرسالة','','success',1800);
+};
+
+// ── Image viewer ──
+window.tgViewImg = (src) => {
+    document.querySelector('.tg-img-viewer')?.remove();
+    const v = document.createElement('div');
+    v.className = 'tg-img-viewer';
+    v.innerHTML = `<img src="${src}"><button class="tg-img-viewer-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+    v.onclick = e => { if(e.target===v) v.remove(); };
+    document.body.appendChild(v);
+};
+
+// ── Group Info Panel ──
+window.tgOpenInfo = async (groupId, prefix) => {
+    document.getElementById('tg-info-panel')?.remove();
+    const snap = await get(ref(db,`tg_groups/${groupId}`));
+    if (!snap.exists()) return;
+    const g = snap.val();
+    const members = g.members||{};
+    const isOwner = members[myUid]?.isOwner;
+    const isAdmin = members[myUid]?.isAdmin;
+
+    const panel = document.createElement('div');
+    panel.id = 'tg-info-panel';
+    panel.className = 'tg-info-panel';
+
+    const coverContent = g.photoBase64
+        ? `<img src="${g.photoBase64}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">`
+        : `<span class="tg-info-emoji" style="font-size:4rem;">${g.emoji||'👥'}</span>`;
+
+    const memberRows = Object.entries(members).map(([uid,m]) => {
+        const icon = m.icon||'fa-user';
+        const roleColor = m.isOwner ? 'var(--accent-gold)' : m.isAdmin ? '#2AABEE' : '#666';
+        const roleLabel = m.isOwner ? 'المالك' : m.isAdmin ? 'مشرف' : '';
+        const removeBtn = (isOwner || isAdmin) && uid !== myUid
+            ? `<button class="tg-member-remove-btn" onclick="tgRemoveMember('${groupId}','${uid}','${m.name?.replace(/'/g,"\\'")||''}','${prefix}')" title="إزالة"><i class="fas fa-times"></i></button>`
+            : '';
+        return `<div class="tg-member-row">
+            <div class="tg-member-avatar"><i class="fas ${icon}" style="color:${roleColor};"></i></div>
+            <div class="tg-member-name">${m.name||uid}${uid===myUid?' <span style="color:#2AABEE;font-size:0.7rem;">(أنت)</span>':''}</div>
+            ${roleLabel ? `<div class="tg-member-role" style="color:${roleColor};border-color:${roleColor}22;">${roleLabel}</div>` : ''}
+            ${removeBtn}
+        </div>`;
+    }).join('');
+
+    panel.innerHTML = `
+        <div class="tg-info-cover">
+            ${coverContent}
+            <div class="tg-info-top-bar">
+                <button class="icon-btn-small" onclick="document.getElementById('tg-info-panel').remove()" style="background:rgba(0,0,0,0.5);"><i class="fas fa-times"></i></button>
+                ${isAdmin||isOwner ? `<div style="display:flex;gap:8px;">
+                    <button class="icon-btn-small" onclick="tgEditGroupPhoto('${groupId}')" style="background:rgba(0,0,0,0.5);" title="تغيير الصورة"><i class="fas fa-camera"></i></button>
+                </div>` : ''}
+            </div>
+        </div>
+        <div class="tg-info-body">
+            <div class="tg-info-name">${g.name}</div>
+            ${g.desc ? `<div class="tg-info-desc">${g.desc}</div>` : ''}
+            <div class="tg-info-stats">
+                <div class="tg-info-stat"><div class="tg-info-stat-val">${Object.keys(members).length}</div><div class="tg-info-stat-lbl">عضو</div></div>
+                <div class="tg-info-stat"><div class="tg-info-stat-val" style="color:${g.enableAI?'#d946ef':'#555'};">${g.enableAI?'✓':'✗'}</div><div class="tg-info-stat-lbl">SA AI</div></div>
+            </div>
+            ${isAdmin||isOwner ? `
+            <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+                <button onclick="tgToggleGroupAI('${groupId}')" style="flex:1;background:rgba(109,40,217,0.15);border:1px solid rgba(109,40,217,0.3);color:#c4b5fd;padding:10px;border-radius:12px;cursor:pointer;font-size:0.8rem;font-family:var(--font-main);">
+                    <i class="fas fa-robot"></i> ${g.enableAI?'إيقاف':'تفعيل'} AI
+                </button>
+                <button onclick="tgShareGroupLink('${groupId}')" style="flex:1;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.25);color:#34d399;padding:10px;border-radius:12px;cursor:pointer;font-size:0.8rem;font-family:var(--font-main);">
+                    <i class="fas fa-share-alt"></i> مشاركة الرابط
+                </button>
+            </div>
+            <button onclick="tgOpenAddMembers('${groupId}','${prefix}')" style="width:100%;background:rgba(42,171,238,0.1);border:1px solid rgba(42,171,238,0.25);color:#2AABEE;padding:10px;border-radius:12px;cursor:pointer;font-size:0.85rem;font-family:var(--font-main);margin-bottom:12px;">
+                <i class="fas fa-user-plus"></i> إضافة أعضاء
+            </button>` : ''}
+            <div class="tg-info-section-title">الأعضاء</div>
+            <div id="tg-members-list-${groupId}">${memberRows}</div>
+            <div style="margin-top:20px;display:flex;flex-direction:column;gap:8px;">
+                <button onclick="tgLeaveGroup('${groupId}','${prefix}')" style="width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;padding:12px;border-radius:12px;cursor:pointer;font-size:0.85rem;font-family:var(--font-main);">
+                    <i class="fas fa-sign-out-alt"></i> مغادرة الجروب
+                </button>
+            </div>
+        </div>`;
+    document.body.appendChild(panel);
+    setTimeout(() => panel.classList.add('open'), 10);
+};
+
+// ── Remove member ──
+window.tgRemoveMember = async (groupId, uid, name, prefix) => {
+    saConfirm(`إزالة ${name} من الجروب؟`, async () => {
+        await remove(ref(db,`tg_groups/${groupId}/members/${uid}`));
+        await remove(ref(db,`user_tg_groups/${uid}/${groupId}`));
+        await push(ref(db,`tg_group_msgs/${groupId}`), {
+            type:'system', text:`تم إزالة ${name} من الجروب`, time:Date.now(), senderUid:'system', senderName:'النظام'
+        });
+        showToast('تم الإزالة','','success',2000);
+        tgOpenInfo(groupId, prefix);
+    });
+};
+
+// ── Add members ──
+window.tgOpenAddMembers = async (groupId, prefix) => {
+    document.getElementById('tg-add-members-overlay')?.remove();
+    const [sSnap, tSnap, grpSnap] = await Promise.all([
+        get(ref(db,'users/students')), get(ref(db,'users/teachers')), get(ref(db,`tg_groups/${groupId}/members`))
+    ]);
+    const existingUids = new Set(Object.keys(grpSnap.val()||{}));
+    const all = [];
+    if (sSnap.exists()) Object.entries(sSnap.val()).forEach(([n,d]) => { if(d.uid && !existingUids.has(d.uid)) all.push({uid:d.uid,name:n,role:'student',icon:d.icon||'fa-user'}); });
+    if (tSnap.exists()) Object.entries(tSnap.val()).forEach(([n,d]) => { if(d.uid && !existingUids.has(d.uid)) all.push({uid:d.uid,name:n,role:'teacher',icon:d.icon||'fa-user'}); });
+
+    let selected = [];
+    const overlay = document.createElement('div');
+    overlay.id = 'tg-add-members-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9500;display:flex;align-items:flex-end;justify-content:center;';
+    overlay.innerHTML = `
+        <div style="background:#0d0d0d;border-radius:24px 24px 0 0;padding:0 0 30px;width:100%;max-width:600px;max-height:80vh;overflow-y:auto;">
+            <div style="display:flex;align-items:center;gap:12px;padding:18px 20px 14px;border-bottom:1px solid #1a1a1a;position:sticky;top:0;background:#0d0d0d;z-index:2;">
+                <button class="icon-btn-small" onclick="document.getElementById('tg-add-members-overlay').remove()" style="background:rgba(255,255,255,0.06);"><i class="fas fa-times"></i></button>
+                <h3 style="flex:1;margin:0;font-size:1rem;">إضافة أعضاء</h3>
+                <button onclick="tgConfirmAddMembers('${groupId}','${prefix}')" style="background:#2AABEE;border:none;color:#000;padding:8px 16px;border-radius:20px;font-weight:700;cursor:pointer;font-size:0.82rem;font-family:var(--font-main);">إضافة</button>
+            </div>
+            <div style="padding:12px 16px;">
+                ${all.length === 0 ? '<p style="text-align:center;color:#555;padding:20px;">جميع المستخدمين في الجروب بالفعل</p>' :
+                all.map(u => `
+                    <div class="tg-user-select-item" id="add-${u.uid}" onclick="tgToggleAddMember('${u.uid}','${u.name.replace(/'/g,"\\'")}','${u.icon}',${JSON.stringify(selected)})">
+                        <div class="tg-member-avatar" style="width:36px;height:36px;font-size:0.9rem;"><i class="fas ${u.icon}" style="color:${u.role==='teacher'?'var(--accent-gold)':'var(--accent-primary)'};"></i></div>
+                        <div><div style="font-size:0.85rem;font-weight:600;">${u.name}</div><div style="font-size:0.7rem;color:#555;">${u.role==='teacher'?'معلم':'طالب'}</div></div>
+                        <div class="tg-user-select-check"><i class="fas fa-check" style="font-size:0.6rem;color:#fff;opacity:0;"></i></div>
+                    </div>`).join('')}
+            </div>
+        </div>`;
+    document.body.appendChild(overlay);
+    window._tgAddSelected = [];
+};
+
+window.tgToggleAddMember = (uid, name, icon) => {
+    if (!window._tgAddSelected) window._tgAddSelected = [];
+    const el = document.getElementById(`add-${uid}`);
+    const check = el?.querySelector('.tg-user-select-check i');
+    const idx = window._tgAddSelected.findIndex(m => m.uid === uid);
+    if (idx === -1) { window._tgAddSelected.push({uid,name,icon}); el?.classList.add('selected'); if(check) check.style.opacity='1'; }
+    else { window._tgAddSelected.splice(idx,1); el?.classList.remove('selected'); if(check) check.style.opacity='0'; }
+};
+
+window.tgConfirmAddMembers = async (groupId, prefix) => {
+    if (!window._tgAddSelected || !window._tgAddSelected.length) { saAlert('اختر عضواً على الأقل','error'); return; }
+    const ups = window._tgAddSelected.map(m =>
+        update(ref(db,`tg_groups/${groupId}/members/${m.uid}`), {name:m.name,icon:m.icon,joinedAt:Date.now(),isAdmin:false,isOwner:false})
+    );
+    const notifies = window._tgAddSelected.map(m =>
+        update(ref(db,`user_tg_groups/${m.uid}/${groupId}`), {name:'', emoji:'👥', lastMsg:'تمت إضافتك للجروب', lastMsgTime:Date.now()})
+    );
+    const grpSnap = await get(ref(db,`tg_groups/${groupId}/name`));
+    const gname = grpSnap.val()||'جروب';
+    await update(ref(db,`user_tg_groups/${myUid}/${groupId}`), {name:gname});
+    await Promise.all([...ups, ...notifies]);
+    for (const m of window._tgAddSelected) {
+        await push(ref(db,`tg_group_msgs/${groupId}`), {
+            type:'system', text:`تمت إضافة ${m.name} للجروب`, time:Date.now(), senderUid:'system', senderName:'النظام'
+        });
+    }
+    document.getElementById('tg-add-members-overlay')?.remove();
+    saAlert(`✅ تم إضافة ${window._tgAddSelected.length} عضو`, 'success');
+    window._tgAddSelected = [];
+    tgOpenInfo(groupId, prefix);
+};
+
+// ── Edit group photo ──
+window.tgEditGroupPhoto = (groupId) => {
+    const input = document.createElement('input');
+    input.type='file'; input.accept='image/*';
+    input.onchange = async () => {
+        if (!input.files[0]) return;
+        const b64 = await getBase64(input.files[0]);
+        await update(ref(db,`tg_groups/${groupId}`), {photoBase64:b64});
+        showToast('✅ تم تغيير صورة الجروب','','success',2000);
+        document.getElementById('tg-info-panel')?.remove();
+        const prefix = selectedRole==='teacher'?'t':'s';
+        tgOpenInfo(groupId, prefix);
+    };
+    input.click();
+};
+
+// ── Toggle AI ──
+window.tgToggleGroupAI = async (groupId) => {
+    const snap = await get(ref(db,`tg_groups/${groupId}/enableAI`));
+    const cur = snap.exists() ? snap.val() : true;
+    await set(ref(db,`tg_groups/${groupId}/enableAI`), !cur);
+    saAlert(!cur ? '🤖 SA AI مفعّل في الجروب' : 'SA AI معطّل', 'success');
+    document.getElementById('tg-info-panel')?.remove();
+    const prefix = selectedRole==='teacher'?'t':'s';
+    tgOpenInfo(groupId, prefix);
+};
+
+// ── Share group link ──
+window.tgShareGroupLink = (groupId) => {
+    const link = `${window.location.origin}${window.location.pathname}#tg_group:${groupId}`;
+    if (navigator.share) navigator.share({title:'انضم للجروب على SA EDU', url:link});
+    else navigator.clipboard?.writeText(link).then(() => showToast('✅ تم نسخ رابط الجروب','','success',2500));
+};
+
+// ── Leave group ──
+window.tgLeaveGroup = (groupId, prefix) => {
+    saConfirm('هل تريد مغادرة الجروب؟', async () => {
+        await remove(ref(db,`tg_groups/${groupId}/members/${myUid}`));
+        await remove(ref(db,`user_tg_groups/${myUid}/${groupId}`));
+        await push(ref(db,`tg_group_msgs/${groupId}`), {
+            type:'system', text:`${currentUser} غادر الجروب`, time:Date.now(), senderUid:'system', senderName:'النظام'
+        });
+        document.getElementById('tg-info-panel')?.remove();
+        tgCloseGroup(prefix);
+        saAlert('تم المغادرة', 'success');
+    });
+};
+
+// ── Group more menu ──
+window.tgGroupMenu = (groupId, prefix, isAdmin) => {
+    document.getElementById('tg-group-more')?.remove();
+    const menu = document.createElement('div');
+    menu.id = 'tg-group-more';
+    menu.className = 'tg-ctx-menu';
+    menu.style.cssText = 'top:60px;left:10px;min-width:190px;';
+    menu.innerHTML = `
+        <div class="tg-ctx-item" onclick="tgOpenInfo('${groupId}','${prefix}');document.getElementById('tg-group-more')?.remove()">
+            <i class="fas fa-info-circle" style="color:#2AABEE;"></i> معلومات الجروب
+        </div>
+        <div class="tg-ctx-item" onclick="tgShareGroupLink('${groupId}');document.getElementById('tg-group-more')?.remove()">
+            <i class="fas fa-share-alt" style="color:#34d399;"></i> مشاركة الرابط
+        </div>
+        ${isAdmin ? `<div class="tg-ctx-item" onclick="tgOpenAddMembers('${groupId}','${prefix}');document.getElementById('tg-group-more')?.remove()">
+            <i class="fas fa-user-plus" style="color:#60a5fa;"></i> إضافة أعضاء
+        </div>` : ''}
+        <div class="tg-ctx-item danger" onclick="tgLeaveGroup('${groupId}','${prefix}');document.getElementById('tg-group-more')?.remove()">
+            <i class="fas fa-sign-out-alt"></i> مغادرة الجروب
+        </div>`;
+    document.body.appendChild(menu);
+    setTimeout(() => { document.addEventListener('click', function h(e) { if(!menu.contains(e.target)){menu.remove();document.removeEventListener('click',h);} }); }, 80);
+};
+
+// ── Close group ──
+window.tgCloseGroup = (prefix) => {
+    if (_tgActiveGroupListener) { _tgActiveGroupListener(); _tgActiveGroupListener = null; }
+    _tgActiveGroupId = null; _tgReplyData = null;
+    const win = document.getElementById(`${prefix}-chat-window`);
+    if (win) { win.classList.add('hidden'); win.innerHTML = ''; }
+    const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
+    if (sidebar) sidebar.classList.remove('hidden');
+    document.getElementById('tg-info-panel')?.remove();
+};
+
+// ── Handle deep link for groups ──
+function tgHandleGroupDeepLink() {
+    const hash = window.location.hash;
+    if (hash && hash.startsWith('#tg_group:')) {
+        const groupId = hash.replace('#tg_group:', '');
+        const prefix = selectedRole === 'teacher' ? 't' : 's';
+        setTimeout(() => {
+            switchTab(`${prefix}-dardasha`);
+            window.switchChatTab(prefix, 'groups', document.getElementById(`${prefix}-tab-groups`));
+            setTimeout(() => tgOpenGroup(groupId, prefix), 500);
+        }, 600);
+    }
+}
+
+// Hook into loginSuccess to handle group deep links
+const _tgOrigLogin = loginSuccess;
+// Since we can't override loginSuccess directly, we check on initDardasha call
+const _tgOrigInitDardasha = initDardasha;
+function initDardasha() {
+    _tgOrigInitDardasha();
+    const prefix = selectedRole === 'teacher' ? 't' : 's';
+    _tgCurrentTab[prefix] = 'chats';
+    // Check deep link after a short delay
+    setTimeout(tgHandleGroupDeepLink, 1000);
+}
