@@ -128,7 +128,7 @@
                 <button class="nav-btn" onclick="switchTab('t-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
                 <button class="nav-btn" onclick="switchTab('t-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
                 <button class="nav-btn magic-btn" onclick="switchTab('t-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
-                <button class="nav-btn" onclick="switchTab('t-analytics', this)"><i class="fas fa-chart-line"></i><span>تحليلات</span></button>
+                <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
         <div class="portal-container">
@@ -165,7 +165,13 @@
                         <i class="fas fa-search search-icon-animated"></i>
                         <input type="text" class="google-bar" id="t-search" placeholder="ابحث في اختباراتك...">
                     </div>
-                                                                                            </div>
+                    <div class="search-categories">
+                        <div class="search-cat-chip" onclick="filterExamsBySubject('رياضيات')">📐 رياضيات</div>
+                        <div class="search-cat-chip" onclick="filterExamsBySubject('علوم')">🔬 علوم</div>
+                        <div class="search-cat-chip" onclick="filterExamsBySubject('عربي')">📖 عربي</div>
+                        <div class="search-cat-chip" onclick="filterExamsBySubject('إنجليزي')">🇬🇧 إنجليزي</div>
+                        <div class="search-cat-chip" onclick="filterExamsBySubject('تاريخ')">📜 تاريخ</div>
+                    </div>
                 </div>
                 <div id="t-tests-list"></div>
             </section>
@@ -223,6 +229,7 @@
                     <div class="chat-window hidden" id="t-chat-window"></div>
                 </div>
             </section>
+
 
             <!-- ═══ TEACHER DASHBOARD ═══ -->
             <section id="t-dashboard" class="app-section hidden">
@@ -356,7 +363,7 @@
                             <label for="t-ai-file" class="gemini-img-btn" title="إرفاق صورة"><i class="fas fa-camera"></i></label>
                             <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
                             
-                            <input type="text" id="t-ai-input" class="gemini-text-input" placeholder="اكتب، تخيل، أنشئ..." oninput="toggleAiSendMic('t', this.value)">
+                            <input type="text" id="t-ai-input" class="gemini-text-input" placeholder="اكتب، تخيل، أنشئ..." oninput="toggleAiSendMic('t', this.value)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMsg('t');}">
                             
                             <button id="t-mic-btn" class="gemini-mic-btn" onclick="startVoiceInput('t')" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
                             <button id="t-send-btn" onclick="sendAiMsg('t')" class="gemini-send-btn" style="display:none"><i class="fas fa-paper-plane"></i></button>
@@ -364,43 +371,6 @@
                         <div id="t-chat-preview" class="chat-img-preview">
                             <i class="fas fa-times" onclick="clearChatImg('t')"></i>
                             <img src="" id="t-chat-img-tag">
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ═══ SECTION: تحليلات المعلم ═══ -->
-            <section id="t-analytics" class="app-section hidden">
-                <div class="mobile-spacer"></div>
-                <div class="section-header-row" style="margin-bottom:20px;">
-                    <h2 style="margin:0;font-size:1.2rem;">📊 تحليلات الفصل</h2>
-                    <button onclick="loadTeacherAnalytics()" class="icon-btn-small" style="background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3);" title="تحديث"><i class="fas fa-sync-alt"></i></button>
-                </div>
-
-                <div class="progress-stats-row">
-                    <div class="progress-stat-card" style="--stat-color:#3b82f6;">
-                        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
-                        <div class="stat-value" id="t-anal-exams">--</div>
-                        <div class="stat-label">إجمالي الاختبارات</div>
-                    </div>
-                    <div class="progress-stat-card" style="--stat-color:#10b981;">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
-                        <div class="stat-value" id="t-anal-students">--</div>
-                        <div class="stat-label">الطلاب المشاركون</div>
-                    </div>
-                    <div class="progress-stat-card" style="--stat-color:#f59e0b;">
-                        <div class="stat-icon"><i class="fas fa-star"></i></div>
-                        <div class="stat-value" id="t-anal-avg">--</div>
-                        <div class="stat-label">متوسط الفصل</div>
-                    </div>
-                </div>
-
-                <div class="progress-section-card">
-                    <div class="progress-section-title"><i class="fas fa-clock" style="color:#60a5fa;"></i> النشاط الأخير</div>
-                    <div id="t-anal-recent" class="analytics-recent-list">
-                        <div style="text-align:center;color:#444;padding:24px;">
-                            <i class="fas fa-chart-line" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>
-                            جاري التحميل...
                         </div>
                     </div>
                 </div>
@@ -418,7 +388,7 @@
                 <button class="nav-btn" onclick="switchTab('s-reese', this)"><i class="fas fa-feather-alt"></i><span>ريس</span></button>
                 <button class="nav-btn" onclick="switchTab('s-dardasha', this)"><i class="fab fa-telegram-plane"></i><span>دردشة</span></button>
                 <button class="nav-btn magic-btn" onclick="switchTab('s-ai', this)"><i class="fas fa-wand-magic-sparkles"></i><span>AI</span></button>
-                <button class="nav-btn" onclick="switchTab('s-progress', this)"><i class="fas fa-chart-bar"></i><span>تقدمي</span></button>
+                <button class="nav-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i><span>القائمة</span></button>
             </div>
         </nav>
         <div class="portal-container">
@@ -431,7 +401,14 @@
                         <i class="fas fa-search search-icon-animated"></i>
                         <input type="text" class="google-bar" id="s-search" placeholder="ابحث عن اختبار...">
                     </div>
-                                                                                                                    </div>
+                    <div class="search-categories">
+                        <div class="search-cat-chip" onclick="filterStudentExams('رياضيات')">📐 رياضيات</div>
+                        <div class="search-cat-chip" onclick="filterStudentExams('علوم')">🔬 علوم</div>
+                        <div class="search-cat-chip" onclick="filterStudentExams('عربي')">📖 عربي</div>
+                        <div class="search-cat-chip" onclick="filterStudentExams('إنجليزي')">🇬🇧 إنجليزي</div>
+                        <div class="search-cat-chip" onclick="filterStudentExams('فيزياء')">⚡ فيزياء</div>
+                        <div class="search-cat-chip" onclick="filterStudentExams('كيمياء')">🧪 كيمياء</div>
+                    </div>
                 </div>
                 <div class="create-exam-cta student-stats-cta" onclick="openStudentAnalytics()">
                     <i class="fas fa-chart-line cta-bg-icon"></i>
@@ -554,7 +531,7 @@
                             <label for="s-ai-file" class="gemini-img-btn" title="إرفاق صورة"><i class="fas fa-camera"></i></label>
                             <input type="file" id="s-ai-file" hidden accept="image/*" onchange="previewChatImg('s')">
                             
-                            <input type="text" id="s-ai-input" class="gemini-text-input" placeholder="اسألني عن أي شيء..." oninput="toggleAiSendMic('s', this.value)">
+                            <input type="text" id="s-ai-input" class="gemini-text-input" placeholder="اسألني عن أي شيء..." oninput="toggleAiSendMic('s', this.value)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMsg('s');}">
                             
                             <button id="s-mic-btn" class="gemini-mic-btn" onclick="startVoiceInput('s')" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
                             <button id="s-send-btn" onclick="sendAiMsg('s')" class="gemini-send-btn" style="display:none"><i class="fas fa-paper-plane"></i></button>
@@ -567,56 +544,6 @@
                 </div>
             </section>
 
-            <!-- ═══ SECTION: تقدمي (Student Progress) ═══ -->
-            <section id="s-progress" class="app-section hidden">
-                <div class="mobile-spacer"></div>
-                <div class="section-header-row" style="margin-bottom:20px;">
-                    <h2 style="margin:0;font-size:1.2rem;">📊 تقدمي الدراسي</h2>
-                    <button onclick="loadStudentProgress()" class="icon-btn-small" style="background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.3);" title="تحديث"><i class="fas fa-sync-alt"></i></button>
-                </div>
-
-                <!-- Stat Cards -->
-                <div class="progress-stats-row">
-                    <div class="progress-stat-card" style="--stat-color:#3b82f6;">
-                        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
-                        <div class="stat-value" id="s-prog-exams">--</div>
-                        <div class="stat-label">اختبارات أديتها</div>
-                    </div>
-                    <div class="progress-stat-card" style="--stat-color:#10b981;">
-                        <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                        <div class="stat-value" id="s-prog-avg">--</div>
-                        <div class="stat-label">متوسط درجاتي</div>
-                        <div class="stat-trend" id="s-prog-avg-trend"></div>
-                    </div>
-                    <div class="progress-stat-card" style="--stat-color:#f59e0b;">
-                        <div class="stat-icon"><i class="fas fa-bolt"></i></div>
-                        <div class="stat-value" id="s-prog-xp">0 XP</div>
-                        <div class="stat-label">نقاط الخبرة</div>
-                    </div>
-                </div>
-
-                <!-- Subject Breakdown -->
-                <div class="progress-section-card">
-                    <div class="progress-section-title"><i class="fas fa-chart-bar" style="color:#6366f1;"></i> أدائي في المواد</div>
-                    <div id="s-subj-breakdown-content">
-                        <div style="text-align:center;color:#444;padding:24px;font-size:0.85rem;">
-                            <i class="fas fa-chart-pie" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>
-                            أدِّ بعض الاختبارات لترى تحليل مواد دراستك
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Leaderboard -->
-                <div class="progress-section-card">
-                    <div class="progress-section-title"><i class="fas fa-trophy" style="color:#f59e0b;"></i> لوحة الشرف</div>
-                    <div class="leaderboard-list" id="s-leaderboard-list">
-                        <div style="text-align:center;color:#444;padding:24px;">
-                            <i class="fas fa-users" style="font-size:2rem;margin-bottom:10px;display:block;opacity:0.3;"></i>
-                            جاري التحميل...
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <!-- ═══ SECTION: جدول المذاكرة ═══ -->
             <section id="s-schedule" class="app-section hidden">
@@ -865,20 +792,12 @@
             
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <div style="flex: 1;">
-                    <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:8px; text-align:center;">🔵 اختياري (MCQ)</label>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <button onclick="this.nextElementSibling.value=Math.max(0,+this.nextElementSibling.value-1)" style="width:36px;height:36px;border-radius:10px;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:1.2rem;cursor:pointer;flex-shrink:0;">−</button>
-                        <input type="number" id="ai-mcq-count" class="smart-input" value="10" min="0" max="50" style="text-align:center;margin:0;flex:1;">
-                        <button onclick="this.previousElementSibling.value=Math.min(50,+this.previousElementSibling.value+1)" style="width:36px;height:36px;border-radius:10px;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:1.2rem;cursor:pointer;flex-shrink:0;">+</button>
-                    </div>
+                    <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد الاختياري (MCQ)</label>
+                    <input type="number" id="ai-mcq-count" class="smart-input" value="5" style="text-align: center; margin: 0;">
                 </div>
                 <div style="flex: 1;">
-                    <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:8px; text-align:center;">📝 مقالي</label>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <button onclick="this.nextElementSibling.value=Math.max(0,+this.nextElementSibling.value-1)" style="width:36px;height:36px;border-radius:10px;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:1.2rem;cursor:pointer;flex-shrink:0;">−</button>
-                        <input type="number" id="ai-essay-count" class="smart-input" value="0" min="0" max="20" style="text-align:center;margin:0;flex:1;">
-                        <button onclick="this.previousElementSibling.value=Math.min(20,+this.previousElementSibling.value+1)" style="width:36px;height:36px;border-radius:10px;background:#1a1a1a;border:1px solid #333;color:#fff;font-size:1.2rem;cursor:pointer;flex-shrink:0;">+</button>
-                    </div>
+                    <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد المقالي</label>
+                    <input type="number" id="ai-essay-count" class="smart-input" value="0" style="text-align: center; margin: 0;">
                 </div>
             </div>
 
@@ -1006,18 +925,23 @@
     <!-- ============ END DIRECT VOICE CALL ============ -->
 
     <script>
-    function toggleAiSendMic(role, value) {
-        const micBtn = document.getElementById(role + '-mic-btn');
-        const sendBtn = document.getElementById(role + '-send-btn');
-        if (!micBtn || !sendBtn) return;
-        if (value && value.trim()) {
-            micBtn.style.display = 'none';
-            sendBtn.style.display = 'flex';
-        } else {
-            micBtn.style.display = 'flex';
-            sendBtn.style.display = 'none';
-        }
-    }
+    // toggleAiSendMic is defined in script.js module — do not duplicate here
+
+    // Enter key support for AI chat inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        ['t-ai-input', 's-ai-input'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        var prefix = id.charAt(0); // 't' or 's'
+                        if (window.sendAiMsg) window.sendAiMsg(prefix);
+                    }
+                });
+            }
+        });
+    });
 
     let mediaRecorder = null;
     let isRecording = false;
