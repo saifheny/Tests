@@ -211,10 +211,13 @@
                                 </button>
                             </div>
                         </div>
-
+                        <div class="tg-tabs" id="t-tg-tabs">
+                            <button class="tg-tab active" id="t-tab-chats" onclick="switchChatTab('t','chats',this)"><i class="fas fa-comment-dots"></i> المحادثات</button>
+                            <button class="tg-tab" id="t-tab-groups" onclick="switchChatTab('t','groups',this)"><i class="fas fa-users"></i> الجروبات</button>
+                        </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="بحث..." onkeyup="filterChats('t', this.value)">
+                            <input type="text" placeholder="بحث..." onkeyup="filterChatList('t', this.value)">
                         </div>
                         <div class="chat-list" id="t-chat-list"></div>
                     </div>
@@ -475,10 +478,13 @@
                                 </button>
                             </div>
                         </div>
-
+                        <div class="tg-tabs" id="s-tg-tabs">
+                            <button class="tg-tab active" id="s-tab-chats" onclick="switchChatTab('s','chats',this)"><i class="fas fa-comment-dots"></i> المحادثات</button>
+                            <button class="tg-tab" id="s-tab-groups" onclick="switchChatTab('s','groups',this)"><i class="fas fa-users"></i> الجروبات</button>
+                        </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="بحث..." onkeyup="filterChats('s', this.value)">
+                            <input type="text" placeholder="بحث..." onkeyup="filterChatList('s', this.value)">
                         </div>
                         <div class="chat-list" id="s-chat-list"></div>
                     </div>
