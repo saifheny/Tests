@@ -617,10 +617,11 @@ window.handleSmartAuth = async () => {
     const status = document.getElementById('auth-status');
     if (!name1 || !name2 || !name3 || !pass) return status.innerText = "يرجى ملء جميع الحقول";
     const passRegex = /^[a-zA-Z0-9]+$/;
-    if (pass.length !== 6 || !passRegex.test(pass)) return status.innerText = "كلمة المرور يجب أن تكون 6 خانات (حروف إنجليزية وأرقام فقط)";
+    if (pass.length !== 6 || !passRegex.test(pass)) return status.innerText = "الرمز 6 خانات: حروف إنجليزية وأرقام فقط (مثال: abc123 أو 123456)";
     const fullName = `${name1} ${name2} ${name3}`;
+    const safeKey = fullName.replace(/\s+/g, '_').replace(/[.#$\[\]]/g, '_');
     status.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جارِ الاتصال...';
-    const userRef = ref(db, `users/${selectedRole}s/${fullName}`);
+    const userRef = ref(db, `users/${selectedRole}s/${safeKey}`);
     try {
         const snap = await get(userRef);
         if (snap.exists()) {
@@ -631,13 +632,13 @@ window.handleSmartAuth = async () => {
                     uid = generateUID();
                     await update(userRef, { uid: uid });
                 }
-                loginSuccess(fullName, savedIcon, uid);
+                loginSuccess(fullName, savedIcon, uid, safeKey);
             } else status.innerText = "كلمة المرور غير صحيحة";
         } else {
             const defaultIcon = selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie';
             const uid = generateUID();
-            await set(userRef, { password: pass, joined: Date.now(), icon: defaultIcon, uid: uid });
-            loginSuccess(fullName, defaultIcon, uid);
+            await set(userRef, { password: pass, joined: Date.now(), icon: defaultIcon, uid: uid, displayName: fullName });
+            loginSuccess(fullName, defaultIcon, uid, safeKey);
         }
     } catch (e) { console.error(e); status.innerText = "حدث خطأ في الاتصال"; }
 };
@@ -651,11 +652,24 @@ function generateUID() {
     return result;
 }
 
-function loginSuccess(name, icon, uid) {
+// Returns the Firebase-safe key for the current user
+function getUserKey(name) {
+    const n = name || currentUser || '';
+    return (window._currentUserKey && name === currentUser)
+        ? window._currentUserKey
+        : n.replace(/\s+/g, '_').replace(/[.#$\[\]]/g, '_');
+}
+
+function loginSuccess(name, icon, uid, safeKey) {
     playSound('success');
     currentUser = name;
     myUid = uid;
+    // safeKey = Firebase-safe version of name (spaces→underscores)
+    // if not passed (e.g. auto-login), derive it from name
+    const _safeKey = safeKey || name.replace(/\s+/g, '_').replace(/[.#$\[\]]/g, '_');
+    window._currentUserKey = _safeKey;
     localStorage.setItem('sa_user', name);
+    localStorage.setItem('sa_user_key', _safeKey);
     localStorage.setItem('sa_role', selectedRole);
     localStorage.setItem('sa_icon', icon || (selectedRole === 'student' ? 'fa-user-astronaut' : 'fa-user-tie'));
     localStorage.setItem('sa_uid', uid);
@@ -935,12 +949,16 @@ window.saveProfileName = async () => {
     const newName = document.getElementById('edit-name-input').value.trim();
     if(!newName || newName === currentUser) return;
     saConfirm("تغيير الاسم سيؤدي لإنشاء حساب جديد. هل أنت متأكد؟", async () => {
-        const oldRef = ref(db, `users/${selectedRole}s/${currentUser}`);
+        const oldRef = ref(db, `users/${selectedRole}s/${getUserKey(currentUser)}`);
         const snapshot = await get(oldRef);
         const data = snapshot.val();
-        await set(ref(db, `users/${selectedRole}s/${newName}`), data);
+        const newKey = newName.replace(/\s+/g, '_').replace(/[.#$\[\]]/g, '_');
+        await set(ref(db, `users/${selectedRole}s/${newKey}`), Object.assign({}, data, { displayName: newName }));
         await remove(oldRef);
-        currentUser = newName; localStorage.setItem('sa_user', newName);
+        currentUser = newName;
+        window._currentUserKey = newKey;
+        localStorage.setItem('sa_user', newName);
+        localStorage.setItem('sa_user_key', newKey);
         updateMenuInfo(); saAlert("تم تغيير الاسم بنجاح", "success"); toggleEditProfile();
     });
 };
@@ -954,7 +972,7 @@ window.toggleAvatarSelect = () => {
 window.saveAvatar = async (iconClass) => {
     playSound('click');
     localStorage.setItem('sa_icon', iconClass);
-    await update(ref(db, `users/${selectedRole}s/${currentUser}`), { icon: iconClass });
+    await update(ref(db, `users/${selectedRole}s/${getUserKey(currentUser)}`), { icon: iconClass });
     updateMenuInfo(); toggleAvatarSelect();
 };
 
@@ -1290,7 +1308,7 @@ window.openChatRoom = (chatId, name, icon, uid) => {
         isFirstLoad = false;
     });
 
-    update(ref(db, `users/${selectedRole}s/${currentUser}`), { online: true, lastSeen: Date.now() });
+    update(ref(db, `users/${selectedRole}s/${getUserKey(currentUser)}`), { online: true, lastSeen: Date.now() });
 };
 
 function appendChatMsg(container, msg, chatId, otherUid, otherName) {
@@ -2440,7 +2458,7 @@ window.loadTestResults = (testId) => {
 
 window.viewStudentDetails = async (testId, studentName) => {
     playSound('click');
-    let phone = "غير مسجل"; const userSnap = await get(ref(db, `users/students/${studentName}`));
+    let phone = "غير مسجل"; const safeStudentKey = studentName.replace(/\s+/g, '_').replace(/[.#$\[\]]/g, '_'); const userSnap = await get(ref(db, `users/students/${safeStudentKey}`));
     if(userSnap.exists() && userSnap.val().phone) phone = userSnap.val().phone;
     const resSnap = await get(ref(db, `results/${testId}/${studentName}`)); const res = resSnap.val();
     document.getElementById('td-name').innerText = studentName; document.getElementById('td-phone').innerText = phone;
@@ -2476,7 +2494,7 @@ function loadStudentExams() {
         let foundExam = false;
         const promises = Object.entries(tests).map(async ([key, val]) => {
             if (val.isHidden === true) return null;
-            const resSnap = await get(ref(db, `results/${key}/${currentUser}`));
+            const resSnap = await get(ref(db, `results/${key}/${getUserKey(currentUser)}`));
             return { key, val, hasTaken: resSnap.exists(), score: resSnap.exists() ? resSnap.val().percentage : null };
         });
         const results = await Promise.all(promises);
@@ -2546,7 +2564,7 @@ window.loadStudentGrades = () => {
         get(ref(db, 'tests')).then(async (testSnap) => {
             list.innerHTML = ''; const tests = testSnap.val() || {}; let foundAny = false;
             for(const [testId, testData] of Object.entries(tests)) {
-                const resSnap = await get(ref(db, `results/${testId}/${currentUser}`));
+                const resSnap = await get(ref(db, `results/${testId}/${getUserKey(currentUser)}`));
                 if(resSnap.exists()) {
                     foundAny = true; const res = resSnap.val();
                     const color = res.percentage >= 90 ? 'var(--accent-gold)' : (res.percentage >= 50 ? 'var(--success)' : 'var(--danger)');
@@ -2567,7 +2585,7 @@ window.loadStudentGrades = () => {
 let tempTestId = null;
 window.checkPhoneAndStart = async (id) => {
     playSound('click');
-    tempTestId = id; const userSnap = await get(ref(db, `users/students/${currentUser}`));
+    tempTestId = id; const userSnap = await get(ref(db, `users/students/${getUserKey(currentUser)}`));
     if(userSnap.exists() && userSnap.val().phone) startTest(id); else document.getElementById('phone-modal').classList.remove('hidden');
 };
 
@@ -2575,7 +2593,7 @@ window.savePhoneAndStart = async () => {
     playSound('click');
     const phone = document.getElementById('student-phone-input').value.trim();
     if(!phone || phone.length < 10) return saAlert("يرجى إدخال رقم صحيح", "error");
-    await update(ref(db, `users/students/${currentUser}`), { phone: phone });
+    await update(ref(db, `users/students/${getUserKey(currentUser)}`), { phone: phone });
     document.getElementById('phone-modal').classList.add('hidden'); startTest(tempTestId);
 };
 
@@ -2624,7 +2642,7 @@ window.submitExam = async () => {
     clearInterval(timerInt);
     
     // Check if already taken before (first attempt only)
-    const existingSnap = await get(ref(db, `results/${activeTest.id}/${currentUser}`));
+    const existingSnap = await get(ref(db, `results/${activeTest.id}/${getUserKey(currentUser)}`));
     const isFirstAttempt = !existingSnap.exists();
     
     let score = 0, total = 0, details = [];
@@ -2645,7 +2663,7 @@ window.submitExam = async () => {
 
     // Only save if first attempt
     if (isFirstAttempt) {
-        await set(ref(db, `results/${activeTest.id}/${currentUser}`), { score, total, percentage: pct, timestamp: Date.now(), details });
+        await set(ref(db, `results/${activeTest.id}/${getUserKey(currentUser)}`), { score, total, percentage: pct, timestamp: Date.now(), details });
     }
 
     document.getElementById('s-taking-test').classList.add('hidden');
@@ -2747,7 +2765,7 @@ function showExamResultScreen(title, score, total, pct, details, isFirstAttempt)
 
 window.reviewTest = async (id) => {
     playSound('click');
-    const resSnap = await get(ref(db, `results/${id}/${currentUser}`));
+    const resSnap = await get(ref(db, `results/${id}/${getUserKey(currentUser)}`));
     if(!resSnap.exists()) return saAlert("لم تقم بهذا الاختبار", "info");
     const res = resSnap.val();
     const div = document.getElementById('review-content'); div.innerHTML = `<h1 style="text-align:center; color:var(--accent-primary); margin-bottom:20px;">${res.percentage}%</h1>`;
@@ -2964,7 +2982,7 @@ window.sendAiMsg = async (prefix) => {
         try {
             if (selectedRole === 'student') {
                 const [stuSnap, testsSnap, resultsSnap] = await Promise.all([
-                    get(ref(db, 'users/students/' + currentUser)),
+                    get(ref(db, 'users/students/' + getUserKey(currentUser))),
                     get(ref(db, 'tests')),
                     get(ref(db, 'results')),
                 ]);
@@ -3169,7 +3187,7 @@ window.openStudentAnalytics = async () => {
     let grades = {}, subjectStats = {}, weeklyData = {};
 
     for (const [testId, testData] of Object.entries(allTests)) {
-        const resSnap = await get(ref(db, `results/${testId}/${currentUser}`));
+        const resSnap = await get(ref(db, `results/${testId}/${getUserKey(currentUser)}`));
         if (resSnap.exists()) {
             const res = resSnap.val();
             examCount++;
@@ -3478,7 +3496,7 @@ window.openLeaderboard = async () => {
     list.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> جاري التحميل...</div>';
 
     const myData = getXPData();
-    await update(ref(db, `xp_scores/${currentUser}`), { xp: myData.totalXP, name: currentUser });
+    await update(ref(db, `xp_scores/${getUserKey(currentUser)}`), { xp: myData.totalXP, name: currentUser });
 
     const snap = await get(ref(db, 'xp_scores'));
     list.innerHTML = '';
@@ -3544,11 +3562,12 @@ window.startTest = async function(id) {
     await _origStartTest.call(this, id);
 };
 
-const savedUser = localStorage.getItem('sa_user'); const savedRole = localStorage.getItem('sa_role'); const savedIcon = localStorage.getItem('sa_icon'); const savedUid = localStorage.getItem('sa_uid');
+const savedUser = localStorage.getItem('sa_user'); const savedRole = localStorage.getItem('sa_role'); const savedIcon = localStorage.getItem('sa_icon'); const savedUid = localStorage.getItem('sa_uid'); const savedUserKey = localStorage.getItem('sa_user_key');
 if (savedUser && savedRole) {
     currentUser = savedUser; selectedRole = savedRole; myUid = savedUid;
+    window._currentUserKey = savedUserKey || savedUser.replace(/\s+/g, '_').replace(/[.#$\[\]]/g, '_');
     document.getElementById('landing-layer').classList.add('hidden');
-    loginSuccess(currentUser, savedIcon, savedUid);
+    loginSuccess(currentUser, savedIcon, savedUid, window._currentUserKey);
 } else { document.getElementById('landing-layer').classList.remove('hidden'); }
 
 let deferredPrompt;
@@ -3970,7 +3989,7 @@ window.loadStudentProgress = async function() {
 
         // ── Loop each test and check if this student has a result ──
         const promises = Object.entries(allTests).map(async ([testId, testData]) => {
-            const resSnap = await get(ref(db, `results/${testId}/${currentUser}`));
+            const resSnap = await get(ref(db, `results/${testId}/${getUserKey(currentUser)}`));
             if (resSnap.exists()) {
                 const res = resSnap.val();
                 const pct = res.percentage !== undefined ? Math.round(res.percentage) : Math.round((res.score / (res.total || 1)) * 100);
