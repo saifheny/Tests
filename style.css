@@ -5710,321 +5710,118 @@ animation: shakeField 0.4s ease;
   }
 }
 
-/* ══════════════════════════════════════════════════════════
-   SESSION 9: PROGRESS SECTION + FIXES
-   ══════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════
+   BUG FIXES - Chat & Mobile & AI Avatar
+   ══════════════════════════════════════ */
 
-/* Progress Stats Row */
-.progress-stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
+/* Fix: Chat header always shows all buttons on mobile */
+.chat-header {
+    flex-wrap: nowrap;
+    overflow: visible !important;
+    min-height: 56px;
 }
-@media (max-width: 480px) {
-  .progress-stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.chat-header .icon-btn-small,
+.chat-header button {
+    flex-shrink: 0;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
-
-/* Progress Section Card */
-.progress-section-card {
-  background: #0a0a0a;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 18px;
-  padding: 16px;
-  margin-bottom: 16px;
-}
-.progress-section-title {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: #ccc;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Section header row */
-.section-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+@media (max-width: 600px) {
+    .chat-header {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+    .chat-header .icon-btn-small {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+    }
+    .chat-header div[style*="margin-right:auto"] {
+        margin-right: auto !important;
+        display: flex !important;
+    }
 }
 
-/* ── Fix: AI section no empty space at bottom ── */
-.ai-layout {
-  padding-bottom: 0 !important;
+/* ─── MOBILE: Group header & chat header must clear the top nav ───
+   The chat-window starts at top:0 on mobile, but the top nav is
+   position:fixed at top:0 with z-index:3000 — it overlaps the header.
+   Add padding equal to nav-height so buttons are not hidden behind the nav. */
+@media (max-width: 768px) {
+    .group-header {
+        padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 8px) !important;
+    }
+    .chat-header {
+        padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 8px) !important;
+    }
+    .group-header-actions {
+        display: flex !important;
+        flex-shrink: 0;
+        gap: 8px;
+        margin-right: auto;  /* push to far left in RTL */
+    }
+    .group-header-actions .icon-btn-small {
+        display: flex !important;
+        visibility: visible !important;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+    }
+    /* Ensure the close/back button in group header is always visible */
+    .group-header > button:first-child {
+        display: flex !important;
+        flex-shrink: 0;
+        visibility: visible !important;
+    }
+    /* Ensure msgs area scrolls to bottom properly */
+    .chat-msgs-area {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .chat-input-area {
+        flex-shrink: 0;
+        position: sticky;
+        bottom: 0;
+    }
 }
+
+/* Fix: AI message avatar row */
+.ai-msg-avatar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding: 0 2px;
+}
+.ai-msg-logo-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(59,130,246,0.3);
+    background: #111;
+    flex-shrink: 0;
+}
+.ai-sender-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--accent-primary, #3b82f6);
+    letter-spacing: 0.03em;
+}
+
+/* Fix: Ensure AI full-msg has proper spacing */
+.ai-full-msg {
+    padding: 12px 16px 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.ai-full-msg:last-child {
+    border-bottom: none;
+}
+
+/* Fix: Scroll chat messages area properly */
 .ai-messages {
-  padding-bottom: 8px !important;
-}
-#s-ai.app-section,
-#t-ai.app-section {
-  padding: 0 !important;
-  overflow: hidden;
-}
-
-/* ── Fix: Remove exam card glow / glowing buttons ── */
-.mini-card {
-  box-shadow: none !important;
-}
-.mini-card:hover {
-  box-shadow: none !important;
-}
-.create-exam-cta {
-  box-shadow: none !important;
-}
-.create-exam-cta:hover {
-  box-shadow: none !important;
-}
-.nav-btn.magic-btn {
-  box-shadow: none !important;
-}
-button.magic-btn:hover {
-  box-shadow: none !important;
-}
-
-/* ── Fix: Search bar clean (no Google color chips) ── */
-.search-wrap-enhanced {
-  margin-bottom: 16px;
-}
-.search-glow {
-  display: none !important;
-}
-.google-bar {
-  background: #111 !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
-  border-radius: 14px !important;
-  padding: 12px 16px 12px 40px !important;
-  width: 100% !important;
-  color: #fff !important;
-  font-size: 0.95rem !important;
-  font-family: var(--font-main) !important;
-  outline: none !important;
-  box-shadow: none !important;
-  transition: border-color 0.2s !important;
-}
-.google-bar:focus {
-  border-color: rgba(96,165,250,0.4) !important;
-  box-shadow: none !important;
-}
-.search-inner {
-  position: relative !important;
-}
-
-/* ── Fix: app-section fills available space ── */
-.app-section {
-  min-height: calc(100dvh - var(--nav-height) - 20px);
-}
-
-/* ── Fix: Portal container no extra bottom padding on desktop ── */
-@media (min-width: 769px) {
-  .portal-container {
-    padding-bottom: 20px;
-  }
-}
-
-/* ── Analytics Recent List ── */
-.analytics-recent-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-.analytics-recent-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  font-size: 0.85rem;
-}
-.analytics-recent-item:last-child { border-bottom: none; }
-.analytics-recent-item .a-icon {
-  width: 32px; height: 32px;
-  border-radius: 10px;
-  background: rgba(59,130,246,0.12);
-  display: flex; align-items: center; justify-content: center;
-  color: #60a5fa; font-size: 0.85rem; flex-shrink: 0;
-}
-.analytics-recent-item .a-info { flex: 1; }
-.analytics-recent-item .a-name { color: #ddd; font-weight: 600; }
-.analytics-recent-item .a-sub { color: #555; font-size: 0.75rem; }
-.analytics-recent-item .a-score {
-  font-weight: 700; font-size: 0.9rem;
-  color: #10b981;
-}
-
-/* ══════════════════════════════════════════════════════════
-   SESSION 9: CHAT ENHANCEMENTS (WhatsApp + Telegram hybrid)
-   ══════════════════════════════════════════════════════════ */
-
-/* AI hint bar in private chat */
-.chat-ai-hint {
-  text-align: center;
-  font-size: 0.7rem;
-  color: #4a4a6a;
-  padding: 5px 12px;
-  background: rgba(109,40,217,0.06);
-  border-top: 1px solid rgba(109,40,217,0.1);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-/* Reply preview in chat bubble */
-.wapp-reply-preview {
-  background: rgba(255,255,255,0.06);
-  border-right: 3px solid #60a5fa;
-  border-radius: 6px;
-  padding: 6px 8px;
-  margin-bottom: 6px;
-  max-width: 100%;
-}
-
-/* AI message bubble in private chat */
-.wapp-ai-msg {
-  background: linear-gradient(135deg, rgba(109,40,217,0.15), rgba(217,70,239,0.08)) !important;
-  border: 1px solid rgba(109,40,217,0.2) !important;
-}
-.wapp-ai-label {
-  font-size: 0.68rem;
-  color: #a78bfa;
-  font-weight: 700;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Reactions on messages */
-.wapp-reactions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 2px;
-}
-.wapp-rxn-pill {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px;
-  padding: 1px 7px;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-/* Context menu with reactions row */
-.ctx-reactions-row {
-  display: flex;
-  gap: 6px;
-  padding: 8px 12px;
-  font-size: 1.3rem;
-}
-.ctx-rxn {
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 8px;
-  transition: background 0.15s;
-}
-.ctx-rxn:hover { background: rgba(255,255,255,0.1); }
-.ctx-divider {
-  height: 1px;
-  background: rgba(255,255,255,0.06);
-  margin: 0 8px;
-}
-
-/* Emoji panel */
-.emoji-panel {
-  background: #111;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  padding: 10px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-.emoji-panel.hidden { display: none; }
-.emoji-grid {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 2px;
-}
-.emoji-btn {
-  background: none;
-  border: none;
-  font-size: 1.3rem;
-  padding: 6px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: background 0.15s;
-  line-height: 1;
-}
-.emoji-btn:hover { background: rgba(255,255,255,0.08); }
-
-/* Reply bar above input */
-#reply-bar-* {
-  background: #111;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  padding: 6px 12px;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-}
-
-/* Chat input extra button */
-.chat-img-attach-btn {
-  flex-shrink: 0;
-  width: 34px; height: 34px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  display: flex; align-items: center; justify-content: center;
-  color: #666; font-size: 1rem; cursor: pointer;
-  transition: background 0.15s;
-}
-.chat-img-attach-btn:hover { background: rgba(255,255,255,0.1); color: #aaa; }
-
-/* ── Fix: context menu position ── */
-.msg-ctx-menu {
-  position: fixed;
-  z-index: 9999;
-  background: #1a1a1a;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 14px;
-  min-width: 190px;
-  padding: 6px;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-  overflow: hidden;
-}
-.ctx-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  font-size: 0.88rem;
-  color: #ddd;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: background 0.15s;
-}
-.ctx-item:hover { background: rgba(255,255,255,0.06); }
-.ctx-item.danger { color: #f87171; }
-.ctx-item i { width: 16px; text-align: center; }
-
-/* ── Online status indicator ── */
-#chat-online-* { color: #25d366 !important; }
-
-/* ── Remove search glow ── */
-.search-wrap-enhanced { position: relative; }
-
-/* ── Leaderboard crown hidden (was incorrectly shown) ── */
-.leaderboard-crown { display: none; }
-
-/* ── Fix: AI chips in welcome screen should still show ── */
-.ai-chips { margin-top: 0; }
-
-/* ── Teacher/Student nav - fix 5 buttons layout ── */
-.nav-container { gap: 0; }
-.nav-btn { flex: 1; min-width: 0; }
-.nav-btn span { font-size: 0.62rem; }
-@media (max-width: 380px) {
-  .nav-btn span { font-size: 0.55rem; }
-  .nav-btn { padding: 6px 2px; }
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
