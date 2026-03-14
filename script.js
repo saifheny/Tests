@@ -28,6 +28,8 @@ let isMyPostsView = false;
 let reeseImages = []; 
 let myUid = null;
 let activeChatRoomId = null;
+let _lastReeseSuggestions = [];
+let _cachedReeseSuggestions = [];
 
 // =========== DIRECT VOICE CALL SYSTEM ===========
 let _directCallPeer = null;
@@ -758,6 +760,26 @@ function updateOGMeta(title, description, imageUrl) {
     set('link[rel="canonical"]', 'href', fullUrl);
 }
 
+
+function showDeepLinkBanner(title, subtitle, btnText, onConfirm) {
+    const existing = document.getElementById('deeplink-banner');
+    if (existing) existing.remove();
+    const banner = document.createElement('div');
+    banner.id = 'deeplink-banner';
+    banner.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    banner.innerHTML = '<div style="background:#111;border:1px solid #2a2a2a;border-radius:28px;padding:32px 24px;max-width:380px;width:100%;text-align:center;">' +
+        '<div style="font-size:3rem;margin-bottom:16px;">🔗</div>' +
+        '<h2 style="margin:0 0 10px;font-size:1.2rem;color:#fff;">' + title + '</h2>' +
+        '<p style="color:#888;font-size:0.9rem;margin-bottom:28px;line-height:1.6;">' + subtitle + '</p>' +
+        '<div style="display:flex;gap:10px;">' +
+            '<button onclick="document.getElementById('deeplink-banner').remove()" style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:#aaa;padding:14px;border-radius:16px;cursor:pointer;font-family:var(--font-main);font-size:0.95rem;">إلغاء</button>' +
+            '<button id="dl-confirm-btn" style="flex:2;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;color:#fff;padding:14px;border-radius:16px;cursor:pointer;font-weight:800;font-family:var(--font-main);font-size:0.95rem;box-shadow:0 4px 15px rgba(59,130,246,0.4);">' + btnText + '</button>' +
+        '</div>' +
+    '</div>';
+    document.body.appendChild(banner);
+    document.getElementById('dl-confirm-btn').onclick = function() { banner.remove(); onConfirm(); };
+}
+
 async function handleDeepLinks() {
     const params = new URLSearchParams(window.location.search);
     const shareId  = params.get('shareId');
@@ -778,8 +800,8 @@ async function handleDeepLinks() {
             const grp = grpSnap.val();
             hideDeepLinkLoader();
             showDeepLinkBanner(
-                `👥 دعوة لجروب: ${grp.name}`,
-                `${Object.keys(grp.members||{}).length} عضو — ${grp.desc||'جروب على SA EDU'}`,
+                '👥 دعوة لجروب: ' + grp.name,
+                Object.keys(grp.members||{}).length + ' عضو — ' + (grp.desc||'جروب على SA EDU'),
                 'دخول الجروب',
                 () => {
                     const prefix = selectedRole==='teacher'?'t':'s';
@@ -827,10 +849,9 @@ async function handleDeepLinks() {
             updateOGMeta(`${subjectLabel}: ${d.title}`, `اختبار ${subjectLabel} • ${d.questions?.length||0} سؤال • ${d.duration} دقيقة • أعده ${d.teacher}`);
             hideDeepLinkLoader();
             showDeepLinkBanner(
-                `📝 ${d.title}`,
-                `${subjectLabel} · ${d.questions?.length||0} سؤال · ${d.duration} دقيقة
-المعلم: ${d.teacher}`,
-                selectedRole==='student' ? 'ابدأ الاختبار الآن ▶' : 'عرض الاختبار',
+                '📝 ' + d.title,
+                subjectLabel + ' · ' + (d.questions?.length||0) + ' سؤال · ' + d.duration + ' دقيقة — المعلم: ' + d.teacher,
+                selectedRole==='student' ? 'ابدأ الاختبار الآن' : 'عرض الاختبار',
                 () => {
                     if (selectedRole==='student') { switchTab('s-exams'); checkPhoneAndStart(examId); }
                     else { switchTab('t-library'); setTimeout(()=>{const card=document.querySelector(`[data-exam-id="${examId}"]`); if(card){card.scrollIntoView({behavior:'smooth'});card.style.border='2px solid var(--accent-gold)';setTimeout(()=>card.style.border='',3000);}},400); }
@@ -925,7 +946,7 @@ function hideDeepLinkLoader() {
 
 function handleDeepLinksAndRouting() {
     const params = new URLSearchParams(window.location.search);
-    const hasDeepLink = params.get('shareId') || params.get('examId') || params.get('postId') || params.get('chat') || params.get('room') || params.get('aiTab');
+    const hasDeepLink = params.get('shareId') || params.get('examId') || params.get('postId') || params.get('chat') || params.get('room') || params.get('aiTab') || params.get('groupInvite');
     
     if (hasDeepLink) {
         handleDeepLinks();
@@ -1717,9 +1738,6 @@ window.openReeseCompose = () => {
         setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 0);
     }
 };
-
-let _lastReeseSuggestions = [];
-let _cachedReeseSuggestions = []; // pre-cached for instant display
 
 // Pre-load suggestions immediately on app start (background)
 function _preloadReeseSuggestions() {
