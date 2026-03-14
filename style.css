@@ -6234,3 +6234,134 @@ animation: shakeField 0.4s ease;
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ════════════════════════════════════════════════════
+   MOBILE-FIRST UPGRADES — v8.0
+   ════════════════════════════════════════════════════ */
+
+/* ── Deep link banner slide-up ── */
+#deeplink-banner {
+  animation: slideUpBanner 0.35s cubic-bezier(0.34,1.4,0.64,1);
+}
+@keyframes slideUpBanner {
+  from { opacity: 0; transform: scale(0.93) translateY(30px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Reese back glow btn improved ── */
+.reese-back-glow-btn {
+  position: relative;
+  overflow: hidden;
+}
+.reese-back-glow-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,130,246,0.3), transparent 70%);
+  animation: reeseBtnGlow 2.5s ease-in-out infinite;
+}
+
+/* ── AI Generator inputs ── */
+#ai-mcq-count, #ai-essay-count {
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 1px !important;
+}
+
+/* ── Suggestion chips improved for mobile ── */
+.suggestion-chip {
+  cursor: pointer;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 10px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.suggestion-chip:active {
+  transform: scale(0.95);
+  background: rgba(59,130,246,0.15);
+  border-color: rgba(59,130,246,0.4);
+}
+
+/* ── Mobile: fix reese header ── */
+@media (max-width: 768px) {
+  #t-reese .mobile-spacer,
+  #s-reese .mobile-spacer {
+    height: 75px;
+  }
+}
+
+/* ── Improve touch targets on mobile ── */
+@media (max-width: 768px) {
+  .nav-btn {
+    min-height: 48px;
+    min-width: 44px;
+  }
+  .reese-back-glow-btn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  .icon-btn-small {
+    min-width: 38px;
+    min-height: 38px;
+  }
+}
+
+/* ── Group window: full height on mobile ── */
+@media (max-width: 768px) {
+  #t-chat-window:not(.hidden),
+  #s-chat-window:not(.hidden) {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 2000 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+}
+
+/* ── Fix deep link loader ── */
+#deeplink-loader {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 99990;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+#deeplink-loader .dl-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+#deeplink-loader p {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* ── AI generator count inputs ── */
+#ai-gen-modal .smart-input[type=number] {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #fff;
+  height: 56px;
+}
