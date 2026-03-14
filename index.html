@@ -211,8 +211,14 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- Chat type tabs - groups removed -->
-                        <div class="chat-type-tabs" id="t-chat-type-tabs" style="display:none;"></div>
+                        <div class="chat-type-tabs" id="t-chat-type-tabs">
+                            <button class="chat-type-tab active" onclick="switchChatTab('t','chats',this)">
+                                <i class="fas fa-comment-dots"></i> المحادثات
+                            </button>
+                            <button class="chat-type-tab" onclick="switchChatTab('t','groups',this)">
+                                <i class="fab fa-telegram-plane"></i> الجروبات
+                            </button>
+                        </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
                             <input type="text" placeholder="بحث..." onkeyup="filterChats('t', this.value)">
@@ -479,8 +485,14 @@
                                 </button>
                             </div>
                         </div>
-                        <!-- Chat type tabs - groups removed -->
-                        <div class="chat-type-tabs" id="s-chat-type-tabs" style="display:none;"></div>
+                        <div class="chat-type-tabs" id="s-chat-type-tabs">
+                            <button class="chat-type-tab active" onclick="switchChatTab('s','chats',this)">
+                                <i class="fas fa-comment-dots"></i> المحادثات
+                            </button>
+                            <button class="chat-type-tab" onclick="switchChatTab('s','groups',this)">
+                                <i class="fab fa-telegram-plane"></i> الجروبات
+                            </button>
+                        </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
                             <input type="text" placeholder="بحث..." onkeyup="filterChats('s', this.value)">
@@ -638,8 +650,11 @@
 
     <div id="reese-compose-modal" class="compose-overlay">
         <div class="compose-header">
-            <span style="font-weight: bold; font-size: 1.1rem;">إنشاء ريس جديد</span>
-            <div style="cursor: pointer; padding: 10px;" onclick="closeReeseCompose()"><i class="fas fa-arrow-right fa-lg"></i></div>
+            <div onclick="closeReeseCompose()" class="reese-back-glow-btn">
+                <i class="fas fa-arrow-right"></i>
+            </div>
+            <span style="font-weight:800;font-size:1rem;color:#fff;">Reese SA</span>
+            <div style="width:42px;"></div>
         </div>
         <div class="compose-body">
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
@@ -789,11 +804,11 @@
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <div style="flex: 1;">
                     <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد الاختياري (MCQ)</label>
-                    <input type="number" id="ai-mcq-count" class="smart-input" value="5" style="text-align: center; margin: 0;">
+                    <input type="number" id="ai-mcq-count" class="smart-input" value="0" style="text-align: center; margin: 0;" placeholder="0" min="0">
                 </div>
                 <div style="flex: 1;">
                     <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد المقالي</label>
-                    <input type="number" id="ai-essay-count" class="smart-input" value="0" style="text-align: center; margin: 0;">
+                    <input type="number" id="ai-essay-count" class="smart-input" value="0" style="text-align: center; margin: 0;" placeholder="0" min="0">
                 </div>
             </div>
 
