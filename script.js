@@ -438,65 +438,9 @@ function removeToast(toast) {
 function makeLinksClickable(text) {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return text.replace(urlRegex, function(url) {
-        const safeUrl = url.replace(/'/g, "\'");
-        return `<a href="javascript:void(0)" class="clickable-link" onclick="_interceptLink('${safeUrl}')">${url}</a>`;
+        return `<a href="${url}" target="_blank" class="clickable-link">${url}</a>`;
     });
 }
-
-// ============================================================
-//  DEEP LINK INTERCEPTOR — يعترض كل رابط ويعرض Modal تأكيد
-// ============================================================
-window._interceptLink = function(url) {
-    const existing = document.getElementById('sa-link-intercept-modal');
-    if (existing) existing.remove();
-
-    const isExam   = url.includes('examId=');
-    const isPost   = url.includes('postId=') || url.includes('shareId=');
-    const isGroup  = url.includes('groupInvite=');
-    const isReels  = url.includes('reese') || url.includes('reels');
-
-    let icon = '🌐', label = 'رابط خارجي';
-    let desc = url.length > 70 ? url.substring(0, 70) + '...' : url;
-
-    if (isExam)  { icon = '📝'; label = 'اختبار'; desc = 'هل تريد الدخول إلى هذا الاختبار؟'; }
-    if (isPost)  { icon = '📱'; label = 'منشور Reese'; desc = 'هل تريد عرض هذا المنشور؟'; }
-    if (isGroup) { icon = '👥'; label = 'دعوة جروب'; desc = 'هل تريد الانضمام لهذا الجروب؟'; }
-    if (isReels) { icon = '🎬'; label = 'ريلز'; desc = 'هل تريد مشاهدة هذا الريلز؟'; }
-
-    const overlay = document.createElement('div');
-    overlay.id = 'sa-link-intercept-modal';
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);animation:fadeIn .2s ease;';
-    overlay.innerHTML = `
-        <div style="background:#111;border:1px solid #2a2a2a;border-radius:24px;padding:28px 22px;max-width:380px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,0.9);text-align:center;animation:scaleInModal .25s ease;">
-            <div style="font-size:3rem;margin-bottom:12px;">${icon}</div>
-            <h3 style="margin:0 0 8px;font-size:1.05rem;color:#fff;">${label}</h3>
-            <p style="color:#666;font-size:0.82rem;margin-bottom:22px;word-break:break-all;line-height:1.6;">${desc}</p>
-            <div style="display:flex;gap:10px;">
-                <button onclick="document.getElementById('sa-link-intercept-modal').remove()" 
-                    style="flex:1;padding:12px;border-radius:14px;border:1px solid #2a2a2a;background:#1a1a1a;color:#888;font-family:var(--font-main);font-size:0.9rem;cursor:pointer;">
-                    إلغاء
-                </button>
-                <button onclick="window.open('${url.replace(/'/g,"\'")}','_blank','noopener');document.getElementById('sa-link-intercept-modal').remove();"
-                    style="flex:1;padding:12px;border-radius:14px;border:none;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-family:var(--font-main);font-size:0.9rem;font-weight:700;cursor:pointer;">
-                    دخول ✓
-                </button>
-            </div>
-        </div>`;
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-};
-
-// Intercept ALL anchor clicks globally (for links rendered as real <a> tags elsewhere)
-document.addEventListener('click', function(e) {
-    const anchor = e.target.closest('a[href]');
-    if (!anchor) return;
-    const href = anchor.getAttribute('href');
-    if (!href || href.startsWith('javascript:') || href === '#' || href.startsWith('#')) return;
-    if (anchor.classList.contains('no-intercept')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    window._interceptLink(href);
-}, true);
 
 function toggleConstructionOverlay(show, title="SA AI Building...", sub="جاري المعالجة") {
     const ol = document.getElementById('construction-overlay');
@@ -1773,13 +1717,26 @@ window.openReeseCompose = () => {
     const container = document.getElementById('ai-reese-suggestions');
     container.classList.remove('hidden');
 
-    // ✅ FIX: دائماً أعد تحميل الاقتراحات عند كل فتح (Unmount/Remount refresh)
-    _cachedReeseSuggestions = [];
-    _lastReeseSuggestions = [];
-    container.innerHTML = `<div class="suggestion-chip loading-chip"><i class="fas fa-circle-notch fa-spin"></i> جاري توليد اقتراحات جديدة...</div>`;
-    loadReeseAiSuggestionsAuto().catch(() => {
-        container.innerHTML = '<div class="suggestion-chip" style="opacity:0.5;pointer-events:none;"><i class="fas fa-wifi-slash"></i> تعذر تحميل الاقتراحات</div>';
-    });
+    // Show cached suggestions instantly if available
+    if (_cachedReeseSuggestions.length > 0) {
+        container.innerHTML = '';
+        const catIcons = ['✨','💡','🔥','🎯'];
+        _cachedReeseSuggestions.slice(0,4).forEach((sug, i) => {
+            const chip = document.createElement('div');
+            chip.className = 'suggestion-chip';
+            chip.innerHTML = `<span style="font-size:1rem;">${catIcons[i]||'✨'}</span> ${sug}`;
+            chip.onclick = () => {
+                document.getElementById('reese-text-input').value = sug;
+                document.getElementById('reese-text-input').focus();
+            };
+            container.appendChild(chip);
+        });
+        // Refresh in background silently
+        setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 100);
+    } else {
+        container.innerHTML = `<div class="suggestion-chip loading-chip"><i class="fas fa-circle-notch fa-spin"></i> جاري تحميل الاقتراحات...</div>`;
+        setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 0);
+    }
 };
 
 // Pre-load suggestions immediately on app start (background)
@@ -1852,9 +1809,8 @@ window.closeReeseCompose = () => {
     document.getElementById('reese-text-input').value = '';
     document.getElementById('reese-text-input').style.height = 'auto';
     reeseImages = []; renderReeseMediaPreview();
-    // ✅ FIX: مسح الكاش عند الإغلاق حتى يتجدد في المرة القادمة
-    _cachedReeseSuggestions = [];
-    _lastReeseSuggestions = [];
+    // Auto-refresh suggestions in background for next open
+    setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 500);
 };
 
 window.handleReeseImageSelect = async (input) => {
@@ -3107,15 +3063,6 @@ function _doWebSpeechThenAI(role, input) {
     recog.start();
 }
 
-// ✅ Helper: removes loader div safely, clearing its interval
-function _removeLoader(loadId) {
-    const el = document.getElementById(loadId);
-    if (el) {
-        if (el._interval) clearInterval(el._interval);
-        el.remove();
-    }
-}
-
 window.sendAiMsg = async (prefix) => {
     const input = document.getElementById(`${prefix}-ai-input`); 
     const fileInput = document.getElementById(`${prefix}-ai-file`);
@@ -3185,17 +3132,6 @@ window.sendAiMsg = async (prefix) => {
     loaderDiv.innerHTML = '<div class="ai-dot-trio"><span></span><span></span><span></span></div>';
     msgs.appendChild(loaderDiv);
     msgs.scrollTo({ top: msgs.scrollHeight, behavior: 'smooth' });
-    
-    // ✅ Persistent "still working" messages — يطمّن المستخدم أن AI يعمل
-    const _loadingMsgs = ['SA AI يعمل...', 'يتم معالجة سؤالك...', 'لحظة من فضلك...', 'تقريباً انتهى...', 'جاري التحليل...'];
-    let _lmi = 0;
-    const _loadingInterval = setInterval(() => {
-        const el = document.getElementById(loadId);
-        if (!el) { clearInterval(_loadingInterval); return; }
-        _lmi = (_lmi + 1) % _loadingMsgs.length;
-        el.innerHTML = `<div class="ai-dot-trio"><span></span><span></span><span></span></div><div style="font-size:0.72rem;color:#555;margin-top:4px;text-align:center;">${_loadingMsgs[_lmi]}</div>`;
-    }, 6000);
-    loaderDiv._interval = _loadingInterval;
     
     try {
         let finalPrompt = "";
@@ -3321,13 +3257,15 @@ window.sendAiMsg = async (prefix) => {
         }
         
         playSound('recv');
-        _removeLoader(loadId);
+        const loaderEl = document.getElementById(loadId);
+        if (loaderEl) loaderEl.remove();
         currentChatMessages.push({ role: 'ai', content: reply, image: null });
         renderMessageUI(prefix, 'ai', reply, null); 
         saveChatToLocal();
     } catch (e) {
-        // ✅ AI never shows error — silent fallback
-        _removeLoader(loadId);
+        // AI never shows error — retry with fallback message
+        const loaderEl = document.getElementById(loadId);
+        if (loaderEl) loaderEl.remove();
         const fallbackReply = 'عذراً، واجهت مشكلة مؤقتة. أعد كتابة سؤالك وسأجيبك فوراً! 🔄';
         currentChatMessages.push({ role: 'ai', content: fallbackReply, image: null });
         renderMessageUI(prefix, 'ai', fallbackReply, null);
@@ -3347,25 +3285,8 @@ window.generateAiQuestions = async () => {
     if (totalQ === 0) return saAlert("يجب إدخال عدد الأسئلة المطلوبة", "error");
     if (totalQ > 100) return saAlert("الحد الأقصى 100 سؤال في المرة الواحدة", "error");
 
-    // ✅ Big batch detection — show friendly messages during long generation
-    const _totalQCount = parseInt(mcqCount||0) + parseInt(essayCount||0);
-    const _bigBatch = _totalQCount > 15;
-    const _genTitle = _bigBatch ? 'SA AI يولّد أسئلتك...' : 'SA AI Building...';
-    const _genSub   = _bigBatch ? `توليد ${_totalQCount} سؤال — يرجى الانتظار قد يأخذ دقيقة...` : 'جاري بناء وتجهيز البيانات';
-    toggleConstructionOverlay(true, _genTitle, _genSub);
-    toggleAiGenerator();
-
-    // Rotate loading messages for big batches
-    let _genInterval = null;
-    if (_bigBatch) {
-        const _genTips = ['يعمل الذكاء الاصطناعي بكامل طاقته...','تكاد الأسئلة تكتمل...','جاري صياغة الأسئلة بدقة...','لا تغلق الصفحة، تقريباً انتهى...'];
-        let _gti = 0;
-        _genInterval = setInterval(() => {
-            _gti++;
-            const ol = document.getElementById('construction-overlay');
-            if (ol) ol.querySelector('.construction-sub').innerText = _genTips[_gti % _genTips.length];
-        }, 12000);
-    }
+    toggleConstructionOverlay(true);
+    toggleAiGenerator(); 
     
     let contextData = topic;
     if (aiGenImgBase64) {
@@ -3391,7 +3312,7 @@ Requirements:
 Return ONLY the JSON array starting with [ and ending with ]`;
     
     try {
-        let jsonStr = await callPollinationsAI(prompt, 6, 90000); // ✅ 90s timeout for large exams
+        let jsonStr = await callPollinationsAI(prompt);
         jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
         
         const firstBracket = jsonStr.indexOf('[');
@@ -3410,7 +3331,6 @@ Return ONLY the JSON array starting with [ and ending with ]`;
             currentQuestions = [...currentQuestions, ...questions];
             renderAddedQuestions();
             
-            if (_genInterval) clearInterval(_genInterval);
             toggleConstructionOverlay(false);
             saAlert(`✅ تم توليد ${questions.length} سؤال بنجاح!`, "success");
             switchTab('t-create'); 
@@ -3419,7 +3339,6 @@ Return ONLY the JSON array starting with [ and ending with ]`;
         }
     } catch (e) { 
         console.error(e);
-        if (_genInterval) clearInterval(_genInterval);
         toggleConstructionOverlay(false);
         saAlert("فشل البناء. حاول مرة أخرى.", "error"); 
     }
@@ -4588,7 +4507,7 @@ window.openGroupRoom = async (groupId, prefix) => {
 
     win.innerHTML = `
         <div class="group-header" style="padding-top:calc(var(--nav-height) + 8px);background:#0a0a0a;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:10px;padding-bottom:12px;padding-left:14px;padding-right:14px;flex-shrink:0;">
-            <button onclick="closeGroupRoom('${prefix}')" style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:rgba(59,130,246,0.12);border:1.5px solid rgba(59,130,246,0.4);color:#60a5fa;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;box-shadow:0 0 14px rgba(59,130,246,0.4),0 0 28px rgba(59,130,246,0.12);transition:box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 0 22px rgba(59,130,246,0.75)'" onmouseout="this.style.boxShadow='0 0 14px rgba(59,130,246,0.4),0 0 28px rgba(59,130,246,0.12)'"><i class="ph-bold ph-arrow-right"></i></button>
+            <button class="icon-btn-small" onclick="closeGroupRoom('${prefix}')" style="flex-shrink:0;"><i class="ph-bold ph-arrow-right"></i></button>
             ${avatarHTML}
             <div class="group-header-info" onclick="showGroupInfo('${groupId}','${prefix}')" style="cursor:pointer;flex:1;min-width:0;">
                 <div class="group-header-name" style="font-weight:800;font-size:0.95rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${group.name}</div>
