@@ -6729,16 +6729,3 @@ animation: shakeField 0.4s ease;
   font-size: 1.1rem; cursor: pointer; display: flex;
   align-items: center; justify-content: center;
 }
-
-/* ===== AUTH LAYER FIX ===== */
-#auth-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 4999;
-  background: #000;
-  overflow-y: auto;
-}
-#auth-layer .flex-center {
-  min-height: 100%;
-  box-sizing: border-box;
-}
