@@ -5922,8 +5922,7 @@ animation: shakeField 0.4s ease;
   }
 }
 
-/* ── Hide groups tab completely ── */
-.chat-type-tabs { display: none !important; }
+/* ── Groups tabs visible ── */
 
 /* ── AI SECTION: ChatGPT / Gemini style improvements ── */
 .ai-layout {
@@ -6044,10 +6043,10 @@ animation: shakeField 0.4s ease;
 }
 
 
-/* ── Remove groups tab row completely ── */
+/* ── Groups chat type tabs: visible ── */
 #t-chat-type-tabs,
 #s-chat-type-tabs {
-  display: none !important;
+  display: flex !important;
 }
 
 /* ── Chat sidebar: top padding adjustment since tabs are hidden ── */
@@ -6094,4 +6093,144 @@ animation: shakeField 0.4s ease;
 }
 #ai-reese-suggestions:not(:empty) {
   display: flex !important;
+}
+
+/* ════════════════════════════════════════════════════
+   NEW FEATURES CSS — v7.0
+   ════════════════════════════════════════════════════ */
+
+/* ── Reese back button with glow ── */
+.reese-back-glow-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(59,130,246,0.12);
+  border: 2px solid rgba(59,130,246,0.4);
+  color: #60a5fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  animation: reeseBtnGlow 2.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes reeseBtnGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+  50% { box-shadow: 0 0 0 8px rgba(59,130,246,0.15), 0 0 20px rgba(59,130,246,0.2); }
+}
+.reese-back-glow-btn:active { transform: scale(0.9); }
+
+/* ── Compose header redesign ── */
+.compose-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+@media (max-width: 768px) {
+  .compose-header {
+    padding-top: calc(var(--nav-height) + 8px) !important;
+  }
+}
+
+/* ── Deep link banner animation ── */
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Group voice bar ── */
+.voice-recording-bar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 11;
+  background: #0a0a0a;
+  border-top: 1px solid #1a1a1a;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Group sticker message ── */
+.group-msg-wrap .sticker-msg {
+  font-size: 3rem;
+  line-height: 1;
+  padding: 4px;
+}
+
+/* ── Sticker picker animation ── */
+#sticker-picker-popup button:active {
+  transform: scale(1.3);
+}
+
+/* ── Add member popup ── */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Group invite copy button ── */
+.group-invite-copied {
+  color: #34d399 !important;
+  animation: invitePop 0.4s ease;
+}
+@keyframes invitePop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ── Chat type tabs: visible and styled ── */
+.chat-type-tabs {
+  display: flex !important;
+}
+#t-chat-type-tabs,
+#s-chat-type-tabs {
+  display: flex !important;
+}
+
+/* ── Mobile: chat input always at bottom ── */
+@media (max-width: 768px) {
+  .chat-input-area {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 10 !important;
+    flex-shrink: 0 !important;
+  }
+  /* Group window: flex column */
+  #t-chat-window, #s-chat-window {
+    display: flex !important;
+    flex-direction: column !important;
+    height: calc(100% - var(--nav-height)) !important;
+    overflow: hidden !important;
+  }
+  #t-chat-window .chat-msgs-area,
+  #s-chat-window .chat-msgs-area,
+  #t-chat-window [id^="group-msgs-"],
+  #s-chat-window [id^="group-msgs-"] {
+    flex: 1 !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ── AI exam generator inputs ── */
+#ai-mcq-count:focus, #ai-essay-count:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15) !important;
+}
+
+/* ── Suggestions: always display flex when not empty ── */
+.ai-suggestions-container {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 8px;
 }
