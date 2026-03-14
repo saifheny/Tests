@@ -827,17 +827,26 @@ async function handleDeepLinks() {
     if (aiTab) {
         const prefix = selectedRole === 'teacher' ? 't' : 's';
         updateOGMeta('المساعد الذكي SA AI', 'تحدث مع مساعد الذكاء الاصطناعي على SA EDU');
-        switchTab(`${prefix}-ai`);
         hideDeepLinkLoader();
+        showDeepLinkBanner(
+            '🤖 SA AI — المساعد الذكي',
+            'ستدخل الآن على المساعد الذكي SA AI. يمكنك طرح أي سؤال أو الاستعانة به في دروسك.',
+            'دخول للـ AI',
+            () => { switchTab(`${prefix}-ai`); }
+        );
         return;
     }
 
     if (shareId) {
         const prefix = selectedRole === 'teacher' ? 't' : 's';
         updateOGMeta('محادثة AI مشاركة', 'شاهد هذه المحادثة مع الذكاء الاصطناعي على SA EDU');
-        switchTab(`${prefix}-ai`);
-        loadSharedChat(shareId, prefix);
         hideDeepLinkLoader();
+        showDeepLinkBanner(
+            '💬 محادثة ذكاء اصطناعي مشتركة',
+            'تمت مشاركة هذه المحادثة معك. اضغط لفتحها والاطلاع على محتواها.',
+            'فتح المحادثة',
+            () => { switchTab(`${prefix}-ai`); loadSharedChat(shareId, prefix); }
+        );
         return;
     }
 
@@ -866,29 +875,40 @@ async function handleDeepLinks() {
 
     if (postId) {
         const prefix = selectedRole === 'teacher' ? 't' : 's';
-        const postSnap = await get(ref(db, `reese_posts/${postId}`));
-        if (postSnap.exists()) {
+        const postSnap = await get(ref(db, `reese_posts/${postId}`)).catch(() => get(ref(db, `posts/${postId}`)));
+        let postTitle = 'منشور على Reese SA';
+        let postAuthor = 'مستخدم';
+        if (postSnap && postSnap.exists()) {
             const pd = postSnap.val();
+            postAuthor = pd.author || pd.text?.substring(0,20) || 'مستخدم';
+            postTitle = pd.text?.substring(0, 80) || postTitle;
             updateOGMeta(
                 `منشور من ${pd.author || 'مستخدم'} على Reese`,
                 pd.text?.substring(0, 160) || 'منشور على منصة SA EDU',
                 pd.images?.[0] || pd.image || null
             );
         }
-        switchTab(`${prefix}-reese`);
         hideDeepLinkLoader();
-        const tryScroll = (attempts = 0) => {
-            const el = document.getElementById(`post-${postId}`);
-            if (el) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                el.style.transition = 'box-shadow 0.4s';
-                el.style.boxShadow = '0 0 0 3px var(--accent-primary)';
-                setTimeout(() => { el.style.boxShadow = ''; }, 3000);
-            } else if (attempts < 10) {
-                setTimeout(() => tryScroll(attempts + 1), 200);
+        showDeepLinkBanner(
+            `📝 منشور من ${postAuthor}`,
+            postTitle.length > 60 ? postTitle.substring(0,60) + '...' : postTitle || 'اضغط لعرض هذا المنشور على منصة Reese SA.',
+            'عرض المنشور',
+            () => {
+                switchTab(`${prefix}-reese`);
+                const tryScroll = (attempts = 0) => {
+                    const el = document.getElementById(`post-${postId}`);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.style.transition = 'box-shadow 0.4s';
+                        el.style.boxShadow = '0 0 0 3px var(--accent-primary)';
+                        setTimeout(() => { el.style.boxShadow = ''; }, 3000);
+                    } else if (attempts < 10) {
+                        setTimeout(() => tryScroll(attempts + 1), 200);
+                    }
+                };
+                tryScroll();
             }
-        };
-        tryScroll();
+        );
         return;
     }
 
@@ -901,9 +921,13 @@ async function handleDeepLinks() {
             const otherName = rm.names?.[otherUid] || 'مستخدم';
             const otherIcon = rm.icons?.[otherUid] || 'fa-user';
             updateOGMeta(`محادثة مع ${otherName}`, `افتح المحادثة مع ${otherName} على SA EDU`);
-            switchTab(`${prefix}-dardasha`);
             hideDeepLinkLoader();
-            openChatRoom(chatRoom, otherName, otherIcon, otherUid);
+            showDeepLinkBanner(
+                `💬 محادثة مع ${otherName}`,
+                `تمت دعوتك لفتح محادثة مع ${otherName} على منصة SA EDU.`,
+                'فتح المحادثة',
+                () => { switchTab(`${prefix}-dardasha`); openChatRoom(chatRoom, otherName, otherIcon, otherUid); }
+            );
         } else {
             switchTab(`${prefix}-dardasha`);
             hideDeepLinkLoader();
@@ -1717,7 +1741,7 @@ window.openReeseCompose = () => {
     const container = document.getElementById('ai-reese-suggestions');
     container.classList.remove('hidden');
 
-    // Show cached suggestions instantly if available
+    // Always show cached suggestions immediately, then refresh in background
     if (_cachedReeseSuggestions.length > 0) {
         container.innerHTML = '';
         const catIcons = ['✨','💡','🔥','🎯'];
@@ -1731,12 +1755,11 @@ window.openReeseCompose = () => {
             };
             container.appendChild(chip);
         });
-        // Refresh in background silently
-        setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 100);
     } else {
         container.innerHTML = `<div class="suggestion-chip loading-chip"><i class="fas fa-circle-notch fa-spin"></i> جاري تحميل الاقتراحات...</div>`;
-        setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 0);
     }
+    // Always refresh suggestions in background when compose opens (new suggestions every time)
+    setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 50);
 };
 
 // Pre-load suggestions immediately on app start (background)
@@ -3277,13 +3300,13 @@ window.sendAiMsg = async (prefix) => {
 window.generateAiQuestions = async () => {
     playSound('click');
     const topic = document.getElementById('ai-gen-text').value;
-    const mcqCount = document.getElementById('ai-mcq-count').value || 0;
-    const essayCount = document.getElementById('ai-essay-count').value || 0;
+    const mcqCount = parseInt(document.getElementById('ai-mcq-count').value) || 0;
+    const essayCount = parseInt(document.getElementById('ai-essay-count').value) || 0;
     
     if (!topic && !aiGenImgBase64) return saAlert("أدخل الموضوع أو ارفع صورة", "error");
-    const totalQ = parseInt(mcqCount||0) + parseInt(essayCount||0);
-    if (totalQ === 0) return saAlert("يجب إدخال عدد الأسئلة المطلوبة", "error");
-    if (totalQ > 100) return saAlert("الحد الأقصى 100 سؤال في المرة الواحدة", "error");
+    const totalQ = mcqCount + essayCount;
+    if (totalQ === 0) return saAlert("يجب إدخال عدد الأسئلة — مثال: 20 اختياري و5 مقالي", "error");
+    if (totalQ > 150) return saAlert("الحد الأقصى 150 سؤال في المرة الواحدة", "error");
 
     toggleConstructionOverlay(true);
     toggleAiGenerator(); 
@@ -3299,7 +3322,7 @@ window.generateAiQuestions = async () => {
         }
     }
     
-    const totalNeeded = parseInt(mcqCount||0) + parseInt(essayCount||0);
+    const totalNeeded = mcqCount + essayCount;
     const prompt = `You are an Arabic exam generator. Create EXACTLY ${totalNeeded} questions in JSON format.
 IMPORTANT: Output ONLY a raw JSON array. No markdown, no explanation, no extra text.
 Topic: "${contextData}"
@@ -3311,36 +3334,60 @@ Requirements:
 - essay structure: {"type":"essay","text":"السؤال؟","correct":"نموذج الإجابة","points":5}
 Return ONLY the JSON array starting with [ and ending with ]`;
     
-    try {
-        let jsonStr = await callPollinationsAI(prompt);
-        jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
-        
-        const firstBracket = jsonStr.indexOf('[');
-        const lastBracket = jsonStr.lastIndexOf(']');
-        if(firstBracket !== -1 && lastBracket !== -1) {
-            jsonStr = jsonStr.substring(firstBracket, lastBracket + 1);
+    const tryGenerate = async (retries = 3) => {
+        for (let attempt = 0; attempt < retries; attempt++) {
+            try {
+                let jsonStr = await callPollinationsAI(prompt);
+                jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+                const firstBracket = jsonStr.indexOf('[');
+                const lastBracket = jsonStr.lastIndexOf(']');
+                if (firstBracket !== -1 && lastBracket !== -1) {
+                    jsonStr = jsonStr.substring(firstBracket, lastBracket + 1);
+                }
+                const questions = JSON.parse(jsonStr);
+                if (Array.isArray(questions) && questions.length > 0) return questions;
+            } catch(e) {
+                if (attempt === retries - 1) throw e;
+                await new Promise(r => setTimeout(r, 1500));
+            }
         }
+    };
 
-        const questions = JSON.parse(jsonStr);
-        
+    try {
+        const questions = await tryGenerate();
         if (Array.isArray(questions)) {
             questions.forEach(q => {
                 if(!q.type) q.type = (q.options && q.options.length > 1) ? 'mcq' : 'essay';
             });
-
             currentQuestions = [...currentQuestions, ...questions];
             renderAddedQuestions();
-            
             toggleConstructionOverlay(false);
             saAlert(`✅ تم توليد ${questions.length} سؤال بنجاح!`, "success");
-            switchTab('t-create'); 
+            switchTab('t-create');
         } else {
             throw new Error("Invalid format");
         }
-    } catch (e) { 
+    } catch (e) {
         console.error(e);
         toggleConstructionOverlay(false);
-        saAlert("فشل البناء. حاول مرة أخرى.", "error"); 
+        // Retry automatically one more time silently
+        try {
+            const fallbackQ = await callPollinationsAI(prompt);
+            const fb = fallbackQ.replace(/```json/g,'').replace(/```/g,'').trim();
+            const fi = fb.indexOf('['), fl = fb.lastIndexOf(']');
+            if (fi !== -1 && fl !== -1) {
+                const qs = JSON.parse(fb.substring(fi, fl+1));
+                if (Array.isArray(qs) && qs.length > 0) {
+                    qs.forEach(q => { if(!q.type) q.type = (q.options && q.options.length > 1) ? 'mcq' : 'essay'; });
+                    currentQuestions = [...currentQuestions, ...qs];
+                    renderAddedQuestions();
+                    saAlert(`✅ تم توليد ${qs.length} سؤال بنجاح!`, "success");
+                    switchTab('t-create');
+                    return;
+                }
+            }
+        } catch(e2) {}
+        saAlert("حدث خطأ، جاري إعادة المحاولة تلقائياً... أعد الضغط على توليد.", "error");
     }
 };
 
