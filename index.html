@@ -211,13 +211,11 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="tg-tabs" id="t-tg-tabs">
-                            <button class="tg-tab active" id="t-tab-chats" onclick="switchChatTab('t','chats',this)"><i class="fas fa-comment-dots"></i> المحادثات</button>
-                            <button class="tg-tab" id="t-tab-groups" onclick="switchChatTab('t','groups',this)"><i class="fas fa-users"></i> الجروبات</button>
-                        </div>
+                        <!-- Chat type tabs - groups removed -->
+                        <div class="chat-type-tabs" id="t-chat-type-tabs" style="display:none;"></div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="بحث..." onkeyup="filterChatList('t', this.value)">
+                            <input type="text" placeholder="بحث..." onkeyup="filterChats('t', this.value)">
                         </div>
                         <div class="chat-list" id="t-chat-list"></div>
                     </div>
@@ -342,24 +340,27 @@
             <section id="t-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
-                        <div style="display:flex; gap:10px;">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div class="ai-avatar-gemini" style="width:32px;height:32px;font-size:1rem;margin-bottom:0;">
+                                    <div class="ai-avatar-gemini-inner" style="width:28px;height:28px;"><i class="fas fa-wand-magic-sparkles" style="font-size:0.8rem;"></i></div>
+                                </div>
+                                <span style="font-weight:800;font-size:0.95rem;color:#fff;">SA AI</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
                             <button class="ai-action-btn new-chat" onclick="startNewChat('t')" title="محادثة جديدة"><i class="fas fa-plus"></i></button>
                             <button class="ai-action-btn history" onclick="toggleHistory(true)" title="السجل"><i class="fas fa-history"></i></button>
                             <button class="ai-action-btn incognito" id="t-incognito-btn" onclick="toggleIncognito('t')" title="محادثة مخفية"><i class="fas fa-user-secret"></i></button>
-                        </div>
-                        <div style="display:flex; gap:10px;">
                             <button class="ai-action-btn" onclick="shareCurrentChat()" title="مشاركة المحادثة"><i class="fas fa-share-nodes"></i></button>
                         </div>
                     </div>
                     <div class="ai-messages" id="t-ai-msgs"></div>
-                    
                     <div class="gemini-input-wrapper">
                         <div class="gemini-input-container">
                             <label for="t-ai-file" class="gemini-img-btn" title="إرفاق صورة"><i class="fas fa-camera"></i></label>
                             <input type="file" id="t-ai-file" hidden accept="image/*" onchange="previewChatImg('t')">
-                            
                             <input type="text" id="t-ai-input" class="gemini-text-input" placeholder="اكتب، تخيل، أنشئ..." oninput="toggleAiSendMic('t', this.value)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMsg('t');}">
-                            
                             <button id="t-mic-btn" class="gemini-mic-btn" onclick="startVoiceInput('t')" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
                             <button id="t-send-btn" onclick="sendAiMsg('t')" class="gemini-send-btn" style="display:none"><i class="fas fa-paper-plane"></i></button>
                         </div>
@@ -478,13 +479,11 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="tg-tabs" id="s-tg-tabs">
-                            <button class="tg-tab active" id="s-tab-chats" onclick="switchChatTab('s','chats',this)"><i class="fas fa-comment-dots"></i> المحادثات</button>
-                            <button class="tg-tab" id="s-tab-groups" onclick="switchChatTab('s','groups',this)"><i class="fas fa-users"></i> الجروبات</button>
-                        </div>
+                        <!-- Chat type tabs - groups removed -->
+                        <div class="chat-type-tabs" id="s-chat-type-tabs" style="display:none;"></div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
-                            <input type="text" placeholder="بحث..." onkeyup="filterChatList('s', this.value)">
+                            <input type="text" placeholder="بحث..." onkeyup="filterChats('s', this.value)">
                         </div>
                         <div class="chat-list" id="s-chat-list"></div>
                     </div>
@@ -506,12 +505,18 @@
             <section id="s-ai" class="app-section hidden">
                 <div class="ai-layout">
                     <div class="ai-top-bar">
-                        <div style="display:flex; gap:10px;">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div class="ai-avatar-gemini" style="width:32px;height:32px;font-size:1rem;margin-bottom:0;">
+                                    <div class="ai-avatar-gemini-inner" style="width:28px;height:28px;"><i class="fas fa-wand-magic-sparkles" style="font-size:0.8rem;"></i></div>
+                                </div>
+                                <span style="font-weight:800;font-size:0.95rem;color:#fff;">SA AI</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
                             <button class="ai-action-btn new-chat" onclick="startNewChat('s')" title="محادثة جديدة"><i class="fas fa-plus"></i></button>
                             <button class="ai-action-btn history" onclick="toggleHistory(true)" title="السجل"><i class="fas fa-history"></i></button>
                             <button class="ai-action-btn incognito" id="s-incognito-btn" onclick="toggleIncognito('s')" title="محادثة مخفية"><i class="fas fa-user-secret"></i></button>
-                        </div>
-                        <div style="display:flex; gap:10px;">
                             <button class="ai-action-btn" onclick="shareCurrentChat()" title="مشاركة المحادثة"><i class="fas fa-share-nodes"></i></button>
                         </div>
                     </div>
@@ -527,7 +532,7 @@
                             <button id="s-mic-btn" class="gemini-mic-btn" onclick="startVoiceInput('s')" title="إدخال صوتي"><i class="fas fa-microphone"></i></button>
                             <button id="s-send-btn" onclick="sendAiMsg('s')" class="gemini-send-btn" style="display:none"><i class="fas fa-paper-plane"></i></button>
                         </div>
-                         <div id="s-chat-preview" class="chat-img-preview">
+                        <div id="s-chat-preview" class="chat-img-preview">
                             <i class="fas fa-times" onclick="clearChatImg('s')"></i>
                             <img src="" id="s-chat-img-tag">
                         </div>
@@ -649,7 +654,7 @@
             <div id="ai-reese-suggestions" class="ai-suggestions-container hidden"></div>
 
             <div id="reese-media-preview" class="compose-media-preview hidden"></div>
-            <button class="ai-suggestion-btn" onclick="generateAiReese()">
+            <button class="ai-suggestion-btn" onclick="document.getElementById('ai-reese-suggestions').classList.remove('hidden'); generateAiReese()">
                 <i class="fas fa-rotate"></i> تحديث الاقتراحات
             </button>
             <div style="margin-top: auto; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
@@ -937,56 +942,7 @@
     let mediaRecorder = null;
     let isRecording = false;
 
-    function startVoiceInput(role) {
-        const micBtn = document.getElementById(role + '-mic-btn');
-        const input = document.getElementById(role + '-ai-input');
-        
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            if (typeof saAlert === 'function') {
-                saAlert('❌', 'غير مدعوم', 'المتصفح لا يدعم الإدخال الصوتي. جرب Chrome أو Edge.');
-            } else {
-                alert('المتصفح لا يدعم الإدخال الصوتي. جرب Chrome.');
-            }
-            return;
-        }
-
-        if (isRecording) {
-            if (window._speechRecog) window._speechRecog.stop();
-            return;
-        }
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recog = new SpeechRecognition();
-        window._speechRecog = recog;
-        recog.lang = 'ar-SA';
-        recog.continuous = false;
-        recog.interimResults = false;
-
-        recog.onstart = () => {
-            isRecording = true;
-            if (micBtn) micBtn.classList.add('recording');
-        };
-
-        recog.onresult = (e) => {
-            const text = e.results[0][0].transcript;
-            if (input) {
-                input.value = (input.value + ' ' + text).trim();
-                toggleAiSendMic(role, input.value);
-            }
-        };
-
-        recog.onerror = () => {
-            isRecording = false;
-            if (micBtn) micBtn.classList.remove('recording');
-        };
-
-        recog.onend = () => {
-            isRecording = false;
-            if (micBtn) micBtn.classList.remove('recording');
-        };
-
-        recog.start();
-    }
+    // startVoiceInput is defined in script.js — this inline version is removed to avoid conflicts
     </script>
 
     <!-- ============ VOICE ROOMS SYSTEM ============ -->
