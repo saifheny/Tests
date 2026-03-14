@@ -548,41 +548,64 @@ async function recognizeImageText(imageBase64) {
     }
 }
 
-async function callPollinationsAI(prompt) {
-    // Always use POST for reliability and to handle long prompts
-    try {
-        const response = await fetch('https://text.pollinations.ai/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: [{ role: 'user', content: prompt }],
-                model: 'openai',
-                stream: false,
-                seed: Math.floor(Math.random() * 99999)
-            })
-        });
-
-        if (!response.ok) {
-            // Fallback to GET for short prompts
-            if (prompt.length <= 400) {
-                const getResp = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt));
-                if (getResp.ok) return await getResp.text();
-            }
-            throw new Error('API ' + response.status);
-        }
-
-        const txt = await response.text();
-        // POST returns JSON with choices
+async function callPollinationsAI(prompt, retries = 4) {
+    const models = ['openai', 'openai-large', 'mistral', 'llama'];
+    let lastError = null;
+    
+    for (let attempt = 0; attempt < retries; attempt++) {
+        const model = models[attempt % models.length];
         try {
-            const j = JSON.parse(txt);
-            return j?.choices?.[0]?.message?.content || j?.text || txt;
-        } catch(e) {
-            return txt;
+            // Try POST first
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 18000);
+            
+            const response = await fetch('https://text.pollinations.ai/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: controller.signal,
+                body: JSON.stringify({
+                    messages: [{ role: 'user', content: prompt }],
+                    model: model,
+                    stream: false,
+                    seed: Math.floor(Math.random() * 99999)
+                })
+            });
+            clearTimeout(timeout);
+            
+            if (response.ok) {
+                const txt = await response.text();
+                try {
+                    const j = JSON.parse(txt);
+                    const content = j?.choices?.[0]?.message?.content || j?.text || txt;
+                    if (content && content.trim().length > 0) return content;
+                } catch(e) {
+                    if (txt && txt.trim().length > 0) return txt;
+                }
+            }
+            
+            // Fallback GET
+            if (prompt.length <= 500) {
+                try {
+                    const getCtrl = new AbortController();
+                    const getTimeout = setTimeout(() => getCtrl.abort(), 10000);
+                    const getResp = await fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt.substring(0,500)), { signal: getCtrl.signal });
+                    clearTimeout(getTimeout);
+                    if (getResp.ok) {
+                        const txt = await getResp.text();
+                        if (txt && txt.trim().length > 0) return txt;
+                    }
+                } catch(ge) {}
+            }
+            
+        } catch (error) {
+            lastError = error;
+            if (attempt < retries - 1) {
+                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+            }
         }
-    } catch (error) {
-        console.error("AI Error:", error);
-        throw error;
     }
+    // Return a fallback message instead of throwing — AI never stops
+    return 'عذراً، حدث خطأ مؤقت في الاتصال. يرجى إعادة المحاولة.';
 }
 
 window.goToAuth = () => {
@@ -697,6 +720,7 @@ function loginSuccess(name, icon, uid) {
     // Pre-load AI suggestions in background (async, non-blocking)
     setTimeout(() => {
         loadReeseAiSuggestionsAuto().catch(() => {});
+        _preloadReeseSuggestions();
     }, 2000);
 
     // Apply admin design settings from Firebase (live updates)
@@ -743,7 +767,38 @@ async function handleDeepLinks() {
     const chatRoom = params.get('room');
     const aiTab    = params.get('aiTab');
 
-    if (!shareId && !examId && !postId && !chatUid && !chatRoom && !aiTab) return;
+    const groupInvite = params.get('groupInvite');
+    if (!shareId && !examId && !postId && !chatUid && !chatRoom && !aiTab && !groupInvite) return;
+
+    // Handle group invite
+    if (groupInvite) {
+        showDeepLinkLoader();
+        const grpSnap = await get(ref(db, `groups/${groupInvite}`)).catch(() => null);
+        if (grpSnap && grpSnap.exists()) {
+            const grp = grpSnap.val();
+            hideDeepLinkLoader();
+            showDeepLinkBanner(
+                `👥 دعوة لجروب: ${grp.name}`,
+                `${Object.keys(grp.members||{}).length} عضو — ${grp.desc||'جروب على SA EDU'}`,
+                'دخول الجروب',
+                () => {
+                    const prefix = selectedRole==='teacher'?'t':'s';
+                    switchTab(`${prefix}-dardasha`);
+                    setTimeout(() => {
+                        window.switchChatTab(prefix,'groups');
+                        setTimeout(() => openGroupRoom(groupInvite, prefix), 500);
+                    }, 300);
+                    // Add user to group members
+                    update(ref(db, `groups/${groupInvite}/members/${myUid}`), { name:currentUser, joinedAt:Date.now(), isAdmin:false });
+                    update(ref(db, `user_groups/${myUid}/${groupInvite}`), { name:grp.name, emoji:grp.emoji||'👥', lastMsg:'', lastMsgTime:Date.now() });
+                }
+            );
+        } else {
+            hideDeepLinkLoader();
+            saAlert('رابط الدعوة غير صالح أو انتهت صلاحيته','error');
+        }
+        return;
+    }
 
     showDeepLinkLoader();
 
@@ -769,23 +824,18 @@ async function handleDeepLinks() {
         if (snap.exists()) {
             const d = snap.val();
             const subjectLabel = d.subject || 'اختبار';
-            updateOGMeta(
-                `${subjectLabel}: ${d.title}`,
-                `اختبار ${subjectLabel} • ${d.questions?.length || 0} سؤال • ${d.duration} دقيقة • أعده ${d.teacher}`,
+            updateOGMeta(`${subjectLabel}: ${d.title}`, `اختبار ${subjectLabel} • ${d.questions?.length||0} سؤال • ${d.duration} دقيقة • أعده ${d.teacher}`);
+            hideDeepLinkLoader();
+            showDeepLinkBanner(
+                `📝 ${d.title}`,
+                `${subjectLabel} · ${d.questions?.length||0} سؤال · ${d.duration} دقيقة
+المعلم: ${d.teacher}`,
+                selectedRole==='student' ? 'ابدأ الاختبار الآن ▶' : 'عرض الاختبار',
+                () => {
+                    if (selectedRole==='student') { switchTab('s-exams'); checkPhoneAndStart(examId); }
+                    else { switchTab('t-library'); setTimeout(()=>{const card=document.querySelector(`[data-exam-id="${examId}"]`); if(card){card.scrollIntoView({behavior:'smooth'});card.style.border='2px solid var(--accent-gold)';setTimeout(()=>card.style.border='',3000);}},400); }
+                }
             );
-
-            if (selectedRole === 'student') {
-                switchTab('s-exams');
-                hideDeepLinkLoader();
-                checkPhoneAndStart(examId);
-            } else {
-                switchTab('t-library');
-                hideDeepLinkLoader();
-                await new Promise(r => setTimeout(r, 300));
-                const card = document.querySelector(`[data-exam-id="${examId}"]`);
-                if (card) { card.scrollIntoView({ behavior: 'smooth' }); card.style.border = '2px solid var(--accent-gold)'; setTimeout(() => card.style.border = '', 3000); }
-                saAlert("هذا رابط امتحان. كمعلم يمكنك تعديله من المكتبة.", "info");
-            }
         } else {
             hideDeepLinkLoader();
             saAlert("الامتحان غير موجود أو تم حذفه", "error");
@@ -1642,23 +1692,55 @@ window.openReeseCompose = () => {
     frame.style.color = color; frame.style.borderColor = color;
     document.getElementById('compose-name').innerText = currentUser;
     reeseImages = []; renderReeseMediaPreview();
-    
+
     const container = document.getElementById('ai-reese-suggestions');
-    container.innerHTML = '';
     container.classList.remove('hidden');
 
-    // Show skeleton chips while loading
-    container.innerHTML = `
-        <div class="suggestion-chip" style="opacity:0.4;pointer-events:none;"><i class="fas fa-circle-notch fa-spin"></i> جاري تحميل الاقتراحات...</div>
-    `;
-
-    // Load suggestions async in background (non-blocking)
-    setTimeout(() => {
-        loadReeseAiSuggestionsAuto();
-    }, 0);
+    // Show cached suggestions instantly if available
+    if (_cachedReeseSuggestions.length > 0) {
+        container.innerHTML = '';
+        const catIcons = ['✨','💡','🔥','🎯'];
+        _cachedReeseSuggestions.slice(0,4).forEach((sug, i) => {
+            const chip = document.createElement('div');
+            chip.className = 'suggestion-chip';
+            chip.innerHTML = `<span style="font-size:1rem;">${catIcons[i]||'✨'}</span> ${sug}`;
+            chip.onclick = () => {
+                document.getElementById('reese-text-input').value = sug;
+                document.getElementById('reese-text-input').focus();
+            };
+            container.appendChild(chip);
+        });
+        // Refresh in background silently
+        setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 100);
+    } else {
+        container.innerHTML = `<div class="suggestion-chip loading-chip"><i class="fas fa-circle-notch fa-spin"></i> جاري تحميل الاقتراحات...</div>`;
+        setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 0);
+    }
 };
 
 let _lastReeseSuggestions = [];
+let _cachedReeseSuggestions = []; // pre-cached for instant display
+
+// Pre-load suggestions immediately on app start (background)
+function _preloadReeseSuggestions() {
+    setTimeout(async () => {
+        try {
+            const roleAr = selectedRole === 'teacher' ? 'معلم' : 'طالب';
+            const categories = selectedRole === 'teacher'
+                ? ['تحفيز الطلاب','نصيحة تعليمية','فكرة درس مبتكرة','سؤال تفاعلي']
+                : ['تحفيز ذاتي','نصيحة مذاكرة','إنجاز شخصي','سؤال للمجتمع'];
+            const prompt = `اقترح 4 منشورات قصيرة لـ ${roleAr} على منصة تعليمية. الفئات: ${categories.join(', ')}. أعد JSON array فقط من 4 strings عربية. كل منشور أقل من 130 حرف.`;
+            let text = await callPollinationsAI(prompt);
+            text = text.replace(/\`\`\`json/g,'').replace(/\`\`\`/g,'').trim();
+            const first = text.indexOf('['), last = text.lastIndexOf(']');
+            if (first !== -1 && last !== -1) text = text.substring(first, last+1);
+            const arr = JSON.parse(text);
+            if (Array.isArray(arr) && arr.length > 0) {
+                _cachedReeseSuggestions = arr.filter(s => typeof s === 'string' && s.trim().length > 5);
+            }
+        } catch(e) {}
+    }, 3000);
+}
 
 async function loadReeseAiSuggestionsAuto() {
     const container = document.getElementById('ai-reese-suggestions');
@@ -1684,6 +1766,7 @@ async function loadReeseAiSuggestionsAuto() {
 
         suggestions = suggestions.filter(s => typeof s === 'string' && s.trim().length > 5);
         _lastReeseSuggestions = suggestions.slice(0, 4);
+        _cachedReeseSuggestions = suggestions.slice(0, 4); // update cache
 
         container.innerHTML = '';
         const catIcons = ['✨', '💡', '🔥', '🎯'];
@@ -1708,6 +1791,8 @@ window.closeReeseCompose = () => {
     document.getElementById('reese-text-input').value = '';
     document.getElementById('reese-text-input').style.height = 'auto';
     reeseImages = []; renderReeseMediaPreview();
+    // Auto-refresh suggestions in background for next open
+    setTimeout(() => { loadReeseAiSuggestionsAuto().catch(()=>{}); }, 500);
 };
 
 window.handleReeseImageSelect = async (input) => {
@@ -3159,13 +3244,15 @@ window.sendAiMsg = async (prefix) => {
         currentChatMessages.push({ role: 'ai', content: reply, image: null });
         renderMessageUI(prefix, 'ai', reply, null); 
         saveChatToLocal();
-    } catch (e) { 
+    } catch (e) {
+        // AI never shows error — retry with fallback message
         const loaderEl = document.getElementById(loadId);
-        if (loaderEl) loaderEl.innerHTML = `
-            <div class="ai-msg-avatar"><i class="fas fa-exclamation" style="font-size:0.7rem;color:#ef4444;"></i></div>
-            <div class="chat-msg ai" style="color:#ef4444;">حدث خطأ في الاتصال بالذكاء الاصطناعي. تأكد من اتصالك بالإنترنت وحاول مجدداً.</div>
-        `; 
-        console.error(e);
+        if (loaderEl) loaderEl.remove();
+        const fallbackReply = 'عذراً، واجهت مشكلة مؤقتة. أعد كتابة سؤالك وسأجيبك فوراً! 🔄';
+        currentChatMessages.push({ role: 'ai', content: fallbackReply, image: null });
+        renderMessageUI(prefix, 'ai', fallbackReply, null);
+        saveChatToLocal();
+        console.error('AI error (handled):', e);
     }
 };
 
@@ -3176,7 +3263,9 @@ window.generateAiQuestions = async () => {
     const essayCount = document.getElementById('ai-essay-count').value || 0;
     
     if (!topic && !aiGenImgBase64) return saAlert("أدخل الموضوع أو ارفع صورة", "error");
-    if ((parseInt(mcqCount)+parseInt(essayCount)) === 0) return saAlert("يجب تحديد عدد الأسئلة", "error");
+    const totalQ = parseInt(mcqCount||0) + parseInt(essayCount||0);
+    if (totalQ === 0) return saAlert("يجب إدخال عدد الأسئلة المطلوبة", "error");
+    if (totalQ > 100) return saAlert("الحد الأقصى 100 سؤال في المرة الواحدة", "error");
 
     toggleConstructionOverlay(true);
     toggleAiGenerator(); 
@@ -3192,7 +3281,7 @@ window.generateAiQuestions = async () => {
         }
     }
     
-    const totalNeeded = parseInt(mcqCount) + parseInt(essayCount);
+    const totalNeeded = parseInt(mcqCount||0) + parseInt(essayCount||0);
     const prompt = `You are an Arabic exam generator. Create EXACTLY ${totalNeeded} questions in JSON format.
 IMPORTANT: Output ONLY a raw JSON array. No markdown, no explanation, no extra text.
 Topic: "${contextData}"
@@ -4163,15 +4252,16 @@ let _createGroupMembers = [];
 
 // ── Switch between "المحادثات" and "الجروبات" tabs ──
 window.switchChatTab = (prefix, type, btn) => {
-    _currentChatTab[prefix] = 'chats'; // Always chats — groups removed
+    _currentChatTab[prefix] = type;
     document.querySelectorAll(`#${prefix}-chat-type-tabs .chat-type-tab`).forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
-    
     const list = document.getElementById(`${prefix}-chat-list`);
     list.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:30px;color:#444;"><i class="fas fa-circle-notch fa-spin" style="margin-left:8px;"></i></div>';
-    
-    // Always load chats regardless of type requested
-    initDardasha_real(prefix);
+    if (type === 'chats') {
+        initDardasha_real(prefix);
+    } else {
+        loadGroupsList(prefix);
+    }
 };
 
 // ── Plus menu (new chat / new group) ──
@@ -4186,6 +4276,13 @@ window.showChatPlusMenu = (prefix) => {
     menu.innerHTML = `
         <button onclick="toggleUserSearchModal();document.getElementById('chat-plus-menu-popup')?.remove()">
             <i class="fas fa-user-plus" style="color:#60a5fa;"></i> محادثة جديدة
+        </button>
+        <button onclick="openCreateGroupSheet('${prefix}');document.getElementById('chat-plus-menu-popup')?.remove()">
+            <i class="fab fa-telegram-plane" style="color:#34d399;"></i> إنشاء جروب جديد
+        </button>
+        <hr style="border:none;border-top:1px solid #1f1f1f;margin:4px 0;">
+        <button onclick="window.switchChatTab('${prefix}','groups',document.querySelector('#${prefix}-chat-type-tabs .chat-type-tab:last-child'));document.getElementById('chat-plus-menu-popup')?.remove()">
+            <i class="fas fa-users" style="color:#f59e0b;"></i> عرض الجروبات
         </button>
     `;
     document.body.appendChild(menu);
@@ -4371,11 +4468,7 @@ window.loadGroupsList = (prefix) => {
 // ── Open group chat room ──
 window.openGroupRoom = async (groupId, prefix) => {
     playSound('click');
-    // Detach any existing listener
-    if (window._activeGroupListener) {
-        window._activeGroupListener();
-        window._activeGroupListener = null;
-    }
+    if (window._activeGroupListener) { window._activeGroupListener(); window._activeGroupListener = null; }
     window._activeGroupId = groupId;
     window._activeGroupPrefix = prefix;
 
@@ -4384,44 +4477,49 @@ window.openGroupRoom = async (groupId, prefix) => {
     if (window.innerWidth < 768) sidebar.classList.add('hidden');
     win.classList.remove('hidden');
 
-    // Fetch group data
     const groupSnap = await get(ref(db, `groups/${groupId}`));
     if (!groupSnap.exists()) return;
     const group = groupSnap.val();
     const membersCount = Object.keys(group.members || {}).length;
     const isAdmin = group.members?.[myUid]?.isAdmin;
 
-    // Group avatar: photo or emoji
     const avatarHTML = group.photoBase64
-        ? `<img src="${group.photoBase64}" style="width:40px;height:40px;border-radius:12px;object-fit:cover;flex-shrink:0;">`
-        : `<div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">${group.emoji || '👥'}</div>`;
+        ? `<img src="${group.photoBase64}" style="width:42px;height:42px;border-radius:14px;object-fit:cover;flex-shrink:0;">`
+        : `<div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">${group.emoji||'👥'}</div>`;
 
     win.innerHTML = `
-        <div class="group-header">
-            <button class="icon-btn-small" onclick="closeGroupRoom('${prefix}')"><i class="ph-bold ph-arrow-right"></i></button>
+        <div class="group-header" style="padding-top:calc(var(--nav-height) + 8px);background:#0a0a0a;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:10px;padding-bottom:12px;padding-left:14px;padding-right:14px;flex-shrink:0;">
+            <button class="icon-btn-small" onclick="closeGroupRoom('${prefix}')" style="flex-shrink:0;"><i class="ph-bold ph-arrow-right"></i></button>
             ${avatarHTML}
-            <div class="group-header-info" onclick="showGroupInfo('${groupId}','${prefix}')" style="cursor:pointer;">
-                <div class="group-header-name">${group.name}</div>
-                <div class="group-header-members" id="gm-count-${groupId}">${membersCount} عضو</div>
+            <div class="group-header-info" onclick="showGroupInfo('${groupId}','${prefix}')" style="cursor:pointer;flex:1;min-width:0;">
+                <div class="group-header-name" style="font-weight:800;font-size:0.95rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${group.name}</div>
+                <div id="gm-count-${groupId}" style="font-size:0.72rem;color:#555;">${membersCount} عضو</div>
             </div>
-            <div class="group-header-actions">
+            <div style="display:flex;gap:8px;flex-shrink:0;">
+                <button class="icon-btn-small" onclick="copyGroupInviteLink('${groupId}')" title="رابط الدعوة" style="background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.3);color:#60a5fa;"><i class="fas fa-link"></i></button>
+                <button class="icon-btn-small" onclick="addMemberToGroup('${groupId}','${prefix}')" title="إضافة عضو" style="background:rgba(52,211,153,0.12);border-color:rgba(52,211,153,0.3);color:#34d399;"><i class="fas fa-user-plus"></i></button>
                 <button class="icon-btn-small" onclick="showGroupMoreMenu('${groupId}','${prefix}',${isAdmin})" title="خيارات"><i class="fas fa-ellipsis-v"></i></button>
             </div>
         </div>
         ${group.pinnedMsg ? `<div class="pinned-msg-bar"><i class="fas fa-thumbtack" style="color:#60a5fa;margin-left:6px;"></i><span>${group.pinnedMsg.substring(0,60)}</span></div>` : ''}
-        <div class="chat-msgs-area" id="group-msgs-${groupId}"></div>
+        <div class="chat-msgs-area" id="group-msgs-${groupId}" style="flex:1;overflow-y:auto;padding:8px 0;-webkit-overflow-scrolling:touch;position:relative;"></div>
         <div id="group-reply-bar-${groupId}" style="display:none;"></div>
-        ${group.enableAI ? `<div class="group-ai-hint"><i class="fas fa-robot" style="color:#7c3aed;margin-left:4px;"></i> اكتب <strong>@AI</strong> ثم رسالتك للحصول على رد من SA AI</div>` : ""}
-        <div class="chat-input-area" id="group-input-${groupId}">
-            <label class="chat-img-attach-btn" title="إرسال صورة">
-                <i class="ph-bold ph-image"></i>
-                <input type="file" hidden accept="image/*" multiple onchange="sendGroupImages(this,'${groupId}','${prefix}')">
-            </label>
+        ${group.enableAI ? `<div class="group-ai-hint"><i class="fas fa-robot" style="color:#7c3aed;margin-left:4px;"></i> اكتب <strong>@AI</strong> للحصول على رد ذكي</div>` : ""}
+        <div class="chat-input-area" id="group-input-${groupId}" style="flex-shrink:0;padding:10px 12px;background:#0a0a0a;border-top:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:8px;position:sticky;bottom:0;">
+            <button class="icon-btn-small" onclick="showGroupAttachMenu('${groupId}','${prefix}')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#888;width:38px;height:38px;border-radius:50%;flex-shrink:0;font-size:1.1rem;"><i class="fas fa-paperclip"></i></button>
             <input type="text" id="group-chat-input-${groupId}" placeholder="رسالة..."
                 onkeypress="if(event.key==='Enter')sendGroupMessage('${groupId}','${prefix}')"
-                oninput="toggleGroupMicSend('${groupId}')">
+                oninput="toggleGroupMicSend('${groupId}')"
+                style="flex:1;background:#1a1a1a;border:1px solid rgba(255,255,255,0.08);padding:12px 16px;border-radius:24px;color:#fff;font-family:var(--font-main);font-size:0.95rem;outline:none;">
+            <button class="icon-btn-small" onclick="showGroupStickerPicker('${groupId}')" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#888;width:38px;height:38px;border-radius:50%;flex-shrink:0;font-size:1.2rem;" title="ستيكر">😊</button>
             <button id="group-send-btn-${groupId}" class="send-btn" style="display:none;" onclick="sendGroupMessage('${groupId}','${prefix}')"><i class="ph-bold ph-paper-plane-tilt"></i></button>
-            <button id="group-mic-btn-${groupId}" class="send-btn" style="background:rgba(255,255,255,0.06);color:#666;" onclick="startGroupVoice('${groupId}','${prefix}')"><i class="ph-bold ph-microphone"></i></button>
+            <button id="group-mic-btn-${groupId}" class="send-btn" style="background:rgba(255,255,255,0.06);color:#aaa;" onclick="toggleGroupVoiceRecord('${groupId}','${prefix}')"><i class="ph-bold ph-microphone"></i></button>
+        </div>
+        <div id="group-voice-bar-${groupId}" class="voice-recording-bar hidden">
+            <div class="voice-wave-anim"><span></span><span></span><span></span><span></span><span></span></div>
+            <span id="group-voice-timer-${groupId}" style="color:#ef4444;font-weight:bold;font-size:0.9rem;min-width:40px;">0:00</span>
+            <button onclick="cancelGroupVoice('${groupId}')" style="background:none;border:none;color:#ef4444;font-size:1.2rem;cursor:pointer;"><i class="ph-bold ph-x"></i></button>
+            <button onclick="stopGroupVoice('${groupId}','${prefix}')" style="background:#25d366;border:none;color:#fff;padding:8px 16px;border-radius:20px;font-weight:bold;cursor:pointer;font-size:0.85rem;"><i class="ph-bold ph-paper-plane-tilt"></i> إرسال</button>
         </div>
     `;
 
@@ -4431,30 +4529,24 @@ window.openGroupRoom = async (groupId, prefix) => {
     let memberColorIdx = 0;
 
     const listener = onValue(ref(db, `group_messages/${groupId}`), (snap) => {
-        // Always re-fetch the container — avoids stale DOM reference after re-renders
         const msgsContainer = document.getElementById(`group-msgs-${groupId}`);
-        if (!msgsContainer) return; // container was removed (room closed), abort safely
+        if (!msgsContainer) return;
         msgsContainer.innerHTML = '';
-
         if (!snap.exists()) {
             const avatarBig = group.photoBase64
                 ? `<img src="${group.photoBase64}" style="width:64px;height:64px;border-radius:16px;object-fit:cover;margin-bottom:12px;">`
-                : `<div style="font-size:3rem;margin-bottom:10px;">${group.emoji || '👥'}</div>`;
+                : `<div style="font-size:3rem;margin-bottom:10px;">${group.emoji||'👥'}</div>`;
             msgsContainer.innerHTML = `<div style="text-align:center;color:#333;padding:50px 20px;font-size:0.85rem;">${avatarBig}<p style="font-weight:700;color:#555;">${group.name}</p><p style="margin-top:4px;font-size:0.78rem;">${membersCount} أعضاء</p><p style="margin-top:12px;color:#444;">ابدأ المحادثة الآن 🎉</p></div>`;
             return;
         }
 
-        // Group consecutive images for grid display
         const messages = [];
         snap.forEach(msgNode => messages.push({ key: msgNode.key, ...msgNode.val() }));
 
-        let i = 0;
-        let prevDate = '';
+        let i = 0, prevDate = '';
         while (i < messages.length) {
             const msg = messages[i];
-
-            // Date separator
-            const msgDate = new Date(msg.time).toLocaleDateString('ar-EG', {weekday:'short', day:'numeric', month:'long'});
+            const msgDate = new Date(msg.time).toLocaleDateString('ar-EG', {weekday:'short',day:'numeric',month:'long'});
             if (msgDate !== prevDate) {
                 const sep = document.createElement('div');
                 sep.className = 'date-sep';
@@ -4462,146 +4554,285 @@ window.openGroupRoom = async (groupId, prefix) => {
                 msgsContainer.appendChild(sep);
                 prevDate = msgDate;
             }
-
             const isMe = msg.senderUid === myUid;
             const isAI = msg.isAI;
 
-            // ── Image grid grouping (WhatsApp style) ──
-            if (msg.type === 'image' || msg.imageUrl) {
-                // Collect consecutive images from same sender
-                let imgGroup = [msg];
-                while (
-                    i + imgGroup.length < messages.length &&
-                    (messages[i + imgGroup.length].type === 'image' || messages[i + imgGroup.length].imageUrl) &&
-                    messages[i + imgGroup.length].senderUid === msg.senderUid &&
-                    imgGroup.length < 9
-                ) {
-                    imgGroup.push(messages[i + imgGroup.length]);
-                }
-
+            // ── Sticker message ──
+            if (msg.type === 'sticker') {
                 const wrap = document.createElement('div');
-                wrap.className = `group-msg-wrap${isMe ? ' me' : ''}`;
-                if (!colorMap[msg.senderUid]) { colorMap[msg.senderUid] = MEMBER_COLORS[memberColorIdx++ % MEMBER_COLORS.length]; }
-                const sc = colorMap[msg.senderUid];
-
-                const gridCols = imgGroup.length === 1 ? 1 : imgGroup.length <= 4 ? 2 : 3;
-                const gridStyle = `display:grid;grid-template-columns:repeat(${gridCols},1fr);gap:2px;border-radius:12px;overflow:hidden;max-width:220px;`;
-
-                const imgsHTML = imgGroup.map((m,idx) => {
-                    const sz = imgGroup.length === 1 ? '220px' : '100%';
-                    const h = imgGroup.length === 1 ? 'max-height:280px;' : 'height:80px;';
-                    return `<img src="${m.imageUrl}" style="width:${sz};${h}object-fit:cover;cursor:pointer;" onclick="viewGroupImage('${m.imageUrl}')">`;
-                }).join('');
-
-                wrap.innerHTML = `
-                    ${!isMe ? `<div class="group-sender-name" style="--sender-color:${sc};">${msg.senderName}</div>` : ''}
-                    <div class="group-img-grid" style="${gridStyle}" oncontextmenu="showGroupMsgMenu(event,'${msg.key}','${groupId}','${prefix}','📷 صورة',${isMe})">
-                        ${imgsHTML}
-                    </div>
-                    <div class="group-msg-meta" style="${isMe?'justify-content:flex-end;':''}">
-                        <span>${new Date(msg.time).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</span>
-                        ${isMe ? '<span class="msg-read-ticks"><i class="fas fa-check-double"></i></span>' : ''}
-                    </div>
-                `;
+                wrap.className = `group-msg-wrap${isMe?' me':''}`;
+                wrap.innerHTML = `${!isMe?`<div class="group-sender-name" style="--sender-color:${colorMap[msg.senderUid]||'#60a5fa'};">${msg.senderName}</div>`:''}
+                    <div style="font-size:3rem;line-height:1;padding:4px;">${msg.sticker}</div>
+                    <div class="group-msg-meta">${new Date(msg.time).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</div>`;
                 msgsContainer.appendChild(wrap);
-                i += imgGroup.length;
-                continue;
+                i++; continue;
+            }
+
+            // ── Voice message ──
+            if (msg.type === 'voice') {
+                if (!colorMap[msg.senderUid]) colorMap[msg.senderUid] = MEMBER_COLORS[memberColorIdx++%MEMBER_COLORS.length];
+                const sc = colorMap[msg.senderUid];
+                const wrap = document.createElement('div');
+                wrap.className = `group-msg-wrap${isMe?' me':''}`;
+                wrap.innerHTML = `${!isMe?`<div class="group-sender-name" style="--sender-color:${sc};">${msg.senderName}</div>`:''}
+                    <div class="${isMe?'group-msg-bubble':'group-msg-bubble'}" style="${isMe?'background:linear-gradient(135deg,#1d4ed8,#2563eb);border-radius:18px 4px 18px 18px;':'border-radius:4px 18px 18px 18px;'}padding:10px 14px;">
+                        <div class="wapp-voice-player">
+                            <button class="voice-play-btn" onclick="toggleVoicePlay(this,'grp-${msg.key}')"><i class="ph-bold ph-play"></i></button>
+                            <div class="voice-waveform">${Array.from({length:18},()=>`<div class="waveform-bar" style="height:${Math.random()*18+4}px"></div>`).join('')}</div>
+                            <span class="voice-duration">${msg.duration||'0:00'}</span>
+                            <audio id="audio-grp-${msg.key}" src="${msg.audioUrl||msg.text}" preload="metadata" onended="resetVoiceBtn('grp-${msg.key}')"></audio>
+                        </div>
+                    </div>
+                    <div class="group-msg-meta">${new Date(msg.time).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</div>`;
+                msgsContainer.appendChild(wrap);
+                i++; continue;
+            }
+
+            // ── Image grid grouping ──
+            if (msg.type === 'image' || msg.imageUrl) {
+                let imgGroup = [msg];
+                while (i+imgGroup.length < messages.length && (messages[i+imgGroup.length].type==='image'||messages[i+imgGroup.length].imageUrl) && messages[i+imgGroup.length].senderUid===msg.senderUid && imgGroup.length<9) {
+                    imgGroup.push(messages[i+imgGroup.length]);
+                }
+                if (!colorMap[msg.senderUid]) colorMap[msg.senderUid] = MEMBER_COLORS[memberColorIdx++%MEMBER_COLORS.length];
+                const sc = colorMap[msg.senderUid];
+                const gridCols = imgGroup.length===1?1:imgGroup.length<=4?2:3;
+                const wrap = document.createElement('div');
+                wrap.className = `group-msg-wrap${isMe?' me':''}`;
+                wrap.innerHTML = `${!isMe?`<div class="group-sender-name" style="--sender-color:${sc};">${msg.senderName}</div>`:''}
+                    <div style="display:grid;grid-template-columns:repeat(${gridCols},1fr);gap:2px;border-radius:12px;overflow:hidden;max-width:240px;">
+                        ${imgGroup.map(m=>`<img src="${m.imageUrl||m.text}" style="width:100%;height:${imgGroup.length===1?'auto':'90px'};object-fit:cover;cursor:pointer;" onclick="openImageViewer('${m.imageUrl||m.text}')">`).join('')}
+                    </div>
+                    <div class="group-msg-meta">${new Date(msg.time).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}</div>`;
+                msgsContainer.appendChild(wrap);
+                i += imgGroup.length; continue;
             }
 
             // ── Text message ──
-            if (!colorMap[msg.senderUid]) { colorMap[msg.senderUid] = MEMBER_COLORS[memberColorIdx++ % MEMBER_COLORS.length]; }
-            const senderColor = colorMap[msg.senderUid];
-            const timeStr = new Date(msg.time).toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'});
-
+            if (!colorMap[msg.senderUid]) colorMap[msg.senderUid] = MEMBER_COLORS[memberColorIdx++%MEMBER_COLORS.length];
+            const sc = colorMap[msg.senderUid];
             const wrap = document.createElement('div');
-            wrap.className = `group-msg-wrap${isMe ? ' me' : ''}`;
-
-            const replyHTML = msg.replyTo
-                ? `<div class="group-reply-preview" style="border-right:3px solid ${senderColor};"><strong style="color:${senderColor};font-size:0.68rem;">${msg.replyTo.sender}</strong><div style="font-size:0.72rem;color:#888;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${(msg.replyTo.text||'').substring(0,50)}</div></div>`
-                : '';
-
+            wrap.className = `group-msg-wrap${isMe?' me':''}`;
+            const replyHtml = msg.replyText ? `<div class="group-reply-preview" style="border-right:3px solid ${sc};padding:4px 8px;margin-bottom:4px;background:rgba(255,255,255,0.04);border-radius:0 6px 0 0;font-size:0.75rem;color:#888;"><strong style="color:${sc};font-size:0.7rem;">${msg.replySender||''}</strong><div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${(msg.replyText||'').substring(0,50)}</div></div>` : '';
+            const aiLabel = isAI ? `<div class="ai-group-label"><i class="fas fa-robot"></i> SA AI</div>` : '';
+            const reactions = msg.reactions ? Object.entries(msg.reactions).map(([emoji,uids])=>`<span class="reaction-pill${Object.values(uids||{}).includes(myUid)?' mine':''}" onclick="addGroupReaction('${groupId}','${msg.key}','${emoji}')">${emoji} ${Object.keys(uids||{}).length}</span>`).join('') : '';
             wrap.innerHTML = `
-                ${!isMe && !isAI ? `<div class="group-sender-name" style="--sender-color:${senderColor};">${msg.senderName || 'مجهول'}</div>` : ''}
-                <div class="group-msg-bubble${isAI ? ' ai-group-msg' : ''}"
-                     oncontextmenu="showGroupMsgMenu(event,'${msg.key}','${groupId}','${prefix}','${(msg.text||'').substring(0,80).replace(/'/g,"\'")}',${isMe})"
-                     ontouchstart="startLongPress('${msg.key}','${groupId}','${prefix}','${(msg.text||'').substring(0,80).replace(/'/g,"\'")}',${isMe})"
-                     ontouchend="clearLongPress()">
-                    ${replyHTML}
-                    ${isAI ? '<div class="ai-group-label"><i class="fas fa-robot"></i> SA AI</div>' : ''}
-                    <div style="word-break:break-word;">${msg.text || ''}</div>
-                    <div class="group-msg-meta">
-                        <span>${timeStr}</span>
-                        ${isMe ? '<span class="msg-read-ticks"><i class="fas fa-check-double"></i></span>' : ''}
-                    </div>
+                ${!isMe&&!isAI?`<div class="group-sender-name" style="--sender-color:${sc};">${msg.senderName}</div>`:''}
+                ${aiLabel}
+                <div class="${isMe?'group-msg-bubble':'group-msg-bubble'}" style="${isMe?'background:linear-gradient(135deg,#1d4ed8,#2563eb);border-radius:18px 4px 18px 18px;':'border-radius:4px 18px 18px 18px;'}${isAI?'background:linear-gradient(135deg,#1a0a2e,#2d1b4e);border:1px solid rgba(217,70,239,0.2);':''}" oncontextmenu="showGroupMsgCtx(event,'${groupId}','${msg.key}','${(msg.text||'').replace(/'/g,"\'")}',${isMe})">
+                    ${replyHtml}
+                    <span style="white-space:pre-wrap;word-wrap:break-word;">${makeLinksClickable(msg.text||'')}</span>
+                    <div class="group-msg-meta">${new Date(msg.time).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}${isMe?'<i class="fas fa-check-double" style="color:#53bdeb;margin-right:3px;font-size:0.6rem;"></i>':''}</div>
                 </div>
-                <div class="msg-reactions" id="rxn-${msg.key}"></div>
+                ${reactions?`<div class="msg-reactions">${reactions}</div>`:''}
             `;
-
-            // Reactions
-            if (msg.reactions) {
-                const rxnEl = wrap.querySelector(`#rxn-${msg.key}`);
-                const grouped = {};
-                Object.entries(msg.reactions).forEach(([uid, em]) => { grouped[em] = (grouped[em]||0)+1; });
-                Object.entries(grouped).forEach(([em, cnt]) => {
-                    const pill = document.createElement('div');
-                    pill.className = `reaction-pill${msg.reactions[myUid]===em?' mine':''}`;
-                    pill.innerHTML = `${em} ${cnt>1?cnt:''}`;
-                    pill.onclick = () => addGroupReaction(groupId, msg.key, em);
-                    rxnEl.appendChild(pill);
-                });
-            }
-
             msgsContainer.appendChild(wrap);
             i++;
         }
-
         msgsContainer.scrollTop = msgsContainer.scrollHeight;
+
+        // AI auto-reply check
+        if (group.enableAI && messages.length > 0) {
+            const lastMsg = messages[messages.length-1];
+            if (lastMsg && !lastMsg.isAI && lastMsg.senderUid !== myUid && (lastMsg.text||'').startsWith('@AI')) {
+                triggerGroupAIReply(groupId, lastMsg.text.replace('@AI','').trim(), group.name);
+            }
+        }
     });
-
     window._activeGroupListener = listener;
-    update(ref(db, `groups/${groupId}/members/${myUid}`), { lastSeen: Date.now() });
 };
 
-// ── Long press for mobile context menu ──
-let _lpTimer = null;
-window.startLongPress = (key, groupId, prefix, text, isMe) => {
-    _lpTimer = setTimeout(() => showGroupMsgMenu({ clientX: window.innerWidth/2, clientY: window.innerHeight/2, preventDefault:()=>{} }, key, groupId, prefix, text, isMe), 600);
-};
-window.clearLongPress = () => { if (_lpTimer) { clearTimeout(_lpTimer); _lpTimer = null; } };
+// ── Trigger AI reply in group ──
+async function triggerGroupAIReply(groupId, question, groupName) {
+    if (!question) return;
+    try {
+        const prompt = `أنت SA AI مساعد ذكي في جروب "${groupName}" على منصة SA EDU التعليمية.
+السؤال: ${question}
+أجب بالعربية بشكل مختصر ومفيد.`;
+        const reply = await callPollinationsAI(prompt);
+        await push(ref(db, `group_messages/${groupId}`), {
+            text: reply, senderUid: 'sa_ai', senderName: 'SA AI', time: Date.now(), type: 'text', isAI: true
+        });
+        await update(ref(db, `groups/${groupId}`), { lastMsg: 'SA AI: ' + reply.substring(0,40), lastMsgTime: Date.now() });
+    } catch(e) { console.error('Group AI error:', e); }
+}
 
-// ── View full image ──
-window.viewGroupImage = (src) => {
-    const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;';
-    overlay.innerHTML = `<img src="${src}" style="max-width:95vw;max-height:90vh;object-fit:contain;border-radius:8px;"><button onclick="this.parentElement.remove()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:1.1rem;cursor:pointer;"><i class="fas fa-times"></i></button>`;
-    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
-    document.body.appendChild(overlay);
-};
-
-// ── Send multiple images ──
-window.sendGroupImages = async (input, groupId, prefix) => {
-    if (!input.files.length) return;
-    const files = Array.from(input.files);
-    for (const file of files) {
-        try {
-            const b64 = await getBase64(file);
-            await push(ref(db, `group_messages/${groupId}`), {
-                type: 'image', imageUrl: b64, senderUid: myUid, senderName: currentUser, time: Date.now()
-            });
-        } catch(e) { console.error(e); }
+// ── Copy group invite link ──
+window.copyGroupInviteLink = async (groupId) => {
+    playSound('click');
+    // Save invite token
+    await update(ref(db, `groups/${groupId}`), { inviteToken: groupId });
+    const url = `${window.location.href.split('?')[0]}?groupInvite=${groupId}`;
+    if (navigator.share) {
+        navigator.share({ title: 'انضم للجروب', text: 'انضم إلى الجروب على SA EDU', url }).catch(()=>{});
+    } else {
+        navigator.clipboard.writeText(url).then(() => showToast('تم نسخ رابط الدعوة!','شارك مع من تريد','success',3000));
     }
-    await update(ref(db, `groups/${groupId}`), { lastMsg: `${currentUser}: 📷 ${files.length > 1 ? files.length + ' صور' : 'صورة'}`, lastMsgTime: Date.now() });
-    // Notify members
-    const membersSnap = await get(ref(db, `groups/${groupId}/members`));
-    if (membersSnap.exists()) {
-        const updates = [];
-        membersSnap.forEach(m => updates.push(update(ref(db, `user_groups/${m.key}/${groupId}`), { lastMsg: `📷 صورة`, lastMsgTime: Date.now() })));
-        await Promise.all(updates);
+};
+
+// ── Add member to group by UID ──
+window.addMemberToGroup = (groupId, prefix) => {
+    playSound('click');
+    const existing = document.getElementById('add-member-popup');
+    if (existing) { existing.remove(); return; }
+    const popup = document.createElement('div');
+    popup.id = 'add-member-popup';
+    popup.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:flex-end;justify-content:center;';
+    popup.innerHTML = `
+        <div style="background:#111;border-radius:24px 24px 0 0;padding:24px 20px;width:100%;max-width:600px;animation:slideUp .3s ease;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h3 style="margin:0;font-size:1rem;"><i class="fas fa-user-plus" style="color:#34d399;margin-left:8px;"></i> إضافة عضو للجروب</h3>
+                <button onclick="document.getElementById('add-member-popup').remove()" style="background:none;border:none;color:#666;font-size:1.2rem;cursor:pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="display:flex;gap:10px;">
+                <input id="add-member-uid-input" class="smart-input" placeholder="أدخل معرف المستخدم (ID)..." style="margin:0;flex:1;">
+                <button onclick="doAddMemberToGroup('${groupId}')" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:0 20px;border-radius:14px;cursor:pointer;font-weight:700;font-family:var(--font-main);">إضافة</button>
+            </div>
+            <div id="add-member-result" style="margin-top:12px;font-size:0.85rem;color:#888;"></div>
+        </div>`;
+    document.body.appendChild(popup);
+    popup.querySelector('#add-member-uid-input').focus();
+};
+
+window.doAddMemberToGroup = async (groupId) => {
+    const uid = document.getElementById('add-member-uid-input')?.value?.trim();
+    const resultEl = document.getElementById('add-member-result');
+    if (!uid) return;
+    if (resultEl) resultEl.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> جاري البحث...';
+    // Search user by UID
+    let foundUser = null;
+    const [sSnap, tSnap] = await Promise.all([get(ref(db,'users/students')), get(ref(db,'users/teachers'))]);
+    if (sSnap.exists()) Object.entries(sSnap.val()).forEach(([name,data]) => { if (data.uid===uid) foundUser={name,...data}; });
+    if (!foundUser && tSnap.exists()) Object.entries(tSnap.val()).forEach(([name,data]) => { if (data.uid===uid) foundUser={name,...data}; });
+    if (!foundUser) {
+        if (resultEl) resultEl.innerHTML = '<span style="color:var(--danger);">المستخدم غير موجود</span>';
+        return;
     }
+    // Add to group
+    await update(ref(db, `groups/${groupId}/members/${uid}`), { name: foundUser.name, joinedAt: Date.now(), isAdmin: false });
+    await update(ref(db, `user_groups/${uid}/${groupId}`), { name: '...', emoji: '👥', lastMsg: 'تمت إضافتك للجروب', lastMsgTime: Date.now() });
+    await push(ref(db, `group_messages/${groupId}`), { text: `تمت إضافة ${foundUser.name} للجروب 🎉`, senderUid: myUid, senderName: currentUser, time: Date.now(), type: 'text', isSystem: true });
+    if (resultEl) resultEl.innerHTML = `<span style="color:var(--success);">✅ تمت إضافة ${foundUser.name} بنجاح!</span>`;
+    setTimeout(() => { document.getElementById('add-member-popup')?.remove(); }, 1500);
+};
+
+// ── Sticker picker ──
+const STICKERS = ['😂','❤️','🔥','👍','💯','😍','🎉','🤔','😭','🙏','😎','🤣','💪','✅','⚡','🌟','🎯','🧠','📚','✨','🎓','👏','🥳','😅','🤩','💡','🚀','🏆','😊','🤝'];
+window.showGroupStickerPicker = (groupId) => {
+    const existing = document.getElementById('sticker-picker-popup');
+    if (existing) { existing.remove(); return; }
+    const popup = document.createElement('div');
+    popup.id = 'sticker-picker-popup';
+    popup.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#111;border:1px solid #2a2a2a;border-radius:20px;padding:14px;z-index:9999;display:flex;flex-wrap:wrap;gap:6px;max-width:300px;box-shadow:0 -8px 40px rgba(0,0,0,0.7);animation:popIn .2s ease;';
+    popup.innerHTML = STICKERS.map(s => `<button onclick="sendGroupSticker('${groupId}','${s}')" style="background:none;border:none;font-size:1.8rem;cursor:pointer;padding:4px;border-radius:8px;transition:0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">${s}</button>`).join('');
+    document.body.appendChild(popup);
+    setTimeout(() => { document.addEventListener('click', function h(e) { if (!popup.contains(e.target)) { popup.remove(); document.removeEventListener('click',h); } }); }, 100);
+};
+
+window.sendGroupSticker = async (groupId, sticker) => {
+    document.getElementById('sticker-picker-popup')?.remove();
     playSound('sent');
+    const prefix = window._activeGroupPrefix || (selectedRole==='teacher'?'t':'s');
+    await push(ref(db, `group_messages/${groupId}`), { sticker, senderUid: myUid, senderName: currentUser, time: Date.now(), type: 'sticker' });
+    await update(ref(db, `groups/${groupId}`), { lastMsg: `${currentUser}: ${sticker}`, lastMsgTime: Date.now() });
 };
 
-// ── Group more menu ──
+// ── Attach menu (images + docs) ──
+window.showGroupAttachMenu = (groupId, prefix) => {
+    const existing = document.getElementById('group-attach-menu');
+    if (existing) { existing.remove(); return; }
+    const menu = document.createElement('div');
+    menu.id = 'group-attach-menu';
+    menu.style.cssText = 'position:fixed;bottom:80px;right:16px;background:#111;border:1px solid #2a2a2a;border-radius:16px;padding:8px;z-index:9999;min-width:180px;box-shadow:0 -8px 40px rgba(0,0,0,0.7);animation:popIn .2s ease;';
+    menu.innerHTML = `
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;color:#ccc;font-size:0.85rem;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='none'">
+            <i class="fas fa-images" style="color:#60a5fa;width:20px;text-align:center;"></i> صور متعددة
+            <input type="file" hidden accept="image/*" multiple onchange="sendGroupImages(this,'${groupId}','${prefix}');document.getElementById('group-attach-menu')?.remove()">
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;color:#ccc;font-size:0.85rem;border-radius:8px;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='none'">
+            <i class="fas fa-camera" style="color:#34d399;width:20px;text-align:center;"></i> كاميرا
+            <input type="file" hidden accept="image/*" capture="environment" onchange="sendGroupImages(this,'${groupId}','${prefix}');document.getElementById('group-attach-menu')?.remove()">
+        </label>`;
+    document.body.appendChild(menu);
+    setTimeout(() => { document.addEventListener('click', function h(e) { if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click',h); } }); }, 100);
+};
+
+// ── Group voice recording ──
+let _grpVoiceRecorder=null, _grpVoiceChunks=[], _grpVoiceRecording=false;
+window.toggleGroupVoiceRecord = async (groupId, prefix) => {
+    if (_grpVoiceRecording) { stopGroupVoice(groupId, prefix); return; }
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        _grpVoiceChunks = []; _grpVoiceRecording = true;
+        _grpVoiceRecorder = new MediaRecorder(stream);
+        const bar = document.getElementById(`group-voice-bar-${groupId}`);
+        const micBtn = document.getElementById(`group-mic-btn-${groupId}`);
+        if (bar) bar.classList.remove('hidden');
+        if (micBtn) { micBtn.style.background='#ef4444'; micBtn.style.color='#fff'; }
+        let sec=0;
+        const timerEl = document.getElementById(`group-voice-timer-${groupId}`);
+        const tInt = setInterval(() => { sec++; const m=Math.floor(sec/60),s=sec%60; if(timerEl) timerEl.innerText=`${m}:${s<10?'0':''}${s}`; }, 1000);
+        _grpVoiceRecorder._tInt = tInt; _grpVoiceRecorder._sec = () => sec;
+        _grpVoiceRecorder.ondataavailable = e => { if(e.data.size>0) _grpVoiceChunks.push(e.data); };
+        _grpVoiceRecorder.start(100);
+    } catch(e) { saAlert('لم يُسمح بالوصول للمايكروفون','error'); }
+};
+window.cancelGroupVoice = (groupId) => {
+    if(_grpVoiceRecorder){clearInterval(_grpVoiceRecorder._tInt);_grpVoiceRecorder.stop();_grpVoiceRecorder.stream?.getTracks().forEach(t=>t.stop());}
+    _grpVoiceRecording=false; _grpVoiceChunks=[];
+    document.getElementById(`group-voice-bar-${groupId}`)?.classList.add('hidden');
+    const mic=document.getElementById(`group-mic-btn-${groupId}`);
+    if(mic){mic.style.background='rgba(255,255,255,0.06)';mic.style.color='#aaa';}
+};
+window.stopGroupVoice = async (groupId, prefix) => {
+    if(!_grpVoiceRecorder||!_grpVoiceRecording) return;
+    const sec = _grpVoiceRecorder._sec();
+    clearInterval(_grpVoiceRecorder._tInt);
+    return new Promise(resolve => {
+        _grpVoiceRecorder.onstop = async () => {
+            const blob = new Blob(_grpVoiceChunks, {type:'audio/webm'});
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const b64 = reader.result;
+                const m=Math.floor(sec/60),s=sec%60;
+                playSound('sent');
+                await push(ref(db,`group_messages/${groupId}`), { audioUrl:b64, text:'', senderUid:myUid, senderName:currentUser, time:Date.now(), type:'voice', duration:`${m}:${s<10?'0':''}${s}` });
+                await update(ref(db,`groups/${groupId}`), { lastMsg:`${currentUser}: 🎤 رسالة صوتية`, lastMsgTime:Date.now() });
+                resolve();
+            };
+            reader.readAsDataURL(blob);
+        };
+        _grpVoiceRecorder.stop();
+        _grpVoiceRecorder.stream?.getTracks().forEach(t=>t.stop());
+        _grpVoiceRecording=false; _grpVoiceChunks=[];
+        document.getElementById(`group-voice-bar-${groupId}`)?.classList.add('hidden');
+        const mic=document.getElementById(`group-mic-btn-${groupId}`);
+        if(mic){mic.style.background='rgba(255,255,255,0.06)';mic.style.color='#aaa';}
+    });
+};
+
+// ── sendGroupImages: multiple images support ──
+window.sendGroupImages = async (input, groupId, prefix) => {
+    if (!input.files || input.files.length === 0) return;
+    const files = Array.from(input.files).slice(0, 9);
+    try {
+        const images = await Promise.all(files.map(f => getBase64(f)));
+        // Send as a group of images
+        if (images.length === 1) {
+            await push(ref(db, `group_messages/${groupId}`), { imageUrl: images[0], text:'', senderUid:myUid, senderName:currentUser, time:Date.now(), type:'image' });
+        } else {
+            // Send multiple images as separate messages or batch
+            for (const img of images) {
+                await push(ref(db, `group_messages/${groupId}`), { imageUrl:img, text:'', senderUid:myUid, senderName:currentUser, time:Date.now(), type:'image' });
+            }
+        }
+        await update(ref(db, `groups/${groupId}`), { lastMsg:`${currentUser}: 📷 ${images.length} صور`, lastMsgTime:Date.now() });
+        playSound('sent');
+    } catch(e) { saAlert('فشل إرسال الصور','error'); }
+};
+
+// ── Context menu for group messages ──
+window.showGroupMsgCtx = (e, groupId, key, text, isMe) => {
 window.showGroupMoreMenu = (groupId, prefix, isAdmin) => {
     const existing = document.getElementById('group-more-menu');
     if (existing) { existing.remove(); return; }
