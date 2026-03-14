@@ -179,10 +179,13 @@
             <section id="t-reese" class="app-section hidden full-width-section">
                 <div class="mobile-spacer"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 15px;">
-                    <button class="reese-back-glow-btn" onclick="switchTab('t-library', document.querySelector('#teacher-app .nav-btn'))">
+                    <button onclick="switchTab('t-library')"
+                        style="width:42px;height:42px;border-radius:50%;background:rgba(59,130,246,0.12);border:1.5px solid rgba(59,130,246,0.4);color:#60a5fa;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 0 14px rgba(59,130,246,0.35),0 0 28px rgba(59,130,246,0.1);transition:box-shadow 0.2s;flex-shrink:0;"
+                        onmouseover="this.style.boxShadow='0 0 22px rgba(59,130,246,0.7)'"
+                        onmouseout="this.style.boxShadow='0 0 14px rgba(59,130,246,0.35),0 0 28px rgba(59,130,246,0.1)'">
                         <i class="fas fa-arrow-right"></i>
                     </button>
-                    <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
+                    <span style="font-weight:800;font-size:1.1rem;font-family:'Outfit',sans-serif;color:#fff;">Reese SA</span>
                     <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
                         <i class="fas fa-eraser" id="t-eraser-icon" style="color:#aaa;"></i>
                     </button>
@@ -456,10 +459,13 @@
             <section id="s-reese" class="app-section hidden full-width-section">
                 <div class="mobile-spacer"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 15px;">
-                    <button class="reese-back-glow-btn" onclick="switchTab('s-exams', document.querySelector('#student-app .nav-btn'))">
+                    <button onclick="switchTab('s-exams')"
+                        style="width:42px;height:42px;border-radius:50%;background:rgba(59,130,246,0.12);border:1.5px solid rgba(59,130,246,0.4);color:#60a5fa;display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:pointer;box-shadow:0 0 14px rgba(59,130,246,0.35),0 0 28px rgba(59,130,246,0.1);transition:box-shadow 0.2s;flex-shrink:0;"
+                        onmouseover="this.style.boxShadow='0 0 22px rgba(59,130,246,0.7)'"
+                        onmouseout="this.style.boxShadow='0 0 14px rgba(59,130,246,0.35),0 0 28px rgba(59,130,246,0.1)'">
                         <i class="fas fa-arrow-right"></i>
                     </button>
-                    <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
+                    <span style="font-weight:800;font-size:1.1rem;font-family:'Outfit',sans-serif;color:#fff;">Reese SA</span>
                     <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
                         <i class="fas fa-eraser" id="s-eraser-icon" style="color:#aaa;"></i>
                     </button>
@@ -810,11 +816,11 @@
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <div style="flex: 1;">
                     <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد الاختياري (MCQ)</label>
-                    <input type="number" id="ai-mcq-count" class="smart-input" style="text-align: center; margin: 0;" placeholder="مثال: 20" min="0">
+                    <input type="number" id="ai-mcq-count" class="smart-input" value="0" style="text-align: center; margin: 0;" placeholder="0" min="0">
                 </div>
                 <div style="flex: 1;">
                     <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد المقالي</label>
-                    <input type="number" id="ai-essay-count" class="smart-input" style="text-align: center; margin: 0;" placeholder="مثال: 5" min="0">
+                    <input type="number" id="ai-essay-count" class="smart-input" value="0" style="text-align: center; margin: 0;" placeholder="0" min="0">
                 </div>
             </div>
 
@@ -1055,6 +1061,16 @@
     <!-- ============ END VOICE ROOMS ============ -->
 
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+    @keyframes scaleInModal {
+        from { transform: scale(0.82); opacity: 0; }
+        to   { transform: scale(1);    opacity: 1; }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    </style>
     <script type="module" src="script.js"></script>
 </body>
 </html>
