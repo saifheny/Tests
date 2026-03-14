@@ -179,6 +179,9 @@
             <section id="t-reese" class="app-section hidden full-width-section">
                 <div class="mobile-spacer"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 15px;">
+                    <button class="reese-back-glow-btn" onclick="switchTab('t-library', document.querySelector('#teacher-app .nav-btn'))">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                     <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
                     <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
                         <i class="fas fa-eraser" id="t-eraser-icon" style="color:#aaa;"></i>
@@ -453,6 +456,9 @@
             <section id="s-reese" class="app-section hidden full-width-section">
                 <div class="mobile-spacer"></div>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 0 15px;">
+                    <button class="reese-back-glow-btn" onclick="switchTab('s-exams', document.querySelector('#student-app .nav-btn'))">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
                     <h2 style="margin:0; font-family:'Outfit', sans-serif;">Reese SA</h2>
                     <button class="icon-btn-small" style="background:rgba(255,255,255,0.05); width:40px; height:40px;" onclick="toggleMyPostsView()">
                         <i class="fas fa-eraser" id="s-eraser-icon" style="color:#aaa;"></i>
@@ -804,11 +810,11 @@
             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <div style="flex: 1;">
                     <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد الاختياري (MCQ)</label>
-                    <input type="number" id="ai-mcq-count" class="smart-input" value="0" style="text-align: center; margin: 0;" placeholder="0" min="0">
+                    <input type="number" id="ai-mcq-count" class="smart-input" style="text-align: center; margin: 0;" placeholder="مثال: 20" min="0">
                 </div>
                 <div style="flex: 1;">
                     <label style="color:#aaa; font-size:0.8rem; display:block; margin-bottom:5px;">عدد المقالي</label>
-                    <input type="number" id="ai-essay-count" class="smart-input" value="0" style="text-align: center; margin: 0;" placeholder="0" min="0">
+                    <input type="number" id="ai-essay-count" class="smart-input" style="text-align: center; margin: 0;" placeholder="مثال: 5" min="0">
                 </div>
             </div>
 
