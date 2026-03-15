@@ -559,8 +559,7 @@ async function callPollinationsAI(prompt, retries = 4) {
         try {
             // Try POST first
             const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 18000);
-            
+const timeout = setTimeout(() => controller.abort(), 120000);            
             const response = await fetch('https://text.pollinations.ai/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1127,10 +1126,14 @@ window.switchTab = (tabId, btn) => {
         loadTeacherTests();
         startTypewriter("cta-type-text", "اضغط هنا لكتابة الامتحان");
     }
-    if(tabId === 't-reese' || tabId === 's-reese') {
-        const prefix = selectedRole === 'teacher' ? 't' : 's';
-        loadReesePosts(prefix);
-    }
+if(tabId === 't-reese' || tabId === 's-reese') {
+    const prefix = selectedRole === 'teacher' ? 't' : 's';
+    loadReesePosts(prefix);
+    // Refresh suggestions every time user enters this tab
+    _cachedReeseSuggestions = [];
+    _lastReeseSuggestions = [];
+    setTimeout(() => { _preloadReeseSuggestions(); }, 200);
+}
     if(tabId === 't-ai' && !currentChatId) startNewChat('t');
     if(tabId === 's-ai' && !currentChatId) startNewChat('s');
 
@@ -3279,7 +3282,7 @@ window.generateAiQuestions = async () => {
     const topic = document.getElementById('ai-gen-text').value;
     const mcqCount = document.getElementById('ai-mcq-count').value || 0;
     const essayCount = document.getElementById('ai-essay-count').value || 0;
-    
+    if (totalQ > 100) return saAlert("الحد الأقصى 100 سؤال في المرة الواحدة", "error");
     if (!topic && !aiGenImgBase64) return saAlert("أدخل الموضوع أو ارفع صورة", "error");
     const totalQ = parseInt(mcqCount||0) + parseInt(essayCount||0);
     if (totalQ === 0) return saAlert("يجب إدخال عدد الأسئلة المطلوبة", "error");
@@ -3337,11 +3340,28 @@ Return ONLY the JSON array starting with [ and ending with ]`;
         } else {
             throw new Error("Invalid format");
         }
-    } catch (e) { 
-        console.error(e);
-        toggleConstructionOverlay(false);
-        saAlert("فشل البناء. حاول مرة أخرى.", "error"); 
+} catch (e) {
+    console.error(e);
+    toggleConstructionOverlay(false);
+    // Retry silently once before showing anything
+    try {
+        let jsonStr2 = await callPollinationsAI(prompt);
+        jsonStr2 = jsonStr2.replace(/```json/g,'').replace(/```/g,'').trim();
+        const f2 = jsonStr2.indexOf('['), l2 = jsonStr2.lastIndexOf(']');
+        if(f2 !== -1 && l2 !== -1) jsonStr2 = jsonStr2.substring(f2, l2+1);
+        const questions2 = JSON.parse(jsonStr2);
+        if (Array.isArray(questions2) && questions2.length > 0) {
+            questions2.forEach(q => { if(!q.type) q.type = (q.options && q.options.length>1)?'mcq':'essay'; });
+            currentQuestions = [...currentQuestions, ...questions2];
+            renderAddedQuestions();
+            saAlert(`✅ تم توليد ${questions2.length} سؤال بنجاح!`, "success");
+            switchTab('t-create');
+        }
+    } catch(e2) {
+        // Never show error to user — just silent fail
+        saAlert("⏳ يتم المعالجة، انتظر لحظة وحاول مجدداً.", "info");
     }
+}
 };
 
 window.openStudentAnalytics = async () => {
