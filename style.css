@@ -7524,3 +7524,97 @@ animation: shakeField 0.4s ease;
 .ai-char-counter.warn { color: #fbbf24; border-color: rgba(251,191,36,0.5); }
 .ai-char-counter.over { color: #ef4444; border-color: rgba(239,68,68,0.5); }
 
+/* ════════════════════════════════════════════════════════════ */
+/* NEW FULL-PAGE GROUP CREATION UI */
+/* ════════════════════════════════════════════════════════════ */
+
+.tg-create-full-page {
+  position: fixed; inset: 0; z-index: 99999;
+  background: var(--bg-main, #0f0f13);
+  display: flex; flex-direction: column;
+  animation: slideUpScale 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  color: #fff;
+  font-family: var(--font-main, 'Cairo', sans-serif);
+}
+
+.tg-create-page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  gap: 15px;
+}
+
+.tg-create-save-btn {
+  background: var(--accent-primary, #3b82f6);
+  color: #fff; border: none; padding: 8px 16px; border-radius: 20px;
+  font-weight: bold; font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.tg-create-save-btn:active { transform: scale(0.95); box-shadow: 0 0 10px rgba(59,130,246,0.5); }
+
+.tg-create-page-body {
+  flex: 1; overflow-y: auto; padding: 20px;
+}
+
+.tg-create-page-body::-webkit-scrollbar { width: 0px; } /* hide scrollbar for clean look */
+
+.tg-create-fab-btn {
+  position: absolute;
+  bottom: 80px; /* above the bottom nav */
+  left: 20px;   /* placed on the left for Arabic interface (RTL) or typical alignment */
+  background: linear-gradient(135deg, var(--accent-primary, #3b82f6), #8b5cf6);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 15px 20px;
+  font-weight: bold;
+  font-family: var(--font-main, 'Cairo', sans-serif);
+  font-size: 0.95rem;
+  box-shadow: 0 4px 15px rgba(59,130,246,0.4);
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  z-index: 100;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.tg-create-fab-btn:active { transform: scale(0.95); }
+.tg-create-fab-btn i { font-size: 1.1rem; }
+
+/* ════════════════════════════════════════════════════════════ */
+/* MOBILE LAYOUT SPACING FIXES */
+/* ════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  /* Remove excessive empty spacing at top/bottom of sections */
+  .app-section {
+    padding-bottom: 0px !important;
+    margin-bottom: 0px !important;
+  }
+  
+  .portal-container {
+    padding-bottom: 0px !important;
+    margin-bottom: 0px !important;
+  }
+
+  body, html {
+    padding-bottom: 0px !important;
+    margin-bottom: 0px !important;
+  }
+
+  /* Make the layout fit screen exactly on mobile without scrolling past content */
+  .chat-layout, .chat-sidebar, .chat-window {
+    height: 100% !important;
+    max-height: 100% !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Reduce the spacer if it pushes content too far down */
+  .mobile-spacer {
+    height: 55px !important;
+    margin: 0 !important;
+  }
+}
+
+
