@@ -916,77 +916,8 @@
     <!-- ============ END DIRECT VOICE CALL ============ -->
 
     <script>
-    // toggleAiSendMic is defined in script.js module — do not duplicate here
-
-    // Enter key support for AI chat inputs
-    document.addEventListener('DOMContentLoaded', function() {
-        ['t-ai-input', 's-ai-input'].forEach(function(id) {
-            var el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        var prefix = id.charAt(0); // 't' or 's'
-                        if (window.sendAiMsg) window.sendAiMsg(prefix);
-                    }
-                });
-            }
-        });
-    });
-
-    let mediaRecorder = null;
-    let isRecording = false;
-
-    function startVoiceInput(role) {
-        const micBtn = document.getElementById(role + '-mic-btn');
-        const input = document.getElementById(role + '-ai-input');
-        
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            if (typeof saAlert === 'function') {
-                saAlert('❌', 'غير مدعوم', 'المتصفح لا يدعم الإدخال الصوتي. جرب Chrome أو Edge.');
-            } else {
-                alert('المتصفح لا يدعم الإدخال الصوتي. جرب Chrome.');
-            }
-            return;
-        }
-
-        if (isRecording) {
-            if (window._speechRecog) window._speechRecog.stop();
-            return;
-        }
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recog = new SpeechRecognition();
-        window._speechRecog = recog;
-        recog.lang = 'ar-SA';
-        recog.continuous = false;
-        recog.interimResults = false;
-
-        recog.onstart = () => {
-            isRecording = true;
-            if (micBtn) micBtn.classList.add('recording');
-        };
-
-        recog.onresult = (e) => {
-            const text = e.results[0][0].transcript;
-            if (input) {
-                input.value = (input.value + ' ' + text).trim();
-                toggleAiSendMic(role, input.value);
-            }
-        };
-
-        recog.onerror = () => {
-            isRecording = false;
-            if (micBtn) micBtn.classList.remove('recording');
-        };
-
-        recog.onend = () => {
-            isRecording = false;
-            if (micBtn) micBtn.classList.remove('recording');
-        };
-
-        recog.start();
-    }
+    /* startVoiceInput, toggleAiSendMic, sendAiMsg are all defined in script.js module on window */
+    /* Enter key is handled via onkeydown attributes on the inputs */
     </script>
 
     <!-- ============ VOICE ROOMS SYSTEM ============ -->
