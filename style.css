@@ -966,7 +966,7 @@ background: #000;
 z-index: 100;
 overflow: hidden;
 }
-/* Mobile: nav is at bottom, so ai-layout fills top-to-bottom excluding nav */
+
 @media (max-width: 768px) {
   .ai-layout {
     top: 0 !important;
@@ -2099,7 +2099,6 @@ font-weight: bold;
 font-size: 0.9rem;
 }
 
-
 .chat-msg-wrap {
 display: flex;
 flex-direction: column;
@@ -2511,10 +2510,6 @@ animation: shakeField 0.4s ease;
 75% { transform: translateX(6px); }
 }
 
-/* ============================================
-   SA VOICE ROOMS — Complete Styling
-   ============================================ */
-
 .voice-room-entry-btn {
     background: rgba(16, 185, 129, 0.12) !important;
     border-color: rgba(16, 185, 129, 0.3) !important;
@@ -2528,7 +2523,6 @@ animation: shakeField 0.4s ease;
 }
 .voice-room-entry-btn i { font-size: 1rem; }
 
-/* ---- Backdrop ---- */
 .vr-panel-backdrop {
     position: fixed;
     inset: 0;
@@ -2542,11 +2536,9 @@ animation: shakeField 0.4s ease;
 #voice-rooms-panel.open ~ .vr-panel-backdrop,
 .vr-panel-backdrop:has(~ #voice-rooms-panel.open) { opacity:1; pointer-events:all; }
 
-/* Trick: show backdrop when panel is open */
 #voice-rooms-panel.open { pointer-events: all; }
 #voice-rooms-panel.open + .vr-panel-backdrop { display: none; }
 
-/* ---- Sliding Panel (bottom sheet) ---- */
 #voice-rooms-panel {
     position: fixed;
     bottom: -100%;
@@ -2567,7 +2559,7 @@ animation: shakeField 0.4s ease;
     bottom: 0;
     pointer-events: all;
 }
-/* Also show backdrop */
+
 #voice-rooms-panel.open::before {
     content: '';
     position: fixed;
@@ -2741,7 +2733,6 @@ animation: shakeField 0.4s ease;
     animation: spin 0.8s linear infinite;
 }
 
-/* ---- Audio Gate Modal ---- */
 .vr-gate {
     position: fixed;
     inset: 0;
@@ -2833,7 +2824,6 @@ animation: shakeField 0.4s ease;
 .vr-gate-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .vr-gate-btn:not(:disabled):active { transform: scale(0.97); }
 
-/* ---- Full Screen Voice Room ---- */
 .vr-room-screen {
     position: fixed;
     inset: 0;
@@ -3029,7 +3019,6 @@ animation: shakeField 0.4s ease;
     font-size: 0.7rem;
 }
 
-/* ---- Filter Menu ---- */
 .vr-filter-menu {
     position: absolute;
     bottom: 100px;
@@ -3069,7 +3058,6 @@ animation: shakeField 0.4s ease;
 .vr-filter-opt:hover { background: #111; color: #999; }
 .vr-filter-opt.active { background: #10b981; color: #000; font-weight: 700; }
 
-/* ---- Dock ---- */
 .vr-dock-wrap {
     position: absolute;
     bottom: 0;
@@ -3119,28 +3107,13 @@ animation: shakeField 0.4s ease;
     color: #fff;
 }
 
-/* ============================================ */
-
-/* ============================================================
-   SA EDU — ULTRA ENHANCED v3.0
-   Gemini-Like AI, Avatars, Animations, Voice Calls, Smart Ads
-   ============================================================ */
-
-/* ============================================================
-   SA EDU — PATCH v3.1 — Refined UX
-   ============================================================ */
-
-/* ---- HIDE XP HUD completely ---- */
 #xp-hud { display: none !important; }
 #xp-reward-modal, #leaderboard-modal { display: none !important; }
 
-/* ---- HIDE NATIVE ADS completely ---- */
 .native-ad-card, .ad-banner { display: none !important; }
 
-/* ---- HIDE HERO SECTIONS ---- */
 .section-avatar-hero { display: none !important; }
 
-/* ---- TAB DOTS — only show during swipe ---- */
 .tab-dots {
     position: fixed;
     bottom: 10px;
@@ -3175,7 +3148,6 @@ animation: shakeField 0.4s ease;
     box-shadow: 0 0 8px var(--accent-glow);
 }
 
-/* ---- MOBILE BOTTOM SAFE AREA ---- */
 @media (max-width: 768px) {
     .portal-container {
         padding-bottom: calc(var(--nav-height) + 40px);
@@ -3186,7 +3158,7 @@ animation: shakeField 0.4s ease;
     .top-nav {
         padding-bottom: env(safe-area-inset-bottom, 0px);
     }
-    /* Extra chin at bottom so content never hides behind nav */
+
     body::after {
         content: '';
         display: block;
@@ -3195,13 +3167,11 @@ animation: shakeField 0.4s ease;
     }
 }
 
-/* ---- FACEBOOK-STYLE HORIZONTAL SLIDE ---- */
 .portal-container {
     position: relative;
     overflow: hidden;
 }
 
-/* Sections use absolute positioning during swipe for Facebook-like slide */
 .app-section.sliding-out-right {
     animation: slideOutRight 0.32s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
@@ -3245,7 +3215,6 @@ animation: shakeField 0.4s ease;
     z-index: 2;
 }
 
-/* ---- SWIPE PROGRESS BAR (Facebook-like) ---- */
 .swipe-progress-bar {
     position: fixed;
     top: var(--nav-height);
@@ -3263,8 +3232,6 @@ animation: shakeField 0.4s ease;
     opacity: 1;
 }
 
-
-/* ---- GEMINI-LIKE AI THINKING ANIMATION ---- */
 .gemini-thinking {
     display: flex;
     align-items: center;
@@ -3378,7 +3345,6 @@ animation: shakeField 0.4s ease;
 }
 @keyframes caretBlink { 50% { opacity: 0; } }
 
-/* ---- AVATAR ABOVE EXAMS / SECTIONS ---- */
 .section-avatar-hero {
     display: flex;
     align-items: center;
@@ -3460,7 +3426,6 @@ animation: shakeField 0.4s ease;
     50% { transform: scale(1.4); opacity: 0.7; }
 }
 
-/* ---- EXAM CARD AVATAR BADGE ---- */
 .exam-card-avatar {
     width: 34px;
     height: 34px;
@@ -3475,7 +3440,6 @@ animation: shakeField 0.4s ease;
     flex-shrink: 0;
 }
 
-/* ---- ANIMATED SEARCH BAR ---- */
 .search-wrap-enhanced {
     position: relative;
     margin-bottom: 20px;
@@ -3559,7 +3523,6 @@ animation: shakeField 0.4s ease;
     transform: translateY(-50%) scale(1.1);
 }
 
-/* ---- NATIVE AD CARDS ---- */
 .native-ad-card {
     background: linear-gradient(135deg, rgba(59,130,246,0.05), rgba(16,185,129,0.03));
     border: 1px solid rgba(255,255,255,0.06);
@@ -3616,7 +3579,6 @@ animation: shakeField 0.4s ease;
     flex-shrink: 0;
 }
 
-/* ---- DIRECT VOICE CALL IN CHAT ---- */
 .chat-call-btn {
     width: 36px;
     height: 36px;
@@ -3645,7 +3607,6 @@ animation: shakeField 0.4s ease;
     50% { box-shadow: 0 0 0 8px rgba(37, 211, 102, 0); }
 }
 
-/* ---- INCOMING CALL OVERLAY ---- */
 #direct-call-overlay {
     position: fixed;
     inset: 0;
@@ -3763,7 +3724,6 @@ animation: shakeField 0.4s ease;
     animation: none;
 }
 
-/* ---- AI AVATAR ON MESSAGES ---- */
 .ai-msg-avatar {
     width: 28px;
     height: 28px;
@@ -3790,13 +3750,10 @@ animation: shakeField 0.4s ease;
     gap: 8px;
 }
 
-/* ---- IMPROVED NAV ---- */
 .nav-btn {
     position: relative;
 }
-/* dot removed */ .nav-btn.active::after, .magic-btn.active::after { display: none !important; }
 
-/* ---- EXAM CARD ENHANCEMENTS ---- */
 .exam-card-header-row {
     display: flex;
     align-items: center;
@@ -3834,7 +3791,6 @@ animation: shakeField 0.4s ease;
     text-overflow: ellipsis;
 }
 
-/* ---- WELCOME SCREEN AI AVATAR ---- */
 .ai-avatar-gemini {
     width: 90px;
     height: 90px;
@@ -3875,7 +3831,6 @@ animation: shakeField 0.4s ease;
     z-index: 1;
 }
 
-/* ---- FEATURED EXAM CARD ---- */
 .featured-exam-banner {
     background: linear-gradient(135deg, rgba(217,70,239,0.12), rgba(59,130,246,0.08));
     border: 1px solid rgba(217,70,239,0.2);
@@ -3904,7 +3859,6 @@ animation: shakeField 0.4s ease;
     font-weight: 700;
 }
 
-/* ---- CALL NOTIFICATION TOAST ---- */
 .call-toast {
     position: fixed;
     top: 20px;
@@ -3955,7 +3909,6 @@ animation: shakeField 0.4s ease;
 .call-toast-btn.ans { background: #25d366; color: #fff; }
 .call-toast-btn.rej { background: #ef4444; color: #fff; }
 
-/* ---- SWIPE HINT ---- */
 .swipe-hint {
     position: fixed;
     bottom: 28px;
@@ -3987,7 +3940,6 @@ animation: shakeField 0.4s ease;
     50% { transform: translateX(6px); opacity: 0.7; }
 }
 
-/* ---- EXAM TAKING AVATAR BANNER ---- */
 .exam-taking-header-avatar {
     display: flex;
     align-items: center;
@@ -4013,7 +3965,6 @@ animation: shakeField 0.4s ease;
     box-shadow: 0 0 15px rgba(255,215,0,0.2);
 }
 
-/* ---- BETTER REESE TRIGGER AVATAR ---- */
 .reese-avatar-mini {
     position: relative;
 }
@@ -4029,7 +3980,6 @@ animation: shakeField 0.4s ease;
     border: 2px solid #000;
 }
 
-/* ---- AI SECTION WELCOME IMPROVED ---- */
 .ai-welcome-chips-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -4065,7 +4015,6 @@ animation: shakeField 0.4s ease;
     line-height: 1.3;
 }
 
-/* ---- MESSAGE RENDER IMPROVEMENTS ---- */
 .chat-msg.ai {
     border-bottom-left-radius: 4px;
     animation: msgFadeIn 0.3s ease;
@@ -4078,7 +4027,6 @@ animation: shakeField 0.4s ease;
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ---- SECTION TRANSITIONS ENHANCED ---- */
 @keyframes sectionFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -4088,10 +4036,8 @@ animation: shakeField 0.4s ease;
     to { opacity: 1; }
 }
 
-/* nav labels hidden */
 .nav-btn span, .nav-btn.active span, .magic-btn.active span { display: none !important; }
 
-/* ---- LOADING OVERLAY IMPROVED ---- */
 #construction-overlay {
     background: rgba(0,0,0,0.97);
 }
@@ -4108,7 +4054,6 @@ animation: shakeField 0.4s ease;
     border-top-color: var(--accent-gold);
 }
 
-/* ---- DIRECT CALL IN CHAT CONTROLS ---- */
 .in-call-controls {
     display: flex;
     align-items: center;
@@ -4134,12 +4079,6 @@ animation: shakeField 0.4s ease;
     animation: pulse 1s infinite;
 }
 
-
-/* ══════════════════════════════════════════
-   PATCH v5.0 — AI full-width + 3D buttons
-   ══════════════════════════════════════════ */
-
-/* ── AI MESSAGES: ChatGPT style, no bubble ── */
 .ai-full-msg {
     width: 100%;
     padding: 18px 0 8px;
@@ -4186,7 +4125,6 @@ animation: shakeField 0.4s ease;
 .ai-act-btn:hover { background: rgba(255,255,255,0.08); color: #aaa; border-color: rgba(255,255,255,0.15); }
 .ai-act-btn.liked { color: var(--blue); border-color: var(--blue); background: rgba(59,130,246,0.1); }
 
-/* User bubble stays right */
 .chat-msg-wrap.user {
     display: flex;
     justify-content: flex-end;
@@ -4203,7 +4141,6 @@ animation: shakeField 0.4s ease;
     box-shadow: 0 4px 15px rgba(59,130,246,0.3);
 }
 
-/* ── 3D BUTTONS ─────────────────────────────── */
 .modern-btn {
     box-shadow:
         0 6px 0 rgba(0,0,0,0.4),
@@ -4238,7 +4175,6 @@ animation: shakeField 0.4s ease;
     box-shadow: 0 8px 0 rgba(0,0,0,0.65), 0 6px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 
-/* 3D Send button */
 .send-btn {
     box-shadow: 0 4px 0 #1d4ed8, 0 4px 12px rgba(59,130,246,0.4);
     transition: all 0.15s ease;
@@ -4246,15 +4182,12 @@ animation: shakeField 0.4s ease;
 .send-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #1d4ed8; }
 .send-btn:hover  { transform: translateY(-1px); }
 
-/* Nav active button - no glow */
 .nav-btn.active i { filter: none; }
 .magic-btn.active i { filter: none; }
 
-/* 3D CTA icon */
 .cta-icon-wrapper { box-shadow: 0 4px 0 #1d4ed8; }
 .student-stats-cta .cta-icon-wrapper { box-shadow: 0 4px 0 #1d4ed8; }
 
-/* 3D VR create & gate buttons */
 .vr-create-btn {
     box-shadow: 0 5px 0 #047857, 0 4px 15px rgba(16,185,129,0.3);
 }
@@ -4264,7 +4197,6 @@ animation: shakeField 0.4s ease;
 }
 .vr-gate-btn:not(:disabled):active { transform: translateY(4px); box-shadow: 0 1px 0 #047857; }
 
-/* 3D search user btn */
 .search-user-btn {
     box-shadow: 0 5px 0 #1d4ed8, 0 4px 15px rgba(59,130,246,0.35);
     transition: all 0.15s ease;
@@ -4272,19 +4204,12 @@ animation: shakeField 0.4s ease;
 .search-user-btn:hover  { transform: translateY(-2px); box-shadow: 0 7px 0 #1d4ed8, 0 6px 20px rgba(59,130,246,0.45); }
 .search-user-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #1d4ed8; }
 
-/* ── HIDE CALL from chat completely ─────────── */
 .chat-call-btn { display: none !important; }
 #direct-call-overlay { display: none !important; }
 .call-toast { display: none !important; }
 
-/* ══ PATCH v5.1 — Hide tab dots permanently ══ */
 #tab-dots, .tab-dots, .tab-dot { display: none !important; }
 
-/* ══════════════════════════════════════════
-   PATCH v5.2 — Exam BG + Chat BG + AI chips
-   ══════════════════════════════════════════ */
-
-/* ── EXAMS SECTION BEAUTIFUL BACKGROUND ── */
 .exams-section {
     position: relative;
     min-height: 100%;
@@ -4310,7 +4235,6 @@ animation: shakeField 0.4s ease;
     100% { background-position: 100% 100%; }
 }
 
-/* Floating particles behind exams */
 .exams-bg-layer::before {
     content: '';
     position: absolute;
@@ -4328,7 +4252,6 @@ animation: shakeField 0.4s ease;
     100% { transform: translateY(-20px); }
 }
 
-/* ── CHAT WINDOW BEAUTIFUL BACKGROUND ── */
 .chat-msgs-area {
     background:
         radial-gradient(ellipse 100% 60% at 50% 0%, rgba(59,130,246,0.06) 0%, transparent 70%),
@@ -4337,7 +4260,6 @@ animation: shakeField 0.4s ease;
     background-attachment: local !important;
 }
 
-/* Subtle chat pattern overlay */
 .chat-msgs-area::before {
     content: '';
     position: absolute;
@@ -4349,12 +4271,10 @@ animation: shakeField 0.4s ease;
         repeating-linear-gradient(-45deg, rgba(255,255,255,0.5) 0px, transparent 1px, transparent 40px, rgba(255,255,255,0.5) 41px);
 }
 
-/* ── AI CHIPS ROTATION ANIMATION ── */
 .ai-welcome-chips-grid {
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* Refresh chips hint */
 .ai-chip-v2 {
     position: relative;
     overflow: hidden;
@@ -4371,7 +4291,6 @@ animation: shakeField 0.4s ease;
 .ai-chip-v2:active::after { opacity: 1; }
 .ai-chip-v2:active { transform: scale(0.95); }
 
-/* ── EXAM RESULT OVERLAY ── */
 #exam-result-overlay {
     animation: examResultIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -4380,10 +4299,8 @@ animation: shakeField 0.4s ease;
     to   { opacity: 1; transform: scale(1); }
 }
 
-/* ── NO DOTS ── */
 #tab-dots, .tab-dots, .tab-dot { display: none !important; }
 
-/* ── AI messages: user right, AI below full width ── */
 .chat-msg-wrap.user {
     display: flex !important;
     justify-content: flex-end !important;
@@ -4391,13 +4308,11 @@ animation: shakeField 0.4s ease;
     background: transparent !important;
 }
 
-/* Ensure AI messages don't share same side */
 .ai-full-msg + .chat-msg-wrap.user,
 .chat-msg-wrap.user + .ai-full-msg {
     margin-top: 6px;
 }
 
-/* ── VOICE MESSAGE: simple functional ── */
 .voice-msg-wrap {
     display: flex;
     align-items: center;
@@ -4442,21 +4357,13 @@ animation: shakeField 0.4s ease;
     white-space: nowrap;
 }
 
-
-/* ════════════════════════════════════════════════
-   SA EDU FINAL PATCH — v4
-   ════════════════════════════════════════════════ */
-
-/* ── HIDE ALL DOTS / PROGRESS BAR ── */
 #tab-dots, .tab-dots, .tab-dot,
 .swipe-progress-bar { display: none !important; }
 
-/* ── ACTIVE ICON: white, no glow ── */
 .nav-btn i { color: rgba(255,255,255,0.35); transition: color 0.2s; }
 .nav-btn.active i { color: #ffffff !important; filter: none !important; text-shadow: none !important; transform: none; }
 .magic-btn.active i { color: #ffffff !important; filter: none !important; }
 
-/* ── FACEBOOK-STYLE SLIDING BAR ── */
 .nav-container { position: relative !important; padding-bottom: 0 !important; }
 .fb-tab-bar {
     position: absolute;
@@ -4469,28 +4376,21 @@ animation: shakeField 0.4s ease;
     will-change: transform, width;
 }
 
-/* ── CHAT WINDOW BACKGROUND ── */
 .chat-msgs-area {
     background: radial-gradient(ellipse 120% 60% at 50% 0%,rgba(20,30,70,.6) 0%,transparent 70%), #07070f !important;
 }
 
-/* ── SCROLL: nav hides smoothly ── */
 .top-nav { transition: transform 0.3s ease, opacity 0.3s ease !important; }
 .nav-hidden { transform: translateY(-100%) !important; opacity: 0 !important; pointer-events: none; }
 
-/* ── EXAMS SECTION: plain black ── */
 .exams-section { background: transparent !important; }
 .exams-bg-layer { display: none !important; }
 
-/* ════ RESPONSIVE ════ */
-
-/* ── MOBILE (default — already styled) ── */
 @media (max-width: 600px) {
     .portal-container { padding-left: 12px !important; padding-right: 12px !important; }
     .nav-btn { min-width: 44px; }
 }
 
-/* ── TABLET 601–1024 ── */
 @media (min-width: 601px) and (max-width: 1024px) {
     .portal-container { max-width: 720px !important; margin: 0 auto !important; padding-left: 24px !important; padding-right: 24px !important; }
     .top-nav .nav-container { max-width: 720px; }
@@ -4499,7 +4399,6 @@ animation: shakeField 0.4s ease;
     .nav-btn i { font-size: 1.4rem; }
 }
 
-/* ── DESKTOP 1025+ ── */
 @media (min-width: 1025px) {
     :root { --nav-height: 56px; }
     body { font-size: 15px; }
@@ -4507,31 +4406,24 @@ animation: shakeField 0.4s ease;
     .portal-container { max-width: 900px !important; margin: 0 auto !important; padding-left: 32px !important; padding-right: 32px !important; }
     .nav-btn { gap: 0; padding: 10px 8px; }
     .nav-btn i { font-size: 1.25rem; }
-    /* show labels on desktop */
+
     .nav-btn span { display: block !important; font-size: 0.65rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
     .nav-btn.active span { color: #fff !important; }
     .mini-card-grid { grid-template-columns: repeat(3,1fr) !important; }
-    /* exam cards row on desktop */
+
     #s-exams-list, #t-tests-list { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
-    /* chat layout on desktop */
+
     .chat-layout { display: flex !important; height: calc(100vh - var(--nav-height)); }
     .chat-sidebar { width: 300px; flex-shrink: 0; border-left: 1px solid #1a1a1a; }
     .chat-window { position: static !important; transform: none !important; flex: 1 !important; display: flex !important; flex-direction: column !important; }
-    /* swipe disabled on desktop — just show first tab */
+
 }
 
-/* ── LARGE DESKTOP 1400+ ── */
 @media (min-width: 1400px) {
     .portal-container { max-width: 1100px !important; }
     #s-exams-list, #t-tests-list { grid-template-columns: repeat(3,1fr); }
 }
 
-
-/* ════════════════════════════════════════════════
-   3D COLORED ICONS + ANALYSIS LINE + SMOOTH FB BAR
-   ════════════════════════════════════════════════ */
-
-/* ── 3D COLORED ACTION ICONS ── */
 .action-icon {
     background: rgba(255,255,255,0.04) !important;
     border: 1px solid rgba(255,255,255,0.07) !important;
@@ -4544,7 +4436,6 @@ animation: shakeField 0.4s ease;
 }
 .action-icon:active { transform: scale(0.88) translateY(2px) !important; }
 
-/* Edit — Blue */
 .action-icon.edit {
     color: #60a5fa !important;
     background: linear-gradient(145deg, rgba(59,130,246,.18), rgba(37,99,235,.1)) !important;
@@ -4554,7 +4445,6 @@ animation: shakeField 0.4s ease;
 }
 .action-icon.edit:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 8px 20px rgba(59,130,246,.4), inset 0 1px 0 rgba(255,255,255,.12) !important; }
 
-/* Share — Green */
 .action-icon.share {
     color: #34d399 !important;
     background: linear-gradient(145deg, rgba(16,185,129,.18), rgba(5,150,105,.1)) !important;
@@ -4564,7 +4454,6 @@ animation: shakeField 0.4s ease;
 }
 .action-icon.share:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 8px 20px rgba(16,185,129,.4) !important; }
 
-/* Gold — Yellow/Gold */
 .action-icon.gold {
     color: #fbbf24 !important;
     background: linear-gradient(145deg, rgba(245,158,11,.18), rgba(217,119,6,.1)) !important;
@@ -4574,7 +4463,6 @@ animation: shakeField 0.4s ease;
 }
 .action-icon.gold:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 8px 20px rgba(245,158,11,.4) !important; }
 
-/* Results — Cyan */
 .action-icon.results-icon {
     color: #22d3ee !important;
     background: linear-gradient(145deg, rgba(6,182,212,.18), rgba(8,145,178,.1)) !important;
@@ -4584,7 +4472,6 @@ animation: shakeField 0.4s ease;
 }
 .action-icon.results-icon:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 8px 20px rgba(6,182,212,.4) !important; }
 
-/* Delete — Red */
 .action-icon.delete {
     color: #f87171 !important;
     background: linear-gradient(145deg, rgba(239,68,68,.15), rgba(220,38,38,.08)) !important;
@@ -4594,7 +4481,6 @@ animation: shakeField 0.4s ease;
 }
 .action-icon.delete:hover { transform: translateY(-3px) scale(1.08); box-shadow: 0 8px 20px rgba(239,68,68,.35) !important; }
 
-/* Start/Rocket — Purple */
 .action-icon.start-icon, .icon-actions button[style*="background:var(--accent-primary)"] {
     color: #c084fc !important;
     background: linear-gradient(145deg, rgba(139,92,246,.2), rgba(109,40,217,.1)) !important;
@@ -4602,7 +4488,6 @@ animation: shakeField 0.4s ease;
     box-shadow: 0 3px 10px rgba(139,92,246,.25), inset 0 1px 0 rgba(255,255,255,.1) !important;
 }
 
-/* ── ANALYSIS TICKER LINE ── */
 .analysis-ticker {
     display: flex;
     align-items: center;
@@ -4632,16 +4517,14 @@ animation: shakeField 0.4s ease;
 }
 .ticker-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-primary); display: inline-block; }
 
-/* ── FB BAR — truly smooth, no jump ── */
 .fb-tab-bar {
-    transition: none !important; /* JS controls it during swipe, CSS transition only on tap */
+    transition: none !important; 
 }
 .fb-tab-bar.snap {
     transition: transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94),
                 width 0.3s cubic-bezier(0.25,0.46,0.45,0.94) !important;
 }
 
-/* ── INLINE DEEP LINKS IN POSTS / CHAT ── */
 .sa-link {
     color: var(--accent-primary);
     font-weight: 600;
@@ -4658,26 +4541,15 @@ animation: shakeField 0.4s ease;
 .sa-link.reese-link{ color: #6ee7b7; border-color: rgba(110,231,183,.3); }
 .sa-link.chat-link { color: #7dd3fc; border-color: rgba(125,211,252,.3); }
 
-
-/* ════════════════════════════════════════════════════════════
-   MEGA UPGRADE v7 — SIDEBAR + AI CHAT + TICKER + VISUALS
-   ════════════════════════════════════════════════════════════ */
-
-
-
-/* ── AI SCREEN MOBILE FIX ── */
 @media (max-width: 768px) {
   .ai-messages {
   }
 }
 
-
-/* ── CHAT ROOM MOBILE FIX ── */
 @media (max-width: 768px) {
   
 }
 
-/* ─── TICKER — TRUE INFINITE (both mobile & desktop) ────────── */
 .analysis-ticker {
   -webkit-mask-image: linear-gradient(to left, transparent 0, #000 8%, #000 92%, transparent 100%) !important;
   mask-image: linear-gradient(to left, transparent 0, #000 8%, #000 92%, transparent 100%) !important;
@@ -4685,7 +4557,7 @@ animation: shakeField 0.4s ease;
 .analysis-ticker-inner {
   animation: saTickerRoll 20s linear infinite !important;
 }
-/* Mobile: slower so items are readable */
+
 @media (max-width: 600px) {
   .analysis-ticker-inner { animation-duration: 14s !important; }
 }
@@ -4694,9 +4566,6 @@ animation: shakeField 0.4s ease;
   100% { transform: translateX(-50%); }
 }
 
-/* ─── AI CHAT MAJOR UPGRADE ─────────────────────────────────── */
-
-/* AI message — full-width like ChatGPT */
 .ai-full-msg {
   display: flex !important;
   gap: 14px !important;
@@ -4710,7 +4579,6 @@ animation: shakeField 0.4s ease;
   to   { opacity:1; transform:translateY(0); }
 }
 
-/* AI avatar chip */
 .ai-full-msg::before {
   content: '✦';
   min-width: 30px; height: 30px;
@@ -4726,7 +4594,6 @@ animation: shakeField 0.4s ease;
   box-shadow: 0 2px 10px rgba(217,70,239,0.25);
 }
 
-/* AI text content */
 .ai-full-content {
   flex: 1;
   font-size: 0.96rem;
@@ -4734,7 +4601,6 @@ animation: shakeField 0.4s ease;
   color: #dde4f0;
 }
 
-/* Markdown: code blocks */
 .ai-full-content pre {
   background: #0d1117;
   border: 1px solid rgba(255,255,255,0.08);
@@ -4777,7 +4643,6 @@ animation: shakeField 0.4s ease;
   margin: 14px 0;
 }
 
-/* AI action buttons — appear on hover */
 .ai-full-actions {
   display: flex;
   gap: 4px;
@@ -4799,7 +4664,6 @@ animation: shakeField 0.4s ease;
 .ai-act-btn:hover { background: rgba(255,255,255,0.06); color: #aaa; }
 .ai-act-btn.liked { color: #3b82f6 !important; }
 
-/* Thinking / loading — 3 bouncing dots */
 .ai-thinking-row {
   display: flex;
   gap: 14px;
@@ -4839,7 +4703,6 @@ animation: shakeField 0.4s ease;
   40%         { transform:translateY(-7px); background:#d946ef; }
 }
 
-/* User bubble upgrade */
 .chat-msg.user {
   background: linear-gradient(135deg,#1e40af,#2563eb) !important;
   border-radius: 18px 4px 18px 18px !important;
@@ -4855,7 +4718,6 @@ animation: shakeField 0.4s ease;
   to   { opacity:1; transform:translateX(0) scale(1); }
 }
 
-/* input glow on focus */
 .gemini-input-container:focus-within {
   border-color: rgba(59,130,246,0.45) !important;
   box-shadow: 0 0 0 3px rgba(59,130,246,0.07),
@@ -4863,7 +4725,6 @@ animation: shakeField 0.4s ease;
   transition: border-color 0.2s, box-shadow 0.2s !important;
 }
 
-/* char counter */
 .ai-char-counter {
   font-size: 0.65rem;
   color: #2a2a2a;
@@ -4875,9 +4736,6 @@ animation: shakeField 0.4s ease;
 .ai-char-counter.warn { color: #92400e; }
 .ai-char-counter.over { color: #991b1b; }
 
-/* ─── EXAM CARD UPGRADES ─────────────────────────────────────── */
-
-/* Score ring on student cards */
 .score-circle {
   min-width: 46px; height: 46px;
   border-radius: 50%;
@@ -4895,7 +4753,6 @@ animation: shakeField 0.4s ease;
 .score-circle.red   { color:#f87171; border-color:rgba(248,113,113,.35); background:rgba(248,113,113,.08); }
 .score-circle.blue  { color:#60a5fa; border-color:rgba(96,165,250,.35); background:rgba(96,165,250,.08); }
 
-/* Subject accent strip on right edge */
 .mini-card::after {
   content: '';
   position: absolute;
@@ -4916,7 +4773,6 @@ animation: shakeField 0.4s ease;
 .mini-card[data-subj="علوم"]::after       { background: #84cc16; }
 .mini-card[data-subj="حاسب آلي"]::after   { background: #6366f1; }
 
-/* card hover spring */
 .mini-card {
   transition: transform 0.22s cubic-bezier(0.34,1.4,0.64,1),
               box-shadow 0.22s ease,
@@ -4928,7 +4784,6 @@ animation: shakeField 0.4s ease;
   border-color: rgba(255,255,255,0.1) !important;
 }
 
-/* new exam badge */
 .exam-new-badge {
   background: linear-gradient(135deg,#ef4444,#dc2626);
   color: #fff;
@@ -4942,9 +4797,6 @@ animation: shakeField 0.4s ease;
 }
 @keyframes newBadgePulse { 0%,100%{opacity:1} 50%{opacity:.55} }
 
-/* ─── GENERAL POLISH ─────────────────────────────────────────── */
-
-/* Skeleton shimmer upgrade */
 .skeleton {
   background: linear-gradient(90deg,#0e0e0e 25%,#181818 50%,#0e0e0e 75%) !important;
   background-size: 200% !important;
@@ -4955,7 +4807,6 @@ animation: shakeField 0.4s ease;
   100% { background-position: -200% 0; }
 }
 
-/* create exam CTA breathing */
 .create-exam-cta {
   animation: ctaBreathe 4s ease-in-out infinite !important;
 }
@@ -4964,39 +4815,28 @@ animation: shakeField 0.4s ease;
   50%     { box-shadow: 0 8px 30px rgba(59,130,246,0.1); }
 }
 
-/* subject badge color per subject */
 .subject-badge { transition: background 0.2s; }
 
-/* Toast improved */
 .toast-wrap {
   backdrop-filter: blur(20px) !important;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
 }
 
-/* Section transition — opacity only, NO transform (transform breaks position:fixed children) */
-/* sectionIn removed intentionally */
-
-/* ── GLOBAL MOBILE SCROLL FIX ── */
 @media (max-width: 768px) {
   .modal-body, .overlay-content, .sheet-content {
     -webkit-overflow-scrolling: touch !important;
     overflow-y: auto !important;
   }
-  /* Prevent double-tap zoom */
+
   button, a, label {
     touch-action: manipulation;
   }
-  /* Fix viewport on iOS keyboard open */
+
   .app-section {
     min-height: -webkit-fill-available;
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   NEW SECTIONS — PROGRESS BOARD + LEADERBOARD + STORE
-   ════════════════════════════════════════════════════════════ */
-
-/* ─── PROGRESS BOARD (لوحة التقدم) ────────── */
 .progress-board {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -5049,7 +4889,6 @@ animation: shakeField 0.4s ease;
 }
 .progress-stat-card .stat-trend.down { color: #f87171; }
 
-/* Subject breakdown bars */
 .subject-breakdown {
   background: #0a0a0a;
   border: 1px solid rgba(255,255,255,0.06);
@@ -5096,7 +4935,6 @@ animation: shakeField 0.4s ease;
   text-align: left;
 }
 
-/* ─── LEADERBOARD (المتصدرين) ────────────────── */
 .leaderboard-list {
   display: flex;
   flex-direction: column;
@@ -5143,7 +4981,6 @@ animation: shakeField 0.4s ease;
 }
 .leaderboard-item.rank-1 .leaderboard-crown { opacity: 1; }
 
-/* ─── STORE (المتجر) ─────────────────────────── */
 .store-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -5199,7 +5036,6 @@ animation: shakeField 0.4s ease;
   border-color: rgba(52,211,153,0.2);
 }
 
-/* ─── TEACHER ANALYTICS (تحليلات المعلم) ─────── */
 .analytics-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -5249,11 +5085,6 @@ animation: shakeField 0.4s ease;
 .analytics-recent-item .item-name { color: #ddd; font-weight: 600; }
 .analytics-recent-item .item-score { color: #60a5fa; font-weight: 700; }
 
-/* ════════════════════════════════════════════════════════════
-   CHAT UPGRADE: GROUPS + AI ASSISTANT + WHATSAPP/TELEGRAM MIX
-   ════════════════════════════════════════════════════════════ */
-
-/* ─── Chat type tabs (المحادثات / الجروبات) ─── */
 .chat-type-tabs {
   display: flex;
   background: #050505;
@@ -5283,7 +5114,6 @@ animation: shakeField 0.4s ease;
 }
 .chat-type-tab:hover { color: #aaa; }
 
-/* ─── Plus menu popup ─── */
 .chat-plus-menu {
   position: fixed;
   background: #111;
@@ -5317,7 +5147,6 @@ animation: shakeField 0.4s ease;
 .chat-plus-menu button:hover { background: rgba(255,255,255,0.06); }
 .chat-plus-menu button i { width: 20px; text-align: center; }
 
-/* ─── Group item in chat list ─── */
 .group-list-item {
   display: flex;
   align-items: center;
@@ -5390,7 +5219,6 @@ animation: shakeField 0.4s ease;
   justify-content: center;
 }
 
-/* ─── Group Chat Window ─── */
 .group-header {
   padding: 12px 15px;
   background: #050505;
@@ -5415,7 +5243,6 @@ animation: shakeField 0.4s ease;
   gap: 8px;
 }
 
-/* ─── Group message with sender name (WhatsApp style) ─── */
 .group-msg-wrap {
   display: flex;
   flex-direction: column;
@@ -5462,7 +5289,6 @@ animation: shakeField 0.4s ease;
 }
 .msg-read-ticks { color: #60a5fa; }
 
-/* ─── AI assistant in group (Telegram bot style) ─── */
 .group-ai-trigger {
   background: linear-gradient(135deg, rgba(109,40,217,0.15), rgba(217,70,239,0.15));
   border: 1px solid rgba(217,70,239,0.2);
@@ -5480,7 +5306,6 @@ animation: shakeField 0.4s ease;
 }
 .group-ai-trigger:hover { opacity: 0.8; }
 
-/* ─── Create group modal ─── */
 .create-group-overlay {
   position: fixed;
   inset: 0;
@@ -5569,7 +5394,6 @@ animation: shakeField 0.4s ease;
   border-color: #3b82f6;
 }
 
-/* ─── Pinned message (Telegram style) ─── */
 .pinned-msg-bar {
   background: rgba(59,130,246,0.08);
   border-right: 3px solid #3b82f6;
@@ -5583,7 +5407,6 @@ animation: shakeField 0.4s ease;
 }
 .pinned-msg-bar span { color: #60a5fa; font-weight: 600; }
 
-/* ─── Reaction row ─── */
 .msg-reactions {
   display: flex;
   flex-wrap: wrap;
@@ -5605,7 +5428,6 @@ animation: shakeField 0.4s ease;
 .reaction-pill:hover { background: rgba(255,255,255,0.1); }
 .reaction-pill.mine { border-color: rgba(59,130,246,0.4); background: rgba(59,130,246,0.08); }
 
-/* ─── Reply preview ─── */
 .reply-preview-bar {
   background: rgba(255,255,255,0.03);
   border-right: 3px solid #60a5fa;
@@ -5620,11 +5442,6 @@ animation: shakeField 0.4s ease;
 }
 .reply-preview-bar strong { color: #60a5fa; display: block; font-size: 0.7rem; }
 
-/* ════════════════════════════════════════════════════════════
-   GROUP CHAT UI POLISH v2
-   ════════════════════════════════════════════════════════════ */
-
-/* Date separator */
 .date-sep {
   display: flex;
   align-items: center;
@@ -5647,7 +5464,6 @@ animation: shakeField 0.4s ease;
   white-space: nowrap;
 }
 
-/* AI label in group msg */
 .ai-group-label {
   font-size: 0.65rem;
   color: #c4b5fd;
@@ -5657,7 +5473,6 @@ animation: shakeField 0.4s ease;
   gap: 4px;
 }
 
-/* Reply preview inside bubble */
 .group-reply-preview {
   background: rgba(255,255,255,0.05);
   padding: 5px 8px;
@@ -5665,13 +5480,11 @@ animation: shakeField 0.4s ease;
   margin-bottom: 6px;
 }
 
-/* Image grid container */
 .group-img-grid img {
   transition: opacity 0.15s;
 }
 .group-img-grid img:hover { opacity: 0.85; }
 
-/* Group msg-wrap spacing */
 .group-msg-wrap {
   padding: 1px 12px;
 }
@@ -5680,7 +5493,6 @@ animation: shakeField 0.4s ease;
   margin-top: 6px;
 }
 
-/* Chat msgs area */
 .chat-msgs-area {
   flex: 1;
   overflow-y: auto;
@@ -5688,10 +5500,8 @@ animation: shakeField 0.4s ease;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Group header clickable */
 .group-header-info:hover .group-header-name { color: #60a5fa; }
 
-/* ── Chat sidebar improved item style ── */
 .chat-item {
   display: flex;
   align-items: center;
@@ -5705,7 +5515,6 @@ animation: shakeField 0.4s ease;
 .chat-item:hover { background: rgba(255,255,255,0.04); }
 .chat-item:active { background: rgba(255,255,255,0.07); }
 
-/* ── AI hint bar in group ── */
 .group-ai-hint {
   text-align: center;
   font-size: 0.7rem;
@@ -5721,11 +5530,6 @@ animation: shakeField 0.4s ease;
   }
 }
 
-/* ══════════════════════════════════════
-   BUG FIXES - Chat & Mobile & AI Avatar
-   ══════════════════════════════════════ */
-
-/* Fix: Chat header always shows all buttons on mobile */
 .chat-header {
     flex-wrap: nowrap;
     overflow: visible !important;
@@ -5754,10 +5558,6 @@ animation: shakeField 0.4s ease;
     }
 }
 
-/* ─── MOBILE: Group header & chat header must clear the top nav ───
-   The chat-window starts at top:0 on mobile, but the top nav is
-   position:fixed at top:0 with z-index:3000 — it overlaps the header.
-   Add padding equal to nav-height so buttons are not hidden behind the nav. */
 @media (max-width: 768px) {
     .group-header {
         padding-top: calc(var(--nav-height) + env(safe-area-inset-top, 0px) + 8px) !important;
@@ -5769,7 +5569,7 @@ animation: shakeField 0.4s ease;
         display: flex !important;
         flex-shrink: 0;
         gap: 8px;
-        margin-right: auto;  /* push to far left in RTL */
+        margin-right: auto;  
     }
     .group-header-actions .icon-btn-small {
         display: flex !important;
@@ -5778,13 +5578,13 @@ animation: shakeField 0.4s ease;
         height: 36px;
         min-width: 36px;
     }
-    /* Ensure the close/back button in group header is always visible */
+
     .group-header > button:first-child {
         display: flex !important;
         flex-shrink: 0;
         visibility: visible !important;
     }
-    /* Ensure msgs area scrolls to bottom properly */
+
     .chat-msgs-area {
         flex: 1;
         overflow-y: auto;
@@ -5797,7 +5597,6 @@ animation: shakeField 0.4s ease;
     }
 }
 
-/* Fix: AI message avatar row */
 .ai-msg-avatar-row {
     display: flex;
     align-items: center;
@@ -5821,7 +5620,6 @@ animation: shakeField 0.4s ease;
     letter-spacing: 0.03em;
 }
 
-/* Fix: Ensure AI full-msg has proper spacing */
 .ai-full-msg {
     padding: 12px 16px 4px;
     border-bottom: 1px solid rgba(255,255,255,0.03);
@@ -5830,19 +5628,14 @@ animation: shakeField 0.4s ease;
     border-bottom: none;
 }
 
-/* Fix: Scroll chat messages area properly */
 .ai-messages {
     overflow-y: auto;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 }
 
-/* ══════════════════════════════════════════════════════════
-   DESKTOP WHATSAPP WEB STYLE — FULL WIDTH CHAT INPUT
-   ══════════════════════════════════════════════════════════ */
-
 @media (min-width: 769px) {
-  /* Chat layout fills full available space */
+
   .chat-layout {
     height: calc(100vh - var(--nav-height)) !important;
     border-radius: 16px !important;
@@ -5850,7 +5643,6 @@ animation: shakeField 0.4s ease;
     border: 1px solid #1e1e1e !important;
   }
 
-  /* Sidebar fixed width */
   .chat-sidebar {
     width: 320px !important;
     min-width: 320px !important;
@@ -5858,7 +5650,6 @@ animation: shakeField 0.4s ease;
     border-left: 1px solid #1a1a1a !important;
   }
 
-  /* Chat window takes remaining space */
   .chat-window {
     flex: 1 !important;
     display: flex !important;
@@ -5869,13 +5660,11 @@ animation: shakeField 0.4s ease;
     min-width: 0 !important;
   }
 
-  /* Messages area stretches */
   .chat-msgs-area {
     flex: 1 !important;
     overflow-y: auto !important;
   }
 
-  /* Input area full width at bottom — like WhatsApp Web */
   .chat-input-area {
     position: sticky !important;
     bottom: 0 !important;
@@ -5889,7 +5678,6 @@ animation: shakeField 0.4s ease;
     padding: 12px 20px !important;
   }
 
-  /* Input field fills available space */
   .chat-input-area input {
     flex: 1 !important;
     min-width: 0 !important;
@@ -5898,7 +5686,6 @@ animation: shakeField 0.4s ease;
     padding: 12px 18px !important;
   }
 
-  /* Portal container for dardasha section */
   #t-dardasha.app-section,
   #s-dardasha.app-section {
     padding: 0 !important;
@@ -5906,11 +5693,6 @@ animation: shakeField 0.4s ease;
   }
 }
 
-/* ══════════════════════════════════════════════════════════
-   CHAT MESSAGES — TELEGRAM / WHATSAPP STYLE
-   ══════════════════════════════════════════════════════════ */
-
-/* WhatsApp-style sent bubble */
 .wapp-msg-wrap.me .wapp-msg {
   background: #005c4b !important;
   color: #e9edef !important;
@@ -5918,7 +5700,6 @@ animation: shakeField 0.4s ease;
   box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
 }
 
-/* WhatsApp-style received bubble */
 .wapp-msg-wrap.them .wapp-msg {
   background: #1e2a30 !important;
   color: #e9edef !important;
@@ -5926,7 +5707,6 @@ animation: shakeField 0.4s ease;
   box-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
 }
 
-/* Message tail for sent */
 .wapp-msg-wrap.me .wapp-msg::after {
   content: '';
   position: absolute;
@@ -5937,7 +5717,6 @@ animation: shakeField 0.4s ease;
   border-right-color: #005c4b;
 }
 
-/* Message tail for received */
 .wapp-msg-wrap.them .wapp-msg::before {
   content: '';
   position: absolute;
@@ -5967,7 +5746,6 @@ animation: shakeField 0.4s ease;
 .wapp-msg-wrap.me { align-items: flex-end; }
 .wapp-msg-wrap.them { align-items: flex-start; }
 
-/* Message time row */
 .msg-footer-row {
   display: flex;
   align-items: center;
@@ -5980,7 +5758,6 @@ animation: shakeField 0.4s ease;
   color: rgba(255,255,255,0.45);
 }
 
-/* Telegram-style voice message */
 .wapp-voice-player {
   display: flex;
   align-items: center;
@@ -5988,10 +5765,6 @@ animation: shakeField 0.4s ease;
   padding: 6px 4px;
   min-width: 180px;
 }
-
-/* ══════════════════════════════════════════════════════════
-   AI CHAT — CHATGPT / GEMINI STYLE
-   ══════════════════════════════════════════════════════════ */
 
 .ai-messages {
   padding: 12px 0 !important;
@@ -6011,7 +5784,6 @@ animation: shakeField 0.4s ease;
   }
 }
 
-/* AI message — left side, full width */
 .ai-full-msg {
   display: flex !important;
   gap: 14px !important;
@@ -6021,7 +5793,6 @@ animation: shakeField 0.4s ease;
   border-bottom: 1px solid rgba(255,255,255,0.03) !important;
 }
 
-/* User message — right side bubble */
 .chat-msg-wrap.user {
   display: flex !important;
   justify-content: flex-end !important;
@@ -6039,9 +5810,6 @@ animation: shakeField 0.4s ease;
   word-wrap: break-word !important;
 }
 
-/* ══════════════════════════════════════════════════════════
-   HIDE GROUPS-RELATED ELEMENTS
-   ══════════════════════════════════════════════════════════ */
 .chat-type-tabs,
 .group-list-item,
 .group-avatar,
@@ -6052,9 +5820,6 @@ animation: shakeField 0.4s ease;
   display: none !important;
 }
 
-/* ══════════════════════════════════════════════════════════
-   VOICE RECORDING INDICATOR IN AI
-   ══════════════════════════════════════════════════════════ */
 .gemini-mic-btn.recording {
   background: rgba(239,68,68,0.25) !important;
   color: #ef4444 !important;
@@ -6075,7 +5840,6 @@ animation: shakeField 0.4s ease;
   100% { transform: scale(1.8); opacity: 0; }
 }
 
-/* Voice recording status bar in AI */
 .ai-voice-status {
   display: flex;
   align-items: center;
@@ -6099,11 +5863,6 @@ animation: shakeField 0.4s ease;
   animation: waveAnim 0.8s ease-in-out infinite alternate;
 }
 
-/* ══════════════════════════════════════════════════════════
-   TELEGRAM-STYLE GROUPS SYSTEM — FULL
-   ══════════════════════════════════════════════════════════ */
-
-/* ── Tabs (المحادثات / الجروبات) ── */
 .tg-tabs {
   display: flex;
   background: #080808;
@@ -6130,7 +5889,6 @@ animation: shakeField 0.4s ease;
 .tg-tab.active { color: #2AABEE; border-bottom-color: #2AABEE; }
 .tg-tab:hover:not(.active) { color: #888; }
 
-/* ── Group list item ── */
 .tg-group-item {
   display: flex;
   align-items: center;
@@ -6199,7 +5957,6 @@ animation: shakeField 0.4s ease;
 }
 .tg-unread-badge.muted { background: #333; color: #777; }
 
-/* ── Group Window Header ── */
 .tg-group-header {
   display: flex;
   align-items: center;
@@ -6233,7 +5990,6 @@ animation: shakeField 0.4s ease;
 }
 .tg-header-actions { display: flex; gap: 8px; }
 
-/* ── Messages area ── */
 .tg-msgs-area {
   flex: 1;
   overflow-y: auto;
@@ -6247,7 +6003,6 @@ animation: shakeField 0.4s ease;
   gap: 1px;
 }
 
-/* ── Message bubbles ── */
 .tg-msg-wrap {
   display: flex;
   flex-direction: column;
@@ -6309,7 +6064,6 @@ animation: shakeField 0.4s ease;
 .tg-bubble-time { font-size: 0.6rem; color: rgba(255,255,255,0.4); }
 .tg-read-check { font-size: 0.7rem; color: #2AABEE; }
 
-/* Reply preview inside bubble */
 .tg-reply-preview {
   background: rgba(255,255,255,0.06);
   border-right: 3px solid #2AABEE;
@@ -6321,7 +6075,6 @@ animation: shakeField 0.4s ease;
 .tg-reply-preview .rp-sender { color: #2AABEE; font-weight: 700; margin-bottom: 2px; }
 .tg-reply-preview .rp-text { color: #888; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 200px; }
 
-/* Image grid */
 .tg-img-grid { display: grid; gap: 2px; border-radius: 12px; overflow: hidden; max-width: 240px; cursor: pointer; }
 .tg-img-grid.g1 { grid-template-columns: 1fr; }
 .tg-img-grid.g2 { grid-template-columns: 1fr 1fr; }
@@ -6331,7 +6084,6 @@ animation: shakeField 0.4s ease;
 .tg-img-grid img { width: 100%; height: 110px; object-fit: cover; }
 .tg-img-grid.g1 img { height: auto; max-height: 280px; border-radius: 12px; }
 
-/* Voice message */
 .tg-voice-bubble {
   display: flex;
   align-items: center;
@@ -6356,7 +6108,6 @@ animation: shakeField 0.4s ease;
 .tg-voice-wave span { display: block; width: 3px; background: rgba(42,171,238,0.5); border-radius: 2px; }
 .tg-voice-dur { font-size: 0.72rem; color: rgba(255,255,255,0.5); white-space: nowrap; }
 
-/* Reactions */
 .tg-reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; padding: 0 2px; }
 .tg-reaction-pill {
   background: rgba(255,255,255,0.06);
@@ -6372,7 +6123,6 @@ animation: shakeField 0.4s ease;
 .tg-reaction-pill:hover { background: rgba(255,255,255,0.1); }
 .tg-reaction-pill.mine { border-color: rgba(42,171,238,0.5); background: rgba(42,171,238,0.1); }
 
-/* Date separator */
 .tg-date-sep {
   display: flex; align-items: center; gap: 10px;
   padding: 10px 0 4px;
@@ -6386,13 +6136,11 @@ animation: shakeField 0.4s ease;
   border: 1px solid #1f1f1f; white-space: nowrap; color: #555;
 }
 
-/* AI label */
 .tg-ai-label {
   font-size: 0.65rem; color: #7c3aed; font-weight: 700;
   display: flex; align-items: center; gap: 4px; margin-bottom: 4px;
 }
 
-/* Input bar */
 .tg-input-area {
   display: flex;
   align-items: flex-end;
@@ -6444,7 +6192,6 @@ animation: shakeField 0.4s ease;
 .tg-send-btn.mic-mode { background: rgba(255,255,255,0.08); color: #888; box-shadow: none; }
 .tg-send-btn.mic-mode.recording { background: rgba(239,68,68,0.2); color: #ef4444; animation: micPulse 1s infinite; }
 
-/* Reply bar above input */
 .tg-reply-bar {
   background: rgba(42,171,238,0.07);
   border-top: 1px solid rgba(42,171,238,0.15);
@@ -6459,7 +6206,6 @@ animation: shakeField 0.4s ease;
 .tg-reply-bar .rb-sender { color: #2AABEE; font-weight: 700; font-size: 0.7rem; }
 .tg-reply-bar button { background: none; border: none; color: #555; cursor: pointer; font-size: 1rem; }
 
-/* Context menu */
 .tg-ctx-menu {
   position: fixed;
   background: #111;
@@ -6490,7 +6236,6 @@ animation: shakeField 0.4s ease;
 .tg-ctx-item i { width: 16px; text-align: center; font-size: 0.95rem; }
 .tg-ctx-item.danger { color: #f87171; }
 
-/* Typing indicator */
 .tg-typing {
   display: flex; align-items: center; gap: 10px;
   padding: 8px 12px;
@@ -6514,7 +6259,6 @@ animation: shakeField 0.4s ease;
   40%         { transform:translateY(-7px); background:#2AABEE; }
 }
 
-/* Group info panel (Telegram style slide-in) */
 .tg-info-panel {
   position: fixed;
   top: 0; right: 0; bottom: 0;
@@ -6597,7 +6341,6 @@ animation: shakeField 0.4s ease;
 }
 .tg-member-row:hover .tg-member-remove-btn { display: flex; }
 
-/* Create group modal */
 .tg-create-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.88);
   z-index: 9000; display: flex; align-items: flex-end; justify-content: center;
@@ -6684,7 +6427,6 @@ animation: shakeField 0.4s ease;
   display: flex; gap: 10px;
 }
 
-/* Pinned message bar */
 .tg-pinned-bar {
   background: rgba(42,171,238,0.07);
   border-bottom: 1px solid rgba(42,171,238,0.12);
@@ -6696,7 +6438,6 @@ animation: shakeField 0.4s ease;
 .tg-pinned-bar .pb-text { flex: 1; font-size: 0.78rem; color: #aaa; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .tg-pinned-bar span { color: #2AABEE; font-weight: 700; font-size: 0.72rem; }
 
-/* Pending join request badge */
 .tg-pending-badge {
   background: #f59e0b; color: #000;
   font-size: 0.62rem; font-weight: 800;
@@ -6705,7 +6446,6 @@ animation: shakeField 0.4s ease;
   padding: 0 5px;
 }
 
-/* AI button in group input */
 .tg-ai-btn {
   width: 30px; height: 30px; border-radius: 50%;
   background: linear-gradient(135deg,#6d28d9,#d946ef);
@@ -6715,7 +6455,6 @@ animation: shakeField 0.4s ease;
 }
 .tg-ai-btn:hover { transform: scale(1.1); }
 
-/* Image viewer overlay */
 .tg-img-viewer {
   position: fixed; inset: 0; background: rgba(0,0,0,0.96);
   z-index: 99999; display: flex; align-items: center; justify-content: center;
@@ -6730,11 +6469,6 @@ animation: shakeField 0.4s ease;
   align-items: center; justify-content: center;
 }
 
-/* ═══════════════════════════════════════════════════════
-   MISSING STYLES — CRITICAL FIX
-   ═══════════════════════════════════════════════════════ */
-
-/* Context Menu for Chat Messages */
 .msg-ctx-menu {
   position: fixed;
   z-index: 9500;
@@ -6761,7 +6495,6 @@ animation: shakeField 0.4s ease;
 .ctx-item.danger { color: #ef4444; }
 .ctx-item.danger:hover { background: rgba(239,68,68,0.1); }
 
-/* Deep Link Loader */
 #deeplink-loader {
   position: fixed;
   inset: 0;
@@ -6785,7 +6518,6 @@ animation: shakeField 0.4s ease;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Voice Recording Bar */
 .voice-recording-bar {
   display: flex;
   align-items: center;
@@ -6818,13 +6550,11 @@ animation: shakeField 0.4s ease;
   50% { transform: scaleY(1.8); }
 }
 
-/* Microphone Pulse Animation */
 @keyframes micPulse {
   0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
   50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
 }
 
-/* WhatsApp-style Chat Messages */
 .wapp-msg-wrap {
   display: flex;
   margin-bottom: 4px;
@@ -6868,7 +6598,6 @@ animation: shakeField 0.4s ease;
   color: rgba(255,255,255,0.45);
 }
 
-/* WhatsApp Image Grid */
 .wapp-img-grid {
   display: grid;
   gap: 3px;
@@ -6881,7 +6610,6 @@ animation: shakeField 0.4s ease;
 .wapp-img-grid.grid-three { grid-template-columns: 1fr 1fr; }
 .wapp-img-grid.grid-four { grid-template-columns: 1fr 1fr; }
 
-/* Voice Player in Chat */
 .wapp-voice-player {
   display: flex;
   align-items: center;
@@ -6921,7 +6649,6 @@ animation: shakeField 0.4s ease;
   flex-shrink: 0;
 }
 
-/* Chat Date Separator */
 .chat-date-separator {
   text-align: center;
   padding: 10px 0;
@@ -6936,7 +6663,6 @@ animation: shakeField 0.4s ease;
   border-radius: 6px;
 }
 
-/* AI Chat: Thinking Dots */
 .ai-thinking-row {
   display: flex;
   align-items: center;
@@ -6964,7 +6690,6 @@ animation: shakeField 0.4s ease;
   40% { opacity: 1; transform: scale(1.2); }
 }
 
-/* AI Full-width Message (ChatGPT style) */
 .ai-full-msg {
   padding: 16px 0;
 }
@@ -7032,7 +6757,6 @@ animation: shakeField 0.4s ease;
 .ai-act-btn:hover { background: rgba(255,255,255,0.06); color: #aaa; }
 .ai-act-btn.like-btn.liked { color: var(--accent-primary); border-color: var(--accent-primary); }
 
-/* AI Welcome Screen v2 Chips */
 .ai-welcome-chips-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -7062,7 +6786,6 @@ animation: shakeField 0.4s ease;
   transform: translateY(-2px);
 }
 
-/* AI Gemini Avatar */
 .ai-avatar-gemini {
   width: 60px;
   height: 60px;
@@ -7086,7 +6809,6 @@ animation: shakeField 0.4s ease;
   color: #d946ef;
 }
 
-/* Character Counter */
 .ai-char-counter {
   font-size: 0.65rem;
   color: #555;
@@ -7097,7 +6819,6 @@ animation: shakeField 0.4s ease;
 .ai-char-counter.warn { color: #f59e0b; }
 .ai-char-counter.over { color: #ef4444; }
 
-/* Chat Plus Menu */
 .chat-plus-menu, .tg-ctx-menu {
   position: fixed;
   z-index: 9000;
@@ -7110,7 +6831,6 @@ animation: shakeField 0.4s ease;
   animation: fadeIn 0.15s ease;
 }
 
-/* SA Link Styles */
 .sa-link {
   color: var(--accent-primary);
   cursor: pointer;
@@ -7123,11 +6843,6 @@ animation: shakeField 0.4s ease;
 .sa-link.reese-link { color: #10b981; }
 .sa-link.chat-link { color: #60a5fa; }
 
-/* ═══════════════════════════════════════════════════════
-   PHASE 2: MODERN GROUPS & BOTTOM SHEETS UI
-   ═══════════════════════════════════════════════════════ */
-
-/* Reusable Overlay Background for Bottom Sheets */
 .tg-create-overlay, .tg-add-members-overlay {
   position: fixed; inset: 0;
   z-index: 9999;
@@ -7140,7 +6855,6 @@ animation: shakeField 0.4s ease;
   animation: fadeIn 0.25s ease;
 }
 
-/* Bottom Sheet Container */
 .tg-create-sheet, .tg-add-members-sheet {
   background: rgba(20, 20, 20, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -7158,7 +6872,6 @@ animation: shakeField 0.4s ease;
   100% { transform: translateY(0); }
 }
 
-/* Headers */
 .tg-create-header, .tg-add-members-header {
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 20px;
@@ -7169,12 +6882,10 @@ animation: shakeField 0.4s ease;
   margin: 0; font-size: 1.15rem; font-weight: 700; color: #fff;
 }
 
-/* Scrollable Bodies */
 .tg-create-body, .tg-add-members-body {
   flex: 1; overflow-y: auto; padding: 20px;
 }
 
-/* Group Photo & Name Row */
 .tg-create-photo-row {
   display: flex; align-items: center; gap: 15px; padding: 20px;
   background: linear-gradient(to bottom, rgba(255,255,255,0.02), transparent);
@@ -7207,7 +6918,6 @@ animation: shakeField 0.4s ease;
 .tg-create-name-input:focus { border-bottom-color: var(--accent-primary); outline: none; }
 .tg-create-name-input::placeholder { color: rgba(255,255,255,0.3); }
 
-/* Labels & Form Elements */
 .tg-create-label {
   font-size: 0.85rem; font-weight: 700; color: #aaa;
   margin-bottom: 10px; margin-top: 15px;
@@ -7220,20 +6930,9 @@ animation: shakeField 0.4s ease;
 }
 .tg-create-desc-input:focus { border-color: var(--accent-primary); outline: none; }
 
-/* Emoji Selector */
 .tg-emoji-row {
   display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px;
-  /* Hide scrollbar */ scrollbar-width: none;
-}
-.tg-emoji-row::-webkit-scrollbar { display: none; }
-.tg-emoji-opt {
-  font-size: 1.6rem; padding: 8px; background: rgba(255,255,255,0.05);
-  border-radius: 12px; cursor: pointer; transition: 0.2s;
-  flex-shrink: 0; border: 2px solid transparent;
-}
-.tg-emoji-opt.active { background: rgba(59,130,246,0.15); border-color: var(--accent-primary); transform: scale(1.1); }
 
-/* User Selection List (Add Members) */
 .tg-user-select-list {
   display: flex; flex-direction: column; gap: 8px;
 }
@@ -7264,23 +6963,18 @@ animation: shakeField 0.4s ease;
 }
 .tg-user-select-item.selected .tg-user-select-check i { opacity: 1 !important; color: #fff !important; }
 
-/* Desktop overrides for bottom sheets */
 @media (min-width: 768px) {
   .tg-create-sheet, .tg-add-members-sheet {
     border-radius: 16px; margin-bottom: 5vh; border-bottom: 1px solid rgba(255,255,255,0.1);
   }
 }
 
-/* ═══════════════════════════════════════════════════════
-   GROUP INFO PANEL (MISSING STYLES FIX)
-   ═══════════════════════════════════════════════════════ */
-
 .tg-info-panel {
   position: fixed; inset: 0;
   z-index: 8000;
   background: var(--bg-surface);
   display: flex; flex-direction: column;
-  transform: translateX(100%); /* Slide from right */
+  transform: translateX(100%); 
   transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
   overflow: hidden;
 }
@@ -7293,7 +6987,6 @@ animation: shakeField 0.4s ease;
   }
 }
 
-/* Cover Section */
 .tg-info-cover {
   height: 220px;
   background: linear-gradient(135deg, #1d4ed8, #7c3aed);
@@ -7313,7 +7006,6 @@ animation: shakeField 0.4s ease;
   text-shadow: 0 5px 20px rgba(0,0,0,0.5);
 }
 
-/* Body Section */
 .tg-info-body {
   flex: 1; overflow-y: auto;
   background: var(--bg-surface);
@@ -7323,7 +7015,6 @@ animation: shakeField 0.4s ease;
   margin-top: -20px;
 }
 
-/* Group Details */
 .tg-info-name {
   font-size: 1.5rem; font-weight: 800; color: #fff;
   margin-bottom: 8px;
@@ -7333,7 +7024,6 @@ animation: shakeField 0.4s ease;
   line-height: 1.5; margin-bottom: 20px;
 }
 
-/* Stats (Members / AI) */
 .tg-info-stats {
   display: flex; gap: 12px; margin-bottom: 24px;
 }
@@ -7351,7 +7041,6 @@ animation: shakeField 0.4s ease;
   font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px;
 }
 
-/* Members List */
 .tg-info-section-title {
   font-size: 0.9rem; font-weight: 700; color: var(--accent-primary);
   text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; margin-top: 20px;
@@ -7378,9 +7067,6 @@ animation: shakeField 0.4s ease;
   background: transparent; border: none; color: #ef4444; opacity: 0.7;
   cursor: pointer; padding: 8px; transition: 0.2s; border-radius: 50%;
 }
-/* ═══════════════════════════════════════════════════════
-   SA AI CHAT INTERFACE (GLASSMORPHISM & GLOW)
-   ═══════════════════════════════════════════════════════ */
 
 .ai-layout {
   display: flex; flex-direction: column; height: 100vh;
@@ -7418,16 +7104,15 @@ animation: shakeField 0.4s ease;
   scroll-behavior: smooth;
 }
 
-/* Glassmorphic Gemini Input Wrapper */
 .gemini-input-wrapper {
   position: absolute; bottom: 0; left: 0; right: 0;
-  padding: 15px 20px 25px; /* Extra bottom padding for safe area */
+  padding: 15px 20px 25px; 
   background: linear-gradient(to top, rgba(15,15,15,0.95) 40%, rgba(15,15,15,0) 100%);
-  pointer-events: none; /* Let clicks pass through background */
+  pointer-events: none; 
 }
 
 .gemini-input-container {
-  pointer-events: auto; /* Re-enable clicks for input */
+  pointer-events: auto; 
   display: flex; align-items: flex-end; gap: 10px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -7524,10 +7209,6 @@ animation: shakeField 0.4s ease;
 .ai-char-counter.warn { color: #fbbf24; border-color: rgba(251,191,36,0.5); }
 .ai-char-counter.over { color: #ef4444; border-color: rgba(239,68,68,0.5); }
 
-/* ════════════════════════════════════════════════════════════ */
-/* NEW FULL-PAGE GROUP CREATION UI */
-/* ════════════════════════════════════════════════════════════ */
-
 .tg-create-full-page {
   position: fixed; inset: 0; z-index: 99999;
   background: var(--bg-main, #0f0f13);
@@ -7559,12 +7240,12 @@ animation: shakeField 0.4s ease;
   flex: 1; overflow-y: auto; padding: 20px;
 }
 
-.tg-create-page-body::-webkit-scrollbar { width: 0px; } /* hide scrollbar for clean look */
+.tg-create-page-body::-webkit-scrollbar { width: 0px; } 
 
 .tg-create-fab-btn {
   position: absolute;
-  bottom: 80px; /* above the bottom nav */
-  left: 20px;   /* placed on the left for Arabic interface (RTL) or typical alignment */
+  bottom: 80px; 
+  left: 20px;   
   background: linear-gradient(135deg, var(--accent-primary, #3b82f6), #8b5cf6);
   color: #fff;
   border: none;
@@ -7582,12 +7263,8 @@ animation: shakeField 0.4s ease;
 .tg-create-fab-btn:active { transform: scale(0.95); }
 .tg-create-fab-btn i { font-size: 1.1rem; }
 
-/* ════════════════════════════════════════════════════════════ */
-/* MOBILE LAYOUT SPACING FIXES */
-/* ════════════════════════════════════════════════════════════ */
-
 @media (max-width: 768px) {
-  /* Remove excessive empty spacing at top/bottom of sections */
+
   .app-section {
     padding-bottom: 0px !important;
     margin-bottom: 0px !important;
@@ -7603,18 +7280,15 @@ animation: shakeField 0.4s ease;
     margin-bottom: 0px !important;
   }
 
-  /* Make the layout fit screen exactly on mobile without scrolling past content */
   .chat-layout, .chat-sidebar, .chat-window {
     height: 100% !important;
     max-height: 100% !important;
     margin-bottom: 0 !important;
   }
 
-  /* Reduce the spacer if it pushes content too far down */
   .mobile-spacer {
     height: 55px !important;
     margin: 0 !important;
   }
 }
-
 
