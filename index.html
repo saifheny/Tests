@@ -185,12 +185,10 @@
                         <i class="fas fa-eraser" id="t-eraser-icon" style="color:#aaa;"></i>
                     </button>
                 </div>
-                <div class="reese-input-trigger" onclick="openReeseCompose()">
-                    <div class="reese-avatar-mini" id="reese-trigger-avatar-t"></div>
-                    <div class="reese-placeholder">ماذا يدور في ذهنك اليوم؟</div>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <i class="fas fa-paper-plane" style="color:var(--accent-primary); font-size:1rem;"></i>
-                    </div>
+                <div style="padding: 0 15px; margin-bottom: 20px;">
+                    <button class="shiny-back-btn" style="width: 100%; border-radius: 20px; padding: 15px; font-size: 1.1rem; display: flex; justify-content: center; gap: 10px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.2);" onclick="switchTab('t-library')">
+                        <i class="fas fa-arrow-right"></i> رجوع
+                    </button>
                 </div>
                 <div id="reese-feed-container-t" class="feed-container"></div>
             </section>
@@ -215,6 +213,7 @@
                         <div class="tg-tabs" id="t-tg-tabs">
                             <button class="tg-tab active" id="t-tab-chats" onclick="switchChatTab('t','chats',this)"><i class="fas fa-comment-dots"></i> المحادثات</button>
                             <button class="tg-tab" id="t-tab-groups" onclick="switchChatTab('t','groups',this)"><i class="fas fa-users"></i> الجروبات</button>
+                            <div class="tg-tab-indicator"></div>
                         </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
@@ -449,12 +448,10 @@
                         <i class="fas fa-eraser" id="s-eraser-icon" style="color:#aaa;"></i>
                     </button>
                 </div>
-                <div class="reese-input-trigger" onclick="openReeseCompose()">
-                    <div class="reese-avatar-mini" id="reese-trigger-avatar-s"></div>
-                    <div class="reese-placeholder">شارك أفكارك مع الجميع...</div>
-                    <div style="display:flex; gap:6px; align-items:center;">
-                        <i class="fas fa-paper-plane" style="color:var(--accent-primary); font-size:1rem;"></i>
-                    </div>
+                <div style="padding: 0 15px; margin-bottom: 20px;">
+                    <button class="shiny-back-btn" style="width: 100%; border-radius: 20px; padding: 15px; font-size: 1.1rem; display: flex; justify-content: center; gap: 10px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); box-shadow: 0 0 15px rgba(59, 130, 246, 0.3), inset 0 0 10px rgba(59, 130, 246, 0.2);" onclick="switchTab('s-exams')">
+                        <i class="fas fa-arrow-right"></i> رجوع
+                    </button>
                 </div>
                 <div id="reese-feed-container-s" class="feed-container"></div>
             </section>
@@ -479,6 +476,7 @@
                         <div class="tg-tabs" id="s-tg-tabs">
                             <button class="tg-tab active" id="s-tab-chats" onclick="switchChatTab('s','chats',this)"><i class="fas fa-comment-dots"></i> المحادثات</button>
                             <button class="tg-tab" id="s-tab-groups" onclick="switchChatTab('s','groups',this)"><i class="fas fa-users"></i> الجروبات</button>
+                            <div class="tg-tab-indicator"></div>
                         </div>
                         <div class="chat-search-bar">
                             <i class="fas fa-search"></i>
