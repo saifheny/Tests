@@ -1115,6 +1115,104 @@ function initDardasha() {
     });
 }
 
+// ════ CHAT TAB SWITCHING (Chats ↔ Groups) ════
+window._currentChatTab = 'chats';
+
+window.switchChatTab = (prefix, tab, btn) => {
+    playSound('click');
+    window._currentChatTab = tab;
+    const chatTabBtn = document.getElementById(`${prefix}-tab-chats`);
+    const groupTabBtn = document.getElementById(`${prefix}-tab-groups`);
+    
+    // Update active states
+    if (chatTabBtn) chatTabBtn.classList.toggle('active', tab === 'chats');
+    if (groupTabBtn) groupTabBtn.classList.toggle('active', tab === 'groups');
+    
+    const list = document.getElementById(`${prefix}-chat-list`);
+    if (!list) return;
+    
+    if (tab === 'groups') {
+        loadGroupsList(prefix);
+    } else {
+        initDardasha_real(prefix);
+    }
+};
+
+window.showChatPlusMenu = (prefix) => {
+    playSound('click');
+    const existing = document.querySelector('.chat-plus-menu');
+    if (existing) { existing.remove(); return; }
+    
+    const menu = document.createElement('div');
+    menu.className = 'chat-plus-menu';
+    menu.innerHTML = `
+        <div class="chat-plus-item" onclick="this.closest('.chat-plus-menu').remove(); toggleUserSearchModal()">
+            <i class="fas fa-comment-dots" style="color:#60a5fa;"></i> محادثة جديدة
+        </div>
+        <div class="chat-plus-item" onclick="this.closest('.chat-plus-menu').remove(); openCreateGroupSheet('${prefix}')">
+            <i class="fas fa-users" style="color:#a78bfa;"></i> إنشاء جروب
+        </div>
+    `;
+    document.body.appendChild(menu);
+    setTimeout(() => {
+        document.addEventListener('click', function h(e) {
+            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', h); }
+        });
+    }, 100);
+};
+
+window.filterChatList = (prefix, query) => {
+    const list = document.getElementById(`${prefix}-chat-list`);
+    if (!list) return;
+    const q = query.toLowerCase();
+    const items = list.querySelectorAll('.chat-item, .group-list-item');
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(q) ? '' : 'none';
+    });
+};
+
+// ════ CHAT SETTINGS DROPDOWN ════
+window.showChatSettingsMenu = (chatId, uid, name, prefix) => {
+    playSound('click');
+    const existing = document.querySelector('.chat-settings-dropdown');
+    if (existing) { existing.remove(); return; }
+    
+    const menu = document.createElement('div');
+    menu.className = 'chat-settings-dropdown';
+    menu.innerHTML = `
+        <div class="settings-item" onclick="this.closest('.chat-settings-dropdown').remove(); copyProfileLinkFor('${uid}')">
+            <i class="ph-bold ph-link" style="color:#60a5fa;"></i> نسخ الرابط
+        </div>
+        <div class="settings-item" onclick="this.closest('.chat-settings-dropdown').remove(); blockUser('${uid}','${name}')">
+            <i class="ph-bold ph-prohibit" style="color:#ef4444;"></i> حظر المستخدم
+        </div>
+        <div class="settings-item" onclick="this.closest('.chat-settings-dropdown').remove(); clearChat('${chatId}','${uid}')">
+            <i class="ph-bold ph-trash" style="color:#f59e0b;"></i> مسح المحادثة
+        </div>
+    `;
+    document.body.appendChild(menu);
+    setTimeout(() => {
+        document.addEventListener('click', function h(e) {
+            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', h); }
+        });
+    }, 100);
+};
+
+window.blockUser = (uid, name) => {
+    saConfirm(`هل تريد حظر ${name}؟`, async () => {
+        await set(ref(db, `blocked/${myUid}/${uid}`), true);
+        saAlert(`تم حظر ${name}`, 'success');
+    });
+};
+
+window.clearChat = (chatId, uid) => {
+    saConfirm('هل تريد مسح جميع الرسائل؟', async () => {
+        await remove(ref(db, `chats/${chatId}`));
+        saAlert('تم مسح المحادثة', 'success');
+    });
+};
+
 window.openMyProfileModal = () => {
     playSound('click');
     document.getElementById('profile-info-modal').classList.remove('hidden');
@@ -1215,20 +1313,19 @@ window.openChatRoom = (chatId, name, icon, uid) => {
 
     if (window.innerWidth < 768) {
         document.getElementById(`${prefix}-chat-sidebar`).classList.add('hidden');
+        document.querySelector('.top-nav').classList.add('nav-hidden');
     }
     win.classList.remove('hidden');
 
     win.innerHTML = `
         <div class="chat-header">
-            <button class="icon-btn-small" onclick="closeChatWindow('${prefix}')"><i class="ph-bold ph-arrow-right"></i></button>
+            <button class="shiny-back-btn" style="position:relative;width:38px;height:38px;top:auto;right:auto;z-index:1;" onclick="closeChatWindow('${prefix}')"><i class="ph-bold ph-arrow-right"></i></button>
             <div class="avatar-frame mini-frame" style="width:38px;height:38px;font-size:1.1rem;border-width:1px;"><i class="fas ${icon}"></i></div>
-            <div>
-                <div style="font-weight:700;font-size:0.95rem;">${name}</div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:0.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${name}</div>
                 <div id="chat-online-${chatId}" style="font-size:0.7rem;color:#25d366;">متصل</div>
             </div>
-            <div style="margin-right:auto;display:flex;gap:10px;">
-                <button class="icon-btn-small" onclick="copyProfileLinkFor('${uid}')" title="نسخ رابط"><i class="ph-bold ph-link"></i></button>
-            </div>
+            <button class="icon-btn-small" onclick="showChatSettingsMenu('${chatId}','${uid}','${name.replace(/'/g,"\\'")}','${prefix}')" title="الإعدادات" style="background:rgba(255,255,255,0.06);"><i class="fas fa-cog"></i></button>
         </div>
         <div class="chat-msgs-area" id="chat-msgs-${chatId}"></div>
         <div class="chat-input-area" id="chat-input-area-${chatId}">
@@ -1504,6 +1601,7 @@ window.closeChatWindow = (prefix) => {
     if (win) { win.classList.add('hidden'); win.innerHTML = ''; }
     const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
     if (sidebar) sidebar.classList.remove('hidden');
+    document.querySelector('.top-nav').classList.remove('nav-hidden');
     activeChatRoomId = null;
     _activeChatMsgKeys = {};
 };
@@ -1606,8 +1704,9 @@ window.openReeseCompose = () => {
     reeseImages = []; renderReeseMediaPreview();
     
     const container = document.getElementById('ai-reese-suggestions');
-    container.innerHTML = '';
-    container.classList.add('hidden');
+    container.innerHTML = '<div class="suggestion-chip" style="opacity:0.5; pointer-events:none;"><i class="fas fa-circle-notch fa-spin"></i> جاري توليد أفكار...</div>';
+    container.classList.remove('hidden');
+    loadReeseAiSuggestionsAuto();
 };
 
 let _lastReeseSuggestions = [];
@@ -2841,7 +2940,7 @@ window.sendAiMsg = async (prefix) => {
                 return saAlert("عذراً، هذه الميزة للمعلمين فقط.", "error");
             }
             toggleAiGenerator();
-            const topic = txt.replace("أنشئ اختبار", "").replace("عن", "").replace("create exam", "").replace("about", "").trim();
+            const topic = txt.replace("أنشئ اختبار", "").replace("about", "").trim();
             if(topic) document.getElementById('ai-gen-text').value = topic;
             return; 
         }
@@ -2900,72 +2999,21 @@ window.sendAiMsg = async (prefix) => {
         const correctedTxt = correctArabicSpelling(txt);
 
         // ── DEEP USER PROFILE ──
-        const userName = currentUser || 'الطالب';
+        const userName = currentUser || 'مجهول';
         const userRole = selectedRole === 'student' ? 'طالب' : 'معلم';
-        let gradesContext = '';
-        let deepProfile = '';
+        let deepProfile = `الاسم: ${userName}. الدور: ${userRole}.`;
+        
         try {
             if (selectedRole === 'student') {
-                const [stuSnap, testsSnap, resultsSnap] = await Promise.all([
-                    get(ref(db, 'users/students/' + currentUser)),
-                    get(ref(db, 'tests')),
-                    get(ref(db, 'results')),
-                ]);
+                const stuSnap = await get(ref(db, 'users/students/' + currentUser));
                 const stuData = stuSnap.val() || {};
-                const tests   = testsSnap.val()  || {};
-                const allRes  = resultsSnap.val() || {};
-                let totalS=0, totalM=0, examCount=0;
-                const examLines=[], subjectMap={};
-                for (const [tid, td] of Object.entries(tests)) {
-                    const r = allRes[tid]?.[currentUser];
-                    if (r) {
-                        examCount++;
-                        totalS += r.score||0; totalM += r.total||0;
-                        examLines.push('  • '+td.title+' ('+(td.subject||'—')+'): '+r.percentage+'% ('+r.score+'/'+r.total+')');
-                        const subj = td.subject||'أخرى';
-                        if (!subjectMap[subj]) subjectMap[subj]=[];
-                        subjectMap[subj].push(r.percentage);
-                    }
-                }
-                const avg = totalM>0 ? Math.round(totalS/totalM*100) : null;
-                const lvl = avg===null?'لم يؤدِ اختبارات':avg>=90?'ممتاز':avg>=75?'جيد جداً':avg>=60?'جيد':avg>=50?'مقبول':'يحتاج دعم';
-                const subjLines = Object.entries(subjectMap).map(([s,arr])=>'  • '+s+': متوسط '+Math.round(arr.reduce((a,b)=>a+b,0)/arr.length)+'%');
-                deepProfile = [
-                    '=== ملف الطالب ===',
-                    'الاسم: '+userName,
-                    'الصف: '+(stuData.grade||'—'),
-                    'المدرسة: '+(stuData.school||'—'),
-                    'عدد الاختبارات: '+examCount,
-                    avg!==null?'المتوسط: '+avg+'% — '+lvl:'',
-                    examLines.length?'الاختبارات:\n'+examLines.join('\n'):'',
-                    subjLines.length?'الأداء بالمادة:\n'+subjLines.join('\n'):'',
-                    '==================',
-                ].filter(Boolean).join('\n');
-                gradesContext = deepProfile;
-            } else {
-                const [testsSnap, resultsSnap] = await Promise.all([
-                    get(ref(db, 'tests')),
-                    get(ref(db, 'results')),
-                ]);
-                const tests  = testsSnap.val()  || {};
-                const allRes = resultsSnap.val() || {};
-                const myExams = Object.entries(tests).filter(([,e])=>e.teacher===currentUser);
-                let totalStud=0;
-                myExams.forEach(([tid])=>{ totalStud+=Object.keys(allRes[tid]||{}).length; });
-                deepProfile = [
-                    '=== ملف المعلم ===',
-                    'الاسم: '+userName,
-                    'عدد اختباراته: '+myExams.length,
-                    'إجمالي الطلاب: '+totalStud,
-                    myExams.map(([,e])=>'  • '+e.title+' ('+(e.subject||'—')+')').join('\n'),
-                    '==================',
-                ].filter(Boolean).join('\n');
-                gradesContext = deepProfile;
+                deepProfile += ` الصف: ${stuData.grade || 'غير محدد'}. المدرسة: ${stuData.school || 'غير محدد'}.`;
             }
-        } catch(e2) {
-            deepProfile = 'الاسم: '+userName+'. الدور: '+userRole+'.';
-            gradesContext = deepProfile;
-        }
+        } catch(e) {}
+        
+        // Strict instruction: AI should not know about tests
+        deepProfile += `\nملاحظة هامة: أنت لا تعرف أي شيء عن اختبارات المنصة أو درجات الطالب. أجب فقط كصديق ومساعد عام.`;
+        const gradesContext = deepProfile;
         const userContext = deepProfile;
 
         // Check repeated question cache
@@ -4730,10 +4778,75 @@ window.cancelReply = (groupId) => {
 };
 
 window.closeGroupRoom = (prefix) => {
+    playSound('click');
     const win = document.getElementById(`${prefix}-chat-window`);
     if (win) { win.classList.add('hidden'); win.innerHTML = ''; }
     const sidebar = document.getElementById(`${prefix}-chat-sidebar`);
     if (sidebar) sidebar.classList.remove('hidden');
+    document.querySelector('.top-nav').classList.remove('nav-hidden');
+    if (window._activeGroupListener) {
+        window._activeGroupListener();
+        window._activeGroupListener = null;
+    }
+    window._activeGroupId = null;
+};
+
+window.showGroupMoreMenu = (groupId, prefix, isAdmin) => {
+    playSound('click');
+    const existing = document.querySelector('.chat-settings-dropdown');
+    if (existing) { existing.remove(); return; }
+    
+    const menu = document.createElement('div');
+    menu.className = 'chat-settings-dropdown';
+    menu.innerHTML = `
+        <div class="settings-item" onclick="this.closest('.chat-settings-dropdown').remove(); showGroupInfo('${groupId}','${prefix}')">
+            <i class="ph-bold ph-info" style="color:#60a5fa;"></i> معلومات الجروب
+        </div>
+        ${isAdmin ? `
+        <div class="settings-item" onclick="this.closest('.chat-settings-dropdown').remove(); toggleGroupAI('${groupId}')">
+            <i class="ph-bold ph-robot" style="color:#a78bfa;"></i> الذكاء الاصطناعي
+        </div>
+        <div class="settings-item" onclick="this.closest('.chat-settings-dropdown').remove(); deleteGroup('${groupId}','${prefix}')">
+            <i class="ph-bold ph-trash" style="color:#ef4444;"></i> حذف الجروب
+        </div>
+        ` : `
+        <div class="settings-item" onclick="this.closest('.chat-settings-dropdown').remove(); leaveGroup('${groupId}','${prefix}')">
+            <i class="ph-bold ph-sign-out" style="color:#f59e0b;"></i> مغادرة الجروب
+        </div>
+        `}
+    `;
+    document.body.appendChild(menu);
+    setTimeout(() => {
+        document.addEventListener('click', function h(e) {
+            if (!menu.contains(e.target)) { menu.remove(); document.removeEventListener('click', h); }
+        });
+    }, 100);
+};
+
+window.deleteGroup = (groupId, prefix) => {
+    saConfirm('هل أنت متأكد من حذف الجروب نهائياً؟', async () => {
+        await remove(ref(db, `groups/${groupId}`));
+        await remove(ref(db, `group_messages/${groupId}`));
+        // Typically would need a Cloud Function to clean up user_groups references
+        // We'll clean up for the current admin here
+        await remove(ref(db, `user_groups/${myUid}/${groupId}`));
+        saAlert('تم حذف الجروب', 'success');
+        closeGroupRoom(prefix);
+    });
+};
+
+window.leaveGroup = async (groupId, prefix) => {
+    saConfirm('هل تريد مغادرة الجروب؟', async () => {
+        await remove(ref(db, `groups/${groupId}/members/${myUid}`));
+        await remove(ref(db, `user_groups/${myUid}/${groupId}`));
+        
+        await push(ref(db, `group_messages/${groupId}`), {
+            text: `غادر ${currentUser} الجروب`, senderUid: 'system', senderName: 'النظام', time: Date.now(), type: 'system'
+        });
+        
+        saAlert('تمت المغادرة', 'success');
+        closeGroupRoom(prefix);
+    });
 };
 
 window.showGroupInfo = async (groupId, prefix) => {
