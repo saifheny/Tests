@@ -8269,3 +8269,109 @@ html { scroll-behavior: smooth; }
     }
 }
 
+/* ════ NEW CHAT & GROUP FIXES ════ */
+.chat-plus-menu, .chat-settings-dropdown {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    border-radius: 16px;
+    padding: 8px;
+    z-index: 9999;
+    min-width: 180px;
+    animation: menuFadeIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes menuFadeIn {
+    from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.chat-plus-item, .settings-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.chat-plus-item:hover, .settings-item:hover {
+    background: rgba(255,255,255,0.08);
+    transform: translateX(-5px);
+}
+.chat-plus-item i, .settings-item i { font-size: 1.1rem; width: 20px; text-align: center; }
+
+/* Fixed TG Tabs Indicator */
+.tg-tabs {
+    display: flex;
+    background: #050505;
+    padding: 4px;
+    position: relative;
+}
+.tg-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #888;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+    border-radius: 12px;
+}
+.tg-tab.active {
+    color: #fff;
+    background: rgba(59, 130, 246, 0.1);
+}
+.tg-tab::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 60%;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: linear-gradient(90deg, #3b82f6, #d946ef);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tg-tab.active::after {
+    transform: translateX(-50%) scaleX(1);
+}
+
+/* Fix AI empty space and message layout */
+.ai-full-msg {
+    align-self: flex-start;
+    background: rgba(30, 30, 30, 0.6);
+    border-left: 2px solid #d946ef;
+    padding: 15px;
+    border-radius: 12px 12px 12px 0;
+    margin-bottom: 10px;
+    width: 90%;
+}
+.chat-msg-wrap.user {
+    align-self: flex-end;
+    margin-bottom: 10px;
+}
+.chat-msg.user {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border-radius: 16px 16px 0 16px;
+    padding: 10px 15px;
+}
+.gemini-input-wrapper { margin-top: auto; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); }
+.ai-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    border-top: 1px dashed rgba(255,255,255,0.1);
+    padding-top: 10px;
+}
+
