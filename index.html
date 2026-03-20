@@ -225,8 +225,6 @@
                 </div>
             </section>
 
-
-            <!-- ═══ TEACHER DASHBOARD ═══ -->
             <section id="t-dashboard" class="app-section hidden">
                 <div class="mobile-spacer"></div>
                 <div class="section-header-row">
@@ -370,8 +368,7 @@
                     </div>
                 </div>
             </section>
-        
-            
+
         </div>
     </div>
 
@@ -535,8 +532,6 @@
                 </div>
             </section>
 
-
-            <!-- ═══ SECTION: جدول المذاكرة ═══ -->
             <section id="s-schedule" class="app-section hidden">
                 <div class="mobile-spacer"></div>
                 <div class="section-header-row">
@@ -572,7 +567,6 @@
                 </div>
             </section>
 
-            <!-- ═══ SECTION: الواجبات ═══ -->
             <section id="s-tasks" class="app-section hidden">
                 <div class="mobile-spacer"></div>
                 <div class="section-header-row">
@@ -597,7 +591,6 @@
                 </div>
             </section>
 
-            <!-- ═══ SECTION: إشعاراتي ═══ -->
             <section id="s-notifs" class="app-section hidden">
                 <div class="mobile-spacer"></div>
                 <div class="section-header-row">
@@ -872,7 +865,6 @@
     <div id="tab-dots" class="tab-dots hidden"></div>
     <div class="swipe-progress-bar" id="swipe-progress-bar"></div>
 
-    <!-- ============ DIRECT VOICE CALL OVERLAY ============ -->
     <div id="direct-call-overlay">
         <div class="call-avatar-ring" id="call-overlay-avatar">
             <i class="fas fa-user-graduate"></i>
@@ -898,7 +890,6 @@
         </div>
     </div>
 
-    <!-- ============ INCOMING CALL TOAST ============ -->
     <div class="call-toast" id="call-toast-banner">
         <div class="call-toast-avatar" id="call-toast-avatar"><i class="fas fa-user"></i></div>
         <div class="call-toast-info">
@@ -911,19 +902,15 @@
         </div>
     </div>
 
-    <!-- Remote audio for direct calls -->
     <audio id="direct-call-remote-audio" autoplay></audio>
-    <!-- ============ END DIRECT VOICE CALL ============ -->
 
     <script>
     /* startVoiceInput, toggleAiSendMic, sendAiMsg are all defined in script.js module on window */
     /* Enter key is handled via onkeydown attributes on the inputs */
     </script>
 
-    <!-- ============ VOICE ROOMS SYSTEM ============ -->
     <div id="voice-audio-container" style="display:none;"></div>
 
-    <!-- Voice Rooms List Panel -->
     <div class="vr-panel-backdrop" onclick="closeVoiceRooms()"></div>
     <div id="voice-rooms-panel" class="vr-panel">
         <div class="vr-panel-handle"></div>
@@ -949,7 +936,6 @@
         </div>
     </div>
 
-    <!-- Audio Permission Gate -->
     <div id="voice-audio-gate" class="vr-gate">
         <div class="vr-gate-card">
             <button class="vr-gate-close" onclick="closeVoiceGate()"><i class="ph-bold ph-x"></i></button>
@@ -966,7 +952,6 @@
         </div>
     </div>
 
-    <!-- Active Voice Room Full Screen -->
     <div id="voice-room-screen" class="vr-room-screen">
         <div class="vr-room-bg"></div>
 
@@ -983,7 +968,6 @@
 
         <div id="voice-users-grid" class="vr-users-grid"></div>
 
-        <!-- Filters popup -->
         <div id="vr-filter-menu" class="vr-filter-menu">
             <div class="vr-filter-opt active" onclick="voiceApplyFilter('none', this)"><i class="ph-bold ph-wave-sawtooth"></i><span>عادي</span></div>
             <div class="vr-filter-opt" onclick="voiceApplyFilter('deep', this)"><i class="ph-bold ph-equalizer"></i><span>عميق</span></div>
@@ -991,7 +975,6 @@
             <div class="vr-filter-opt" onclick="voiceApplyFilter('robot', this)"><i class="ph-bold ph-robot"></i><span>روبوت</span></div>
         </div>
 
-        <!-- Dock -->
         <div class="vr-dock-wrap">
             <div class="vr-dock">
                 <button id="vr-mic-btn" class="vr-dock-btn active" onclick="voiceToggleMic()" title="كتم/تشغيل">
@@ -1006,7 +989,6 @@
             </div>
         </div>
     </div>
-    <!-- ============ END VOICE ROOMS ============ -->
 
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script type="module" src="script.js"></script>
