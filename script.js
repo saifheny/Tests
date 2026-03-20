@@ -1556,37 +1556,7 @@ window.sendChatMessage = async (chatId, otherUid) => {
     }
 };
 
-window.sendChatImage = async (input, chatId, otherUid) => {
-    if(input.files && input.files[0]) {
-        const today = new Date().toDateString();
-        const usageKey = `img_usage_${myUid}_${today}`;
-        let count = parseInt(localStorage.getItem(usageKey) || '0');
-        
-        if(count >= 5) {
-            saAlert("عفواً، لقد تجاوزت الحد الأقصى لإرسال الصور اليوم (5 صور).", "error");
-            input.value = '';
-            return;
-        }
-        
-        const b64 = await getBase64(input.files[0]);
-        playSound('sent');
-        
-        await push(ref(db, `chats/${chatId}`), {
-            sender: myUid,
-            text: b64,
-            type: 'image',
-            timestamp: Date.now()
-        });
-        
-        count++;
-        localStorage.setItem(usageKey, count);
-        
-        await update(ref(db, `user_chats/${myUid}/${chatId}`), { lastMsg: '📷 صورة', lastMsgTime: Date.now() });
-        await update(ref(db, `user_chats/${otherUid}/${chatId}`), { lastMsg: '📷 صورة', lastMsgTime: Date.now() });
-        
-        input.value = '';
-    }
-};
+
 
 window.copyProfileLinkFor = async (otherUid) => {
     playSound('click');
@@ -2388,7 +2358,15 @@ window.shareTest = async (title, id) => {
         navigator.clipboard.writeText(`${shareText}\n${url}`).then(() => saAlert("تم نسخ رابط الاختبار!", "success"));
     }
 };
-function getGradeLabel(c) { return ({'1p':'1 ابتدائي','3s':'3 ثانوي'})[c] || c; }
+function getGradeLabel(c) {
+    const grades = {
+        '1p':'1 ابتدائي','2p':'2 ابتدائي','3p':'3 ابتدائي','4p':'4 ابتدائي','5p':'5 ابتدائي','6p':'6 ابتدائي',
+        '1m':'1 إعدادي','2m':'2 إعدادي','3m':'3 إعدادي',
+        '1s':'1 ثانوي','2s':'2 ثانوي','3s':'3 ثانوي',
+        'uni':'جامعي','custom':'مخصص'
+    };
+    return grades[c] || c;
+}
 
 window.loadTestResults = (testId) => {
     if(!testId || testId.includes('اختر')) return;
